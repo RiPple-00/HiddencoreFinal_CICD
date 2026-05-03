@@ -1,1 +1,62 @@
-#spring application.name=ddasum
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  application:
+    name: ddasum
+  datasource:
+    # 로컬 MySQL 비밀번호가 다르면 환경 변수로 지정: MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_URL
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/ddasum?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    username: root
+    password: 12345
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      # 로컬: 엔티티와 테이블 스키마 동기화 (meal_plan에 calorie/protein 등 반영)
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:25}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    # localhost 스펙을 외부 validator.swagger.io 가 검증하지 못해 빨간 오류 배지가 뜨는 것을 막음
+    validator-url: ""
+    display-request-duration: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+server:
+  # 기본 API 포트는 8080 사용 (필요 시 SERVER_PORT 로 덮어쓰기)
+  port: ${SERVER_PORT:8080}
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+
+# JWT: 운영에서는 JWT_SECRET 환경변수로 32바이트 이상(권장 64자+) 설정
+app:
+  jwt:
+    secret: ${JWT_SECRET:ddasum-dev-secret-change-me-please-use-64chars-minimum-00000000000001}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  mail:
+    # true면 SMTP 대신 로그만 출력 (로컬 개발)
+    log-only: ${APP_MAIL_LOG_ONLY:true}

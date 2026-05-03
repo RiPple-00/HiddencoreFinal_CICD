@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 커스텀 유틸리티 클래스 */
+@layer components {
+  /* 카드 스타일 */
+  .card {
+    @apply bg-white rounded-2xl shadow-sm p-8 border border-orange-100;
+  }
+
+  /* 입력 필드 스타일 */
+  .input {
+    @apply w-full px-4 py-3 border-2 border-orange-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition bg-orange-50;
+  }
+
+  /* 버튼 스타일 */
+  .btn {
+    @apply px-6 py-3 rounded-full font-medium transition duration-200 shadow-md;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-emerald-400 to-teal-500 text-white hover:from-emerald-500 hover:to-teal-600;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-full font-medium transition duration-200 bg-orange-100 text-orange-700 hover:bg-orange-200;
+  }
+}
