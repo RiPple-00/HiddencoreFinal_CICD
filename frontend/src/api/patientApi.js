@@ -9,6 +9,10 @@ const patientApi = {
     return api.get(`/patients/${patientId}`);
   },
 
+  getPatientExtras: (patientId) => {
+    return api.get(`/patients/${patientId}/extras`);
+  },
+
   createPatient: (patientData) => {
     const body = { ...patientData };
     if (body.gender === "" || body.gender == null) {

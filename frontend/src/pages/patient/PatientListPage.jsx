@@ -8,7 +8,7 @@ import VisitorsPanel from "../../components/bedroom/VisitorsPanel";
 import MealCarePage from "../MealCarePage";
 import PatientCreateModal from "../../components/patient/PatientCreateModal";
 import bedRoomApi from "../../api/bedRoomApi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import patientApi from "../../api/patientApi";
 import { getRoomSummary, getAllBeds } from '../../api/LocationApi';
 import { useAuth } from '../../contexts/AutoContext.jsx';
@@ -18,6 +18,7 @@ export default function PatientListPage() {
 
   const [keyword, setKeyword] = useState(""); //검색 할떄 쓰는거
   const navigate = useNavigate();
+  const location = useLocation();
   const [statusFilter, setStatusFilter] = useState(""); //그 상태 필터
   const [quickFilter, setQuickFilter] = useState(""); // 미배정만 쓸때
 
@@ -27,13 +28,27 @@ export default function PatientListPage() {
 
   const { user } = useAuth();
   const token = user?.accessToken ?? user?.token;
-  const jwtPayload = token ? JSON.parse(atob(token.split('.')[1])) : {};
-  const facilityId = jwtPayload.facilityId ?? null;
+  let facilityId = null;
+  if (token && typeof token === "string") {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      facilityId = payload?.facilityId ?? null;
+    } catch {
+      facilityId = null;
+    }
+  }
 
   useEffect(() => {
     fetchPatients(); // 환자 목록 불러오기
     if (facilityId) fetchBedsForCreateModal();// 병상 배정 방식에서 사용할 병상 데이터 불러오기
   }, [facilityId]);
+
+  useEffect(() => {
+    if (location.state?.openPatientCreate) {
+      setIsCreateModalOpen(true);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, location.pathname, navigate]);
 
   const fetchPatients = async () => {
     try {

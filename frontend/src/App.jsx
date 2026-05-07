@@ -1,4 +1,4 @@
-import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import HomePage from './pages/HomePage';
 import StaffLoginPage from './pages/StaffLoginPage';
@@ -17,7 +17,7 @@ import MealTypePage from './pages/MealTypePage';
 import MealUploadPage from './pages/MealUploadPage';
 import BedRoomPage from './pages/BedRoomPage';
 import PatientListPage from './pages/patient/PatientListPage';
-import PatientDetailPage from './pages/patient/PatientDetailPage';
+import AdminPatientDetailPage from './pages/admin/AdminPatientDetailPage';
 import WardPage from './pages/WardPage';
 import DoctorMainPage from './pages/DoctorMainPage';
 import DoctorPatientListPage from './pages/DoctorPatientListPage';
@@ -29,16 +29,25 @@ import { useAuth } from './contexts/AutoContext.jsx';
 
 
 
+const LOGIN_PATHS = new Set(['/', '/login', '/signup', '/staff-login', '/email-consent']);
+
+function isLoginPath(pathname) {
+  return LOGIN_PATHS.has(pathname);
+}
+
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  const token = user?.accessToken ?? user?.token;
-  const jwtPayload = token ? JSON.parse(atob(token.split('.')[1])) : {};
-  const facilityId = jwtPayload.facilityId ?? null;
+  useEffect(() => {
+    if (loading) return;
+    if (!isAuthenticated && !isLoginPath(location.pathname)) {
+      navigate('/login', { replace: true });
+    }
+  }, [loading, isAuthenticated, location.pathname, navigate]);
 
   useEffect(() => {
     const onDocClick = (e) => {
@@ -104,7 +113,8 @@ function App() {
           <Route path="/facilities/:facilityId/board/:postId" element={<BoardDetailPage />} />
           <Route path="/bedroompage/:room" element={<BedRoomPage />} />
           <Route path="/patients" element={<PatientListPage />} />
-          <Route path="/patients/:patientId" element={<PatientDetailPage />} />
+          <Route path="/patients/:patientId" element={<AdminPatientDetailPage />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
   );
 }

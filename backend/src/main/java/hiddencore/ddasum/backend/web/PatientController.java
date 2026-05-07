@@ -2,8 +2,10 @@ package hiddencore.ddasum.backend.web;
 
 import hiddencore.ddasum.backend.service.BedRoomService;
 import hiddencore.ddasum.backend.service.PatientService;
+import hiddencore.ddasum.backend.service.PatientExtrasService;
 import hiddencore.ddasum.backend.web.dto.PatientAssignSearchResponseDto;
 import hiddencore.ddasum.backend.web.dto.PatientDto;
+import hiddencore.ddasum.backend.web.dto.patient.PatientExtrasDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,6 +25,7 @@ public class PatientController {
 
     private final PatientService patientService;
     private final BedRoomService bedRoomService;
+    private final PatientExtrasService patientExtrasService;
 
     @Operation(summary = "환자 전체 목록", description = "시설 소속 환자 목록을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
@@ -47,6 +50,12 @@ public class PatientController {
     public ResponseEntity<PatientDto.DetailResponse> getPatient(
             @Parameter(description = "환자 ID", example = "260401001") @PathVariable Long patientId) {
         return ResponseEntity.ok(patientService.getPatient(patientId));
+    }
+
+    @Operation(summary = "환자 부가 정보(보호자/면회/수납)", description = "환자 ID로 보호자 연결, 면회 신청 문서, 결제/수납 문서(최근 5건)를 조회합니다.")
+    @GetMapping("/{patientId}/extras")
+    public ResponseEntity<PatientExtrasDto.Response> getPatientExtras(@PathVariable Long patientId) {
+        return ResponseEntity.ok(patientExtrasService.getExtras(patientId));
     }
 
     @Operation(summary = "환자 등록", description = "신규 환자를 등록합니다.")
