@@ -43,6 +43,10 @@ public class Document {
     @JoinColumn(name = "facility_id", nullable = false)
     private Facility facilityId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post postId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type", nullable = false, length = 50)
     private DocumentType type;
@@ -107,7 +111,8 @@ public class Document {
         PAYMENT, // 결제/수납 문서
         VISIT_REQUEST, // 면회 신청
         CERTIFICATE, // 증명서
-        GALLERYCARD, //프로그램 게시물 카드
+        GALLERYCARD, // 프로그램 게시물 카드
+        PROGRAM_APPLICATION, // 프로그램 신청
         ETC
     }
 

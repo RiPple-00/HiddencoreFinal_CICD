@@ -1,6 +1,13 @@
 import React, { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import api from "../../api";
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import api, { saveAccessToken } from "../../api";
 
 export default function GuardianLoginPage({ navigation }) {
   const [mode, setMode] = useState("guardian");
@@ -18,11 +25,20 @@ export default function GuardianLoginPage({ navigation }) {
           Alert.alert("안내", "아이디와 비밀번호를 입력해 주세요.");
           return;
         }
-        await api.post("/api/auth/guardian/login", { loginId, password });
+        const response = await api.post("/api/auth/guardian/login", {
+          loginId,
+          password,
+        });
+
+        await saveAccessToken(response.data.accessToken);
+
         navigation.replace("GuardianMain");
       } else {
         if (!facilityCode || !employeeLoginId || !password) {
-          Alert.alert("안내", "시설코드, 직원 ID, 비밀번호를 모두 입력해 주세요.");
+          Alert.alert(
+            "안내",
+            "시설코드, 직원 ID, 비밀번호를 모두 입력해 주세요.",
+          );
           return;
         }
         await api.post("/api/auth/employee/login", {
@@ -46,18 +62,34 @@ export default function GuardianLoginPage({ navigation }) {
 
       <View style={styles.modeRow}>
         <TouchableOpacity
-          style={[styles.modeButton, mode === "guardian" && styles.modeButtonActive]}
+          style={[
+            styles.modeButton,
+            mode === "guardian" && styles.modeButtonActive,
+          ]}
           onPress={() => setMode("guardian")}
         >
-          <Text style={[styles.modeButtonText, mode === "guardian" && styles.modeButtonTextActive]}>
+          <Text
+            style={[
+              styles.modeButtonText,
+              mode === "guardian" && styles.modeButtonTextActive,
+            ]}
+          >
             보호자
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.modeButton, mode === "caregiver" && styles.modeButtonActive]}
+          style={[
+            styles.modeButton,
+            mode === "caregiver" && styles.modeButtonActive,
+          ]}
           onPress={() => setMode("caregiver")}
         >
-          <Text style={[styles.modeButtonText, mode === "caregiver" && styles.modeButtonTextActive]}>
+          <Text
+            style={[
+              styles.modeButtonText,
+              mode === "caregiver" && styles.modeButtonTextActive,
+            ]}
+          >
             요양사
           </Text>
         </TouchableOpacity>
@@ -107,8 +139,14 @@ export default function GuardianLoginPage({ navigation }) {
           />
         </>
       )}
-      <TouchableOpacity style={styles.button} onPress={onSubmit} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? "로그인 중..." : "로그인"}</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={onSubmit}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "로그인 중..." : "로그인"}
+        </Text>
       </TouchableOpacity>
     </View>
   );

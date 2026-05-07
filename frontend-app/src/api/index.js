@@ -1,7 +1,9 @@
 import axios from "axios";
 import Constants from "expo-constants";
 import { NativeModules, Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const ACCESS_TOKEN_KEY = "accessToken";
 /**
  * Metro/Expo가 8081일 수 있어 Spring API 기본 포트는 8080(application.yml server.port)에 맞춥니다.
  * 맞지 않으면 루트에 .env 에 EXPO_PUBLIC_API_BASE_URL=http://PC_IP:포트
@@ -81,5 +83,29 @@ if (__DEV__) {
   // eslint-disable-next-line no-console
   console.log("[api] baseURL =", baseURL);
 }
+
+
+export async function saveAccessToken(token) {
+  if (!token) return;
+  await AsyncStorage.setItem(ACCESS_TOKEN_KEY, token);
+}
+
+export async function getAccessToken() {
+  return AsyncStorage.getItem(ACCESS_TOKEN_KEY);
+}
+
+export async function clearAccessToken() {
+  await AsyncStorage.removeItem(ACCESS_TOKEN_KEY);
+}
+
+api.interceptors.request.use(async (config) => {
+  const token = await getAccessToken();
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
 
 export default api;
