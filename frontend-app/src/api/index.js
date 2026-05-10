@@ -1,6 +1,14 @@
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import { NativeModules, Platform } from "react-native";
+
+export const ACCESS_TOKEN_KEY = "accessToken";
+
+export async function persistAccessToken(token) {
+  if (token) await AsyncStorage.setItem(ACCESS_TOKEN_KEY, token);
+  else await AsyncStorage.removeItem(ACCESS_TOKEN_KEY);
+}
 
 /**
  * Metro/Expo가 8081일 수 있어 Spring API 기본 포트는 8080(application.yml server.port)에 맞춥니다.
@@ -75,6 +83,18 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+api.interceptors.request.use(async (config) => {
+  try {
+    const token = await AsyncStorage.getItem(ACCESS_TOKEN_KEY);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch {
+    /* ignore */
+  }
+  return config;
 });
 
 if (__DEV__) {

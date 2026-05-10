@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface GuardianPatientRepository extends JpaRepository<GuardianPatient, Long> {
 
+    List<GuardianPatient> findByGuardianUserId_UserId(Long guardianUserId);
+
     /** 주 보호자(isPrimary) 우선 */
     List<GuardianPatient> findByPatientId_PatientIdOrderByIsPrimaryDesc(Long patientId);
 

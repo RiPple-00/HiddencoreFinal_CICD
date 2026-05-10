@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import api from "../../api";
+import api, { persistAccessToken } from "../../api";
 
 export default function GuardianLoginPage({ navigation }) {
   const [mode, setMode] = useState("guardian");
@@ -18,18 +18,20 @@ export default function GuardianLoginPage({ navigation }) {
           Alert.alert("안내", "아이디와 비밀번호를 입력해 주세요.");
           return;
         }
-        await api.post("/api/auth/guardian/login", { loginId, password });
+        const g = await api.post("/api/auth/guardian/login", { loginId, password });
+        await persistAccessToken(g.data.accessToken);
         navigation.replace("GuardianMain");
       } else {
         if (!facilityCode || !employeeLoginId || !password) {
           Alert.alert("안내", "시설코드, 직원 ID, 비밀번호를 모두 입력해 주세요.");
           return;
         }
-        await api.post("/api/auth/employee/login", {
+        const e = await api.post("/api/auth/employee/login", {
           facilityCode: facilityCode.trim(),
           employeeLoginId: employeeLoginId.trim(),
           password,
         });
+        await persistAccessToken(e.data.accessToken);
         navigation.replace("CaregiverMain");
       }
     } catch (e) {

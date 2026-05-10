@@ -1,15 +1,43 @@
-import React, { useState } from "react";
-import { SafeAreaView, View, Text, ScrollView, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, SafeAreaView, View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { fetchCaregiverPatients } from "../../api/careChecklistApi";
 import { styles } from "../../styles/caregiverMain.styles";
 
 export default function CaregiverMainPage({ navigation }) {
-  const mockPatients = [
-    "김태진 (68세) / 502호",
-    "이성우 (88세) / 305호",
-    "박미정 (74세) / 411호",
-  ];
-  const [selectedPatient, setSelectedPatient] = useState(mockPatients[0]);
+  const [patients, setPatients] = useState([]);
+  const [selectedPatientId, setSelectedPatientId] = useState(null);
+  const [loadingPatients, setLoadingPatients] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetchCaregiverPatients();
+        if (!mounted) return;
+        const list = res.data ?? [];
+        setPatients(list);
+        setSelectedPatientId((prev) => prev ?? (list[0]?.patientId ?? null));
+      } catch (e) {
+        Alert.alert(
+          "환자 목록",
+          e?.response?.data?.message ?? "환자를 불러오지 못했습니다. 요양사로 로그인했는지 확인해 주세요."
+        );
+      } finally {
+        if (mounted) setLoadingPatients(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const selectedPatient = patients.find((p) => p.patientId === selectedPatientId);
+  const selectedLine = selectedPatient
+    ? `${selectedPatient.name} (${selectedPatient.age ?? "?"}세) / ${selectedPatient.room ?? "-"}호`
+    : loadingPatients
+      ? "불러오는 중…"
+      : "등록된 환자 없음";
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -29,28 +57,34 @@ export default function CaregiverMainPage({ navigation }) {
           <View style={styles.section}>
             <TouchableOpacity
               style={styles.patientSelect}
-              onPress={() => setPickerOpen((prev) => !prev)}
+              onPress={() => !loadingPatients && patients.length > 0 && setPickerOpen((prev) => !prev)}
               activeOpacity={0.8}
             >
-              <Text style={styles.patientSelectText}>{selectedPatient} ▾</Text>
+              {loadingPatients ? (
+                <ActivityIndicator color="#0B4EA2" />
+              ) : (
+                <Text style={styles.patientSelectText}>{selectedLine} ▾</Text>
+              )}
             </TouchableOpacity>
 
-            {pickerOpen && (
+            {pickerOpen && patients.length > 0 ? (
               <View style={styles.patientPickerList}>
-                {mockPatients.map((patient) => (
+                {patients.map((patient) => (
                   <TouchableOpacity
-                    key={patient}
+                    key={patient.patientId}
                     style={styles.patientPickerItem}
                     onPress={() => {
-                      setSelectedPatient(patient);
+                      setSelectedPatientId(patient.patientId);
                       setPickerOpen(false);
                     }}
                   >
-                    <Text style={styles.patientPickerItemText}>{patient}</Text>
+                    <Text style={styles.patientPickerItemText}>
+                      {patient.name} ({patient.age ?? "?"}세) / {patient.room ?? "-"}호
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
-            )}
+            ) : null}
           </View>
 
           <View style={styles.section}>
@@ -89,7 +123,16 @@ export default function CaregiverMainPage({ navigation }) {
 
           <View style={styles.section}>
             <View style={styles.quickWrap}>
-              <TouchableOpacity style={styles.quickCard} onPress={() => navigation.navigate("CaregiverWorkCheck")}>
+              <TouchableOpacity
+                style={styles.quickCard}
+                onPress={() => {
+                  if (selectedPatientId == null) {
+                    Alert.alert("안내", "먼저 담당 환자를 선택해 주세요.");
+                    return;
+                  }
+                  navigation.navigate("CaregiverWorkCheck", { patientId: selectedPatientId });
+                }}
+              >
                 <Text style={styles.iconText}>📋</Text>
                 <Text style={styles.quickLabel}>업무 체크</Text>
               </TouchableOpacity>

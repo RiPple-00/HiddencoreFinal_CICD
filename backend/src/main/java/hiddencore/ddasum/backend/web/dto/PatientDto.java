@@ -28,6 +28,9 @@ public class PatientDto {
         private Long locationId;
         private Patient.PatientStatus patientStatus;
 
+        private Long primaryCaregiverUserId;
+        private String primaryCaregiverName;
+
         public static ListResponse from(Patient patient) {
             return ListResponse.builder()
                     .patientId(patient.getPatientId())
@@ -35,16 +38,18 @@ public class PatientDto {
                     .gender(patient.getGender())
                     .age(calculateAge(patient.getBirthDate()))
                     .birthDate(patient.getBirthDate())
-                    .building(
-                            patient.getLocationId() != null
-                                    ? patient.getLocationId().getBuilding()
-                                    : null)
-                    .room(
-                            patient.getLocationId() != null
-                                    ? patient.getLocationId().getRoom()
-                                    : null)
+                    .building(patient.getLocationId() != null ? patient.getLocationId().getBuilding() : null)
+                    .room(patient.getLocationId() != null ? patient.getLocationId().getRoom() : null)
                     .patientStatus(patient.getStatus())
                     .locationId(patient.getLocationId() != null ? patient.getLocationId().getLocationId() : null)
+                    .primaryCaregiverUserId(
+                            patient.getPrimaryCaregiver() != null
+                                    ? patient.getPrimaryCaregiver().getUserId()
+                                    : null)
+                    .primaryCaregiverName(
+                            patient.getPrimaryCaregiver() != null
+                                    ? patient.getPrimaryCaregiver().getName()
+                                    : null)
                     .build();
         }
 
@@ -76,6 +81,9 @@ public class PatientDto {
         private String room;
         private Patient.PatientStatus patientStatus;
 
+        private Long primaryCaregiverUserId;
+        private String primaryCaregiverName;
+
         public static DetailResponse from(Patient patient) {
             return DetailResponse.builder()
                     .patientId(patient.getPatientId())
@@ -92,6 +100,14 @@ public class PatientDto {
                     .building(patient.getLocationId() != null ? patient.getLocationId().getBuilding() : null)
                     .room(patient.getLocationId() != null ? patient.getLocationId().getRoom() : null)
                     .patientStatus(patient.getStatus())
+                    .primaryCaregiverUserId(
+                            patient.getPrimaryCaregiver() != null
+                                    ? patient.getPrimaryCaregiver().getUserId()
+                                    : null)
+                    .primaryCaregiverName(
+                            patient.getPrimaryCaregiver() != null
+                                    ? patient.getPrimaryCaregiver().getName()
+                                    : null)
                     .build();
         }
 
@@ -109,8 +125,10 @@ public class PatientDto {
     @AllArgsConstructor
     public static class CreateRequest {
         private String name;
+
         @JsonDeserialize(using = GenderJsonDeserializer.class)
         private Patient.Gender gender;
+
         private LocalDate birthDate;
         private String address;
         private LocalDate admissionDate;
@@ -119,7 +137,9 @@ public class PatientDto {
         private String room;
         private Integer bed;
         private String memo;
-        private Long locationId; // 병실 배정 안할 때 null로 보내기
+        private Long locationId;
+
+        private Long primaryCaregiverUserId;
     }
 
     @Data
@@ -128,8 +148,10 @@ public class PatientDto {
     @AllArgsConstructor
     public static class UpdateRequest {
         private String name;
+
         @JsonDeserialize(using = GenderJsonDeserializer.class)
         private Patient.Gender gender;
+
         private LocalDate birthDate;
         private LocalDate admissionDate;
         private LocalDate dischargeDate;
@@ -141,6 +163,8 @@ public class PatientDto {
         private String memo;
         private Patient.PatientStatus patientStatus;
         private Long facilityId;
+
+        private Long primaryCaregiverUserId;
     }
 
 }

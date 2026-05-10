@@ -14,6 +14,8 @@ import hiddencore.ddasum.backend.domain.Facility;
 import hiddencore.ddasum.backend.domain.Location;
 import hiddencore.ddasum.backend.domain.Location.RoomGenderType;
 import hiddencore.ddasum.backend.domain.Location.RoomType;
+import hiddencore.ddasum.backend.domain.GuardianPatient;
+import hiddencore.ddasum.backend.domain.Patient;
 import hiddencore.ddasum.backend.domain.Post;
 import hiddencore.ddasum.backend.domain.Post.PostStatus;
 import hiddencore.ddasum.backend.domain.Post.PostType;
@@ -21,8 +23,10 @@ import hiddencore.ddasum.backend.domain.Users;
 import hiddencore.ddasum.backend.domain.Users.UsersRole;
 import hiddencore.ddasum.backend.domain.Users.UsersStatus;
 import hiddencore.ddasum.backend.repository.FacilityRepository;
+import hiddencore.ddasum.backend.repository.GuardianPatientRepository;
 import hiddencore.ddasum.backend.repository.LocationRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
+import hiddencore.ddasum.backend.repository.PatientRepository;
 import hiddencore.ddasum.backend.repository.PostRepository;
 import hiddencore.ddasum.backend.security.StaffLoginIdCodec;
 
@@ -61,7 +65,9 @@ public class DataSeeder {
                         MemberRepository memberRepository,
                         PasswordEncoder passwordEncoder,
                         LocationRepository locationRepository,
-                        PostRepository postRepository) {
+                        PostRepository postRepository,
+                        PatientRepository patientRepository,
+                        GuardianPatientRepository guardianPatientRepository) {
                 return args -> {
 
                         /* ── 시설 ── */
@@ -253,6 +259,53 @@ public class DataSeeder {
                                                         .roomGenderType(RoomGenderType.CONCOCTION).roomCapacity(2)
                                                         .isOccupied(false).build());
                                 }
+                        }
+
+                        /* ── 데모: 보호자 ↔ 환자 연결 (요양사 체크리스트 조회용) ── */
+                        if (guardianPatientRepository.findByGuardianUserId_UserId(guardian.getUserId()).isEmpty()) {
+                                List<Patient> inFacility =
+                                                patientRepository.findByFacilityId_FacilityId(facility.getFacilityId());
+                                Patient demoPatient;
+                                if (inFacility.isEmpty()) {
+                                        Location freeBed =
+                                                        locationRepository
+                                                                        .findByFacilityId_FacilityId(
+                                                                                        facility.getFacilityId())
+                                                                        .stream()
+                                                                        .filter(loc -> loc.getPatientId() == null)
+                                                                        .findFirst()
+                                                                        .orElse(null);
+                                        demoPatient =
+                                                        patientRepository.save(
+                                                                        Patient.builder()
+                                                                                        .facilityId(facility)
+                                                                                        .locationId(freeBed)
+                                                                                        .primaryCaregiver(caregiver)
+                                                                                        .name("데모 환자(보호자연결)")
+                                                                                        .gender(Patient.Gender.MALE)
+                                                                                        .birthDate(LocalDate.of(1942, 5, 12))
+                                                                                        .admissionDate(
+                                                                                                        LocalDate.now()
+                                                                                                                        .minusMonths(
+                                                                                                                                        1))
+                                                                                        .type(Patient.BloodType.A_POSITIVE)
+                                                                                        .status(Patient.PatientStatus.STABLE)
+                                                                                        .build());
+                                        if (freeBed != null) {
+                                                freeBed.setPatientId(demoPatient);
+                                                freeBed.setIsOccupied(true);
+                                                locationRepository.save(freeBed);
+                                        }
+                                } else {
+                                        demoPatient = inFacility.get(0);
+                                }
+                                guardianPatientRepository.save(
+                                                GuardianPatient.builder()
+                                                                .guardianUserId(guardian)
+                                                                .patientId(demoPatient)
+                                                                .relationship("가족")
+                                                                .isPrimary(true)
+                                                                .build());
                         }
 
                         /* ── Post 더미 ── */
