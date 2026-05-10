@@ -91,6 +91,69 @@ export default function NoticePage() {
     return `${month}/${day} ${hour}:${minute}`;
   };
 
+  const formatPeriod = (startText, endText) => {
+    const start = formatDateTime(startText);
+    const end = formatDateTime(endText);
+
+    if (start === "날짜 미정" && end === "날짜 미정") {
+      return "일정 미등록";
+    }
+
+    if (end === "날짜 미정") {
+      return start;
+    }
+
+    return `${start} ~ ${end}`;
+  };
+
+  const getStatusBadgeStyle = (status) => {
+    if (status === "모집 중") {
+      return [styles.statusBadge, styles.statusBadgeActive];
+    }
+
+    if (status === "모집 예정") {
+      return [styles.statusBadge, styles.statusBadgeUpcoming];
+    }
+
+    if (status === "마감") {
+      return [styles.statusBadge, styles.statusBadgeClosed];
+    }
+
+    return [styles.statusBadge, styles.statusBadgeDefault];
+  };
+
+  const getStatusBadgeTextStyle = (status) => {
+    if (status === "모집 중") {
+      return [styles.statusBadgeText, styles.statusBadgeTextActive];
+    }
+
+    if (status === "모집 예정") {
+      return [styles.statusBadgeText, styles.statusBadgeTextUpcoming];
+    }
+
+    if (status === "마감") {
+      return [styles.statusBadgeText, styles.statusBadgeTextClosed];
+    }
+
+    return [styles.statusBadgeText, styles.statusBadgeTextDefault];
+  };
+
+  const getApplyButtonText = ({
+    alreadyApplied,
+    isFull,
+    recruitStatus,
+    applying,
+  }) => {
+    if (applying) return "신청 중...";
+    if (alreadyApplied) return "신청완료";
+    if (isFull) return "정원마감";
+    if (recruitStatus === "모집 예정") return "모집예정";
+    if (recruitStatus === "마감") return "마감";
+    if (recruitStatus !== "모집 중") return "신청불가";
+
+    return "신청하기";
+  };
+
   const isAlreadyApplied = (postId) => {
     return applications.some((application) => application.postId === postId);
   };
@@ -201,17 +264,21 @@ export default function NoticePage() {
                 const capacity = program.capacity ?? 0;
                 const currentEnrolled = program.currentEnrolled ?? 0;
                 const isFull = capacity > 0 && currentEnrolled >= capacity;
+                const isRecruiting = program.recruitStatus === "모집 중";
+
                 const disabled =
+                  !isRecruiting ||
                   alreadyApplied ||
                   isFull ||
-                  program.recruitStatus === "마감" ||
                   applyingId === program.id;
 
                 return (
                   <View key={program.id} style={styles.programCard}>
                     <View style={styles.cardTopRow}>
-                      <View style={styles.statusBadge}>
-                        <Text style={styles.statusBadgeText}>
+                      <View style={getStatusBadgeStyle(program.recruitStatus)}>
+                        <Text
+                          style={getStatusBadgeTextStyle(program.recruitStatus)}
+                        >
                           {program.recruitStatus || "모집 정보 없음"}
                         </Text>
                       </View>
@@ -228,6 +295,22 @@ export default function NoticePage() {
                         {program.content}
                       </Text>
                     )}
+
+                    <View style={styles.detailBox}>
+                      <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>프로그램 일시</Text>
+                        <Text style={styles.detailValue}>
+                          {formatPeriod(program.startAt, program.endAt)}
+                        </Text>
+                      </View>
+
+                      <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>신청 조건</Text>
+                        <Text style={styles.detailValue}>
+                          모집 중인 프로그램만 신청 가능
+                        </Text>
+                      </View>
+                    </View>
 
                     <View style={styles.infoRow}>
                       <Text style={styles.infoText}>
@@ -250,13 +333,12 @@ export default function NoticePage() {
                           disabled && styles.applyButtonTextDisabled,
                         ]}
                       >
-                        {applyingId === program.id
-                          ? "신청 중..."
-                          : alreadyApplied
-                            ? "신청완료"
-                            : isFull
-                              ? "정원마감"
-                              : "신청하기"}
+                        {getApplyButtonText({
+                          alreadyApplied,
+                          isFull,
+                          recruitStatus: program.recruitStatus,
+                          applying: applyingId === program.id,
+                        })}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -315,8 +397,8 @@ export default function NoticePage() {
             </Text>
 
             <Text style={styles.modalDescription}>
-              {formatDate(selectedProgram?.startAt)} 프로그램을
-              신청하시겠습니까?
+              {formatPeriod(selectedProgram?.startAt, selectedProgram?.endAt)}{" "}
+              프로그램을 신청하시겠습니까?
             </Text>
 
             <View style={styles.modalButtonRow}>

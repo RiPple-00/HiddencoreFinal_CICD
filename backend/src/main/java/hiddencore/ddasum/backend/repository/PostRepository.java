@@ -21,20 +21,20 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         /* 게시글 페이지에서 사용할 조회 */
         // 전체 게시글 조회 (= 시설별로 검색 후 전체 공개)
         @Query("SELECT p FROM Post p JOIN FETCH p.facilityId JOIN FETCH p.authorUserId " +
-                        "WHERE p.facilityId.facilityId = :facilityId AND p.status = :status")
+                        "WHERE p.facilityId.facilityId = :facilityId AND p.status = 'ACTIVE'")
         List<Post> findAllByFacility(@Param("facilityId") Long facilityId, Pageable pageable);
 
         // 시설 + 타입 조회
         // 시설 내 ACTIVE + 타입 필터
         @Query("SELECT p FROM Post p JOIN FETCH p.facilityId JOIN FETCH p.authorUserId " +
-                        "WHERE p.facilityId.facilityId = :facilityId AND p.status = :status AND p.type = :type")
+                        "WHERE p.facilityId.facilityId = :facilityId AND p.status = 'ACTIVE' AND p.type = :type")
         List<Post> findAllByFacilityAndType(@Param("facilityId") Long facilityId,
                         @Param("type") PostType type,
                         Pageable pageable);
 
         // 시설 내 단건 조회 (목록·상세 공개용: ACTIVE만)
         @Query("SELECT p FROM Post p JOIN FETCH p.facilityId f JOIN FETCH p.authorUserId a " +
-                        "WHERE p.postId = :postId AND f.facilityId = :facilityId AND p.status = :status ")
+                        "WHERE p.postId = :postId AND f.facilityId = :facilityId AND p.status = 'ACTIVE' ")
         Optional<Post> findByIdInFacility(@Param("postId") Long postId,
                         @Param("facilityId") Long facilityId);
 

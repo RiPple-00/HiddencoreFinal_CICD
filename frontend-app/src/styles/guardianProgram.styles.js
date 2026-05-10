@@ -257,4 +257,52 @@ modalConfirmText: {
   fontWeight: "900",
   color: "#FFFFFF",
 },
+statusBadgeActive: {
+  backgroundColor: "#EAFBF1",
+},
+statusBadgeUpcoming: {
+  backgroundColor: "#FFF7E6",
+},
+statusBadgeClosed: {
+  backgroundColor: "#F1F5F9",
+},
+statusBadgeDefault: {
+  backgroundColor: "#EAF3FF",
+},
+statusBadgeTextActive: {
+  color: "#15803D",
+},
+statusBadgeTextUpcoming: {
+  color: "#D97706",
+},
+statusBadgeTextClosed: {
+  color: "#64748B",
+},
+statusBadgeTextDefault: {
+  color: "#0B4EA2",
+},
+detailBox: {
+  marginTop: 14,
+  padding: 14,
+  borderRadius: 16,
+  backgroundColor: "#F8FAFC",
+  gap: 8,
+},
+detailRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  gap: 12,
+},
+detailLabel: {
+  fontSize: 13,
+  fontWeight: "900",
+  color: "#64748B",
+},
+detailValue: {
+  flex: 1,
+  textAlign: "right",
+  fontSize: 13,
+  fontWeight: "800",
+  color: "#111827",
+},
 });

@@ -51,12 +51,24 @@ public class ProgramApplicationService {
             throw new IllegalArgumentException("현재 신청할 수 없는 프로그램입니다.");
         }
 
-        boolean alreadyApplied =
-                documentRepository.existsByRequesterUserId_UserIdAndPostId_PostIdAndType(
-                        guardianUserId,
-                        postId,
-                        DocumentType.PROGRAM_APPLICATION
-                );
+        LocalDateTime now = LocalDateTime.now();
+
+        if (program.getStartAt() == null || program.getEndAt() == null) {
+            throw new IllegalArgumentException("프로그램 일정이 등록되지 않았습니다.");
+        }
+
+        if (now.isBefore(program.getStartAt())) {
+            throw new IllegalArgumentException("아직 신청 가능한 시간이 아닙니다.");
+        }
+
+        if (now.isAfter(program.getEndAt())) {
+            throw new IllegalArgumentException("마감된 프로그램입니다.");
+        }
+
+        boolean alreadyApplied = documentRepository.existsByRequesterUserId_UserIdAndPostId_PostIdAndType(
+                guardianUserId,
+                postId,
+                DocumentType.PROGRAM_APPLICATION);
 
         if (alreadyApplied) {
             throw new IllegalArgumentException("이미 신청한 프로그램입니다.");
@@ -75,8 +87,6 @@ public class ProgramApplicationService {
                 .orElseThrow(() -> new IllegalArgumentException("보호자와 연결된 환자가 없습니다."));
 
         program.setCurrentEnrolled(currentEnrolled + 1);
-
-        LocalDateTime now = LocalDateTime.now();
 
         Document document = Document.builder()
                 .patientId(guardianPatient.getPatientId())
@@ -99,8 +109,7 @@ public class ProgramApplicationService {
         return documentRepository
                 .findByRequesterUserId_UserIdAndTypeOrderByRequestedAtDesc(
                         guardianUserId,
-                        DocumentType.PROGRAM_APPLICATION
-                )
+                        DocumentType.PROGRAM_APPLICATION)
                 .stream()
                 .map(this::toResponse)
                 .toList();
