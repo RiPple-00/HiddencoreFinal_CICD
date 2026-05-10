@@ -19,6 +19,7 @@ import GuardianMorePage from "./src/pages/guardian/activePhoto/GuardianMorePage"
 import CaregiverMainPage from "./src/pages/caregiver/CaregiverMainPage";
 import CaregiverWorkCheckPage from "./src/pages/caregiver/CaregiverWorkCheckPage";
 import CaregiverPatientListPage from "./src/pages/caregiver/CaregiverPatientListPage";
+import CaregiverTaskCheckPage from "./src/pages/caregiver/CaregiverTaskCheckPage";
 
 import StoragePage from "./src/pages/billing/StoragePage";
 import StorageList from "./src/components/billing/StorageList";
@@ -36,6 +37,7 @@ export default function App() {
         <Stack.Screen name="GuardianMain" component={GuardianMainPage} options={{ headerShown: false }} />
         <Stack.Screen name="CaregiverMain" component={CaregiverMainPage} options={{ headerShown: false }} />
         <Stack.Screen name="CaregiverWorkCheck" component={CaregiverWorkCheckPage} options={{ headerShown: false }} />
+        <Stack.Screen name="CaregiverTaskCheck" component={CaregiverTaskCheckPage} options={{ headerShown: false }} />
         <Stack.Screen name="CaregiverPatientList" component={CaregiverPatientListPage} options={{ headerShown: false }} />
         <Stack.Screen name="Report" component={ReportPage} options={{ title: "보고서 확인" }} />
         <Stack.Screen name="Consent" component={ConsentPage} options={{ title: "동의서 확인" }} />

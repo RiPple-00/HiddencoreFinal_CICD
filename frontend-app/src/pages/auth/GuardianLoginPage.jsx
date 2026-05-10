@@ -6,6 +6,8 @@ export default function GuardianLoginPage({ navigation }) {
   const [mode, setMode] = useState("guardian");
   const [loginId, setLoginId] = useState("guardian001");
   const [password, setPassword] = useState("1234");
+  /** 직원(요양사 등) 데모 비밀번호는 백엔드 DataSeeder와 동일: office123! */
+  const [employeePassword, setEmployeePassword] = useState("office123!");
   const [facilityCode, setFacilityCode] = useState("12345678");
   const [employeeLoginId, setEmployeeLoginId] = useState("3120010101");
   const [loading, setLoading] = useState(false);
@@ -21,14 +23,14 @@ export default function GuardianLoginPage({ navigation }) {
         await api.post("/api/auth/guardian/login", { loginId, password });
         navigation.replace("GuardianMain");
       } else {
-        if (!facilityCode || !employeeLoginId || !password) {
+        if (!facilityCode || !employeeLoginId || !employeePassword) {
           Alert.alert("안내", "시설코드, 직원 ID, 비밀번호를 모두 입력해 주세요.");
           return;
         }
         await api.post("/api/auth/employee/login", {
           facilityCode: facilityCode.trim(),
           employeeLoginId: employeeLoginId.trim(),
-          password,
+          password: employeePassword,
         });
         navigation.replace("CaregiverMain");
       }
@@ -100,10 +102,10 @@ export default function GuardianLoginPage({ navigation }) {
           />
           <TextInput
             style={styles.input}
-            placeholder="비밀번호"
+            placeholder="비밀번호 (데모 직원: office123!)"
             secureTextEntry
-            value={password}
-            onChangeText={setPassword}
+            value={employeePassword}
+            onChangeText={setEmployeePassword}
           />
         </>
       )}

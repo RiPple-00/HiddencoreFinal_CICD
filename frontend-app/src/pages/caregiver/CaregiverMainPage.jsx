@@ -89,7 +89,7 @@ export default function CaregiverMainPage({ navigation }) {
 
           <View style={styles.section}>
             <View style={styles.quickWrap}>
-              <TouchableOpacity style={styles.quickCard} onPress={() => navigation.navigate("CaregiverWorkCheck")}>
+              <TouchableOpacity style={styles.quickCard} onPress={() => navigation.navigate("CaregiverTaskCheck")}>
                 <Text style={styles.iconText}>📋</Text>
                 <Text style={styles.quickLabel}>업무 체크</Text>
               </TouchableOpacity>

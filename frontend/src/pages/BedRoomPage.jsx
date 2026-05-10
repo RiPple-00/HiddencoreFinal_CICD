@@ -4,7 +4,7 @@ import PatientSummaryCard from "../components/bedroom/PatientSummaryCard";
 import TransferRequestCard from "../components/bedroom/TransferRequestCard";
 import GuardianPanel from "../components/bedroom/GuardianPanel";
 import AdminMenuPanel from "../components/bedroom/AdminMenuPanel";
-import VisitorsPanel from "../components/bedroom/VisitorsPanel";
+//import VisitorsPanel from "../components/bedroom/VisitorsPanel";
 import MealCarePage from "./MealCarePage";
 
 import { useCallback, useEffect, useState } from "react";
