@@ -2,6 +2,7 @@ package hiddencore.ddasum.backend.service;
 
 import hiddencore.ddasum.backend.web.dto.ScheduleCreateRequest;
 import hiddencore.ddasum.backend.domain.Schedule.ScheduleType;
+import hiddencore.ddasum.backend.domain.Schedule;
 
 import hiddencore.ddasum.backend.domain.Facility;
 import hiddencore.ddasum.backend.domain.Post;
@@ -11,6 +12,7 @@ import hiddencore.ddasum.backend.domain.Users;
 import hiddencore.ddasum.backend.repository.FacilityRepository;
 import hiddencore.ddasum.backend.repository.PostRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
+import hiddencore.ddasum.backend.repository.ScheduleRepository;
 import hiddencore.ddasum.backend.web.dto.PostDto;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -33,6 +37,7 @@ public class PostService {
     private final FacilityRepository facilityRepository;
     private final MemberRepository memberRepository;
     private final ScheduleService scheduleService;
+    private final ScheduleRepository scheduleRepository;
 
     /* 게시판 조회 */
 
@@ -42,11 +47,7 @@ public class PostService {
                 ? postRepository.findAllByFacility(facilityId, pageable)
                 : postRepository.findAllByFacilityAndType(facilityId, type, pageable);
 
-        return Optional.ofNullable(posts)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(PostDto.PostListResponse::from)
-                .toList();
+        return toPostListResponses(facilityId, posts);
     }
 
     // 단건 상세 조회
@@ -81,11 +82,7 @@ public class PostService {
             posts = postRepository.searchInFacility(facilityId, type, searchType, keyword, pageable);
         }
 
-        return Optional.ofNullable(posts)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(PostDto.PostListResponse::from)
-                .toList();
+        return toPostListResponses(facilityId, posts);
     }
 
     /* 게시글 CRUD */
@@ -121,7 +118,7 @@ public class PostService {
 
         // Schedule 저장 (날짜 있을 때만)
         if (request.getScheduledAt() != null) {
-            ScheduleType scheduleType = (request.getType() == PostType.APPLY)
+            ScheduleType scheduleType = (request.getType() == PostType.APPLY || request.getType() == PostType.REVIEW)
                     ? ScheduleType.PROGRAM
                     : ScheduleType.FACILITY;
 
@@ -210,11 +207,8 @@ public class PostService {
                 ? postRepository.findActiveByUser(userId, pageable)
                 : postRepository.findActiveByUserAndType(userId, type, pageable);
 
-        return Optional.ofNullable(posts)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(PostDto.PostListResponse::from)
-                .toList();
+        Long facilityId = posts == null || posts.isEmpty() ? null : posts.get(0).getFacilityId().getFacilityId();
+        return toPostListResponses(facilityId, posts);
     }
 
     // 임시 저장 조회: type 없으면 전체, 있으면 해당 타입만
@@ -223,10 +217,59 @@ public class PostService {
                 ? postRepository.findInactiveByUser(userId, pageable)
                 : postRepository.findInactiveByUserAndType(userId, type, pageable);
 
-        return Optional.ofNullable(posts)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(PostDto.PostListResponse::from)
+        Long facilityId = posts == null || posts.isEmpty() ? null : posts.get(0).getFacilityId().getFacilityId();
+        return toPostListResponses(facilityId, posts);
+    }
+
+    private List<PostDto.PostListResponse> toPostListResponses(Long facilityId, List<Post> posts) {
+        List<Post> safePosts = Optional.ofNullable(posts).orElse(Collections.emptyList());
+        if (safePosts.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Map<String, Schedule> programSchedules = loadProgramScheduleMap(
+                facilityId != null ? facilityId : safePosts.get(0).getFacilityId().getFacilityId(),
+                safePosts);
+
+        return safePosts.stream()
+                .map(post -> {
+                    Schedule schedule = isProgramPost(post)
+                            ? programSchedules.get(buildProgramScheduleKey(post.getTitle(), post.getContent()))
+                            : null;
+                    return PostDto.PostListResponse.from(
+                            post,
+                            schedule != null ? schedule.getScheduledAt() : null,
+                            schedule != null ? schedule.getEndAt() : null);
+                })
                 .toList();
+    }
+
+    private Map<String, Schedule> loadProgramScheduleMap(Long facilityId, List<Post> posts) {
+        if (facilityId == null || posts.stream().noneMatch(this::isProgramPost)) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, Schedule> scheduleMap = new HashMap<>();
+        List<Schedule> schedules = scheduleRepository.findByFacilityId_FacilityIdAndTypeOrderByCreatedAtDesc(
+                facilityId,
+                ScheduleType.PROGRAM);
+
+        for (Schedule schedule : schedules) {
+            scheduleMap.putIfAbsent(buildProgramScheduleKey(schedule.getTitle(), schedule.getContent()), schedule);
+        }
+
+        return scheduleMap;
+    }
+
+    private boolean isProgramPost(Post post) {
+        return post.getType() == PostType.APPLY || post.getType() == PostType.REVIEW;
+    }
+
+    private String buildProgramScheduleKey(String title, String content) {
+        return normalizeKeyPart(title) + "::" + normalizeKeyPart(content);
+    }
+
+    private String normalizeKeyPart(String value) {
+        return value == null ? "" : value.trim();
     }
 }

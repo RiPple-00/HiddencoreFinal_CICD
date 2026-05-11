@@ -19,6 +19,8 @@ import hiddencore.ddasum.backend.domain.Patient;
 import hiddencore.ddasum.backend.domain.Post;
 import hiddencore.ddasum.backend.domain.Post.PostStatus;
 import hiddencore.ddasum.backend.domain.Post.PostType;
+import hiddencore.ddasum.backend.domain.Schedule;
+import hiddencore.ddasum.backend.domain.Schedule.ScheduleType;
 import hiddencore.ddasum.backend.domain.Users;
 import hiddencore.ddasum.backend.domain.Users.UsersRole;
 import hiddencore.ddasum.backend.domain.Users.UsersStatus;
@@ -28,6 +30,7 @@ import hiddencore.ddasum.backend.repository.LocationRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
 import hiddencore.ddasum.backend.repository.PatientRepository;
 import hiddencore.ddasum.backend.repository.PostRepository;
+import hiddencore.ddasum.backend.repository.ScheduleRepository;
 import hiddencore.ddasum.backend.security.StaffLoginIdCodec;
 
 /*
@@ -66,6 +69,7 @@ public class DataSeeder {
                         PasswordEncoder passwordEncoder,
                         LocationRepository locationRepository,
                         PostRepository postRepository,
+                        ScheduleRepository scheduleRepository,
                         PatientRepository patientRepository,
                         GuardianPatientRepository guardianPatientRepository) {
                 return args -> {
@@ -353,6 +357,38 @@ public class DataSeeder {
                                                                 .type(PostType.GENERAL).title("4월 생신잔치 후기")
                                                                 .content("4월 생신잔치가 성황리에 마무리되었습니다. 참여해 주신 모든 분께 감사드립니다.")
                                                                 .status(PostStatus.ACTIVE).isPinned(false).views(55)
+                                                                .build()));
+                        }
+
+                        if (scheduleRepository.findByFacilityId_FacilityIdAndTypeOrderByCreatedAtDesc(
+                                        facility.getFacilityId(),
+                                        ScheduleType.PROGRAM).isEmpty()) {
+                                scheduleRepository.saveAll(List.of(
+                                                Schedule.builder()
+                                                                .facilityId(facility)
+                                                                .createdUserId(office)
+                                                                .title("5월 종이접기 프로그램 참여 신청")
+                                                                .content("5월 종이접기 프로그램을 진행합니다. 정원 20명이니 빠른 신청 바랍니다.")
+                                                                .type(ScheduleType.PROGRAM)
+                                                                .scheduledAt(LocalDateTime.now().plusDays(12)
+                                                                                .withHour(14).withMinute(0)
+                                                                                .withSecond(0).withNano(0))
+                                                                .endAt(LocalDateTime.now().plusDays(12)
+                                                                                .withHour(15).withMinute(30)
+                                                                                .withSecond(0).withNano(0))
+                                                                .build(),
+                                                Schedule.builder()
+                                                                .facilityId(facility)
+                                                                .createdUserId(office)
+                                                                .title("원예 치료 프로그램 모집")
+                                                                .content("봄 원예 치료 프로그램 참여자를 모집합니다.")
+                                                                .type(ScheduleType.PROGRAM)
+                                                                .scheduledAt(LocalDateTime.now().plusDays(18)
+                                                                                .withHour(10).withMinute(30)
+                                                                                .withSecond(0).withNano(0))
+                                                                .endAt(LocalDateTime.now().plusDays(18)
+                                                                                .withHour(12).withMinute(0)
+                                                                                .withSecond(0).withNano(0))
                                                                 .build()));
                         }
                 };

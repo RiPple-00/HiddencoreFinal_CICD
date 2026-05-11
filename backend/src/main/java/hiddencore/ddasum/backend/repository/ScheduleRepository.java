@@ -22,4 +22,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             ScheduleType type,
             LocalDateTime start,
             LocalDateTime end);
+
+    List<Schedule> findByFacilityId_FacilityIdAndTypeOrderByCreatedAtDesc(
+            Long facilityId,
+            ScheduleType type);
 }

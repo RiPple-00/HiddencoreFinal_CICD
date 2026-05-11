@@ -55,7 +55,7 @@ public class Patient {
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
-
+ 
     @Convert(converter = PatientGenderConverter.class)
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false, length = 20)
