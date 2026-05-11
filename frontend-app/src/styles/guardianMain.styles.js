@@ -88,31 +88,35 @@ export const styles = StyleSheet.create({
 
     quickMenuWrap: {
         flexDirection: "row",
+        flexWrap: "wrap",
         justifyContent: "space-between",
-        paddingHorizontal: 20,
-        marginTop: 24,
+        rowGap: 12,
+        paddingHorizontal: 16,
+        marginTop: 16,
     },
+
     quickCard: {
-        width: "31%",
-        minHeight: 145,
+        width: "48%",
         backgroundColor: "#FFFFFF",
         borderWidth: 1,
         borderColor: "#C7D7ED",
         borderRadius: 24,
-        justifyContent: "center",
+        paddingVertical: 18,
         alignItems: "center",
-        paddingHorizontal: 8,
+        justifyContent: "center",
     },
+
     quickIcon: {
-        fontSize: 28,
-        marginBottom: 10,
+        fontSize: 24,
+        marginBottom: 8,
     },
+
     quickText: {
-        fontSize: 17,
-        fontWeight: "700",
+        fontSize: 15,
+        fontWeight: "800",
         color: "#1F2937",
         textAlign: "center",
-        lineHeight: 22,
+        lineHeight: 20,
     },
 
     mealCard: {
@@ -326,5 +330,9 @@ export const styles = StyleSheet.create({
         fontSize: 14,
         lineHeight: 22,
         color: '#475569',
+    },
+    noticeInner: {
+        paddingHorizontal: 16,
+        marginTop: 22,
     },
 });

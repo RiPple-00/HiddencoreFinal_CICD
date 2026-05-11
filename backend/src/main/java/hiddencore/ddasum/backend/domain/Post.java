@@ -119,7 +119,7 @@ public class Post {
     }
     
     public enum PostStatus {
-        ACTIVE,
+        ACTIVE, 
         INACTIVE,
         RESERVE
     }

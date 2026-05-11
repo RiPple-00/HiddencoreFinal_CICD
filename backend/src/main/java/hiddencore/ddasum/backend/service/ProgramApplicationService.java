@@ -13,13 +13,19 @@ import hiddencore.ddasum.backend.repository.DocumentRepository;
 import hiddencore.ddasum.backend.repository.GuardianPatientRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
 import hiddencore.ddasum.backend.repository.PostRepository;
+import hiddencore.ddasum.backend.security.AuthenticatedUser;
 import hiddencore.ddasum.backend.web.dto.guardian.ProgramApplicationDto;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @Service
 @RequiredArgsConstructor
@@ -113,6 +119,30 @@ public class ProgramApplicationService {
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    @Transactional
+    public void cancelApplication(Long guardianUserId, Long documentId) {
+        Document document = documentRepository
+                .findByDocumentIdAndRequesterUserId_UserIdAndType(
+                        documentId,
+                        guardianUserId,
+                        DocumentType.PROGRAM_APPLICATION)
+                .orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
+
+        Post program = document.getPostId();
+
+        if (program != null) {
+            int currentEnrolled = program.getCurrentEnrolled() == null
+                    ? 0
+                    : program.getCurrentEnrolled();
+
+            if (currentEnrolled > 0) {
+                program.setCurrentEnrolled(currentEnrolled - 1);
+            }
+        }
+
+        documentRepository.delete(document);
     }
 
     private String makeApplicationContent(Post program) {

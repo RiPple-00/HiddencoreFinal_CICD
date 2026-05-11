@@ -1,11 +1,12 @@
 package hiddencore.ddasum.backend.repository;
 
-import hiddencore.ddasum.backend.domain.Document;
-import hiddencore.ddasum.backend.domain.Document.DocumentType;
-
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import hiddencore.ddasum.backend.domain.Document;
+import hiddencore.ddasum.backend.domain.Document.DocumentType;
 
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
@@ -21,6 +22,12 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
             Long requesterUserId,
             DocumentType type
     );
+
+    Optional<Document> findByDocumentIdAndRequesterUserId_UserIdAndType(
+        Long documentId,
+        Long requesterUserId,
+        DocumentType type
+);
 
 
 }

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   SafeAreaView,
   View,
@@ -9,6 +9,8 @@ import {
   Dimensions,
 } from "react-native";
 import { styles } from "../../styles/guardianMain.styles";
+import { getGuardianPosts } from "../../api/guardianApi";
+import { FACILITY_ID, rowId } from "../../utils/guardianBoardUtils";
 
 export default function GuardianMainPage({ navigation }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,6 +21,53 @@ export default function GuardianMainPage({ navigation }) {
   const fallbackWidth = Dimensions.get("window").width;
   const effectiveWidth = containerWidth || fallbackWidth;
   const galleryWidth = Math.max(0, effectiveWidth - 40);
+
+  const [noticePosts, setNoticePosts] = useState([]);
+
+  useEffect(() => {
+    fetchMainNotices();
+  }, []);
+
+  // 공지사항 조회 로직
+  const fetchMainNotices = async () => {
+    try {
+      const response = await getGuardianPosts(FACILITY_ID);
+
+      const list = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response.data?.content)
+          ? response.data.content
+          : [];
+
+      const boardOnlyPosts = list.filter((post) =>
+        ["URGENT", "CLINICAL", "ADMIN", "FACILITY", "GENERAL"].includes(post.type)
+      );
+
+      setNoticePosts(boardOnlyPosts);
+    } catch (error) {
+      console.error("메인 공지사항 조회 실패", error);
+      setNoticePosts([]);
+    }
+  };
+
+  //긴급 우선 + 최신순 정렬
+  const mainNoticePosts = useMemo(() => {
+    return [...noticePosts]
+      .sort((a, b) => {
+        const aUrgent = a.type === "URGENT";
+        const bUrgent = b.type === "URGENT";
+
+        if (aUrgent !== bUrgent) {
+          return aUrgent ? -1 : 1;
+        }
+
+        const aTime = new Date(a.updatedAt ?? a.createdAt ?? 0).getTime();
+        const bTime = new Date(b.updatedAt ?? b.createdAt ?? 0).getTime();
+
+        return bTime - aTime;
+      })
+      .slice(0, 2);
+  }, [noticePosts]);
 
   const notices = [
     { id: 1, title: "춘계 보호자 간담회 안내", date: "2024.03.28" },
@@ -48,6 +97,20 @@ export default function GuardianMainPage({ navigation }) {
 
     return () => clearInterval(interval);
   }, [currentImage, galleryWidth]);
+
+  //날짜 포맷 함수 추가
+  const formatMainNoticeDate = (dateText) => {
+    if (!dateText) return "날짜 미정";
+
+    const date = new Date(dateText);
+    if (Number.isNaN(date.getTime())) return "날짜 미정";
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}.${month}.${day}`;
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -86,53 +149,69 @@ export default function GuardianMainPage({ navigation }) {
               <Text style={styles.sectionTitle}>활동 갤러리</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate("ActivePhotoGallery")}>
-            <View style={styles.galleryCard}>
-              <ScrollView
-                ref={scrollRef}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                onMomentumScrollEnd={(event) => {
-                  const x = event.nativeEvent.contentOffset.x;
-                  const index = Math.round(x / galleryWidth);
-                  setCurrentImage(index);
-                }}
-                scrollEventThrottle={16}
-              >
-                {galleryImages.map((image, index) => (
-                  <Image
-                    key={index}
-                    source={{ uri: image }}
-                    style={[styles.galleryImage,  { width: galleryWidth }]}
-                  />
-                ))}
-              </ScrollView>
+              <View style={styles.galleryCard}>
+                <ScrollView
+                  ref={scrollRef}
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  onMomentumScrollEnd={(event) => {
+                    const x = event.nativeEvent.contentOffset.x;
+                    const index = Math.round(x / galleryWidth);
+                    setCurrentImage(index);
+                  }}
+                  scrollEventThrottle={16}
+                >
+                  {galleryImages.map((image, index) => (
+                    <Image
+                      key={index}
+                      source={{ uri: image }}
+                      style={[styles.galleryImage, { width: galleryWidth }]}
+                    />
+                  ))}
+                </ScrollView>
 
-              <View style={styles.galleryBadge}>
-                <Text style={styles.galleryBadgeText}>
-                  {currentImage + 1} / {galleryImages.length}
-                </Text>
+                <View style={styles.galleryBadge}>
+                  <Text style={styles.galleryBadgeText}>
+                    {currentImage + 1} / {galleryImages.length}
+                  </Text>
+                </View>
               </View>
-            </View>
             </TouchableOpacity>
           </View>
 
           {/* 퀵메뉴 */}
           <View style={styles.quickMenuWrap}>
-            <TouchableOpacity style={styles.quickCard} onPress={() => navigation.navigate("Report")}
+            <TouchableOpacity
+              style={styles.quickCard}
+              onPress={() => navigation.navigate("Report")}
             >
               <Text style={styles.quickIcon}>📄</Text>
               <Text style={styles.quickText}>보고서 확인</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.quickCard} onPress={() => navigation.navigate("Consent")}>
+            <TouchableOpacity
+              style={styles.quickCard}
+              onPress={() => navigation.navigate("Consent")}
+            >
               <Text style={styles.quickIcon}>📝</Text>
               <Text style={styles.quickText}>동의서 확인</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.quickCard} onPress={() => navigation.navigate("VisitApply")}>
+            <TouchableOpacity
+              style={styles.quickCard}
+              onPress={() => navigation.navigate("VisitApply")}
+            >
               <Text style={styles.quickIcon}>🤝</Text>
               <Text style={styles.quickText}>면회 신청</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickCard}
+              onPress={() => navigation.navigate("Program")}
+            >
+              <Text style={styles.quickIcon}>🎯</Text>
+              <Text style={styles.quickText}>프로그램 신청</Text>
             </TouchableOpacity>
           </View>
 
@@ -179,23 +258,45 @@ export default function GuardianMainPage({ navigation }) {
           </View>
 
           {/* 공지사항 */}
-          <View style={styles.section}>
+          {/* 공지사항 */}
+          <View style={styles.noticeInner}>
             <View style={styles.noticeHeader}>
-              <Text style={styles.sectionTitle}>공지사항</Text>
-              <TouchableOpacity>
-                <Text style={styles.noticeMore} onPress={() => navigation.navigate("Notice")}>전체보기</Text>
+              <Text style={styles.sectionTitleNoMargin}>공지사항</Text>
+
+              <TouchableOpacity onPress={() => navigation.navigate("Notice")}>
+                <Text style={styles.noticeMore}>전체보기</Text>
               </TouchableOpacity>
             </View>
 
-            {notices.map((notice) => (
-              <TouchableOpacity key={notice.id} style={styles.noticeCard}>
+            {mainNoticePosts.length === 0 ? (
+              <View style={styles.noticeCard}>
                 <View>
-                  <Text style={styles.noticeTitle}>{notice.title}</Text>
-                  <Text style={styles.noticeDate}>{notice.date}</Text>
+                  <Text style={styles.noticeTitle}>등록된 공지사항이 없습니다.</Text>
+                  <Text style={styles.noticeDate}>-</Text>
                 </View>
-                <Text style={styles.noticeArrow}>›</Text>
-              </TouchableOpacity>
-            ))}
+              </View>
+            ) : (
+              mainNoticePosts.map((post) => (
+                <TouchableOpacity
+                  key={rowId(post) ?? post.title}
+                  style={styles.noticeCard}
+                  onPress={() => navigation.navigate("Notice")}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.noticeTitle} numberOfLines={1}>
+                      {post.type === "URGENT" ? "🚨 " : ""}
+                      {post.title}
+                    </Text>
+
+                    <Text style={styles.noticeDate}>
+                      {formatMainNoticeDate(post.updatedAt ?? post.createdAt)}
+                    </Text>
+                  </View>
+
+                  <Text style={styles.noticeArrow}>›</Text>
+                </TouchableOpacity>
+              ))
+            )}
           </View>
         </ScrollView>
 

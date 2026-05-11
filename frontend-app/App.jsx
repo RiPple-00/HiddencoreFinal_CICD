@@ -26,6 +26,8 @@ import StorageDetail from "./src/components/billing/StorageDetail";
 import PaymentHistory from "./src/components/billing/PaymentHistory";
 import InvoicePaymentList from "./src/components/billing/InvoicePaymentList";
 
+import ProgramPage from "./src/pages/guardian/ProgramPage";
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -43,6 +45,7 @@ export default function App() {
         <Stack.Screen name="Notice" component={NoticePage} options={{ title: "공지사항" }} />
         <Stack.Screen name="Calendar" component={CalendarPage} options={{ title: "달력" }} />
         <Stack.Screen name="Payment" component={PaymentPage} options={{ headerShown: false }} />
+        <Stack.Screen name="Program" component={ProgramPage} options={{ title: "프로그램 신청" }} />
 
         {/* 수납 플로우 */}
         <Stack.Screen name="StoragePage" component={StoragePage} options={{ headerShown: false }} />

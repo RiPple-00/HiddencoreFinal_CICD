@@ -22,6 +22,25 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
     color: "#6B7280",
   },
+
+  programSectionHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 8,
+    backgroundColor: "#FFFFFF",
+  },
+  programSectionTitle: {
+    fontSize: 19,
+    fontWeight: "900",
+    color: "#111827",
+  },
+  programSectionSubtitle: {
+    marginTop: 5,
+    fontSize: 13,
+    lineHeight: 19,
+    color: "#64748B",
+  },
+
   tabRow: {
     flexDirection: "row",
     gap: 10,
@@ -47,6 +66,7 @@ export const styles = StyleSheet.create({
   tabTextActive: {
     color: "#FFFFFF",
   },
+
   scrollContent: {
     padding: 20,
     paddingBottom: 36,
@@ -70,6 +90,7 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#94A3B8",
   },
+
   programCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
@@ -93,11 +114,36 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: "#EAF3FF",
   },
+  statusBadgeActive: {
+    backgroundColor: "#EAFBF1",
+  },
+  statusBadgeUpcoming: {
+    backgroundColor: "#FFF7E6",
+  },
+  statusBadgeClosed: {
+    backgroundColor: "#F1F5F9",
+  },
+  statusBadgeDefault: {
+    backgroundColor: "#EAF3FF",
+  },
   statusBadgeText: {
     fontSize: 12,
     fontWeight: "800",
     color: "#0B4EA2",
   },
+  statusBadgeTextActive: {
+    color: "#15803D",
+  },
+  statusBadgeTextUpcoming: {
+    color: "#D97706",
+  },
+  statusBadgeTextClosed: {
+    color: "#64748B",
+  },
+  statusBadgeTextDefault: {
+    color: "#0B4EA2",
+  },
+
   programDate: {
     fontSize: 12,
     fontWeight: "700",
@@ -114,6 +160,32 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
     color: "#64748B",
   },
+
+  detailBox: {
+    marginTop: 14,
+    padding: 14,
+    borderRadius: 16,
+    backgroundColor: "#F8FAFC",
+    gap: 8,
+  },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  detailLabel: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: "#64748B",
+  },
+  detailValue: {
+    flex: 1,
+    textAlign: "right",
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#111827",
+  },
+
   infoRow: {
     marginTop: 14,
     marginBottom: 14,
@@ -123,6 +195,7 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#475569",
   },
+
   applyButton: {
     borderRadius: 14,
     paddingVertical: 13,
@@ -140,6 +213,7 @@ export const styles = StyleSheet.create({
   applyButtonTextDisabled: {
     color: "#94A3B8",
   },
+
   historyCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 18,
@@ -177,132 +251,138 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#94A3B8",
   },
+
+  cancelButton: {
+    marginTop: 14,
+    borderRadius: 14,
+    paddingVertical: 12,
+    backgroundColor: "#FEF2F2",
+    borderWidth: 1,
+    borderColor: "#FECACA",
+  },
+  cancelButtonDisabled: {
+    backgroundColor: "#F3F4F6",
+    borderColor: "#E5E7EB",
+  },
+  cancelButtonText: {
+    textAlign: "center",
+    fontSize: 14,
+    fontWeight: "900",
+    color: "#DC2626",
+  },
+  cancelButtonTextDisabled: {
+    color: "#9CA3AF",
+  },
+
+  filterScroll: {
+    marginBottom: 14,
+  },
+  filterRow: {
+    gap: 8,
+    paddingRight: 4,
+  },
+  filterButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 999,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  filterButtonActive: {
+    backgroundColor: "#0B4EA2",
+    borderColor: "#0B4EA2",
+  },
+  filterButtonText: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: "#64748B",
+  },
+  filterButtonTextActive: {
+    color: "#FFFFFF",
+  },
+
   modalOverlay: {
-  flex: 1,
-  backgroundColor: "rgba(15, 23, 42, 0.45)",
-  justifyContent: "center",
-  alignItems: "center",
-  paddingHorizontal: 24,
-},
-confirmModal: {
-  width: "100%",
-  maxWidth: 340,
-  backgroundColor: "#FFFFFF",
-  borderRadius: 24,
-  padding: 24,
-  alignItems: "center",
-  shadowColor: "#000",
-  shadowOpacity: 0.18,
-  shadowOffset: { width: 0, height: 10 },
-  shadowRadius: 24,
-  elevation: 8,
-},
-modalIconCircle: {
-  width: 56,
-  height: 56,
-  borderRadius: 28,
-  backgroundColor: "#EAF3FF",
-  justifyContent: "center",
-  alignItems: "center",
-  marginBottom: 14,
-},
-modalIcon: {
-  fontSize: 26,
-},
-modalTitle: {
-  fontSize: 20,
-  fontWeight: "900",
-  color: "#0B4EA2",
-  marginBottom: 10,
-},
-modalProgramTitle: {
-  fontSize: 17,
-  fontWeight: "900",
-  color: "#111827",
-  textAlign: "center",
-  marginBottom: 8,
-},
-modalDescription: {
-  fontSize: 15,
-  lineHeight: 22,
-  color: "#475569",
-  textAlign: "center",
-  marginBottom: 22,
-},
-modalButtonRow: {
-  flexDirection: "row",
-  gap: 10,
-  width: "100%",
-},
-modalButton: {
-  flex: 1,
-  borderRadius: 14,
-  paddingVertical: 13,
-},
-modalCancelButton: {
-  backgroundColor: "#EEF2F7",
-},
-modalConfirmButton: {
-  backgroundColor: "#0B4EA2",
-},
-modalCancelText: {
-  textAlign: "center",
-  fontSize: 15,
-  fontWeight: "900",
-  color: "#64748B",
-},
-modalConfirmText: {
-  textAlign: "center",
-  fontSize: 15,
-  fontWeight: "900",
-  color: "#FFFFFF",
-},
-statusBadgeActive: {
-  backgroundColor: "#EAFBF1",
-},
-statusBadgeUpcoming: {
-  backgroundColor: "#FFF7E6",
-},
-statusBadgeClosed: {
-  backgroundColor: "#F1F5F9",
-},
-statusBadgeDefault: {
-  backgroundColor: "#EAF3FF",
-},
-statusBadgeTextActive: {
-  color: "#15803D",
-},
-statusBadgeTextUpcoming: {
-  color: "#D97706",
-},
-statusBadgeTextClosed: {
-  color: "#64748B",
-},
-statusBadgeTextDefault: {
-  color: "#0B4EA2",
-},
-detailBox: {
-  marginTop: 14,
-  padding: 14,
-  borderRadius: 16,
-  backgroundColor: "#F8FAFC",
-  gap: 8,
-},
-detailRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  gap: 12,
-},
-detailLabel: {
-  fontSize: 13,
-  fontWeight: "900",
-  color: "#64748B",
-},
-detailValue: {
-  flex: 1,
-  textAlign: "right",
-  fontSize: 13,
-  fontWeight: "800",
-  color: "#111827",
-},
+    flex: 1,
+    backgroundColor: "rgba(15, 23, 42, 0.45)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  confirmModal: {
+    width: "100%",
+    maxWidth: 340,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 24,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  modalIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#EAF3FF",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 14,
+  },
+  modalIcon: {
+    fontSize: 26,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#0B4EA2",
+    marginBottom: 10,
+  },
+  modalProgramTitle: {
+    fontSize: 17,
+    fontWeight: "900",
+    color: "#111827",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  modalDescription: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: "#475569",
+    textAlign: "center",
+    marginBottom: 22,
+  },
+  modalButtonRow: {
+    flexDirection: "row",
+    gap: 10,
+    width: "100%",
+  },
+  modalButton: {
+    flex: 1,
+    borderRadius: 14,
+    paddingVertical: 13,
+  },
+  modalCancelButton: {
+    backgroundColor: "#EEF2F7",
+  },
+  modalConfirmButton: {
+    backgroundColor: "#0B4EA2",
+  },
+  modalDangerButton: {
+    backgroundColor: "#DC2626",
+  },
+  modalCancelText: {
+    textAlign: "center",
+    fontSize: 15,
+    fontWeight: "900",
+    color: "#64748B",
+  },
+  modalConfirmText: {
+    textAlign: "center",
+    fontSize: 15,
+    fontWeight: "900",
+    color: "#FFFFFF",
+  },
 });
