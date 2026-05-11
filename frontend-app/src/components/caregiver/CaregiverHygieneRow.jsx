@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { TextInput, View } from "react-native";
+import Text from "../Text";
 import CaregiverStatusToggle from "./CaregiverStatusToggle";
 
 /**
@@ -8,77 +9,34 @@ import CaregiverStatusToggle from "./CaregiverStatusToggle";
  *
  * value = { status: null|"normal"|"abnormal", memo: string }
  */
-export default function CaregiverHygieneRow({
-  label,
-  value,
-  onChange,
-  isLast = false,
-}) {
-  const safeValue = value || {};
+export default function CaregiverHygieneRow({ label, value, onChange, isLast = false }) {
+  const safeValue  = value || {};
   const isAbnormal = safeValue.status === "abnormal";
 
   const updateStatus = (next) => onChange({ ...safeValue, status: next });
-  const updateMemo = (text) => onChange({ ...safeValue, memo: text });
+  const updateMemo   = (text) => onChange({ ...safeValue, memo: text });
 
   return (
-    <View style={[styles.row, isLast && styles.rowLast]}>
-      <View style={styles.headerLine}>
-        <Text style={[styles.label, isAbnormal && styles.labelAbnormal]}>
+    <View className={`px-[14px] py-3 ${!isLast ? "border-b border-caregiver-bg-secondary" : ""}`}>
+      <View className="flex-row items-center justify-between">
+        <Text className={`flex-1 text-sm font-bold pr-2 ${isAbnormal ? "text-error-primary" : "text-caregiver-text-primary"}`}>
           {label}
         </Text>
         <CaregiverStatusToggle value={safeValue.status} onChange={updateStatus} />
       </View>
 
-      {isAbnormal ? (
+      {isAbnormal && (
         <TextInput
           value={safeValue.memo ?? ""}
           onChangeText={updateMemo}
           placeholder="이상 사유를 간단히 입력하세요"
-          placeholderTextColor="#B0B9C8"
-          style={styles.memoInput}
+          placeholderTextColor="#949BA0"
+          className="mt-2 border border-error-primary bg-caregiver-bg-primary rounded-lg px-[10px] py-2 text-[13px] text-caregiver-text-primary"
+          style={{ minHeight: 44 }}
           multiline
           textAlignVertical="top"
         />
-      ) : null}
+      )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEF2F8",
-  },
-  rowLast: {
-    borderBottomWidth: 0,
-  },
-  headerLine: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  label: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#2B3F5C",
-    paddingRight: 8,
-  },
-  labelAbnormal: {
-    color: "#C13E48",
-  },
-  memoInput: {
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: "#F0C5CB",
-    backgroundColor: "#FFF8F9",
-    borderRadius: 8,
-    minHeight: 44,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    fontSize: 12.5,
-    color: "#1B2A3A",
-  },
-});

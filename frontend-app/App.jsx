@@ -27,9 +27,31 @@ import StorageDetail from "./src/components/billing/StorageDetail";
 import PaymentHistory from "./src/components/billing/PaymentHistory";
 import InvoicePaymentList from "./src/components/billing/InvoicePaymentList";
 
+import { useFonts } from "expo-font";
+import {
+  NotoSansKR_400Regular,
+  NotoSansKR_700Bold,
+} from "@expo-google-fonts/noto-sans-kr";
+import {
+  Poppins_400Regular,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  Poppins_800ExtraBold,
+} from "@expo-google-fonts/poppins";
+import "./global.css";
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    NotoSansKR_400Regular,
+    NotoSansKR_700Bold,
+    Poppins_400Regular,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
+  });
+
   const content = (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="GuardianLogin">

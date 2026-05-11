@@ -12,13 +12,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity,
+  View, ScrollView, TouchableOpacity,
   ActivityIndicator, SafeAreaView,
 } from "react-native";
+import Text from "../Text";
 import storageApi from "../../api/storageApi";
 import { normalizePayment, normalizePatient, formatWon } from "../../utils/Storageformat";
-import { styles } from "../../styles/payMent.styles.js";
-import { TAG_COLORS, COLORS } from "../../styles/colors";
+import { TAG_COLORS } from "../../styles/colors";
 
 const CATEGORY_OPTIONS = ["전체", "진료비", "식대", "입원비", "약제비"];
 const DATE_OPTIONS     = ["전체 기간", "최근 1개월", "최근 3개월", "최근 6개월"];
@@ -47,7 +47,7 @@ function makeFormatDateLabel() {
 }
 
 function dateOptionToRange(opt) {
-  const now = new Date();
+  const now   = new Date();
   const today = now.toISOString().slice(0, 10);
   if (opt === "전체 기간") return null;
   const months = { "최근 1개월": 1, "최근 3개월": 3, "최근 6개월": 6 }[opt];
@@ -63,11 +63,10 @@ export default function PaymentHistory({ navigation }) {
   const [selectedDate,     setSelectedDate]     = useState("전체 기간");
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [openDropdown,     setOpenDropdown]     = useState(null);
-
-  const [patient,  setPatient]  = useState(null);
-  const [payments, setPayments] = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState(null);
+  const [patient,          setPatient]          = useState(null);
+  const [payments,         setPayments]         = useState([]);
+  const [loading,          setLoading]          = useState(true);
+  const [error,            setError]            = useState(null);
 
   // 환자 (mount 1회)
   useEffect(() => {
@@ -110,9 +109,7 @@ export default function PaymentHistory({ navigation }) {
   }, [selectedCategory, selectedDate]);
 
   const filtered = useMemo(() =>
-    payments.filter((p) =>
-      selectedCategory === "전체" || p.tag === selectedCategory
-    ),
+    payments.filter((p) => selectedCategory === "전체" || p.tag === selectedCategory),
   [payments, selectedCategory]);
 
   const grouped = useMemo(() => groupByDate(filtered), [filtered]);
@@ -129,25 +126,36 @@ export default function PaymentHistory({ navigation }) {
   const isCategoryActive = openDropdown === "category";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
+
       {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backIcon}>‹</Text>
+      <View className="flex-row items-center justify-between px-4 py-3 bg-background-neutral border-b border-guardian-button-secondary">
+        <TouchableOpacity onPress={() => navigation.goBack()} className="w-10">
+          <Text className="text-3xl text-guardian-text-primary">‹</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>결제 내역</Text>
-        <View style={styles.headerRight} />
+        <Text className="text-lg font-bold text-guardian-text-primary">결제 내역</Text>
+        <View className="w-10" />
       </View>
 
       {/* 환자 요약 바 */}
-      <View style={styles.patientBar}>
-        <View style={styles.patientAvatar}>
-          <Text style={styles.patientAvatarText}>{patient?.name?.[0] ?? "?"}</Text>
+      <View className="flex-row items-center px-4 py-3 bg-background-neutral gap-3 border-b border-guardian-button-secondary">
+        <View className="w-10 h-10 rounded-full bg-guardian-button-primary justify-center items-center">
+          <Text className="text-base font-bold text-guardian-text-primary">
+            {patient?.name?.[0] ?? "?"}
+          </Text>
         </View>
-        <View style={styles.patientInfo}>
-          <Text style={styles.patientName}>{patient?.name ?? "-"}</Text>
-          {patient?.status && <Text style={styles.patientStatus}>({patient.status})</Text>}
-          <Text style={styles.patientMeta}>
+        <View>
+          <View className="flex-row items-center gap-1">
+            <Text className="text-base font-bold text-guardian-text-primary">
+              {patient?.name ?? "-"}
+            </Text>
+            {patient?.status && (
+              <Text className="text-xs text-guardian-text-neutral">
+                ({patient.status})
+              </Text>
+            )}
+          </View>
+          <Text className="text-xs text-guardian-text-neutral mt-[2px]">
             {patient?.room ? `${patient.room}호` : ""}
             {patient?.admissionDate ? ` · 입원일 ${patient.admissionDate}` : ""}
           </Text>
@@ -155,25 +163,39 @@ export default function PaymentHistory({ navigation }) {
       </View>
 
       {/* 필터 바 */}
-      <View style={styles.filterBar}>
+      <View className="flex-row gap-2 px-4 py-3">
+
+        {/* 기간 필터 */}
         <View>
           <TouchableOpacity
             onPress={() => toggleDropdown("date")}
-            style={[styles.filterButton, isDateActive && styles.filterButtonActive]}
+            className={`px-3 py-2 rounded-full border ${
+              isDateActive
+                ? "bg-guardian-button-primary border-guardian-button-primary"
+                : "bg-guardian-bg-secondary border-guardian-button-secondary"
+            }`}
           >
-            <Text style={[styles.filterButtonText, isDateActive && styles.filterButtonTextActive]}>
+            <Text className={`text-sm font-bold ${
+              isDateActive ? "text-guardian-text-primary" : "text-guardian-text-neutral"
+            }`}>
               {selectedDate} ▾
             </Text>
           </TouchableOpacity>
           {isDateActive && (
-            <View style={styles.dropdownBox}>
+            <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-36">
               {DATE_OPTIONS.map((opt) => (
                 <TouchableOpacity
                   key={opt}
                   onPress={() => { setSelectedDate(opt); setOpenDropdown(null); }}
-                  style={[styles.dropdownItem, selectedDate === opt && styles.dropdownItemActive]}
+                  className={`px-4 py-3 border-b border-guardian-bg-secondary ${
+                    selectedDate === opt ? "bg-guardian-button-secondary" : ""
+                  }`}
                 >
-                  <Text style={[styles.dropdownItemText, selectedDate === opt && styles.dropdownItemTextActive]}>
+                  <Text className={`text-sm ${
+                    selectedDate === opt
+                      ? "text-guardian-text-primary font-bold"
+                      : "text-guardian-text-neutral"
+                  }`}>
                     {opt}
                   </Text>
                 </TouchableOpacity>
@@ -182,24 +204,37 @@ export default function PaymentHistory({ navigation }) {
           )}
         </View>
 
+        {/* 카테고리 필터 */}
         <View>
           <TouchableOpacity
             onPress={() => toggleDropdown("category")}
-            style={[styles.filterButton, isCategoryActive && styles.filterButtonActive]}
+            className={`px-3 py-2 rounded-full border ${
+              isCategoryActive
+                ? "bg-guardian-button-primary border-guardian-button-primary"
+                : "bg-guardian-bg-secondary border-guardian-button-secondary"
+            }`}
           >
-            <Text style={[styles.filterButtonText, isCategoryActive && styles.filterButtonTextActive]}>
+            <Text className={`text-sm font-bold ${
+              isCategoryActive ? "text-guardian-text-primary" : "text-guardian-text-neutral"
+            }`}>
               {selectedCategory === "전체" ? "전체 항목" : selectedCategory} ▾
             </Text>
           </TouchableOpacity>
           {isCategoryActive && (
-            <View style={styles.dropdownBox}>
+            <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-32">
               {CATEGORY_OPTIONS.map((opt) => (
                 <TouchableOpacity
                   key={opt}
                   onPress={() => { setSelectedCategory(opt); setOpenDropdown(null); }}
-                  style={[styles.dropdownItem, selectedCategory === opt && styles.dropdownItemActive]}
+                  className={`px-4 py-3 border-b border-guardian-bg-secondary ${
+                    selectedCategory === opt ? "bg-guardian-button-secondary" : ""
+                  }`}
                 >
-                  <Text style={[styles.dropdownItemText, selectedCategory === opt && styles.dropdownItemTextActive]}>
+                  <Text className={`text-sm ${
+                    selectedCategory === opt
+                      ? "text-guardian-text-primary font-bold"
+                      : "text-guardian-text-neutral"
+                  }`}>
                     {opt === "전체" ? "전체 항목" : opt}
                   </Text>
                 </TouchableOpacity>
@@ -210,56 +245,73 @@ export default function PaymentHistory({ navigation }) {
       </View>
 
       {/* 요약 행 */}
-      <View style={styles.summaryRow}>
-        <Text style={styles.summaryCount}>총 {filtered.length}건</Text>
-        <Text style={styles.summaryAmount}>
-          총 결제금액 <Text style={styles.summaryAmountBold}>{totalAmount}</Text>
+      <View className="flex-row justify-between items-center px-4 py-2 bg-guardian-bg-secondary">
+        <Text className="text-sm text-guardian-text-neutral">총 {filtered.length}건</Text>
+        <Text className="text-sm text-guardian-text-neutral">
+          총 결제금액{" "}
+          <Text className="font-bold text-guardian-text-primary">{totalAmount}</Text>
         </Text>
       </View>
 
       {/* 목록 */}
-      <ScrollView contentContainerStyle={styles.listContent}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
         {error ? (
-          <View style={styles.emptyBox}>
-            <Text style={styles.errorText}>{error}</Text>
+          <View className="py-10 items-center">
+            <Text className="text-error-primary text-sm">{error}</Text>
           </View>
         ) : loading ? (
-          <View style={styles.emptyBox}>
-            <ActivityIndicator size="large" color={COLORS.blue400} />
+          <View className="py-10 items-center">
+            <ActivityIndicator size="large" color="#FCC101" />
           </View>
         ) : grouped.length === 0 ? (
-          <View style={styles.emptyBox}>
-            <Text style={styles.emptyText}>해당하는 결제 내역이 없습니다.</Text>
+          <View className="py-10 items-center">
+            <Text className="text-guardian-text-neutral text-sm">
+              해당하는 결제 내역이 없습니다.
+            </Text>
           </View>
         ) : (
           grouped.map(([date, dayPayments]) => (
-            <View key={date} style={styles.dateGroup}>
-              <View style={styles.dateLabelRow}>
-                <Text style={styles.dateLabel}>{formatDateLabel(date)}</Text>
-                <View style={styles.dateLine} />
+            <View key={date} className="mb-4">
+
+              {/* 날짜 레이블 */}
+              <View className="flex-row items-center gap-2 mb-2">
+                <Text className="text-sm font-bold text-guardian-text-primary">
+                  {formatDateLabel(date)}
+                </Text>
+                <View className="flex-1 h-[0.5px] bg-guardian-button-secondary" />
               </View>
+
               {dayPayments.map((pay) => {
-                const tagColor = TAG_COLORS[pay.tag] ?? { bg: "#f3f4f6", text: COLORS.textMuted };
+                const tagColor = TAG_COLORS[pay.tag] ?? { bg: "#FEF7E5", text: "#503115" };
                 return (
                   <TouchableOpacity
                     key={pay.id}
-                    style={styles.smallCard}
+                    className="bg-background-neutral rounded-2xl p-4 mb-3 border border-guardian-button-secondary"
                     onPress={() => navigation.navigate("StorageDetail", { invoiceId: pay.invoiceId, payment: pay })}
                   >
-                    <View style={styles.smallCardTopRow}>
-                      <Text style={styles.smallCardTitle}>{pay.title}</Text>
-                      <Text style={styles.smallCardAmount}>{pay.amountWon}</Text>
+                    {/* 제목 + 금액 */}
+                    <View className="flex-row justify-between items-center mb-1">
+                      <Text className="text-sm font-bold text-guardian-text-primary flex-1 mr-2" numberOfLines={1}>
+                        {pay.title}
+                      </Text>
+                      <Text className="text-sm font-bold text-guardian-text-primary">
+                        {pay.amountWon}
+                      </Text>
                     </View>
-                    <View style={styles.smallCardBottomRow}>
-                      <Text style={styles.smallCardTime}>{pay.time}</Text>
-                      <View style={styles.doneBadge}>
-                        <Text style={styles.doneBadgeText}>{pay.status}</Text>
+
+                    {/* 시간 + 완료 뱃지 */}
+                    <View className="flex-row justify-between items-center mb-2">
+                      <Text className="text-xs text-guardian-text-neutral">{pay.time}</Text>
+                      <View className="bg-success-secondary px-2 py-[3px] rounded-full">
+                        <Text className="text-xs font-bold text-success-primary">{pay.status}</Text>
                       </View>
                     </View>
-                    <View style={styles.smallCardTagRow}>
-                      <View style={[styles.tagBadgeSmall, { backgroundColor: tagColor.bg }]}>
-                        <Text style={[styles.tagBadgeSmallText, { color: tagColor.text }]}>{pay.tag}</Text>
-                      </View>
+
+                    {/* 태그 */}
+                    <View style={{ backgroundColor: tagColor.bg }} className="self-start px-2 py-[3px] rounded-full">
+                      <Text style={{ color: tagColor.text }} className="text-[11px] font-bold">
+                        {pay.tag}
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 );

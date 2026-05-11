@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { View } from "react-native";
+import Text from "../Text";
 
 /**
  * 섹션 한 단위 (이모지 아이콘 + 한글/영문 타이틀 + 카드 박스).
@@ -11,48 +12,17 @@ import { StyleSheet, Text, View } from "react-native";
  */
 export default function CaregiverSectionCard({ icon, title, subtitle, children }) {
   return (
-    <View style={styles.section}>
-      <View style={styles.titleRow}>
-        {icon ? <Text style={styles.icon}>{icon}</Text> : null}
-        <Text style={styles.title}>{title}</Text>
-        {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+    <View className="mt-[14px] px-[14px]">
+      <View className="flex-row items-end mb-2 gap-[6px]">
+        {icon && <Text className="text-[18px]">{icon}</Text>}
+        <Text className="text-[17px] font-extrabold text-caregiver-text-primary">{title}</Text>
+        {subtitle && (
+          <Text className="ml-1 text-xs text-caregiver-text-secondary pb-[2px]">{subtitle}</Text>
+        )}
       </View>
-      <View style={styles.card}>{children}</View>
+      <View className="rounded-xl border border-caregiver-button-secondary bg-background-neutral overflow-hidden">
+        {children}
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    marginTop: 14,
-    paddingHorizontal: 14,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    marginBottom: 8,
-    gap: 6,
-  },
-  icon: {
-    fontSize: 18,
-    color: "#1F3552",
-  },
-  title: {
-    fontSize: 17,
-    fontWeight: "800",
-    color: "#1F3552",
-  },
-  subtitle: {
-    marginLeft: 4,
-    fontSize: 12,
-    color: "#7A8BA2",
-    paddingBottom: 2,
-  },
-  card: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#DCE3EE",
-    backgroundColor: "#FFFFFF",
-    overflow: "hidden",
-  },
-});

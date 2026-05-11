@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { TextInput, View } from "react-native";
+import Text from "../Text";
 import CaregiverStatusToggle from "./CaregiverStatusToggle";
 
 /**
@@ -10,14 +11,8 @@ import CaregiverStatusToggle from "./CaregiverStatusToggle";
  *
  * value = { status: null|"normal"|"abnormal", memo: string }
  */
-export default function CaregiverConditionRow({
-  label,
-  value,
-  onChange,
-  warnText,
-  isLast = false,
-}) {
-  const safeValue = value || {};
+export default function CaregiverConditionRow({ label, value, onChange, warnText, isLast = false }) {
+  const safeValue  = value || {};
   const isAbnormal = safeValue.status === "abnormal";
 
   const updateStatus = (next) => {
@@ -31,86 +26,36 @@ export default function CaregiverConditionRow({
   const updateMemo = (text) => onChange({ ...safeValue, memo: text });
 
   return (
-    <View style={[styles.row, isLast && styles.rowLast]}>
-      {isAbnormal ? <View style={styles.dangerBar} /> : null}
+    <View className={`px-[14px] py-3 ${!isLast ? "border-b border-caregiver-bg-secondary" : ""}`}>
+      {/* 이상 시 좌측 빨간 세로줄 - position absolute는 inline style 유지 */}
+      {isAbnormal && (
+        <View style={{ position: "absolute", left: 0, top: 8, bottom: 8, width: 3, borderRadius: 2, backgroundColor: "#ED584C" }} />
+      )}
 
-      <View style={styles.headerLine}>
-        <View style={styles.left}>
-          <Text style={[styles.label, isAbnormal && styles.labelAbnormal]}>
+      <View className="flex-row items-center justify-between">
+        <View className="flex-1 pr-[10px]">
+          <Text className={`text-sm font-bold ${isAbnormal ? "text-error-primary" : "text-caregiver-text-primary"}`}>
             {label}
           </Text>
-          {warnText ? <Text style={styles.warn}>{warnText}</Text> : null}
+          {warnText && (
+            <Text className="mt-[3px] text-[11px] font-bold text-error-primary">{warnText}</Text>
+          )}
         </View>
         <CaregiverStatusToggle value={safeValue.status} onChange={updateStatus} />
       </View>
 
-      {isAbnormal ? (
+      {isAbnormal && (
         <TextInput
           value={safeValue.memo ?? ""}
           onChangeText={updateMemo}
           placeholder={`${label} 이상 사유를 간단히 입력하세요`}
-          placeholderTextColor="#B0B9C8"
-          style={styles.memoInput}
+          placeholderTextColor="#949BA0"
+          className="mt-2 border border-error-primary bg-caregiver-bg-primary rounded-lg px-[10px] py-2 text-[13px] text-caregiver-text-primary"
+          style={{ minHeight: 44 }}
           multiline
           textAlignVertical="top"
         />
-      ) : null}
+      )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEF2F8",
-  },
-  rowLast: {
-    borderBottomWidth: 0,
-  },
-  dangerBar: {
-    position: "absolute",
-    left: 0,
-    top: 8,
-    bottom: 8,
-    width: 3,
-    borderRadius: 2,
-    backgroundColor: "#E83042",
-  },
-  headerLine: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  left: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#2B3F5C",
-  },
-  labelAbnormal: {
-    color: "#C13E48",
-  },
-  warn: {
-    marginTop: 3,
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#C13E48",
-  },
-  memoInput: {
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: "#F0C5CB",
-    backgroundColor: "#FFF8F9",
-    borderRadius: 8,
-    minHeight: 44,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    fontSize: 12.5,
-    color: "#1B2A3A",
-  },
-});

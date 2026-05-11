@@ -2,13 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   SafeAreaView,
   View,
-  Text,
   ScrollView,
   TouchableOpacity,
   Image,
   Dimensions,
 } from "react-native";
-import { styles } from "../../styles/guardianMain.styles";
+import Text from "../../components/Text";
 
 export default function GuardianMainPage({ navigation }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -35,143 +34,149 @@ export default function GuardianMainPage({ navigation }) {
   useEffect(() => {
     if (!galleryWidth) return;
     const interval = setInterval(() => {
-      const nextIndex =
-        currentImage === galleryImages.length - 1 ? 0 : currentImage + 1;
-
-      scrollRef.current?.scrollTo({
-        x: nextIndex * galleryWidth,
-        animated: true,
-      });
-
+      const nextIndex = currentImage === galleryImages.length - 1 ? 0 : currentImage + 1;
+      scrollRef.current?.scrollTo({ x: nextIndex * galleryWidth, animated: true });
       setCurrentImage(nextIndex);
     }, 3000);
-
     return () => clearInterval(interval);
   }, [currentImage, galleryWidth]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
       <View
-        style={styles.container}
+        className="flex-1"
         onLayout={(e) => setContainerWidth(e?.nativeEvent?.layout?.width ?? 0)}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={{ paddingBottom: 24 }}
           showsVerticalScrollIndicator={false}
         >
-          {/* 상단 헤더 */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Text style={styles.logoIcon}>🩺</Text>
-              <Text style={styles.logoText}>따숨</Text>
+          {/* 헤더 */}
+          <View className="flex-row justify-between items-center px-5 py-4 bg-background-neutral border-b border-guardian-button-secondary">
+            <View className="flex-row items-center gap-2">
+              <Text className="text-xl">🩺</Text>
+              <Text className="text-lg font-extrabold text-guardian-text-primary">따숨</Text>
             </View>
-
-            <View style={styles.headerRight}>
+            <View className="flex-row items-center gap-4">
               <TouchableOpacity onPress={() => alert("알림 클릭")}>
-                <Text style={styles.headerIcon}>🔔</Text>
+                <Text className="text-xl">🔔</Text>
               </TouchableOpacity>
-
               <TouchableOpacity onPress={() => setMenuOpen(true)}>
-                <Text style={styles.headerIcon}>☰</Text>
+                <Text className="text-xl">☰</Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* 사진 영역 */}
-          <View style={styles.section} >
+          {/* 활동 갤러리 */}
+          <View className="mx-5 mt-5">
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => navigation.navigate("ActivePhotoGallery")}
             >
-              <Text style={styles.sectionTitle}>활동 갤러리</Text>
+              <Text className="text-base font-extrabold text-guardian-text-primary mb-3">
+                활동 갤러리
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate("ActivePhotoGallery")}>
-            <View style={styles.galleryCard}>
-              <ScrollView
-                ref={scrollRef}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                onMomentumScrollEnd={(event) => {
-                  const x = event.nativeEvent.contentOffset.x;
-                  const index = Math.round(x / galleryWidth);
-                  setCurrentImage(index);
-                }}
-                scrollEventThrottle={16}
-              >
-                {galleryImages.map((image, index) => (
-                  <Image
-                    key={index}
-                    source={{ uri: image }}
-                    style={[styles.galleryImage,  { width: galleryWidth }]}
-                  />
-                ))}
-              </ScrollView>
-
-              <View style={styles.galleryBadge}>
-                <Text style={styles.galleryBadgeText}>
-                  {currentImage + 1} / {galleryImages.length}
-                </Text>
+              <View className="bg-background-neutral rounded-2xl overflow-hidden">
+                <ScrollView
+                  ref={scrollRef}
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  onMomentumScrollEnd={(event) => {
+                    const x = event.nativeEvent.contentOffset.x;
+                    setCurrentImage(Math.round(x / galleryWidth));
+                  }}
+                  scrollEventThrottle={16}
+                >
+                  {galleryImages.map((image, index) => (
+                    <Image
+                      key={index}
+                      source={{ uri: image }}
+                      style={{ width: galleryWidth, height: 200 }}
+                    />
+                  ))}
+                </ScrollView>
+                <View className="absolute bottom-3 right-3 bg-black/40 px-3 py-1 rounded-full">
+                  <Text className="text-white text-xs font-bold">
+                    {currentImage + 1} / {galleryImages.length}
+                  </Text>
+                </View>
               </View>
-            </View>
             </TouchableOpacity>
           </View>
 
           {/* 퀵메뉴 */}
-          <View style={styles.quickMenuWrap}>
-            <TouchableOpacity style={styles.quickCard} onPress={() => navigation.navigate("Report")}
-            >
-              <Text style={styles.quickIcon}>📄</Text>
-              <Text style={styles.quickText}>보고서 확인</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.quickCard} onPress={() => navigation.navigate("Consent")}>
-              <Text style={styles.quickIcon}>📝</Text>
-              <Text style={styles.quickText}>동의서 확인</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.quickCard} onPress={() => navigation.navigate("VisitApply")}>
-              <Text style={styles.quickIcon}>🤝</Text>
-              <Text style={styles.quickText}>면회 신청</Text>
-            </TouchableOpacity>
+          <View className="flex-row justify-between gap-3 mx-5 mt-5">
+            {[
+              { icon: "📄", label: "보고서 확인", route: "Report" },
+              { icon: "📝", label: "동의서 확인", route: "Consent" },
+              { icon: "🤝", label: "면회 신청",   route: "VisitApply" },
+            ].map(({ icon, label, route }) => (
+              <TouchableOpacity
+                key={label}
+                className="flex-1 bg-background-neutral items-center py-4 rounded-2xl"
+                onPress={() => navigation.navigate(route)}
+              >
+                <Text className="text-2xl">{icon}</Text>
+                <Text className="text-xs font-bold text-guardian-text-primary mt-2">
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           {/* 식단 */}
-          <View style={styles.section}>
-            <View style={styles.mealCard}>
-              <View style={styles.mealHeader}>
-                <Text style={styles.sectionTitleNoMargin}>오늘의 식단</Text>
-
-                <View style={styles.mealTabs}>
-                  <TouchableOpacity style={styles.mealTab}>
-                    <Text style={styles.mealTabText}>아침</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.mealTab, styles.mealTabActive]}>
-                    <Text style={[styles.mealTabText, styles.mealTabTextActive]}>
-                      점심
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.mealTab}>
-                    <Text style={styles.mealTabText}>저녁</Text>
-                  </TouchableOpacity>
+          <View className="mx-5 mt-5">
+            <View className="bg-background-neutral rounded-2xl p-4">
+              <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-base font-extrabold text-guardian-text-primary">
+                  오늘의 식단
+                </Text>
+                <View className="flex-row gap-2">
+                  {["아침", "점심", "저녁"].map((tab) => (
+                    <TouchableOpacity
+                      key={tab}
+                      className={`px-3 py-1 rounded-full ${
+                        tab === "점심"
+                          ? "bg-guardian-button-primary"
+                          : "bg-guardian-bg-secondary"
+                      }`}
+                    >
+                      <Text
+                        className={`text-xs font-bold ${
+                          tab === "점심"
+                            ? "text-guardian-text-primary"
+                            : "text-guardian-text-neutral"
+                        }`}
+                      >
+                        {tab}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
                 </View>
               </View>
 
-              <View style={styles.mealContent}>
+              <View className="flex-row gap-3">
                 <Image
-                  source={{
-                    uri: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80",
-                  }}
-                  style={styles.mealImage}
+                  source={{ uri: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80" }}
+                  className="w-24 h-24 rounded-xl"
                 />
-                {/*여기는 태우 컴포넌트 받와서 할 예정 */}
-                <View style={styles.mealTextWrap}>
-                  <Text style={styles.mealMainText}>메인 메뉴: 전복죽</Text>
-                  <Text style={styles.mealSubText}>계란찜, 시금치 나물, 백김치</Text>
-                  <Text style={styles.mealSubText}>후식용 계절 과일</Text>
-
-                  <View style={styles.doneBadge}>
-                    <Text style={styles.doneBadgeText}>식사 완료 (12:30)</Text>
+                <View className="flex-1 justify-center">
+                  <Text className="text-sm font-bold text-guardian-text-primary">
+                    메인 메뉴: 전복죽
+                  </Text>
+                  <Text className="text-xs text-guardian-text-neutral mt-1">
+                    계란찜, 시금치 나물, 백김치
+                  </Text>
+                  <Text className="text-xs text-guardian-text-neutral">
+                    후식용 계절 과일
+                  </Text>
+                  <View className="bg-success-secondary px-3 py-1 rounded-full mt-2 self-start">
+                    <Text className="text-xs font-bold text-success-primary">
+                      식사 완료 (12:30)
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -179,86 +184,91 @@ export default function GuardianMainPage({ navigation }) {
           </View>
 
           {/* 공지사항 */}
-          <View style={styles.section}>
-            <View style={styles.noticeHeader}>
-              <Text style={styles.sectionTitle}>공지사항</Text>
-              <TouchableOpacity>
-                <Text style={styles.noticeMore} onPress={() => navigation.navigate("Notice")}>전체보기</Text>
+          <View className="mx-5 mt-5">
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-base font-extrabold text-guardian-text-primary">
+                공지사항
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("Notice")}>
+                <Text className="text-sm font-bold text-guardian-text-secondary">
+                  전체보기
+                </Text>
               </TouchableOpacity>
             </View>
-
             {notices.map((notice) => (
-              <TouchableOpacity key={notice.id} style={styles.noticeCard}>
+              <TouchableOpacity
+                key={notice.id}
+                className="flex-row justify-between items-center bg-background-neutral px-4 py-4 rounded-2xl mb-2 border border-guardian-button-secondary"
+              >
                 <View>
-                  <Text style={styles.noticeTitle}>{notice.title}</Text>
-                  <Text style={styles.noticeDate}>{notice.date}</Text>
+                  <Text className="text-sm font-bold text-guardian-text-primary">
+                    {notice.title}
+                  </Text>
+                  <Text className="text-xs text-guardian-text-neutral mt-1">
+                    {notice.date}
+                  </Text>
                 </View>
-                <Text style={styles.noticeArrow}>›</Text>
+                <Text className="text-xl text-guardian-text-secondary">›</Text>
               </TouchableOpacity>
             ))}
           </View>
         </ScrollView>
 
-        {/* 하단 메뉴 */}
-        {/* 하단 메뉴 */}
-        {/* 하단 메뉴 */}
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.bottomItem}>
-            <Text style={styles.bottomIcon}>🏠</Text>
-            <Text style={[styles.bottomLabel, styles.bottomLabelActive]}>홈</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.bottomItem} onPress={() => navigation.navigate("Calendar")}>
-            <Text style={styles.bottomIcon}>📆</Text>
-            <Text style={styles.bottomLabel}>달력</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.bottomItem} onPress={() => navigation.navigate("Payment")}>
-            <Text style={styles.bottomIcon}>💵</Text>
-            <Text style={styles.bottomLabel}>수납</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.bottomItem} onPress={() => navigation.navigate("LiveCheck")}>
-            <Text style={styles.bottomIcon}>✅</Text>
-            <Text style={styles.bottomLabel}>실시간</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.bottomItem} onPress={() => navigation.navigate("Chatbot")}>
-            <Text style={styles.bottomIcon}>💬</Text>
-            <Text style={styles.bottomLabel}>챗봇</Text>
-          </TouchableOpacity>
+        {/* 하단 네비게이션 */}
+        <View className="flex-row justify-around bg-background-neutral border-t border-guardian-button-secondary py-3">
+          {[
+            { icon: "🏠", label: "홈",    route: null,        active: true },
+            { icon: "📆", label: "달력",  route: "Calendar" },
+            { icon: "💵", label: "수납",  route: "Payment" },
+            { icon: "✅", label: "실시간", route: "LiveCheck" },
+            { icon: "💬", label: "챗봇",  route: "Chatbot" },
+          ].map(({ icon, label, route, active }) => (
+            <TouchableOpacity
+              key={label}
+              className="items-center"
+              onPress={() => route && navigation.navigate(route)}
+            >
+              <Text className="text-xl">{icon}</Text>
+              <Text
+                className={`text-[10px] font-bold mt-1 ${
+                  active
+                    ? "text-guardian-text-secondary"
+                    : "text-guardian-text-neutral"
+                }`}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
+        {/* 드로어 */}
         {menuOpen && (
-          <View style={styles.overlay}>
+          <View className="absolute inset-0 z-50">
             <TouchableOpacity
-              style={styles.overlayBackground}
+              className="absolute inset-0 bg-black/50"
               onPress={() => setMenuOpen(false)}
             />
-
-            <View style={styles.drawer}>
-              <Text style={styles.drawerTitle}>메뉴</Text>
-
-              <TouchableOpacity
-                style={styles.drawerItem}
-                onPress={() => {
-                  setMenuOpen(false); navigation.navigate("MyPage");
-                }}
-              >
-                <Text>마이페이지</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.drawerItem}>
-                <Text>설정</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.drawerItem}>
-                <Text>로그아웃</Text>
-              </TouchableOpacity>
+            <View className="absolute right-0 top-0 bottom-0 w-64 bg-background-neutral p-6">
+              <Text className="text-lg font-extrabold text-guardian-text-primary mb-6">
+                메뉴
+              </Text>
+              {[
+                { label: "마이페이지", onPress: () => { setMenuOpen(false); navigation.navigate("MyPage"); } },
+                { label: "설정",      onPress: () => {} },
+                { label: "로그아웃",  onPress: () => {} },
+              ].map(({ label, onPress }) => (
+                <TouchableOpacity
+                  key={label}
+                  className="py-4 border-b border-guardian-button-secondary"
+                  onPress={onPress}
+                >
+                  <Text className="font-bold text-guardian-text-primary">{label}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         )}
-
       </View>
     </SafeAreaView>
   );

@@ -1,196 +1,128 @@
 import React from "react";
 import {
   View,
-  Text,
-  StyleSheet,
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
 } from "react-native";
-
-const PRIMARY = "#0B4EA2";
+import Text from "../../components/Text";
 
 export default function VisitReservationCompletePage({ data, onHome }) {
   if (!data) {
     return (
-      <SafeAreaView style={styles.safe}>
-        <TouchableOpacity style={styles.primaryBtn} onPress={onHome}>
-          <Text style={styles.primaryBtnText}>홈으로 이동</Text>
+      <SafeAreaView className="flex-1 bg-guardian-bg-secondary">
+        <TouchableOpacity
+          className="bg-guardian-button-primary py-4 rounded-xl items-center mx-5 mt-5"
+          onPress={onHome}
+        >
+          <Text className="text-guardian-text-primary text-base font-extrabold">
+            홈으로 이동
+          </Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.header}>
+    <SafeAreaView className="flex-1 bg-guardian-bg-secondary">
+
+      {/* 헤더 */}
+      <View className="flex-row items-center justify-between px-4 py-[14px] bg-background-neutral border-b border-guardian-button-secondary">
         <TouchableOpacity onPress={onHome} hitSlop={12}>
-          <Text style={styles.back}>←</Text>
+          <Text className="text-[22px] text-guardian-text-primary w-10">←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>방문 예약 신청</Text>
-        <View style={styles.headerSpacer} />
+        <Text className="text-[17px] font-bold text-guardian-text-primary">
+          방문 예약 신청
+        </Text>
+        <View className="w-10" />
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.successIconWrap}>
-          <Text style={styles.successIconInner}>✓</Text>
-        </View>
-        <Text style={styles.mainTitle}>면회 신청이 완료되었습니다</Text>
-        <View style={styles.badge}>
-          <Text style={styles.badgeDot}>●</Text>
-          <Text style={styles.badgeText}>승인 대기</Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>예약 상세 내역</Text>
-
-          <View style={styles.cardBlock}>
-            <Text style={styles.cardLabel}>VISIT DATE</Text>
-            <Text style={styles.cardValue}>{data.visitDateDetail}</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.cardBlock}>
-            <Text style={styles.cardLabel}>PATIENT NAME</Text>
-            <Text style={styles.cardValue}>{data.patientLine}</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.cardBlock}>
-            <Text style={styles.cardLabel}>VISIT TYPE</Text>
-            <Text style={styles.cardValue}>{data.visitTypeDetail}</Text>
-          </View>
-        </View>
-
-        <View style={styles.noticeBox}>
-          <Text style={styles.noticeTitle}>ⓘ 유의사항</Text>
-          <Text style={styles.noticeBullet}>
-            • 승인 결과는 카카오톡 알림톡 또는 '예약 내역'에서 확인 가능합니다.
-          </Text>
-          <Text style={styles.noticeBullet}>
-            • 면회 시간 10분 전까지 원무과 데스크에 방문하여 접수해 주세요.
-          </Text>
-          <Text style={styles.noticeBullet}>
-            • 발열이나 호흡기 증상이 있을 경우 면회가 제한될 수 있습니다.
+        {/* 성공 아이콘 */}
+        <View className="self-center w-[72px] h-[72px] rounded-2xl bg-guardian-button-secondary items-center justify-center mb-4">
+          <Text className="w-11 h-11 rounded-full bg-guardian-button-primary text-guardian-text-primary text-center text-2xl font-extrabold leading-[44px] overflow-hidden">
+            ✓
           </Text>
         </View>
 
-        <TouchableOpacity style={styles.primaryBtn} onPress={onHome}>
-          <Text style={styles.primaryBtnText}>홈으로 이동</Text>
+        {/* 완료 제목 */}
+        <Text className="text-[21px] font-extrabold text-guardian-text-primary text-center mb-3">
+          면회 신청이 완료되었습니다
+        </Text>
+
+        {/* 승인 대기 뱃지 */}
+        <View className="self-center flex-row items-center bg-guardian-button-secondary px-3 py-[6px] rounded-[20px] mb-6 gap-[6px]">
+          <Text className="text-[8px] text-guardian-text-primary">●</Text>
+          <Text className="text-[13px] font-bold text-guardian-text-primary">승인 대기</Text>
+        </View>
+
+        {/* 예약 상세 카드 */}
+        <View className="bg-background-neutral rounded-2xl p-[18px] mb-4">
+          <Text className="text-base font-extrabold text-guardian-text-primary mb-[14px]">
+            예약 상세 내역
+          </Text>
+
+          <View className="mb-1">
+            <Text className="text-[11px] font-bold text-guardian-text-neutral opacity-50 mb-[6px] tracking-wide">
+              VISIT DATE
+            </Text>
+            <Text className="text-[15px] font-bold text-guardian-text-primary">
+              {data.visitDateDetail}
+            </Text>
+          </View>
+
+          <View className="h-[0.5px] bg-guardian-bg-secondary my-3" />
+
+          <View className="mb-1">
+            <Text className="text-[11px] font-bold text-guardian-text-neutral opacity-50 mb-[6px] tracking-wide">
+              PATIENT NAME
+            </Text>
+            <Text className="text-[15px] font-bold text-guardian-text-primary">
+              {data.patientLine}
+            </Text>
+          </View>
+
+          <View className="h-[0.5px] bg-guardian-bg-secondary my-3" />
+
+          <View className="mb-1">
+            <Text className="text-[11px] font-bold text-guardian-text-neutral opacity-50 mb-[6px] tracking-wide">
+              VISIT TYPE
+            </Text>
+            <Text className="text-[15px] font-bold text-guardian-text-primary">
+              {data.visitTypeDetail}
+            </Text>
+          </View>
+        </View>
+
+        {/* 유의사항 */}
+        <View className="bg-guardian-bg-secondary rounded-xl p-[14px] mb-5">
+          <Text className="text-[14px] font-bold text-guardian-text-primary mb-[10px]">
+            ⓘ 유의사항
+          </Text>
+          {[
+            "승인 결과는 카카오톡 알림톡 또는 '예약 내역'에서 확인 가능합니다.",
+            "면회 시간 10분 전까지 원무과 데스크에 방문하여 접수해 주세요.",
+            "발열이나 호흡기 증상이 있을 경우 면회가 제한될 수 있습니다.",
+          ].map((text, i) => (
+            <Text key={i} className="text-[13px] text-guardian-text-neutral leading-5 mb-2">
+              • {text}
+            </Text>
+          ))}
+        </View>
+
+        {/* 홈으로 버튼 */}
+        <TouchableOpacity
+          className="bg-guardian-button-primary py-4 rounded-xl items-center"
+          onPress={onHome}
+        >
+          <Text className="text-guardian-text-primary text-base font-extrabold">
+            홈으로 이동
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F4F6F8" },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: "#fff",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#E5E7EB",
-  },
-  back: { fontSize: 22, color: PRIMARY, width: 40 },
-  headerTitle: { fontSize: 17, fontWeight: "700", color: PRIMARY },
-  headerSpacer: { width: 40 },
-  scroll: { padding: 20, paddingBottom: 40 },
-  successIconWrap: {
-    alignSelf: "center",
-    width: 72,
-    height: 72,
-    borderRadius: 16,
-    backgroundColor: "#DBEAFE",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  successIconInner: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: PRIMARY,
-    color: "#fff",
-    textAlign: "center",
-    lineHeight: 44,
-    fontSize: 24,
-    fontWeight: "800",
-    overflow: "hidden",
-  },
-  mainTitle: {
-    fontSize: 21,
-    fontWeight: "800",
-    color: "#111827",
-    textAlign: "center",
-    marginBottom: 12,
-  },
-  badge: {
-    alignSelf: "center",
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#E0E7FF",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginBottom: 24,
-    gap: 6,
-  },
-  badgeDot: { fontSize: 8, color: PRIMARY },
-  badgeText: { fontSize: 13, fontWeight: "700", color: PRIMARY },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#111827",
-    marginBottom: 14,
-  },
-  cardBlock: { marginBottom: 4 },
-  cardLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#9CA3AF",
-    letterSpacing: 0.5,
-    marginBottom: 6,
-  },
-  cardValue: { fontSize: 15, fontWeight: "700", color: "#111827" },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: "#E5E7EB",
-    marginVertical: 12,
-  },
-  noticeBox: {
-    backgroundColor: "#E5E7EB",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 20,
-  },
-  noticeTitle: { fontSize: 14, fontWeight: "700", color: "#374151", marginBottom: 10 },
-  noticeBullet: {
-    fontSize: 13,
-    color: "#4B5563",
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  primaryBtn: {
-    backgroundColor: PRIMARY,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  primaryBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
-});

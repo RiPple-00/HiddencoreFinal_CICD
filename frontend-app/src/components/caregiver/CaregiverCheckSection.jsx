@@ -1,30 +1,14 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { View } from "react-native";
+import Text from "../Text";
 
 export default function CaregiverCheckSection({ title, children }) {
   return (
-    <View style={styles.section}>
-      <Text style={styles.title}>{title}</Text>
-      <View style={styles.card}>{children}</View>
+    <View className="mb-3">
+      <Text className="mb-2 text-caregiver-text-primary text-[25px] font-extrabold">{title}</Text>
+      <View className="rounded-[14px] border border-caregiver-button-secondary bg-background-neutral overflow-hidden">
+        {children}
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    marginBottom: 12,
-  },
-  title: {
-    marginBottom: 8,
-    color: "#1F3552",
-    fontSize: 25,
-    fontWeight: "800",
-  },
-  card: {
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#D9E0EB",
-    backgroundColor: "#FFFFFF",
-    overflow: "hidden",
-  },
-});

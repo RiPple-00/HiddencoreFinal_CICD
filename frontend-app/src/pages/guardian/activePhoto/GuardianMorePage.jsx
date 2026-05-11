@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, View } from 'react-native';
+import Text from "../../components/Text";
 import ActivePhotoMobileShell from '../../../components/guardian/activePhoto/ActivePhotoMobileShell';
 import ActivePhotoTopBar from '../../../components/guardian/activePhoto/ActivePhotoTopBar';
 import ActivePhotoInfoText from '../../../components/guardian/activePhoto/ActivePhotoInfoText';
 import ActivePhotoGrid from '../../../components/guardian/activePhoto/ActivePhotoGrid';
-import { styles as guardianStyles } from '../../../styles/guardianMain.styles';
 
 const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -116,48 +116,43 @@ function GuardianMorePage({ route, navigation }) {
       filtered.forEach((photo) => {
         const key = dateKey(photo.takenAt);
         const targetGroup = baseGroups.find((group) => group.key === key);
-        if (targetGroup) {
-          targetGroup.photos.push(photo);
-        }
+        if (targetGroup) targetGroup.photos.push(photo);
       });
 
       return baseGroups;
     }
 
     return filtered.length
-      ? [
-          {
-            key: dateKey(today),
-            label: '오늘',
-            photos: filtered,
-            orderDate: today,
-          },
-        ]
+      ? [{ key: dateKey(today), label: '오늘', photos: filtered, orderDate: today }]
       : [];
   }, [photos, isWeek]);
 
   return (
-    <SafeAreaView style={guardianStyles.safeArea}>
-      <View style={guardianStyles.container}>
+    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
+      <View className="flex-1">
         <ActivePhotoMobileShell scrollable={false}>
           <ActivePhotoTopBar
             title={isWeek ? '더보기(일주일)' : '더보기(오늘)'}
             onBack={() => navigation.goBack()}
           />
           <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={styles.scrollContent}
+            className="flex-1"
+            contentContainerStyle={{ paddingBottom: 8 }}
             showsVerticalScrollIndicator={false}
           >
             <ActivePhotoInfoText />
 
-            <View style={styles.list}>
+            <View className="gap-5">
               {groupedPhotos.map((group) => (
                 <View key={group.key}>
-                  <View style={styles.groupHeader}>
-                    <Text style={styles.groupTitle}>{group.label}</Text>
+                  <View className="mb-3 flex-row justify-between items-center">
+                    <Text className="text-[32px] font-extrabold text-guardian-text-primary" style={{ letterSpacing: -0.3 }}>
+                      {group.label}
+                    </Text>
                     {group.label === '오늘' && (
-                      <Text style={styles.groupCount}>{group.photos.length}건</Text>
+                      <Text className="text-sm font-bold text-guardian-text-neutral">
+                        {group.photos.length}건
+                      </Text>
                     )}
                   </View>
                   <ActivePhotoGrid photos={group.photos} />
@@ -170,34 +165,5 @@ function GuardianMorePage({ route, navigation }) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 8,
-  },
-  list: {
-    gap: 20,
-  },
-  groupHeader: {
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  groupTitle: {
-    fontSize: 32,
-    fontWeight: '800',
-    letterSpacing: -0.3,
-    color: '#1e293b',
-  },
-  groupCount: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#64748b',
-  },
-});
 
 export default GuardianMorePage;

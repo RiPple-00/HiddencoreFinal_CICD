@@ -1,15 +1,27 @@
 import React from "react";
-import { SafeAreaView, View, Text, ScrollView, TextInput, TouchableOpacity } from "react-native";
-import { styles } from "../../styles/caregiverWorkCheck.styles";
+import { SafeAreaView, View, ScrollView, TextInput, TouchableOpacity } from "react-native";
+import Text from "../../components/Text";
 
 function StateButtons({ danger = false }) {
   return (
-    <View style={styles.stateWrap}>
-      <View style={[styles.stateBtn, !danger && styles.stateBtnActive]}>
-        <Text style={[styles.stateText, !danger && styles.stateTextActive]}>정상</Text>
+    <View className="flex-row gap-2">
+      <View className={`px-3 py-1 rounded-full border ${
+        !danger
+          ? "bg-success-secondary border-success-primary"
+          : "bg-caregiver-bg-secondary border-caregiver-button-secondary"
+      }`}>
+        <Text className={`text-xs font-bold ${!danger ? "text-success-primary" : "text-caregiver-text-neutral"}`}>
+          정상
+        </Text>
       </View>
-      <View style={[styles.stateBtn, danger && styles.stateBtnDanger]}>
-        <Text style={[styles.stateText, danger && styles.stateTextDanger]}>이상</Text>
+      <View className={`px-3 py-1 rounded-full border ${
+        danger
+          ? "bg-error-secondary border-error-primary"
+          : "bg-caregiver-bg-secondary border-caregiver-button-secondary"
+      }`}>
+        <Text className={`text-xs font-bold ${danger ? "text-error-primary" : "text-caregiver-text-neutral"}`}>
+          이상
+        </Text>
       </View>
     </View>
   );
@@ -17,10 +29,14 @@ function StateButtons({ danger = false }) {
 
 function Row({ label, danger = false, warnText }) {
   return (
-    <View style={styles.row}>
-      <View style={styles.rowLeft}>
-        <Text style={[styles.rowLabel, danger && { color: "#B94753" }]}>{label}</Text>
-        {warnText ? <Text style={styles.rowSubWarn}>{warnText}</Text> : null}
+    <View className="flex-row justify-between items-center py-3 border-b border-caregiver-bg-secondary">
+      <View className="flex-1 mr-3">
+        <Text className={`text-sm ${danger ? "text-error-primary" : "text-caregiver-text-primary"}`}>
+          {label}
+        </Text>
+        {warnText && (
+          <Text className="text-xs text-error-primary mt-[2px]">{warnText}</Text>
+        )}
       </View>
       <StateButtons danger={danger} />
     </View>
@@ -29,34 +45,43 @@ function Row({ label, danger = false, warnText }) {
 
 export default function CaregiverWorkCheckPage({ navigation }) {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.logoRow}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Text style={styles.backButtonText}>‹</Text>
+    <SafeAreaView className="flex-1 bg-caregiver-bg-primary">
+      <View className="flex-1">
+
+        {/* 헤더 */}
+        <View className="flex-row justify-between items-center px-5 py-4 bg-background-neutral border-b border-caregiver-button-secondary">
+          <View className="flex-row items-center gap-2">
+            <TouchableOpacity className="w-10" onPress={() => navigation.goBack()}>
+              <Text className="text-3xl text-caregiver-text-primary">‹</Text>
             </TouchableOpacity>
-            <Text style={styles.iconText}>🏥</Text>
-            <Text style={styles.logoText}>따숨</Text>
+            <Text className="text-xl">🏥</Text>
+            <Text className="text-lg font-extrabold text-caregiver-text-primary">따숨</Text>
           </View>
-          <View style={{ flexDirection: "row", gap: 14 }}>
-            <Text style={styles.iconText}>🔔</Text>
-            <Text style={styles.iconText}>☰</Text>
+          <View className="flex-row gap-[14px]">
+            <Text className="text-xl">🔔</Text>
+            <Text className="text-xl">☰</Text>
           </View>
         </View>
 
-        <View style={styles.patientStrip}>
+        {/* 환자 스트립 */}
+        <View className="flex-row justify-between items-center px-5 py-3 bg-background-neutral border-b border-caregiver-button-secondary">
           <View>
-            <Text style={styles.patientName}>Kim TTa Woo (M/82)</Text>
-            <Text style={styles.patientMeta}>591212 · Ward 702 · 72283944</Text>
+            <Text className="text-base font-bold text-caregiver-text-primary">
+              Kim TTa Woo (M/82)
+            </Text>
+            <Text className="text-xs text-caregiver-text-neutral mt-1">
+              591212 · Ward 702 · 72283944
+            </Text>
           </View>
-          <Text style={styles.iconText}>🪪</Text>
+          <Text className="text-xl">🪪</Text>
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>🍴 식사 (Meal)</Text>
-            <View style={styles.card}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 30 }} showsVerticalScrollIndicator={false}>
+
+          {/* 식사 */}
+          <View className="mx-4 mt-4">
+            <Text className="text-base font-bold text-caregiver-text-primary mb-2">🍴 식사 (Meal)</Text>
+            <View className="bg-background-neutral rounded-2xl p-4">
               <Row label="식사 섭취량" />
               <Row label="수분 섭취량" danger />
               <Row label="식욕 변화" />
@@ -64,56 +89,70 @@ export default function CaregiverWorkCheckPage({ navigation }) {
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>🧼 위생점검 (Hygiene)</Text>
-            <View style={styles.card}>
+          {/* 위생점검 */}
+          <View className="mx-4 mt-4">
+            <Text className="text-base font-bold text-caregiver-text-primary mb-2">🧼 위생점검 (Hygiene)</Text>
+            <View className="bg-background-neutral rounded-2xl p-4">
               <Row label="침구류 청결도" />
               <Row label="환자 용품 청결" />
               <Row label="목욕 여부" />
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>🛡️ 상태 안정화 (Condition)</Text>
-            <View style={styles.card}>
+          {/* 상태 안정화 */}
+          <View className="mx-4 mt-4">
+            <Text className="text-base font-bold text-caregiver-text-primary mb-2">🛡️ 상태 안정화 (Condition)</Text>
+            <View className="bg-background-neutral rounded-2xl p-4">
               <Row label="호흡 양상" danger warnText="체크 확인 필요" />
               <Row label="통증 유무" />
               <Row label="낙상 유무" danger />
-              <TextInput style={styles.memoInput} placeholder="상세 사유를 입력해주세요 (발생 시각 및 증거 등)" placeholderTextColor="#9AA7B8" />
+              <TextInput
+                className="border border-caregiver-button-secondary rounded-lg bg-caregiver-bg-primary px-[10px] py-2 text-[13px] text-caregiver-text-primary mt-2"
+                placeholder="상세 사유를 입력해주세요 (발생 시각 및 증거 등)"
+                placeholderTextColor="#949BA0"
+              />
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>👣 배뇨 및 배변</Text>
-            <View style={styles.card}>
-              <View style={styles.row}>
-                <Text style={styles.rowLabel}>💧 배뇨 (Urination)</Text>
-                <Text style={{ color: "#7A8BA2" }}>⌄</Text>
+          {/* 배뇨 및 배변 */}
+          <View className="mx-4 mt-4">
+            <Text className="text-base font-bold text-caregiver-text-primary mb-2">👣 배뇨 및 배변</Text>
+            <View className="bg-background-neutral rounded-2xl p-4">
+              <View className="flex-row justify-between items-center py-3 border-b border-caregiver-bg-secondary">
+                <Text className="text-sm text-caregiver-text-primary">💧 배뇨 (Urination)</Text>
+                <Text className="text-caregiver-text-secondary">⌄</Text>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.rowLabel}>🚻 배변 (Defecation)</Text>
-                <Text style={{ color: "#7A8BA2" }}>⌃</Text>
+              <View className="flex-row justify-between items-center py-3 border-b border-caregiver-bg-secondary">
+                <Text className="text-sm text-caregiver-text-primary">🚻 배변 (Defecation)</Text>
+                <Text className="text-caregiver-text-secondary">⌃</Text>
               </View>
               <Row label="횟수" />
               <Row label="상태" />
             </View>
           </View>
+
         </ScrollView>
 
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.bottomItem}>
-            <Text>🏠</Text>
-            <Text style={styles.bottomLabel}>홈</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomItem}>
-            <Text>📷</Text>
-            <Text style={[styles.bottomLabel, { color: "#0B4EA2" }]}>QR 체크</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomItem}>
-            <Text>🚨</Text>
-            <Text style={[styles.bottomLabel, { color: "#CC5A66" }]}>긴급 호출</Text>
-          </TouchableOpacity>
+        {/* 하단 네비게이션 */}
+        <View className="flex-row justify-around bg-background-neutral border-t border-caregiver-button-secondary py-3">
+          {[
+            { icon: "🏠", label: "홈" },
+            { icon: "📷", label: "QR 체크", active: true },
+            { icon: "🚨", label: "긴급 호출", danger: true },
+          ].map(({ icon, label, active, danger }) => (
+            <TouchableOpacity key={label} className="items-center">
+              <Text className="text-xl">{icon}</Text>
+              <Text className={`text-[10px] font-bold mt-1 ${
+                danger  ? "text-error-primary"
+                : active ? "text-caregiver-text-primary"
+                : "text-caregiver-text-neutral"
+              }`}>
+                {label}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
+
       </View>
     </SafeAreaView>
   );

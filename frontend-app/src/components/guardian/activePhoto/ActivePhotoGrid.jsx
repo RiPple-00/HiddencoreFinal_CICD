@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import ActivityPhotoCard from './ActivityPhotoCard';
 import ActivityPhotoDetailModal from './ActivityPhotoDetailModal';
 
@@ -8,7 +8,7 @@ function ActivePhotoGrid({ photos }) {
 
   return (
     <>
-      <View style={styles.grid}>
+      <View className="flex-row flex-wrap gap-3">
         {photos.map((photo) => (
           <ActivityPhotoCard
             key={photo.id}
@@ -26,13 +26,5 @@ function ActivePhotoGrid({ photos }) {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-});
 
 export default ActivePhotoGrid;

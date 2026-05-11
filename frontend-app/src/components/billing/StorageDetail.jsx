@@ -13,24 +13,23 @@
 
 import { useEffect, useState } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity,
+  View, ScrollView, TouchableOpacity,
   ActivityIndicator, SafeAreaView, Linking, Alert,
 } from "react-native";
+import Text from "../Text";
 import storageApi from "../../api/storageApi";
 import {
   normalizeInvoice, normalizePatient,
   formatWon, toNumber,
 } from "../../utils/Storageformat";
-import { styles } from "../../styles/storageDetail.styles";
-import { COLORS } from "../../styles/colors";
 
 const PATIENT_ID = 1; // TODO: 인증/세션에서
 
 function FeeRow({ name, amount, isLast }) {
   return (
-    <View style={[styles.feeRow, isLast && styles.feeRowLast]}>
-      <Text style={styles.feeName}>{name}</Text>
-      <Text style={styles.feeAmount}>
+    <View className={`flex-row justify-between items-center py-2 ${!isLast ? "border-b border-guardian-bg-secondary" : ""}`}>
+      <Text className="text-sm text-guardian-text-neutral flex-1 mr-2">{name}</Text>
+      <Text className="text-sm font-bold text-guardian-text-primary">
         {typeof amount === "number" ? formatWon(amount) : amount}
       </Text>
     </View>
@@ -39,9 +38,10 @@ function FeeRow({ name, amount, isLast }) {
 
 function SectionHead({ label, gray = false }) {
   return (
-    <View style={styles.sectionHead}>
-      <View style={[styles.sectionDot, gray ? styles.sectionDotGray : styles.sectionDotBlue]} />
-      <Text style={[styles.sectionLabel, gray ? styles.sectionLabelGray : styles.sectionLabelBlue]}>
+    <View className="flex-row items-center gap-2 mb-3">
+      {/* 섹션 구분 도트: 급여=브랜드 노란, 비급여=흐린 중립 */}
+      <View className={`w-2 h-2 rounded-full ${gray ? "bg-guardian-text-neutral opacity-40" : "bg-guardian-button-primary"}`} />
+      <Text className={`text-sm font-bold ${gray ? "text-guardian-text-neutral" : "text-guardian-text-primary"}`}>
         {label}
       </Text>
     </View>
@@ -103,11 +103,7 @@ export default function StorageDetail({ route, navigation }) {
     if (!invoiceId) return;
     try {
       setPrinting(true);
-      const res = await storageApi.printReceipt({
-        patientId: PATIENT_ID,
-        invoiceId,
-        type: "receipt",
-      });
+      const res = await storageApi.printReceipt({ patientId: PATIENT_ID, invoiceId, type: "receipt" });
       const url = res.data?.url ?? res.data?.data?.url;
       if (url) {
         await Linking.openURL(url);
@@ -125,59 +121,73 @@ export default function StorageDetail({ route, navigation }) {
   const nonCovered = invoice?.nonCovered ?? [];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
+
       {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backIcon}>‹</Text>
+      <View className="flex-row items-center justify-between px-4 py-3 bg-background-neutral border-b border-guardian-button-secondary">
+        <TouchableOpacity onPress={() => navigation.goBack()} className="w-10">
+          <Text className="text-3xl text-guardian-text-primary">‹</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>영수증</Text>
+        <Text className="text-lg font-bold text-guardian-text-primary">영수증</Text>
         <TouchableOpacity
           onPress={handlePrint}
           disabled={printing || !invoiceId}
-          style={styles.printButton}
+          className="w-10 items-end"
         >
           {printing ? (
-            <ActivityIndicator size="small" color={COLORS.textMuted} />
+            <ActivityIndicator size="small" color="#949BA0" />
           ) : (
-            <Text style={[styles.printIcon, (!invoiceId) && styles.printIconDisabled]}>⬇</Text>
+            <Text className={`text-xl text-guardian-text-primary ${!invoiceId ? "opacity-30" : ""}`}>
+              ⬇
+            </Text>
           )}
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+
         {/* 결제 항목 요약 */}
         {navPayment && (
-          <View style={styles.paymentSummary}>
-            <View>
-              <Text style={styles.paymentSummaryLabel}>선택한 결제 항목</Text>
-              <Text style={styles.paymentSummaryTitle}>{navPayment.title}</Text>
-              <Text style={styles.paymentSummaryDate}>{navPayment.date} {navPayment.time}</Text>
+          <View className="bg-background-neutral rounded-2xl p-4 mb-4 flex-row justify-between items-center border border-guardian-button-secondary">
+            <View className="flex-1 mr-3">
+              <Text className="text-xs text-guardian-text-neutral mb-1">선택한 결제 항목</Text>
+              <Text className="text-base font-bold text-guardian-text-primary">{navPayment.title}</Text>
+              <Text className="text-xs text-guardian-text-neutral mt-1">
+                {navPayment.date} {navPayment.time}
+              </Text>
             </View>
-            <Text style={styles.paymentSummaryAmount}>{navPayment.amount}</Text>
+            <Text className="text-lg font-extrabold text-guardian-text-primary">
+              {navPayment.amount}
+            </Text>
           </View>
         )}
 
+        {/* 에러 */}
         {error && (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{error}</Text>
+          <View className="bg-error-secondary rounded-xl p-4 mb-4">
+            <Text className="text-error-primary text-sm">{error}</Text>
           </View>
         )}
 
         {loading ? (
-          <View style={[styles.detailCard, styles.loadingBox]}>
-            <ActivityIndicator size="large" color={COLORS.blue400} />
+          <View className="bg-background-neutral rounded-2xl p-4 mb-4 py-10 items-center">
+            <ActivityIndicator size="large" color="#FCC101" />
           </View>
         ) : (
-          <View style={styles.detailCard}>
+          <View className="bg-background-neutral rounded-2xl p-4 mb-4">
+
             {/* 환자 정보 */}
-            <View style={styles.patientRow}>
-              <View style={styles.patientAvatar}>
-                <Text style={styles.patientAvatarText}>{patient?.name?.[0] ?? "?"}</Text>
+            <View className="flex-row items-center gap-3 mb-4">
+              <View className="w-12 h-12 rounded-full bg-guardian-button-primary justify-center items-center">
+                <Text className="text-base font-bold text-guardian-text-primary">
+                  {patient?.name?.[0] ?? "?"}
+                </Text>
               </View>
-              <View style={styles.patientInfo}>
-                <Text style={styles.patientName}>{patient?.name ?? "-"} 환자님</Text>
-                <Text style={styles.patientPeriod}>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-guardian-text-primary">
+                  {patient?.name ?? "-"} 환자님
+                </Text>
+                <Text className="text-xs text-guardian-text-neutral mt-1">
                   {invoice?.period
                     ? `입원기간: ${invoice.period}`
                     : patient?.admissionDate
@@ -185,8 +195,10 @@ export default function StorageDetail({ route, navigation }) {
                     : ""}
                 </Text>
                 {invoice?.dept && (
-                  <View style={styles.deptBadge}>
-                    <Text style={styles.deptBadgeText}>{invoice.dept}</Text>
+                  <View className="bg-guardian-button-secondary rounded-full px-2 py-[3px] mt-1 self-start">
+                    <Text className="text-xs font-bold text-guardian-text-primary">
+                      {invoice.dept}
+                    </Text>
                   </View>
                 )}
               </View>
@@ -194,7 +206,7 @@ export default function StorageDetail({ route, navigation }) {
 
             {/* 급여 항목 */}
             {covered.length > 0 && (
-              <View style={styles.section}>
+              <View className="border-t border-guardian-bg-secondary pt-4">
                 <SectionHead label="급여 항목" />
                 {covered.map((item, idx) => (
                   <FeeRow
@@ -209,7 +221,7 @@ export default function StorageDetail({ route, navigation }) {
 
             {/* 비급여 항목 */}
             {nonCovered.length > 0 && (
-              <View style={[styles.section, styles.sectionTopMargin]}>
+              <View className="border-t border-guardian-bg-secondary pt-4 mt-4">
                 <SectionHead label="비급여 항목" gray />
                 {nonCovered.map((item, idx) => (
                   <FeeRow
@@ -224,29 +236,36 @@ export default function StorageDetail({ route, navigation }) {
 
             {/* 합계 */}
             {invoice?.amount && (
-              <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>합계</Text>
-                <Text style={styles.totalAmount}>{invoice.amount}</Text>
+              <View className="flex-row justify-between items-center pt-4 border-t border-guardian-button-secondary mt-2">
+                <Text className="text-base font-extrabold text-guardian-text-primary">합계</Text>
+                <Text className="text-xl font-extrabold text-guardian-text-primary">{invoice.amount}</Text>
               </View>
             )}
 
+            {/* 항목 없음 */}
             {covered.length === 0 && nonCovered.length === 0 && !error && (
-              <View style={styles.noItemsBox}>
-                <Text style={styles.noItemsText}>상세 항목이 제공되지 않았습니다.</Text>
+              <View className="py-6 items-center">
+                <Text className="text-sm text-guardian-text-neutral">
+                  상세 항목이 제공되지 않았습니다.
+                </Text>
               </View>
             )}
           </View>
         )}
 
         {/* 안내 문구 */}
-        <View style={styles.noticeBox}>
-          <Text style={styles.noticeText}>※ 위 금액은 심사 결과에 따라 최종 수납 금액과 차이가 있을 수 있습니다.</Text>
-          <Text style={styles.noticeText}>※ 상세 항목에 대한 문의는 병원 원무과(02-123-4567)로 연락 바랍니다.</Text>
-          <Text style={styles.noticeText}>※ 제증명 수수료는 별도로 부과될 수 있습니다.</Text>
+        <View className="bg-guardian-bg-secondary rounded-xl p-4">
+          {[
+            "※ 위 금액은 심사 결과에 따라 최종 수납 금액과 차이가 있을 수 있습니다.",
+            "※ 상세 항목에 대한 문의는 병원 원무과(02-123-4567)로 연락 바랍니다.",
+            "※ 제증명 수수료는 별도로 부과될 수 있습니다.",
+          ].map((text, i) => (
+            <Text key={i} className="text-xs text-guardian-text-neutral leading-5 mb-1">
+              {text}
+            </Text>
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-
