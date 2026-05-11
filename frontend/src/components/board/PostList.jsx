@@ -59,6 +59,12 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
     navigate(`/facilities/${facilityId}/board/${id}`);
   };
 
+  const handleManagementClick = (post) => {
+    const id = rowId(post);
+    if (id == null) return;
+    navigate(`/facilities/${facilityId}/board/${id}/applicants`);
+  };
+
   // 게시글이 없을 때 Empty State
   if (posts.length === 0) {
     return (
@@ -119,6 +125,10 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (post.type === 'APPLY') {
+                        handleManagementClick(post);
+                        return;
+                      }
                       handleRowClick(post);
                     }}
                     className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"

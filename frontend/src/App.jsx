@@ -10,6 +10,7 @@ import BoardListPage from './pages/board/BoardListPage';
 import BoardDetailPage from './pages/board/BoardDetailPage';
 import BoardCreatePage from './pages/board/BoardCreatePage';
 import BoardUserPostsPage from './pages/board/BoardUserPostsPage';
+import ProgramApplicantManagementPage from './pages/board/ProgramApplicantManagementPage';
 import MealEditPage from './pages/MealEditPage';
 import MealCarePage from './pages/MealCarePage';
 import CalendarPage from './pages/CalendarPage';
@@ -110,6 +111,7 @@ function App() {
           <Route path="/facilities/:facilityId/board/create" element={<BoardCreatePage />} />
           <Route path="/facilities/:facilityId/board/history" element={<BoardUserPostsPage variant="history" />} />
           <Route path="/facilities/:facilityId/board/draft" element={<BoardUserPostsPage variant="draft" />} />
+          <Route path="/facilities/:facilityId/board/:postId/applicants" element={<ProgramApplicantManagementPage />} />
           <Route path="/facilities/:facilityId/board/:postId" element={<BoardDetailPage />} />
           <Route path="/bedroompage/:room" element={<BedRoomPage />} />
           <Route path="/patients" element={<PatientListPage />} />

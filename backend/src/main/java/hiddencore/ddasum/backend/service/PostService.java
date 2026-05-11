@@ -221,6 +221,14 @@ public class PostService {
         return toPostListResponses(facilityId, posts);
     }
 
+    @Transactional
+    public void syncCurrentEnrolled(Post post, int currentEnrolled) {
+        if (post == null) {
+            return;
+        }
+        post.setCurrentEnrolled(Math.max(currentEnrolled, 0));
+    }
+
     private List<PostDto.PostListResponse> toPostListResponses(Long facilityId, List<Post> posts) {
         List<Post> safePosts = Optional.ofNullable(posts).orElse(Collections.emptyList());
         if (safePosts.isEmpty()) {
