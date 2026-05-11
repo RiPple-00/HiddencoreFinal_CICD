@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import Text from "../../components/Text";
+import Text from "../../../components/Text";
 import VisitCalendarSection from "../../../components/visit/VisitCalendarSection";
 import VisitTimeSelector from "../../../components/visit/VisitTimeSelector";
 import visitApi from "../../../api/visitApi";
