@@ -4,7 +4,7 @@ import PatientTable from "../../components/patient/PatientTable";
 import TopNavBar from "../../components/bedroom/TopNavBar";
 import GuardianPanel from "../../components/bedroom/GuardianPanel";
 import AdminMenuPanel from "../../components/bedroom/AdminMenuPanel";
-//import VisitorsPanel from "../../components/bedroom/VisitorsPanel";
+import VisitorsPanel from "../../components/bedroom/VisitorsPanel";
 import MealCarePage from "../MealCarePage";
 import PatientCreateModal from "../../components/patient/PatientCreateModal";
 import bedRoomApi from "../../api/bedRoomApi";
