@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import authApi from '@/api/authApi';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
+import authApi from '../api/authApi';
+import Input from '../components/Input';
+import Button from '../components/Button';
 import { useAuth } from '../contexts/AutoContext.jsx';
 
 export default function StaffLoginPage() {

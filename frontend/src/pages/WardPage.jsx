@@ -8,7 +8,7 @@ import AdminMenuPanel from "../components/bedroom/AdminMenuPanel";
 import MealCarePage from "./MealCarePage";
 import { useAuth } from '../contexts/AutoContext.jsx';
 import PostList from '../components/board/PostList';
-import postApi from '@/api/postApi';
+import postApi from '../api/postApi';
 // import WardLayoutCard from '../components/bedroom/WardLayoutCard';
 const WARDS = [
   { value: 'A동', label: 'A동' },

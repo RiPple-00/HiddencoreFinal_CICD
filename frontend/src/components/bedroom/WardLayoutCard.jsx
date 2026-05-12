@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getRoomSummary } from '@/api/LocationApi';
+import { getRoomSummary } from '../../api/LocationApi';
 import RoomComponent from '../../components/ward/RoomComponent';
 
 const WARDS = [

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import mealApi from "@/api/mealApi";
+import mealApi from "../api/mealApi";
 import { normalizeMealListResponse, normalizeMealType } from "../utils/mealViewUtils";
 
 const tabs = ["아침", "점심", "저녁"];

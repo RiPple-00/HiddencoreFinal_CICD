@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import postApi from '@/api/postApi';
+import postApi from '../../api/postApi';
 import PostList from './PostList';
 import { WIDGET_SIZE, BOARD_TYPE_MAP } from '../../utils/boardUtils';
 

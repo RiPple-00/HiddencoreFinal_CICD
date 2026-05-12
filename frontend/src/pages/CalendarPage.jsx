@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CalendarHeader from "../components/page/CalendarHeader";
 import CalendarGrid from "../components/page/CalendarGrid";
-import mealApi from "@/api/mealApi";
+import mealApi from "../api/mealApi";
 import { MEAL_TYPE_ORDER, normalizeMealListResponse } from "../utils/mealViewUtils";
 
 function CalendarPage() {
