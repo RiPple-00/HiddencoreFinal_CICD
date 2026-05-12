@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { SafeAreaView, View, ScrollView, TouchableOpacity } from "react-native";
-import Text from "../../components/Text";
+import Text from "@/components/Text";
 
 export default function CaregiverMainPage({ navigation }) {
   const mockPatients = [

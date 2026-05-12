@@ -5,8 +5,8 @@
 
 import React, { useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, View, } from "react-native";
-import Text from "../../components/Text";
-import { getVisitRequests } from "../../api/visitApi";
+import Text from "@/components/Text";
+import { getVisitRequests } from "@/api/visitApi";
 import VisitRequestCard from "../../components/VisitRequestCard";
 
 function MyVisitRequestListPage() {

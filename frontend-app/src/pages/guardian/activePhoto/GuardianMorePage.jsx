@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { SafeAreaView, ScrollView, View } from 'react-native';
-import Text from "../../../components/Text";
+import Text from "@/components/Text";
 import ActivePhotoMobileShell from '../../../components/guardian/activePhoto/ActivePhotoMobileShell';
 import ActivePhotoTopBar from '../../../components/guardian/activePhoto/ActivePhotoTopBar';
 import ActivePhotoInfoText from '../../../components/guardian/activePhoto/ActivePhotoInfoText';

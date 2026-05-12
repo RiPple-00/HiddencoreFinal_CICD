@@ -20,7 +20,7 @@ import {
 import storageApi from "../../api/storageApi";
 import { normalizePatient, normalizePayment } from "../../utils/Storageformat";
 import { TAG_COLORS, STATUS_COLORS } from "../../styles/colors";
-import Text from "../../components/Text";
+import Text from "@/components/Text";
 
 // TODO: 인증/세션에서 환자 ID 가져오도록 변경 필요
 const PATIENT_ID = 1;

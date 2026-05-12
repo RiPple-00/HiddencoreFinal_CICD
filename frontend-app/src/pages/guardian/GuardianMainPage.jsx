@@ -7,7 +7,7 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import Text from "../../components/Text";
+import Text from "@/components/Text";
 
 export default function GuardianMainPage({ navigation }) {
   const [menuOpen, setMenuOpen] = useState(false);

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import mealApi from "../api/mealApi";
+import mealApi from "@/api/mealApi";
 import { mapMealRowsToSlots, normalizeMealListResponse, toIsoDateKey } from "../utils/mealViewUtils";
 
 const sideMenus = [

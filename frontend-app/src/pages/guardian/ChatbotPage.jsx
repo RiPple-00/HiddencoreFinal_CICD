@@ -6,7 +6,7 @@ import {
   View,
   TextInput,
 } from "react-native";
-import Text from "../../components/Text";
+import Text from "@/components/Text";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 export default function ChatbotPage() {

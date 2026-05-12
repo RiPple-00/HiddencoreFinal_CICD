@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import postApi from '../../../api/postApi';
+import postApi from '@/api/postApi';
 
 const ALLOWED_TYPES = [
   'application/pdf',

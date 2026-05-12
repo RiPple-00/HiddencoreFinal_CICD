@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Alert, TextInput, TouchableOpacity, View } from "react-native";
 import api from "../../api";
-import Text from "../../components/Text";
+import Text from "@/components/Text";
 
 export default function GuardianLoginPage({ navigation }) {
   const [mode,            setMode]            = useState("guardian");

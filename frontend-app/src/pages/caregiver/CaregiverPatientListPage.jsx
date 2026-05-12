@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView, View, ScrollView, TouchableOpacity } from "react-native";
-import Text from "../../components/Text";
+import Text from "@/components/Text";
 
 const patients = [
   { name: "김영희", age: 82, initial: "김", status: "혈압 안정 / 투약 완료", danger: false, mealType: "일반식" },

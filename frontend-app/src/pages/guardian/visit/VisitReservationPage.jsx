@@ -12,11 +12,11 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import Text from "../../../components/Text";
+import Text from "@/components/Text";
 import VisitCalendarSection from "../../../components/visit/VisitCalendarSection";
 import VisitTimeSelector from "../../../components/visit/VisitTimeSelector";
-import visitApi from "../../../api/visitApi";
-import { resolveApiBaseUrl } from "../../../api/index";
+import visitApi from "@/api/visitApi";
+import { resolveApiBaseUrl } from "@/api/index";
 
 const TIME_SLOTS = [
   "09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00",

@@ -5,7 +5,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from "react-native";
-import Text from "../../components/Text";
+import Text from "@/components/Text";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 const DAYS = ["월", "화", "수", "목", "금", "토", "일"];

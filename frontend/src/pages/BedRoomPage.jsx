@@ -9,8 +9,8 @@ import MealCarePage from "./MealCarePage";
 
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import bedRoomApi from "../api/bedRoomApi";
-import patientApi from "../api/patientApi";
+import bedRoomApi from "@/api/bedRoomApi";
+import patientApi from "@/api/patientApi";
 import { useParams } from "react-router-dom";
 
 const mapDetailToSummaryPatient = (d) => {

@@ -1,6 +1,6 @@
 import React from "react";
 import { SafeAreaView, View, ScrollView, TextInput, TouchableOpacity } from "react-native";
-import Text from "../../components/Text";
+import Text from "@/components/Text";
 
 function StateButtons({ danger = false }) {
   return (

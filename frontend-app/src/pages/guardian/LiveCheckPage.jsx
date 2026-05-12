@@ -9,7 +9,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import Text from "../../components/Text";
+import Text from "@/components/Text";
 import Svg, { Circle } from "react-native-svg";
 
 import caregiverApi from "../../api/caregiverApi";

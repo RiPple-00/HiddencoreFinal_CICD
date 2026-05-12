@@ -3,7 +3,7 @@ import {
   ActivityIndicator, Alert, Pressable, SafeAreaView,
   ScrollView, TextInput, View,
 } from "react-native";
-import Text from "../../components/Text";
+import Text from "@/components/Text";
 
 import caregiverApi from "../../api/caregiverApi";
 import { applyResponseToState, buildPayload, initialState, todayStr } from "../../utils/careCheckState";
