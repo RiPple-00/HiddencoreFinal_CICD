@@ -131,11 +131,17 @@ public class PostDto {
         private LocalDateTime endAt;
         private Integer capacity;
         private Integer currentEnrolled;
+        private LocalDateTime scheduledAt;
+        private LocalDateTime scheduleEndAt;
         private LocalDateTime updatedAt;
         private String recruitStatus;
 
         // 전체 게시글 조회
         public static PostListResponse from(Post post) {
+            return from(post, null, null);
+        }
+
+        public static PostListResponse from(Post post, LocalDateTime scheduledAt, LocalDateTime scheduleEndAt) {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime start = post.getStartAt();
             LocalDateTime end = post.getEndAt();
@@ -165,6 +171,8 @@ public class PostDto {
                     .endAt(post.getEndAt())
                     .capacity(post.getCapacity())
                     .currentEnrolled(post.getCurrentEnrolled())
+                    .scheduledAt(scheduledAt)
+                    .scheduleEndAt(scheduleEndAt)
                     .updatedAt(post.getUpdatedAt())
                     .recruitStatus(recruitStatus)
                     .build();

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import StatusBadge from '../common/StatusBadge';
-import { formatDate, formatRelativeTime } from '../../utils/dateUtils';
+import { formatDate, formatRelativeTime, toDate } from '../../utils/dateUtils';
 
 /**
  * 게시글 목록 컴포넌트
@@ -14,13 +14,55 @@ import { formatDate, formatRelativeTime } from '../../utils/dateUtils';
 /** 목록 API(PostListResponse)는 `id`, 구버전 호환으로 `postId` */
 const rowId = (post) => post?.id ?? post?.postId;
 
-const PostList = ({ posts = [], mode = 'table', facilityId }) => {
+const pad2 = (value) => String(value).padStart(2, '0');
+
+const formatDateTimeLabel = (value) => {
+  const date = toDate(value);
+  if (!date) return null;
+
+  const year = date.getFullYear();
+  const month = pad2(date.getMonth() + 1);
+  const day = pad2(date.getDate());
+  const hour = pad2(date.getHours());
+  const minute = pad2(date.getMinutes());
+
+  return `${year}.${month}.${day} ${hour}:${minute}`;
+};
+
+const formatScheduleRange = (startAt, endAt) => {
+  const startLabel = formatDateTimeLabel(startAt);
+  const endLabel = formatDateTimeLabel(endAt);
+
+  if (!startLabel && !endLabel) return '-';
+  if (startLabel && endLabel) return `${startLabel} ~ ${endLabel}`;
+  return startLabel ?? endLabel;
+};
+
+const getRecruitStatusTone = (recruitStatus) => {
+  if (recruitStatus === '모집 중') return 'bg-blue-100 text-blue-700';
+  if (recruitStatus === '마감') return 'bg-red-100 text-red-600';
+  if (recruitStatus === '모집 예정') return 'bg-gray-100 text-gray-600';
+  return 'bg-gray-100 text-gray-500';
+};
+
+const formatCapacityStatus = (post) => {
+  if (post.capacity == null && post.currentEnrolled == null) return '-';
+  return `${post.currentEnrolled ?? 0} / ${post.capacity ?? 0}`;
+};
+
+const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
   const navigate = useNavigate();
 
   const handleRowClick = (post) => {
     const id = rowId(post);
     if (id == null) return;
     navigate(`/facilities/${facilityId}/board/${id}`);
+  };
+
+  const handleManagementClick = (post) => {
+    const id = rowId(post);
+    if (id == null) return;
+    navigate(`/facilities/${facilityId}/board/${id}/applicants`);
   };
 
   // 게시글이 없을 때 Empty State
@@ -34,6 +76,73 @@ const PostList = ({ posts = [], mode = 'table', facilityId }) => {
 
   // table 모드: 게시판 목록 페이지
   if (mode === 'table') {
+    if (boardType === 'PROGRAM') {
+      return (
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-200 text-gray-500 text-xs">
+              <th className="py-3 text-left font-medium">프로그램명</th>
+              <th className="py-3 w-64 text-center font-medium">일정</th>
+              <th className="py-3 w-24 text-center font-medium">모집 현황</th>
+              <th className="py-3 w-24 text-center font-medium">상태</th>
+              <th className="py-3 w-28 text-center font-medium">관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            {posts.map((post) => (
+              <tr
+                key={rowId(post) ?? post.title}
+                onClick={() => handleRowClick(post)}
+                className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+              >
+                <td className="py-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-gray-800 font-medium">{post.title}</span>
+                    <span className="text-xs text-gray-400">
+                      {post.type === 'REVIEW' ? '활동 후기' : '참여 신청'}
+                    </span>
+                  </div>
+                </td>
+
+                <td className="py-4 text-left text-gray-500">
+                  <span className="inline-block whitespace-nowrap leading-5">
+                    {formatScheduleRange(post.scheduledAt, post.scheduleEndAt)}
+                  </span>
+                </td>
+
+                <td className="py-4 text-center text-gray-600 font-medium">
+                  {formatCapacityStatus(post)}
+                </td>
+
+                <td className="py-4 text-center">
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${getRecruitStatusTone(post.recruitStatus)}`}>
+                    {post.recruitStatus === '마감' ? '모집 완료' : (post.recruitStatus ?? '-')}
+                  </span>
+                </td>
+
+                <td className="py-4 text-center">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (post.type === 'APPLY') {
+                        handleManagementClick(post);
+                        return;
+                      }
+                      handleRowClick(post);
+                    }}
+                    className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+                  >
+                    {post.type === 'APPLY' ? '신청 관리' : '상세 보기'}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+
     return (
       <table className="w-full text-sm">
         <thead>

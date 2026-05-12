@@ -153,6 +153,7 @@ const BoardListContent = () => {
               posts={paginatedPosts}
               mode="table"
               facilityId={facilityId}
+              boardType={selectedBoard.value}
             />
           )}
         </div>

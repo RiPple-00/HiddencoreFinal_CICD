@@ -76,4 +76,14 @@ public class PostApplication {
     COMPLETED,      // 신청완료
     FULL            // 정원마감
 }
+
+    public static Object findByPostApplicationId(Long postApplicationId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByPostApplicationId'");
+    }
+
+    public void confirm() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'confirm'");
+    }
 }

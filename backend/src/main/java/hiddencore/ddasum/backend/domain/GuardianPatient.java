@@ -18,6 +18,8 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+// 환자와 보호자와 요양사 간의 관계를 나타내는 엔티티
+
 @Entity
 @Table(name = "GUARDIAN_PATIENT")
 @Getter

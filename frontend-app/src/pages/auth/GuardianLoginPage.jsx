@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Alert, TextInput, TouchableOpacity, View } from "react-native";
-import api, { saveAccessToken } from "../../api";
+import api, { persistAccessToken } from "../../api";
 import Text from "@/components/Text";
 
 export default function GuardianLoginPage({ navigation }) {
@@ -45,25 +45,20 @@ export default function GuardianLoginPage({ navigation }) {
           Alert.alert("안내", "아이디와 비밀번호를 입력해 주세요.");
           return;
         }
-        const response = await api.post("/api/auth/guardian/login", {
-          loginId,
-          password,
-        });
-
-        await saveAccessToken(response.data.accessToken);
-
+        const g = await api.post("/api/auth/guardian/login", { loginId, password });
+        await persistAccessToken(g.data.accessToken);
         navigation.replace("GuardianMain");
       } else {
         if (!facilityCode || !employeeLoginId || !employeePassword) {
           Alert.alert("안내", "시설코드, 직원 ID, 비밀번호를 모두 입력해 주세요.");
           return;
         }
-        const employeeRes = await api.post("/api/auth/employee/login", {
+        const e = await api.post("/api/auth/employee/login", {
           facilityCode: facilityCode.trim(),
           employeeLoginId: employeeLoginId.trim(),
           password: employeePassword,
         });
-        await saveAccessToken(employeeRes.data.accessToken);
+        await persistAccessToken(e.data.accessToken);
         navigation.replace("CaregiverMain");
       }
     } catch (e) {

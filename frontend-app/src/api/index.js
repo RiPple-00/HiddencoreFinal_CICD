@@ -1,9 +1,15 @@
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import { NativeModules, Platform } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ACCESS_TOKEN_KEY = "accessToken";
+export const ACCESS_TOKEN_KEY = "accessToken";
+
+export async function persistAccessToken(token) {
+  if (token) await AsyncStorage.setItem(ACCESS_TOKEN_KEY, token);
+  else await AsyncStorage.removeItem(ACCESS_TOKEN_KEY);
+}
+
 /**
  * Metro/Expo가 8081일 수 있어 Spring API 기본 포트는 8080(application.yml server.port)에 맞춥니다.
  * 맞지 않으면 루트에 .env 에 EXPO_PUBLIC_API_BASE_URL=http://PC_IP:포트
@@ -46,7 +52,6 @@ export function resolveApiBaseUrl() {
   if (Platform.OS === "android") {
     return `http://10.0.2.2:${port}`;
   }
-  // 웹: 브라우저 출처와 API 호스트명을 맞춤 (localhost vs 127.0.0.1 혼용 시 CORS 방지)
   if (
     Platform.OS === "web" &&
     typeof window !== "undefined" &&
@@ -57,7 +62,6 @@ export function resolveApiBaseUrl() {
       const pagePort =
         window.location.port ||
         (window.location.protocol === "https:" ? "443" : "80");
-      // Expo 웹과 Spring이 같은 포트를 쓰면 API 요청이 번들러로 감 → API 포트는 .env로 분리
       if (String(pagePort) === String(port) && !process.env.EXPO_PUBLIC_API_BASE_URL?.trim()) {
         const fallback =
           process.env.EXPO_PUBLIC_API_FALLBACK_PORT?.trim() || "8080";
@@ -79,15 +83,25 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use(async (config) => {
+  try {
+    const token = await AsyncStorage.getItem(ACCESS_TOKEN_KEY);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch {
+    /* ignore */
+  }
+  return config;
+});
+
 if (__DEV__) {
   // eslint-disable-next-line no-console
   console.log("[api] baseURL =", baseURL);
 }
 
-
 export async function saveAccessToken(token) {
-  if (!token) return;
-  await AsyncStorage.setItem(ACCESS_TOKEN_KEY, token);
+  await persistAccessToken(token);
 }
 
 export async function getAccessToken() {
@@ -97,15 +111,5 @@ export async function getAccessToken() {
 export async function clearAccessToken() {
   await AsyncStorage.removeItem(ACCESS_TOKEN_KEY);
 }
-
-api.interceptors.request.use(async (config) => {
-  const token = await getAccessToken();
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
 
 export default api;

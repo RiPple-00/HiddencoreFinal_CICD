@@ -10,24 +10,19 @@ import hiddencore.ddasum.backend.domain.Document.DocumentType;
 
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
-     // 같은 보호자가 같은 프로그램을 이미 신청했는지 확인
+    List<Document> findTop5ByPatientId_PatientIdAndTypeOrderByCreatedAtDesc(Long patientId, DocumentType type);
+
     boolean existsByRequesterUserId_UserIdAndPostId_PostIdAndType(
             Long requesterUserId,
             Long postId,
-            DocumentType type
-    );
+            DocumentType type);
 
-    // 보호자의 프로그램 신청 내역 조회
     List<Document> findByRequesterUserId_UserIdAndTypeOrderByRequestedAtDesc(
             Long requesterUserId,
-            DocumentType type
-    );
+            DocumentType type);
 
     Optional<Document> findByDocumentIdAndRequesterUserId_UserIdAndType(
-        Long documentId,
-        Long requesterUserId,
-        DocumentType type
-);
-
-
+            Long documentId,
+            Long requesterUserId,
+            DocumentType type);
 }

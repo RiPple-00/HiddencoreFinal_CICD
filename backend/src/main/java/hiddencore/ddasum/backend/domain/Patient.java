@@ -48,13 +48,14 @@ public class Patient {
     @JoinColumn(name = "location_id")
     private Location locationId;
 
+    // 담당 요양사
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "primary_caregiver_user_id")
+    private Users primaryCaregiver;
+
     @Column(name = "name", nullable = false, length = 100)
     private String name;
-
-    /**
-     * 선택 입력(null 가능). 저장 시에는 {@link Gender#name()} 만 DB에 기록.
-     * 읽기 시 레거시·한글·깨진 문자열이 있어도 매핑 실패로 전체 조회가 죽지 않도록 컨버터 사용.
-     */
+ 
     @Convert(converter = PatientGenderConverter.class)
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false, length = 20)
@@ -63,10 +64,10 @@ public class Patient {
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
-    @Column(name = "address", length = 255) // 주소 칼럼 추가
+    @Column(name = "address", length = 255)
     private String address;
 
-    @Column(name = "admission_date", nullable = false) // 입원 날짜
+    @Column(name = "admission_date", nullable = false)
     private LocalDate admissionDate;
 
     @Column(name = "discharge_date")
@@ -76,8 +77,8 @@ public class Patient {
     @Column(name = "blood_type", nullable = false)
     private BloodType type;
 
-    @Column(name = "height", precision = 5, scale = 2) // precision 총 자리수, scale = 소수점 표현 자리수
-    private BigDecimal height; // BigDecimal 더 정확한 소수점
+    @Column(name = "height", precision = 5, scale = 2)
+    private BigDecimal height;
 
     @Column(name = "weight", precision = 5, scale = 2)
     private BigDecimal weight;
@@ -140,7 +141,6 @@ public class Patient {
         DISCHARGE("퇴원예정"),
         POSTOPERATIVE("수술후"),
         CRITICAL("위험"),
-        /** 더미/시드 데이터 호환: 퇴원 완료 */
         DISCHARGED("퇴원완료");
 
         private final String description;
@@ -173,12 +173,14 @@ public class Patient {
             if (dbData == null || dbData.isBlank()) {
                 return null;
             }
+
             String s = dbData.trim();
+
             try {
                 return Gender.valueOf(s.toUpperCase());
             } catch (IllegalArgumentException ignored) {
-                // fall through: 레거시 한글·인코딩 깨짐 등
             }
+
             return switch (s) {
                 case "남", "남성", "M", "m", "Male", "MALE" -> Gender.MALE;
                 case "여", "여성", "F", "f", "Female", "FEMALE" -> Gender.FEMALE;
@@ -187,5 +189,4 @@ public class Patient {
             };
         }
     }
-   
 }

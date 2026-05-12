@@ -1,4 +1,19 @@
-import api from "./index";
+import api, { getAccessToken } from "./index";
+
+function parseFacilityIdFromToken(token) {
+  if (!token || typeof token !== "string") return null;
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+  try {
+    const payload = JSON.parse(atob(parts[1]));
+    const v = payload.facilityId ?? payload.facility_id;
+    if (v == null) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
 
 // 공지사항
 export const getNotices = () => api.get("/api/notices");
@@ -9,9 +24,19 @@ export const getMeals = () => api.get("/api/meals");
 // 환자 정보
 export const getPatient = () => api.get("/api/patient");
 
-// 프로그램 목록 조회
-export const getPrograms = () =>
-  api.get("/api/facilities/2/posts?type=APPLY"); //강제로 부여한 시설 ID 2 
+/** 원무과 웹에서 등록한 type=APPLY 프로그램 게시글 — JWT의 시설과 동일한 facility 기준 */
+export const getPrograms = async () => {
+  const token = await getAccessToken();
+  const fromJwt = parseFacilityIdFromToken(token);
+  /** 보호자 JWT는 facilityId가 0일 수 있음(JwtService) — 데모/단일 시설은 2로 조회 */
+  const facilityId = fromJwt != null && fromJwt > 0 ? fromJwt : 2;
+  const res = await api.get(`/api/facilities/${facilityId}/posts`, {
+    params: { type: "APPLY", page: 0, size: 100 },
+  });
+  const raw = Array.isArray(res.data) ? res.data : [];
+  const data = raw.filter((p) => p.status === "ACTIVE" || p.status === "RESERVE");
+  return { ...res, data };
+};
 
 // 프로그램 신청
 export const applyProgram = (postId) =>

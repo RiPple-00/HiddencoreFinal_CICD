@@ -1,158 +1,219 @@
-import React from "react";
-import { SafeAreaView, View, ScrollView, TextInput, TouchableOpacity } from "react-native";
-import Text from "@/components/Text";
+// 요양사 앱에서 환자 상태를 체크하는 페이지
 
-function StateButtons({ danger = false }) {
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useRoute } from "@react-navigation/native";
+
+import {
+  fetchCaregiverLatestCareChecklist,
+  fetchCaregiverPatients,
+  saveCaregiverCareChecklist,
+} from "../../api/careChecklistApi";
+import { buildDefaultChecklist, mergeChecklistFromServer } from "../../utils/careChecklistModel";
+import { styles } from "../../styles/caregiverWorkCheck.styles";
+
+function StateButtons({ abnormal, onSelect }) {
   return (
-    <View className="flex-row gap-2">
-      <View className={`px-3 py-1 rounded-full border ${
-        !danger
-          ? "bg-success-secondary border-success-primary"
-          : "bg-caregiver-bg-secondary border-caregiver-button-secondary"
-      }`}>
-        <Text className={`text-xs font-bold ${!danger ? "text-success-primary" : "text-caregiver-text-neutral"}`}>
-          정상
-        </Text>
-      </View>
-      <View className={`px-3 py-1 rounded-full border ${
-        danger
-          ? "bg-error-secondary border-error-primary"
-          : "bg-caregiver-bg-secondary border-caregiver-button-secondary"
-      }`}>
-        <Text className={`text-xs font-bold ${danger ? "text-error-primary" : "text-caregiver-text-neutral"}`}>
-          이상
-        </Text>
-      </View>
+    <View style={styles.stateWrap}>
+      <TouchableOpacity
+        style={[styles.stateBtn, { marginRight: 6 }, !abnormal && styles.stateBtnActive]}
+        onPress={() => onSelect(false)}
+      >
+        <Text style={[styles.stateText, !abnormal && styles.stateTextActive]}>정상</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.stateBtn, abnormal && styles.stateBtnDanger]}
+        onPress={() => onSelect(true)}
+      >
+        <Text style={[styles.stateText, abnormal && styles.stateTextDanger]}>이상</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
-function Row({ label, danger = false, warnText }) {
+function Row({ label, abnormal, warnText, onSelectAbnormal }) {
   return (
-    <View className="flex-row justify-between items-center py-3 border-b border-caregiver-bg-secondary">
-      <View className="flex-1 mr-3">
-        <Text className={`text-sm ${danger ? "text-error-primary" : "text-caregiver-text-primary"}`}>
-          {label}
-        </Text>
-        {warnText && (
-          <Text className="text-xs text-error-primary mt-[2px]">{warnText}</Text>
-        )}
+    <View style={styles.row}>
+      <View style={styles.rowLeft}>
+        <Text style={[styles.rowLabel, abnormal && { color: "#B94753" }]}>{label}</Text>
+        {warnText ? <Text style={styles.rowSubWarn}>{warnText}</Text> : null}
       </View>
-      <StateButtons danger={danger} />
+      <StateButtons abnormal={abnormal} onSelect={onSelectAbnormal} />
     </View>
   );
 }
 
 export default function CaregiverWorkCheckPage({ navigation }) {
+  const route = useRoute();
+  const patientId = route.params?.patientId;
+
+  const [patientLabel, setPatientLabel] = useState("");
+  const [model, setModel] = useState(buildDefaultChecklist());
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (patientId == null) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const [patientsRes, latestRes] = await Promise.all([
+          fetchCaregiverPatients(),
+          fetchCaregiverLatestCareChecklist(patientId),
+        ]);
+        if (cancelled) return;
+        const p = patientsRes.data?.find((x) => x.patientId === patientId);
+        if (p) {
+          const room = p.room ? `${p.room}호` : "병실 미정";
+          setPatientLabel(`${p.name} (${p.age ?? "?"}세) / ${room}`);
+        } else {
+          setPatientLabel(`환자 #${patientId}`);
+        }
+        if (latestRes.status === 204) {
+          setModel(buildDefaultChecklist());
+        } else {
+          setModel(mergeChecklistFromServer(buildDefaultChecklist(), latestRes.data.checklist));
+        }
+      } catch (e) {
+        if (!cancelled) {
+          console.warn(e);
+          setModel(buildDefaultChecklist());
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [patientId]);
+
+  function setRowAbnormal(sectionId, rowKey, abnormal) {
+    setModel((m) => ({
+      ...m,
+      sections: m.sections.map((s) =>
+        s.id !== sectionId
+          ? s
+          : {
+              ...s,
+              rows: s.rows.map((r) => (r.key === rowKey ? { ...r, abnormal } : r)),
+            }
+      ),
+    }));
+  }
+
+  async function onSave() {
+    if (patientId == null) {
+      Alert.alert("안내", "환자가 선택되지 않았습니다. 홈에서 환자를 선택한 뒤 다시 들어와 주세요.");
+      return;
+    }
+    try {
+      setSaving(true);
+      await saveCaregiverCareChecklist(patientId, model);
+      Alert.alert("저장 완료", "보호자 앱 실시간 화면에 반영됩니다.");
+    } catch (e) {
+      Alert.alert("저장 실패", e?.response?.data?.message ?? "네트워크 또는 권한을 확인해 주세요.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (patientId == null) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={[styles.container, { padding: 24 }]}>
+          <Text style={styles.logoText}>환자 선택 필요</Text>
+          <Text style={{ marginTop: 8, color: "#73839A" }}>홈 화면에서 담당 환자를 고른 뒤 업무 체크를 열어 주세요.</Text>
+          <TouchableOpacity style={{ marginTop: 20 }} onPress={() => navigation.goBack()}>
+            <Text style={{ color: "#0B4EA2", fontWeight: "700" }}>‹ 돌아가기</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-caregiver-bg-primary">
-      <View className="flex-1">
-
-        {/* 헤더 */}
-        <View className="flex-row justify-between items-center px-5 py-4 bg-background-neutral border-b border-caregiver-button-secondary">
-          <View className="flex-row items-center gap-2">
-            <TouchableOpacity className="w-10" onPress={() => navigation.goBack()}>
-              <Text className="text-3xl text-caregiver-text-primary">‹</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.logoRow}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Text style={styles.backButtonText}>‹</Text>
             </TouchableOpacity>
-            <Text className="text-xl">🏥</Text>
-            <Text className="text-lg font-extrabold text-caregiver-text-primary">따숨</Text>
+            <Text style={styles.iconText}>🏥</Text>
+            <Text style={styles.logoText}>따숨</Text>
           </View>
-          <View className="flex-row gap-[14px]">
-            <Text className="text-xl">🔔</Text>
-            <Text className="text-xl">☰</Text>
+          <View style={{ flexDirection: "row", gap: 14, alignItems: "center" }}>
+            {saving ? <ActivityIndicator size="small" color="#0B4EA2" /> : null}
+            <TouchableOpacity onPress={onSave} disabled={saving || loading}>
+              <Text style={{ color: "#0B4EA2", fontWeight: "800" }}>저장</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* 환자 스트립 */}
-        <View className="flex-row justify-between items-center px-5 py-3 bg-background-neutral border-b border-caregiver-button-secondary">
-          <View>
-            <Text className="text-base font-bold text-caregiver-text-primary">
-              Kim TTa Woo (M/82)
-            </Text>
-            <Text className="text-xs text-caregiver-text-neutral mt-1">
-              591212 · Ward 702 · 72283944
-            </Text>
+        <View style={styles.patientStrip}>
+          <View style={{ flex: 1 }}>
+            {loading ? <ActivityIndicator color="#0B4EA2" /> : <Text style={styles.patientName}>{patientLabel}</Text>}
+            <Text style={styles.patientMeta}>요양 체크 후 저장하면 보호자에게 실시간 반영</Text>
           </View>
-          <Text className="text-xl">🪪</Text>
+          <Text style={styles.iconText}>🪪</Text>
         </View>
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 30 }} showsVerticalScrollIndicator={false}>
-
-          {/* 식사 */}
-          <View className="mx-4 mt-4">
-            <Text className="text-base font-bold text-caregiver-text-primary mb-2">🍴 식사 (Meal)</Text>
-            <View className="bg-background-neutral rounded-2xl p-4">
-              <Row label="식사 섭취량" />
-              <Row label="수분 섭취량" danger />
-              <Row label="식욕 변화" />
-              <Row label="식사 중 사례 여부" />
-            </View>
-          </View>
-
-          {/* 위생점검 */}
-          <View className="mx-4 mt-4">
-            <Text className="text-base font-bold text-caregiver-text-primary mb-2">🧼 위생점검 (Hygiene)</Text>
-            <View className="bg-background-neutral rounded-2xl p-4">
-              <Row label="침구류 청결도" />
-              <Row label="환자 용품 청결" />
-              <Row label="목욕 여부" />
-            </View>
-          </View>
-
-          {/* 상태 안정화 */}
-          <View className="mx-4 mt-4">
-            <Text className="text-base font-bold text-caregiver-text-primary mb-2">🛡️ 상태 안정화 (Condition)</Text>
-            <View className="bg-background-neutral rounded-2xl p-4">
-              <Row label="호흡 양상" danger warnText="체크 확인 필요" />
-              <Row label="통증 유무" />
-              <Row label="낙상 유무" danger />
-              <TextInput
-                className="border border-caregiver-button-secondary rounded-lg bg-caregiver-bg-primary px-[10px] py-2 text-[13px] text-caregiver-text-primary mt-2"
-                placeholder="상세 사유를 입력해주세요 (발생 시각 및 증거 등)"
-                placeholderTextColor="#949BA0"
-              />
-            </View>
-          </View>
-
-          {/* 배뇨 및 배변 */}
-          <View className="mx-4 mt-4">
-            <Text className="text-base font-bold text-caregiver-text-primary mb-2">👣 배뇨 및 배변</Text>
-            <View className="bg-background-neutral rounded-2xl p-4">
-              <View className="flex-row justify-between items-center py-3 border-b border-caregiver-bg-secondary">
-                <Text className="text-sm text-caregiver-text-primary">💧 배뇨 (Urination)</Text>
-                <Text className="text-caregiver-text-secondary">⌄</Text>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {model.sections.map((section) => (
+            <View key={section.id} style={styles.section}>
+              <Text style={styles.sectionTitle}>{section.title}</Text>
+              <View style={styles.card}>
+                {section.rows.map((r) => (
+                  <Row
+                    key={r.key}
+                    label={r.label}
+                    abnormal={r.abnormal}
+                    warnText={r.key === "breathing" && r.abnormal ? "체크 확인 필요" : undefined}
+                    onSelectAbnormal={(v) => setRowAbnormal(section.id, r.key, v)}
+                  />
+                ))}
+                {section.id === "condition" ? (
+                  <TextInput
+                    style={styles.memoInput}
+                    value={model.memo}
+                    onChangeText={(memo) => setModel((m) => ({ ...m, memo }))}
+                    placeholder="상세 사유를 입력해주세요 (발생 시각 및 증거 등)"
+                    placeholderTextColor="#9AA7B8"
+                    multiline
+                  />
+                ) : null}
               </View>
-              <View className="flex-row justify-between items-center py-3 border-b border-caregiver-bg-secondary">
-                <Text className="text-sm text-caregiver-text-primary">🚻 배변 (Defecation)</Text>
-                <Text className="text-caregiver-text-secondary">⌃</Text>
-              </View>
-              <Row label="횟수" />
-              <Row label="상태" />
             </View>
-          </View>
-
+          ))}
         </ScrollView>
 
-        {/* 하단 네비게이션 */}
-        <View className="flex-row justify-around bg-background-neutral border-t border-caregiver-button-secondary py-3">
-          {[
-            { icon: "🏠", label: "홈" },
-            { icon: "📷", label: "QR 체크", active: true },
-            { icon: "🚨", label: "긴급 호출", danger: true },
-          ].map(({ icon, label, active, danger }) => (
-            <TouchableOpacity key={label} className="items-center">
-              <Text className="text-xl">{icon}</Text>
-              <Text className={`text-[10px] font-bold mt-1 ${
-                danger  ? "text-error-primary"
-                : active ? "text-caregiver-text-primary"
-                : "text-caregiver-text-neutral"
-              }`}>
-                {label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity style={styles.bottomItem} onPress={() => navigation.navigate("CaregiverMain")}>
+            <Text>🏠</Text>
+            <Text style={styles.bottomLabel}>홈</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.bottomItem}>
+            <Text>📷</Text>
+            <Text style={[styles.bottomLabel, { color: "#0B4EA2" }]}>QR 체크</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.bottomItem}>
+            <Text>🚨</Text>
+            <Text style={[styles.bottomLabel, { color: "#CC5A66" }]}>긴급 호출</Text>
+          </TouchableOpacity>
         </View>
-
       </View>
     </SafeAreaView>
   );

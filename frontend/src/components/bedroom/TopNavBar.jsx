@@ -82,8 +82,15 @@ function TopNavBar({
 }) {
   const { user } = useAuth();
   const token = user?.accessToken ?? user?.token;
-  const jwtPayload = token ? JSON.parse(atob(token.split('.')[1])) : {};
-  const facilityId = jwtPayload.facilityId ?? null;
+  let facilityId = null;
+  if (token && typeof token === "string") {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      facilityId = payload?.facilityId ?? null;
+    } catch {
+      facilityId = null;
+    }
+  }
 
   const defaultNavItems = [
     { key: "rooms", label: "병실 조회", to: "/ward" },

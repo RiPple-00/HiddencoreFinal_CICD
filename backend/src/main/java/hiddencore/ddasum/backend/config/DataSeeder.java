@@ -14,16 +14,23 @@ import hiddencore.ddasum.backend.domain.Facility;
 import hiddencore.ddasum.backend.domain.Location;
 import hiddencore.ddasum.backend.domain.Location.RoomGenderType;
 import hiddencore.ddasum.backend.domain.Location.RoomType;
+import hiddencore.ddasum.backend.domain.GuardianPatient;
+import hiddencore.ddasum.backend.domain.Patient;
 import hiddencore.ddasum.backend.domain.Post;
 import hiddencore.ddasum.backend.domain.Post.PostStatus;
 import hiddencore.ddasum.backend.domain.Post.PostType;
+import hiddencore.ddasum.backend.domain.Schedule;
+import hiddencore.ddasum.backend.domain.Schedule.ScheduleType;
 import hiddencore.ddasum.backend.domain.Users;
 import hiddencore.ddasum.backend.domain.Users.UsersRole;
 import hiddencore.ddasum.backend.domain.Users.UsersStatus;
 import hiddencore.ddasum.backend.repository.FacilityRepository;
+import hiddencore.ddasum.backend.repository.GuardianPatientRepository;
 import hiddencore.ddasum.backend.repository.LocationRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
+import hiddencore.ddasum.backend.repository.PatientRepository;
 import hiddencore.ddasum.backend.repository.PostRepository;
+import hiddencore.ddasum.backend.repository.ScheduleRepository;
 import hiddencore.ddasum.backend.security.StaffLoginIdCodec;
 
 /*
@@ -61,7 +68,10 @@ public class DataSeeder {
                         MemberRepository memberRepository,
                         PasswordEncoder passwordEncoder,
                         LocationRepository locationRepository,
-                        PostRepository postRepository) {
+                        PostRepository postRepository,
+                        ScheduleRepository scheduleRepository,
+                        PatientRepository patientRepository,
+                        GuardianPatientRepository guardianPatientRepository) {
                 return args -> {
 
                         /* ── 시설 ── */
@@ -255,6 +265,53 @@ public class DataSeeder {
                                 }
                         }
 
+                        /* ── 데모: 보호자 ↔ 환자 연결 (요양사 체크리스트 조회용) ── */
+                        if (guardianPatientRepository.findByGuardianUserId_UserId(guardian.getUserId()).isEmpty()) {
+                                List<Patient> inFacility =
+                                                patientRepository.findByFacilityId_FacilityId(facility.getFacilityId());
+                                Patient demoPatient;
+                                if (inFacility.isEmpty()) {
+                                        Location freeBed =
+                                                        locationRepository
+                                                                        .findByFacilityId_FacilityId(
+                                                                                        facility.getFacilityId())
+                                                                        .stream()
+                                                                        .filter(loc -> loc.getPatientId() == null)
+                                                                        .findFirst()
+                                                                        .orElse(null);
+                                        demoPatient =
+                                                        patientRepository.save(
+                                                                        Patient.builder()
+                                                                                        .facilityId(facility)
+                                                                                        .locationId(freeBed)
+                                                                                        .primaryCaregiver(caregiver)
+                                                                                        .name("데모 환자(보호자연결)")
+                                                                                        .gender(Patient.Gender.MALE)
+                                                                                        .birthDate(LocalDate.of(1942, 5, 12))
+                                                                                        .admissionDate(
+                                                                                                        LocalDate.now()
+                                                                                                                        .minusMonths(
+                                                                                                                                        1))
+                                                                                        .type(Patient.BloodType.A_POSITIVE)
+                                                                                        .status(Patient.PatientStatus.STABLE)
+                                                                                        .build());
+                                        if (freeBed != null) {
+                                                freeBed.setPatientId(demoPatient);
+                                                freeBed.setIsOccupied(true);
+                                                locationRepository.save(freeBed);
+                                        }
+                                } else {
+                                        demoPatient = inFacility.get(0);
+                                }
+                                guardianPatientRepository.save(
+                                                GuardianPatient.builder()
+                                                                .guardianUserId(guardian)
+                                                                .patientId(demoPatient)
+                                                                .relationship("가족")
+                                                                .isPrimary(true)
+                                                                .build());
+                        }
+
                         /* ── Post 더미 ── */
                         if (postRepository.findAllByFacility(facility.getFacilityId(), PageRequest.of(0, 1))
                                         .isEmpty()) {
@@ -300,6 +357,38 @@ public class DataSeeder {
                                                                 .type(PostType.GENERAL).title("4월 생신잔치 후기")
                                                                 .content("4월 생신잔치가 성황리에 마무리되었습니다. 참여해 주신 모든 분께 감사드립니다.")
                                                                 .status(PostStatus.ACTIVE).isPinned(false).views(55)
+                                                                .build()));
+                        }
+
+                        if (scheduleRepository.findByFacilityId_FacilityIdAndTypeOrderByCreatedAtDesc(
+                                        facility.getFacilityId(),
+                                        ScheduleType.PROGRAM).isEmpty()) {
+                                scheduleRepository.saveAll(List.of(
+                                                Schedule.builder()
+                                                                .facilityId(facility)
+                                                                .createdUserId(office)
+                                                                .title("5월 종이접기 프로그램 참여 신청")
+                                                                .content("5월 종이접기 프로그램을 진행합니다. 정원 20명이니 빠른 신청 바랍니다.")
+                                                                .type(ScheduleType.PROGRAM)
+                                                                .scheduledAt(LocalDateTime.now().plusDays(12)
+                                                                                .withHour(14).withMinute(0)
+                                                                                .withSecond(0).withNano(0))
+                                                                .endAt(LocalDateTime.now().plusDays(12)
+                                                                                .withHour(15).withMinute(30)
+                                                                                .withSecond(0).withNano(0))
+                                                                .build(),
+                                                Schedule.builder()
+                                                                .facilityId(facility)
+                                                                .createdUserId(office)
+                                                                .title("원예 치료 프로그램 모집")
+                                                                .content("봄 원예 치료 프로그램 참여자를 모집합니다.")
+                                                                .type(ScheduleType.PROGRAM)
+                                                                .scheduledAt(LocalDateTime.now().plusDays(18)
+                                                                                .withHour(10).withMinute(30)
+                                                                                .withSecond(0).withNano(0))
+                                                                .endAt(LocalDateTime.now().plusDays(18)
+                                                                                .withHour(12).withMinute(0)
+                                                                                .withSecond(0).withNano(0))
                                                                 .build()));
                         }
                 };
