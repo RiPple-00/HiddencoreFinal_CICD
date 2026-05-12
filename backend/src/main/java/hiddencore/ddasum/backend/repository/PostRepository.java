@@ -2,6 +2,7 @@ package hiddencore.ddasum.backend.repository;
 
 import hiddencore.ddasum.backend.domain.Post;
 import hiddencore.ddasum.backend.domain.Post.PostType;
+import hiddencore.ddasum.backend.domain.Post.PostStatus;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -33,7 +34,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
         // 시설 내 단건 조회 (목록·상세 공개용: ACTIVE만)
         @Query("SELECT p FROM Post p JOIN FETCH p.facilityId f JOIN FETCH p.authorUserId a " +
-                        "WHERE p.postId = :postId AND f.facilityId = :facilityId AND p.status = 'ACTIVE'")
+                        "WHERE p.postId = :postId AND f.facilityId = :facilityId AND p.status = 'ACTIVE' ")
         Optional<Post> findByIdInFacility(@Param("postId") Long postId,
                         @Param("facilityId") Long facilityId);
 

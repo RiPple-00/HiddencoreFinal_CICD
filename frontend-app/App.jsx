@@ -20,6 +20,7 @@ import CaregiverMainPage from "./src/pages/caregiver/CaregiverMainPage";
 import CaregiverWorkCheckPage from "./src/pages/caregiver/CaregiverWorkCheckPage";
 import CaregiverPatientListPage from "./src/pages/caregiver/CaregiverPatientListPage";
 import CaregiverTaskCheckPage from "./src/pages/caregiver/CaregiverTaskCheckPage";
+import ProgramPage from "./src/pages/guardian/ProgramPage";
 
 import StoragePage from "./src/pages/billing/StoragePage";
 import StorageList from "./src/components/billing/StorageList";
@@ -67,6 +68,7 @@ export default function App() {
         <Stack.Screen name="Notice" component={NoticePage} options={{ title: "공지사항" }} />
         <Stack.Screen name="Calendar" component={CalendarPage} options={{ title: "달력" }} />
         <Stack.Screen name="Payment" component={PaymentPage} options={{ headerShown: false }} />
+        <Stack.Screen name="Program" component={ProgramPage} options={{ title: "프로그램 신청" }} />
 
         {/* 수납 플로우 */}
         <Stack.Screen name="StoragePage" component={StoragePage} options={{ headerShown: false }} />

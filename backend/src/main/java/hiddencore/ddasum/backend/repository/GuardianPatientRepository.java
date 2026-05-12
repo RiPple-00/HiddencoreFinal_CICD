@@ -14,4 +14,7 @@ public interface GuardianPatientRepository extends JpaRepository<GuardianPatient
     Optional<GuardianPatient> findByGuardianUserId_UserIdAndPatientId_PatientId(
             Long guardianUserId,
             Long patientId);
+
+    // 로그인한 보호자가 담당하는 환자 목록 조회
+    List<GuardianPatient> findByGuardianUserId_UserIdOrderByIsPrimaryDesc(Long guardianUserId);
 }
