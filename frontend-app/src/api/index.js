@@ -108,6 +108,22 @@ export async function getAccessToken() {
   return AsyncStorage.getItem(ACCESS_TOKEN_KEY);
 }
 
+/** JWT payload (role, facilityId 등). base64url 디코딩. */
+export function decodeJwtPayload(token) {
+  if (!token || typeof token !== "string") return null;
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+  try {
+    let base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) base64 += "=";
+    if (typeof atob === "undefined") return null;
+    const raw = atob(base64);
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 export async function clearAccessToken() {
   await AsyncStorage.removeItem(ACCESS_TOKEN_KEY);
 }

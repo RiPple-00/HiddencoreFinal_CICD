@@ -1,16 +1,19 @@
 package hiddencore.ddasum.backend.service;
 
+import hiddencore.ddasum.backend.domain.Document;
+import hiddencore.ddasum.backend.domain.Document.DocumentStatus;
 import hiddencore.ddasum.backend.domain.Patient;
 import hiddencore.ddasum.backend.domain.Post;
-import org.springframework.stereotype.Service;
 import hiddencore.ddasum.backend.domain.PostApplication;
 import hiddencore.ddasum.backend.domain.PostApplication.PostApplicationStatus;
 import hiddencore.ddasum.backend.domain.Users;
+import hiddencore.ddasum.backend.repository.DocumentRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
 import hiddencore.ddasum.backend.repository.PostApplicationRepository;
 import hiddencore.ddasum.backend.repository.PostRepository;
 import hiddencore.ddasum.backend.web.dto.admin.PostApplicationDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -22,11 +25,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PostApplicationService {
-    
+
     private final PostApplicationRepository postApplicationRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final PostService postService;
+    private final DocumentRepository documentRepository;
 
     public PostApplicationDto.ManagementResponse getApplications(Long facilityId, Long postId) {
         Post post = postRepository.findByPostIdAndFacilityId(postId, facilityId)
@@ -39,6 +43,10 @@ public class PostApplicationService {
                 .toList();
         List<PostApplicationDto.ApplicationInfo> waitingApplicants = applications.stream()
                 .filter(application -> application.getStatus() == PostApplicationStatus.WAITING)
+                .map(this::toApplicationInfo)
+                .toList();
+        List<PostApplicationDto.ApplicationInfo> rejectedApplicants = applications.stream()
+                .filter(application -> application.getStatus() == PostApplicationStatus.REJECTED)
                 .map(this::toApplicationInfo)
                 .toList();
 
@@ -55,6 +63,7 @@ public class PostApplicationService {
                         .build())
                 .confirmedApplicants(confirmedApplicants)
                 .waitingApplicants(waitingApplicants)
+                .rejectedApplicants(rejectedApplicants)
                 .build();
     }
 
@@ -70,13 +79,46 @@ public class PostApplicationService {
         Users processor = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        application.setStatus(request.getStatus());
+        Post post = application.getPostId();
+        PostApplicationStatus newStatus = request.getStatus();
+        PostApplicationStatus old = application.getStatus();
+
+        if (newStatus == PostApplicationStatus.COMPLETED && old != PostApplicationStatus.COMPLETED) {
+            Integer cap = post.getCapacity();
+            if (cap != null) {
+                int confirmed = postApplicationRepository.countByPostId_PostIdAndStatus(
+                        post.getPostId(), PostApplicationStatus.COMPLETED);
+                if (confirmed >= cap) {
+                    throw new IllegalArgumentException("정원이 가득 차 더 이상 확정할 수 없습니다.");
+                }
+            }
+        }
+
+        application.setStatus(newStatus);
         application.setMemo(request.getMemo());
         application.setProcessedBy(processor);
         application.setProcessedAt(LocalDateTime.now());
 
-        int confirmedCount = postApplicationRepository.countByPostId_PostIdAndStatus(postId, PostApplicationStatus.COMPLETED);
-        postService.syncCurrentEnrolled(application.getPostId(), confirmedCount);
+        Document doc = application.getDocument();
+        if (doc != null) {
+            if (newStatus == PostApplicationStatus.COMPLETED) {
+                doc.setStatus(DocumentStatus.APPROVED);
+                doc.setApprovedAt(LocalDateTime.now());
+            } else if (newStatus == PostApplicationStatus.WAITING) {
+                doc.setStatus(DocumentStatus.PENDING_APPROVAL);
+                doc.setApprovedAt(null);
+            } else if (newStatus == PostApplicationStatus.REJECTED) {
+                doc.setStatus(DocumentStatus.REJECTED);
+                doc.setApprovedAt(null);
+            } else if (newStatus == PostApplicationStatus.CANCELLED) {
+                doc.setStatus(DocumentStatus.CANCELLED);
+            }
+            documentRepository.save(doc);
+        }
+
+        int confirmedCount = postApplicationRepository.countByPostId_PostIdAndStatus(
+                post.getPostId(), PostApplicationStatus.COMPLETED);
+        postService.syncCurrentEnrolled(post, confirmedCount);
 
         return toApplicationInfo(application);
     }
@@ -136,10 +178,11 @@ public class PostApplicationService {
 
     private String resolveStatusLabel(PostApplicationStatus status) {
         return switch (status) {
-            case WAITING -> "대기중";
-            case COMPLETED -> "참여 확정";
+            case WAITING -> "대기(승인 대기)";
+            case COMPLETED -> "확정";
             case CANCELLED -> "신청 취소";
             case FULL -> "정원 마감";
+            case REJECTED -> "반려";
         };
     }
 }

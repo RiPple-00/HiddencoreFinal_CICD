@@ -3,6 +3,7 @@ import {
     ActivityIndicator,
     Alert,
     Modal,
+    Platform,
     RefreshControl,
     ScrollView,
     Text,
@@ -15,7 +16,17 @@ import {
     getProgramApplications,
     getPrograms,
 } from "../../../api/guardianApi";
+import { decodeJwtPayload, getAccessToken } from "../../../api";
 import { styles } from "../../../styles/guardianProgram.styles";
+
+function userFacingAlert(title, message) {
+    const body = message || "";
+    if (Platform.OS === "web" && typeof window !== "undefined" && typeof window.alert === "function") {
+        window.alert(body ? `${title}\n\n${body}` : title);
+        return;
+    }
+    Alert.alert(title, body || undefined);
+}
 
 export default function GuardianProgramSection() {
     const [tab, setTab] = useState("programs");
@@ -29,7 +40,25 @@ export default function GuardianProgramSection() {
     const [cancelingId, setCancelingId] = useState(null);
     const [selectedApplication, setSelectedApplication] = useState(null);
     const [cancelModalVisible, setCancelModalVisible] = useState(false);
+    const [jwtRole, setJwtRole] = useState(null);
 
+    const isNonGuardianToken = jwtRole != null && jwtRole !== "GUARDIAN";
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const token = await getAccessToken();
+                const payload = decodeJwtPayload(token);
+                if (!cancelled) setJwtRole(payload?.role ?? null);
+            } catch {
+                if (!cancelled) setJwtRole(null);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const fetchData = useCallback(async () => {
         try {
@@ -57,7 +86,7 @@ export default function GuardianProgramSection() {
             }
         } catch (error) {
             console.error("프로그램 목록 조회 실패", error);
-            Alert.alert(
+            userFacingAlert(
                 "조회 실패",
                 error?.response?.data?.message ||
                 "프로그램 목록을 불러오지 못했습니다.",
@@ -149,14 +178,15 @@ export default function GuardianProgramSection() {
         isFull,
         recruitStatus,
         applying,
+        canApply,
     }) => {
         if (applying) return "신청 중...";
         if (alreadyApplied) return "신청완료";
         if (isFull) return "정원마감";
-        if (recruitStatus === "모집 예정") return "모집예정";
-        if (recruitStatus === "마감") return "마감";
-        if (recruitStatus !== "모집 중") return "신청불가";
-
+        if (!canApply) {
+            if (recruitStatus === "마감") return "마감";
+            return "신청불가";
+        }
         return "신청하기";
     };
     const programFilters = ["전체", "모집 중", "모집 예정", "마감"];
@@ -167,11 +197,26 @@ export default function GuardianProgramSection() {
             : programs.filter((program) => program.recruitStatus === programFilter);
 
 
-    const isAlreadyApplied = (postId) => {
-        return applications.some((application) => application.postId === postId);
-    };
+    const isAlreadyApplied = (postId) =>
+        applications.some((a) => {
+            const ap = a.postId != null ? Number(a.postId) : NaN;
+            const pp = postId != null ? Number(postId) : NaN;
+            return (
+                !Number.isNaN(ap) &&
+                !Number.isNaN(pp) &&
+                ap === pp &&
+                (a.status === "PENDING_APPROVAL" || a.status === "APPROVED")
+            );
+        });
 
     const onPressApply = (program) => {
+        if (isNonGuardianToken) {
+            userFacingAlert(
+                "안내",
+                "프로그램 신청은 보호자 로그인에서만 할 수 있습니다. 로그인 화면으로 돌아가 보호자 탭으로 로그인해 주세요.",
+            );
+            return;
+        }
         setSelectedProgram(program);
         setConfirmModalVisible(true);
     };
@@ -185,22 +230,47 @@ export default function GuardianProgramSection() {
     const confirmApply = async () => {
         if (!selectedProgram) return;
 
-        try {
-            setApplyingId(selectedProgram.id);
-
-            await applyProgram(selectedProgram.id);
-
-            const applicationResponse = await getProgramApplications();
-            setApplications(
-                Array.isArray(applicationResponse.data) ? applicationResponse.data : [],
+        if (isNonGuardianToken) {
+            userFacingAlert(
+                "안내",
+                "프로그램 신청은 보호자 로그인에서만 할 수 있습니다. 로그인 화면으로 돌아가 보호자 탭으로 로그인해 주세요.",
             );
+            return;
+        }
+
+        try {
+            const rawId = selectedProgram.id ?? selectedProgram.postId;
+            const postId = Number(rawId);
+            if (rawId == null || !Number.isFinite(postId)) {
+                userFacingAlert("신청 실패", "게시글 정보가 올바르지 않습니다.");
+                return;
+            }
+            setApplyingId(postId);
+
+            const applyRes = await applyProgram(postId);
+            const created = applyRes?.data;
+
+            try {
+                const applicationResponse = await getProgramApplications();
+                setApplications(
+                    Array.isArray(applicationResponse.data) ? applicationResponse.data : [],
+                );
+            } catch (refreshErr) {
+                console.error("신청내역 갱신 실패", refreshErr);
+                if (created?.documentId != null) {
+                    setApplications((prev) => {
+                        const rest = prev.filter((x) => x.documentId !== created.documentId);
+                        return [created, ...rest];
+                    });
+                }
+            }
 
             setConfirmModalVisible(false);
             setSelectedProgram(null);
             setTab("applications");
         } catch (error) {
             console.error("프로그램 신청 실패", error);
-            Alert.alert(
+            userFacingAlert(
                 "신청 실패",
                 error?.response?.data?.message || "프로그램 신청에 실패했습니다.",
             );
@@ -243,7 +313,7 @@ export default function GuardianProgramSection() {
             setPrograms(Array.isArray(programResponse.data) ? programResponse.data : []);
         } catch (error) {
             console.error("프로그램 신청 취소 실패", error);
-            Alert.alert(
+            userFacingAlert(
                 "취소 실패",
                 error?.response?.data?.message || "프로그램 신청 취소에 실패했습니다."
             );
@@ -261,6 +331,15 @@ export default function GuardianProgramSection() {
                     보호자님이 환자 대신 프로그램을 신청할 수 있어요.
                 </Text>
             </View>
+
+            {isNonGuardianToken ? (
+                <View style={styles.tokenWarningBox}>
+                    <Text style={styles.tokenWarningText}>
+                        직원(요양사 등) 계정으로 로그인된 상태입니다. 프로그램 신청은 로그인 화면에서「보호자」탭을
+                        선택한 뒤 보호자 아이디로 로그인해 주세요.
+                    </Text>
+                </View>
+            ) : null}
 
             <View style={styles.tabRow}>
                 <TouchableOpacity
@@ -347,20 +426,25 @@ export default function GuardianProgramSection() {
                                 </View>
                             ) : (
                                 filteredPrograms.map((program) => {
-                                    const alreadyApplied = isAlreadyApplied(program.id);
+                                    const pid = program.id ?? program.postId;
+                                    const pidNum = Number(pid);
+                                    const alreadyApplied = isAlreadyApplied(pid);
                                     const capacity = program.capacity ?? 0;
                                     const currentEnrolled = program.currentEnrolled ?? 0;
                                     const isFull = capacity > 0 && currentEnrolled >= capacity;
-                                    const isRecruiting = program.recruitStatus === "모집 중";
+                                    const canApply =
+                                        program.recruitStatus === "모집 중" ||
+                                        program.recruitStatus === "모집 예정";
 
                                     const disabled =
-                                        !isRecruiting ||
+                                        isNonGuardianToken ||
+                                        !canApply ||
                                         alreadyApplied ||
                                         isFull ||
-                                        applyingId === program.id;
+                                        applyingId === pidNum;
 
                                     return (
-                                        <View key={program.id} style={styles.programCard}>
+                                        <View key={pid} style={styles.programCard}>
                                             <View style={styles.cardTopRow}>
                                                 <View style={getStatusBadgeStyle(program.recruitStatus)}>
                                                     <Text
@@ -394,7 +478,7 @@ export default function GuardianProgramSection() {
                                                 <View style={styles.detailRow}>
                                                     <Text style={styles.detailLabel}>신청 조건</Text>
                                                     <Text style={styles.detailValue}>
-                                                        모집 중인 프로그램만 신청 가능
+                                                        모집 예정·모집 중인 프로그램만 신청 가능
                                                     </Text>
                                                 </View>
                                             </View>
@@ -424,7 +508,8 @@ export default function GuardianProgramSection() {
                                                         alreadyApplied,
                                                         isFull,
                                                         recruitStatus: program.recruitStatus,
-                                                        applying: applyingId === program.id,
+                                                        applying: applyingId === pidNum,
+                                                        canApply,
                                                     })}
                                                 </Text>
                                             </TouchableOpacity>
@@ -454,7 +539,7 @@ export default function GuardianProgramSection() {
 
                                 <View style={styles.historyBottomRow}>
                                     <Text style={styles.historyStatus}>
-                                        상태: {application.status}
+                                        상태: {application.statusLabel || application.status || "-"}
                                     </Text>
 
                                     <Text style={styles.historyDate}>
@@ -462,7 +547,7 @@ export default function GuardianProgramSection() {
                                     </Text>
                                 </View>
 
-                                {application.status !== "CANCELLED" && (
+                                {application.status === "PENDING_APPROVAL" && (
                                     <TouchableOpacity
                                         style={[
                                             styles.cancelButton,

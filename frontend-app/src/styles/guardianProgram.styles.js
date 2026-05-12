@@ -41,6 +41,22 @@ export const styles = StyleSheet.create({
     color: "#64748B",
   },
 
+  tokenWarningBox: {
+    marginHorizontal: 20,
+    marginBottom: 10,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: "#FEF3C7",
+    borderWidth: 1,
+    borderColor: "#FCD34D",
+  },
+  tokenWarningText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#92400E",
+    lineHeight: 19,
+  },
+
   tabRow: {
     flexDirection: "row",
     gap: 10,

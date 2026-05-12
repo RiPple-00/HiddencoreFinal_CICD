@@ -19,6 +19,7 @@ public interface PostApplicationRepository extends JpaRepository<PostApplication
         JOIN FETCH pa.postId p
         JOIN FETCH pa.patientId patient
         LEFT JOIN FETCH pa.guardianUserId guardian
+        LEFT JOIN FETCH pa.document document
         WHERE p.facilityId.facilityId = :facilityId
           AND p.postId = :postId
         ORDER BY pa.appliedAt ASC, pa.applicationId ASC
@@ -34,6 +35,7 @@ public interface PostApplicationRepository extends JpaRepository<PostApplication
         JOIN FETCH pa.patientId patient
         LEFT JOIN FETCH pa.guardianUserId guardian
         LEFT JOIN FETCH pa.processedBy processor
+        LEFT JOIN FETCH pa.document document
         WHERE p.facilityId.facilityId = :facilityId
           AND p.postId = :postId
           AND pa.applicationId = :applicationId
@@ -44,4 +46,6 @@ public interface PostApplicationRepository extends JpaRepository<PostApplication
             @Param("applicationId") Long applicationId);
 
     int countByPostId_PostIdAndStatus(Long postId, PostApplicationStatus status);
+
+    Optional<PostApplication> findByDocument_DocumentId(Long documentId);
 }

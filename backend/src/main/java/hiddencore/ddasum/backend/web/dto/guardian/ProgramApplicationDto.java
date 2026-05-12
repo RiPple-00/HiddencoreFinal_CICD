@@ -26,6 +26,7 @@ public class ProgramApplicationDto {
         private String patientName;
 
         private DocumentStatus status;
+        private String statusLabel;
         private LocalDateTime requestedAt;
     }
 }

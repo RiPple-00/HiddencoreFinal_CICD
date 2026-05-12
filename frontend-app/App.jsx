@@ -63,7 +63,7 @@ export default function App() {
         <Stack.Screen name="CaregiverTaskCheck" component={CaregiverTaskCheckPage} options={{ headerShown: false }} />
         <Stack.Screen name="CaregiverPatientList" component={CaregiverPatientListPage} options={{ headerShown: false }} />
         <Stack.Screen name="Report" component={ReportPage} options={{ title: "보고서 확인" }} />
-        <Stack.Screen name="Consent" component={ConsentPage} options={{ title: "동의서 확인" }} />
+        <Stack.Screen name="Consent" component={ConsentPage} options={{ headerShown: false }} />
         <Stack.Screen name="VisitApply" component={VisitApplyPage} options={{ title: "면회 신청" }} />
         <Stack.Screen name="Notice" component={NoticePage} options={{ title: "공지사항" }} />
         <Stack.Screen name="Calendar" component={CalendarPage} options={{ title: "달력" }} />

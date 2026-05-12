@@ -34,7 +34,8 @@ export const getPrograms = async () => {
     params: { type: "APPLY", page: 0, size: 100 },
   });
   const raw = Array.isArray(res.data) ? res.data : [];
-  const data = raw.filter((p) => p.status === "ACTIVE" || p.status === "RESERVE");
+  /** 신청 API는 ACTIVE만 허용 — 예약(RESERVE)만 노출되면 신청 후 400이 난다 */
+  const data = raw.filter((p) => p.status === "ACTIVE");
   return { ...res, data };
 };
 
