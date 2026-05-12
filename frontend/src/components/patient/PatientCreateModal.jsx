@@ -1,5 +1,5 @@
 import { useState } from "react";
-import patientApi from "@/api/patientApi";
+import patientApi from "../../api/patientApi";
 import RoomLayoutCard from "../bedroom/RoomLayoutCard";
 import WardPage from '../../pages/WardPage'
 

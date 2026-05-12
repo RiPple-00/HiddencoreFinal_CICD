@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useMemo, useCallback } from 'react';
-import postApi from '@/api/postApi';
+import postApi from '../api/postApi';
 import { PAGE_SIZE, BOARD_OPTIONS, BOARD_TYPE_MAP } from '../utils/boardUtils';
 
 const BoardContext = createContext(null);

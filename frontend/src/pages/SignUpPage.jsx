@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'            // 페이지 이동
 import toast from 'react-hot-toast'
-import authApi from '@/api/authApi'
-import Input from '@/components/Input'
-import Button from '@/components/Button'
+import authApi from '../api/authApi'
+import Input from '../components/Input'
+import Button from '../components/Button'
 
 export default function SignUpPage() {
     // ======================================================

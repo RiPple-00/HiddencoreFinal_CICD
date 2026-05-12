@@ -11,8 +11,8 @@ import ScheduleFormModal from "../components/choco/ScheduleFormModal";
 import ScheduleDetailPanel from "../components/choco/ScheduleDetailPanel";
 import TodayScheduleList from "../components/choco/TodayScheduleList";
 import TopNavBar from "../components/bedroom/TopNavBar";
-import { formatDate, toDate } from "@/utils/dateUtils";
-import { useAuth } from '@/contexts/AutoContext.jsx';
+import { formatDate, toDate } from "../utils/dateUtils";
+import { useAuth } from '../contexts/AutoContext.jsx';
 
 const pad2 = (n) => String(n).padStart(2, "0");
 

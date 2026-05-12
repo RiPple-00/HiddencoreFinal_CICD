@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as XLSX from "xlsx";
 import { useNavigate } from "react-router-dom";
-import mealApi from "@/api/mealApi";
+import mealApi from "../api/mealApi";
 import { useAuth } from "../contexts/AutoContext.jsx";
 import { resolveFacilityId, toIsoDateKey } from "../utils/mealViewUtils";
 
