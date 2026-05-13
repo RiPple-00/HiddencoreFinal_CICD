@@ -19,7 +19,12 @@ const ProgramApplicantManagementPage = () => {
     setIsLoading(true);
     try {
       const response = await postApplicationApi.getApplications(facilityId, postId);
-      setManagementData(response.data ?? programApplicantMock);
+      const data = response.data ?? programApplicantMock;
+      setManagementData({
+        ...programApplicantMock,
+        ...data,
+        rejectedApplicants: data.rejectedApplicants ?? [],
+      });
     } catch {
       setManagementData(programApplicantMock);
     } finally {
@@ -34,6 +39,7 @@ const ProgramApplicantManagementPage = () => {
   const programInfo = managementData?.programInfo ?? programApplicantMock.programInfo;
   const confirmedApplicants = managementData?.confirmedApplicants ?? [];
   const waitingApplicants = managementData?.waitingApplicants ?? [];
+  const rejectedApplicants = managementData?.rejectedApplicants ?? [];
 
   const pageDescription = useMemo(() => {
     if (programInfo?.description) return programInfo.description;
@@ -45,8 +51,10 @@ const ProgramApplicantManagementPage = () => {
     try {
       await postApplicationApi.updateApplicationStatus(facilityId, postId, applicationId, nextStatus);
       await loadManagementData();
-    } catch {
-      toast.error('신청 상태를 변경하지 못했습니다.');
+      toast.success('상태가 반영되었습니다.');
+    } catch (e) {
+      const msg = e?.response?.data?.message ?? '신청 상태를 변경하지 못했습니다.';
+      toast.error(msg);
     } finally {
       setIsUpdating(false);
     }
@@ -61,6 +69,8 @@ const ProgramApplicantManagementPage = () => {
     }
     navigate(`/facilities/${facilityId}/board`);
   };
+  const handleReject = (applicationId) => updateStatus(applicationId, 'REJECTED');
+  const handleMoveToWaiting = (applicationId) => updateStatus(applicationId, 'WAITING');
 
   return (
     <>
@@ -87,9 +97,9 @@ const ProgramApplicantManagementPage = () => {
                 <div className="py-10 text-center text-sm text-slate-400">불러오는 중...</div>
               ) : (
                 <ApplicantTable
+                  mode="confirmed"
                   applicants={confirmedApplicants}
-                  onApprove={handleApprove}
-                  onCancel={handleCancel}
+                  onMoveToWaiting={handleMoveToWaiting}
                   isUpdating={isUpdating}
                   emptyMessage="확정된 신청자가 없습니다."
                 />
@@ -97,19 +107,31 @@ const ProgramApplicantManagementPage = () => {
             </ApplicantSection>
 
             <ApplicantSection
-              title="대기자 명단"
+              title="대기자 명단 (승인 대기)"
               count={waitingApplicants.length}
             >
               {isLoading ? (
                 <div className="py-10 text-center text-sm text-slate-400">불러오는 중...</div>
               ) : (
                 <ApplicantTable
+                  mode="waiting"
                   applicants={waitingApplicants}
                   onApprove={handleApprove}
-                  onCancel={handleCancel}
-                  showActions
+                  onReject={handleReject}
                   isUpdating={isUpdating}
                   emptyMessage="대기 중인 신청자가 없습니다."
+                />
+              )}
+            </ApplicantSection>
+
+            <ApplicantSection title="반려 명단" count={rejectedApplicants.length}>
+              {isLoading ? (
+                <div className="py-10 text-center text-sm text-slate-400">불러오는 중...</div>
+              ) : (
+                <ApplicantTable
+                  mode="rejected"
+                  applicants={rejectedApplicants}
+                  emptyMessage="반려 처리된 신청이 없습니다."
                 />
               )}
             </ApplicantSection>

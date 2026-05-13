@@ -1,8 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import {
   View,
-  Text,
-  StyleSheet,
   TouchableOpacity,
   TextInput,
   ScrollView,
@@ -14,22 +12,14 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import Text from "@/components/Text";
 import VisitCalendarSection from "../../../components/visit/VisitCalendarSection";
 import VisitTimeSelector from "../../../components/visit/VisitTimeSelector";
-import visitApi from "../../../api/visitApi";
-import { resolveApiBaseUrl } from "../../../api/index";
+import visitApi from "@/api/visitApi";
+import { resolveApiBaseUrl } from "@/api/index";
 
-const PRIMARY = "#0B4EA2";
 const TIME_SLOTS = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
+  "09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00",
 ];
 
 const RELATION_OPTIONS = ["배우자", "자녀", "부모", "형제·자매", "기타"];
@@ -127,30 +117,29 @@ function shortTime(t) {
 }
 
 function formatVisitDateTime(date, timeStr) {
-  const yoil = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
+  const yoil = ["일","월","화","수","목","금","토"][date.getDay()];
   const y = date.getFullYear();
   const m = date.getMonth() + 1;
   const d = date.getDate();
-  const line = `${y}년 ${m}월 ${d}일 (${yoil}) ${timeStr}`;
+  const line   = `${y}년 ${m}월 ${d}일 (${yoil}) ${timeStr}`;
   const detail = `${y}년 ${m}월 ${d}일 (${yoil}) • ${timeStr}`;
   return { line, detail };
 }
 
 function ProgressBar({ step, total }) {
   return (
-    <View style={styles.progressWrap}>
-      <View style={styles.progressSegments}>
+    <View className="flex-row items-center px-4 py-3 bg-background-neutral gap-3">
+      <View className="flex-1 flex-row gap-[6px]">
         {Array.from({ length: total }, (_, i) => (
           <View
             key={i}
-            style={[
-              styles.progressSeg,
-              i < step ? styles.progressSegOn : styles.progressSegOff,
-            ]}
+            className={`flex-1 h-[6px] rounded-[3px] ${
+              i < step ? "bg-guardian-button-primary" : "bg-guardian-bg-secondary"
+            }`}
           />
         ))}
       </View>
-      <Text style={styles.progressLabel}>
+      <Text className="text-xs text-guardian-text-neutral font-bold">
         STEP {step}/{total}
       </Text>
     </View>
@@ -158,15 +147,15 @@ function ProgressBar({ step, total }) {
 }
 
 export default function VisitReservationPage({ onBack, onComplete }) {
-  const [step, setStep] = useState(1);
-  const [selectedDate, setSelectedDate] = useState(() => new Date());
-  const [selectedTime, setSelectedTime] = useState("11:00");
+  const [step,          setStep]          = useState(1);
+  const [selectedDate,  setSelectedDate]  = useState(() => new Date());
+  const [selectedTime,  setSelectedTime]  = useState("11:00");
   const [applicantName, setApplicantName] = useState("");
-  const [contact, setContact] = useState("");
-  const [relationship, setRelationship] = useState("");
-  const [relModalOpen, setRelModalOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [visitTypeIdx, setVisitTypeIdx] = useState(0);
+  const [contact,       setContact]       = useState("");
+  const [relationship,  setRelationship]  = useState("");
+  const [relModalOpen,  setRelModalOpen]  = useState(false);
+  const [submitting,    setSubmitting]    = useState(false);
+  const [visitTypeIdx,  setVisitTypeIdx]  = useState(0);
 
   const visitType = useMemo(
     () => VISIT_TYPES[visitTypeIdx % VISIT_TYPES.length],
@@ -192,20 +181,17 @@ export default function VisitReservationPage({ onBack, onComplete }) {
   };
 
   const submitReservation = async () => {
-    if (!applicantName.trim() || !contact.trim() || !relationship || submitting) {
-      return;
-    }
+    if (!applicantName.trim() || !contact.trim() || !relationship || submitting) return;
     const phone = normalizeKoreanMobile(contact);
     const selectedVisit = VISIT_TYPES[visitTypeIdx % VISIT_TYPES.length];
     const body = {
-      patientId: DEFAULT_PATIENT_ID,
-      visitDate: formatLocalDate(selectedDate),
-      visitTime:
-        selectedTime.length === 5 ? `${selectedTime}:00` : selectedTime,
-      visitorName: applicantName.trim(),
+      patientId:    DEFAULT_PATIENT_ID,
+      visitDate:    formatLocalDate(selectedDate),
+      visitTime:    selectedTime.length === 5 ? `${selectedTime}:00` : selectedTime,
+      visitorName:  applicantName.trim(),
       visitorPhone: phone,
       relationship,
-      visitType: selectedVisit.apiValue,
+      visitType:    selectedVisit.apiValue,
     };
     if (REQUESTER_USER_ID != null && String(REQUESTER_USER_ID).trim() !== "") {
       body.requesterUserId = Number(REQUESTER_USER_ID);
@@ -219,19 +205,15 @@ export default function VisitReservationPage({ onBack, onComplete }) {
       const timeStr = shortTime(data.visitTime);
       const { line, detail } = formatVisitDateTime(savedDate, timeStr);
       onComplete?.({
-        visitDateLine: line,
-        visitDateDetail: detail,
+        visitDateLine:    line,
+        visitDateDetail:  detail,
         visitTypeSummary: selectedVisit.summary,
-        visitTypeDetail: selectedVisit.detailLine,
-        patientLine: buildPatientLineForUi(
-          data.patientId,
-          data.patientName,
-          data.patientRoom
-        ),
-        applicantName: data.visitorName,
-        contact: data.visitorPhone,
-        relationship: data.relationship,
-        visitRequestId: data.visitRequestId,
+        visitTypeDetail:  selectedVisit.detailLine,
+        patientLine:      buildPatientLineForUi(data.patientId, data.patientName, data.patientRoom),
+        applicantName:    data.visitorName,
+        contact:          data.visitorPhone,
+        relationship:     data.relationship,
+        visitRequestId:   data.visitRequestId,
       });
     } catch (err) {
       const base = err?.config?.baseURL || resolveApiBaseUrl();
@@ -247,28 +229,22 @@ export default function VisitReservationPage({ onBack, onComplete }) {
         const d = err.response.data;
         const arr = d.errors || d.fieldErrors || d.violations;
         if (Array.isArray(arr) && arr.length) {
-          msg = arr
-            .map((e) => e.defaultMessage || e.message || e.field || "")
-            .filter(Boolean)
-            .join("\n");
+          msg = arr.map((e) => e.defaultMessage || e.message || e.field || "").filter(Boolean).join("\n");
         }
         const first = d.errors?.[0];
         if (!msg && first?.defaultMessage) msg = first.defaultMessage;
         if (!msg && typeof d.message === "string") msg = d.message;
-        if (!msg && typeof d.detail === "string") msg = d.detail;
+        if (!msg && typeof d.detail   === "string") msg = d.detail;
       }
       if (!msg) msg = err?.message;
       if (isNetwork) {
         msg =
           "서버에 연결하지 못했습니다.\n\n" +
-          "· PC에서 Spring Boot(포트 " +
-          (process.env.EXPO_PUBLIC_API_PORT || "8080") +
-          ")가 실행 중인지 확인\n" +
+          "· PC에서 Spring Boot(포트 " + (process.env.EXPO_PUBLIC_API_PORT || "8080") + ")가 실행 중인지 확인\n" +
           "· 휴대폰과 PC가 같은 Wi‑Fi인지 확인\n" +
           "· 필요하면 프로젝트 루트 .env에 아래처럼 PC IP를 지정 후 Metro 재시작\n" +
           "  EXPO_PUBLIC_API_BASE_URL=http://192.168.x.x:8080\n\n" +
-          "현재 요청 주소: " +
-          base;
+          "현재 요청 주소: " + base;
       }
       if (!msg) msg = "예약 저장에 실패했습니다.";
       Alert.alert("예약 실패", String(msg));
@@ -277,7 +253,7 @@ export default function VisitReservationPage({ onBack, onComplete }) {
     }
   };
 
-  const canNext = Boolean(selectedTime);
+  const canNext   = Boolean(selectedTime);
   const canSubmit =
     applicantName.trim().length > 0 &&
     contact.trim().length > 0 &&
@@ -285,41 +261,58 @@ export default function VisitReservationPage({ onBack, onComplete }) {
     !submitting;
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.header}>
+    <SafeAreaView className="flex-1 bg-guardian-bg-secondary">
+
+      {/* 헤더 */}
+      <View className="flex-row items-center justify-between px-4 py-[14px] bg-background-neutral border-b border-guardian-button-secondary">
         <TouchableOpacity onPress={headerBack} hitSlop={12}>
-          <Text style={styles.back}>←</Text>
+          <Text className="text-[22px] text-guardian-text-primary w-10">←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>방문 예약 신청</Text>
-        <View style={styles.headerSpacer} />
+        <Text className="text-[17px] font-bold text-guardian-text-primary">
+          방문 예약 신청
+        </Text>
+        <View className="w-10" />
       </View>
 
       <ProgressBar step={step} total={3} />
 
       {step === 1 ? (
         <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollPad}
+          className="flex-1"
+          contentContainerStyle={{ padding: 16, paddingBottom: 36 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.blockTitle}>면회 유형 선택</Text>
-          <Text style={styles.typeHint}>카드를 누르면 유형이 순서대로 바뀝니다</Text>
+          {/* 면회 유형 선택 */}
+          <Text className="text-[17px] font-extrabold text-guardian-text-primary mb-2">
+            면회 유형 선택
+          </Text>
+          <Text className="text-[13px] text-guardian-text-neutral mb-3">
+            카드를 누르면 유형이 순서대로 바뀝니다
+          </Text>
+
+          {/* tint는 VISIT_TYPES 데이터 기반 동적 색상이라 inline style 유지 */}
           <TouchableOpacity
-            style={[styles.typeCard, { backgroundColor: visitType.tint }]}
-            onPress={() =>
-              setVisitTypeIdx((i) => (i + 1) % VISIT_TYPES.length)
-            }
+            style={{ backgroundColor: visitType.tint }}
+            className="rounded-2xl p-5 items-center border border-guardian-button-secondary"
+            onPress={() => setVisitTypeIdx((i) => (i + 1) % VISIT_TYPES.length)}
             activeOpacity={0.88}
           >
-            <View style={styles.typeIconCircle}>
-              <Text style={styles.typeIcon}>{visitType.icon}</Text>
+            <View className="w-14 h-14 rounded-full bg-background-neutral items-center justify-center mb-3">
+              <Text className="text-[26px]">{visitType.icon}</Text>
             </View>
-            <Text style={styles.typeMain}>{visitType.title}</Text>
-            <Text style={styles.typeSub}>{visitType.sub}</Text>
+            <Text className="text-[18px] font-extrabold text-guardian-text-primary mb-1">
+              {visitType.title}
+            </Text>
+            <Text className="text-[14px] font-bold text-guardian-text-secondary">
+              {visitType.sub}
+            </Text>
           </TouchableOpacity>
 
-          <Text style={[styles.blockTitle, styles.dateTitle]}>날짜 선택</Text>
+          {/* 날짜 선택 */}
+          <Text className="text-[17px] font-extrabold text-guardian-text-primary mt-5 mb-2">
+            날짜 선택
+          </Text>
           <VisitCalendarSection
             selectedDate={selectedDate}
             onDateChange={setSelectedDate}
@@ -332,120 +325,135 @@ export default function VisitReservationPage({ onBack, onComplete }) {
           />
 
           <TouchableOpacity
-            style={[styles.primaryBtn, !canNext && styles.primaryBtnDisabled]}
+            className={`mt-6 bg-guardian-button-primary py-4 rounded-xl items-center ${!canNext ? "opacity-50" : ""}`}
             onPress={goNext}
             disabled={!canNext}
           >
-            <Text style={styles.primaryBtnText}>다음 단계 →</Text>
+            <Text className="text-guardian-text-primary text-base font-extrabold">
+              다음 단계 →
+            </Text>
           </TouchableOpacity>
         </ScrollView>
       ) : (
         <KeyboardAvoidingView
-          style={styles.flex1}
+          className="flex-1"
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={styles.scrollPad}
+            className="flex-1"
+            contentContainerStyle={{ padding: 16, paddingBottom: 36 }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            <Text style={styles.step2Title}>신청 정보 입력</Text>
-            <Text style={styles.step2Sub}>
+            {/* 신청 정보 입력 */}
+            <Text className="text-xl font-extrabold text-guardian-text-primary mb-2">
+              신청 정보 입력
+            </Text>
+            <Text className="text-[14px] text-guardian-text-neutral mb-[18px] leading-5">
               예약 확정을 위해 정확한 정보를 입력해주세요.
             </Text>
 
-            <View style={styles.summaryCard}>
-              <View style={styles.summaryHeader}>
-                <Text style={styles.summaryLabel}>선택한 예약 정보</Text>
-                <Text style={styles.summaryShield}>🛡</Text>
+            {/* 선택한 예약 요약 카드 */}
+            <View className="bg-background-neutral rounded-2xl p-4 mb-5">
+              <View className="flex-row justify-between mb-[14px]">
+                <Text className="text-xs text-guardian-text-neutral opacity-60 font-bold">
+                  선택한 예약 정보
+                </Text>
+                <Text className="text-[18px] opacity-35">🛡</Text>
               </View>
 
-              <View style={styles.summaryRow}>
-                <View style={styles.summaryIconBox}>
-                  <Text style={styles.summaryEmoji}>📅</Text>
+              <View className="flex-row items-start mb-[14px]">
+                {/* summaryIconBox: guardian-button-secondary (크림 톤으로 통일) */}
+                <View className="w-10 h-10 rounded-[10px] bg-guardian-button-secondary items-center justify-center mr-3">
+                  <Text className="text-[18px]">📅</Text>
                 </View>
-                <View style={styles.summaryTextCol}>
-                  <Text style={styles.summaryRowLabel}>예약 일시</Text>
-                  <Text style={styles.summaryRowValue}>{dateTimeLine}</Text>
+                <View className="flex-1">
+                  <Text className="text-xs text-guardian-text-neutral opacity-60 mb-1">예약 일시</Text>
+                  <Text className="text-[15px] font-bold text-guardian-text-primary">{dateTimeLine}</Text>
                 </View>
               </View>
 
-              <View style={styles.summaryRow}>
-                <View style={styles.summaryIconBox}>
-                  <Text style={styles.summaryEmoji}>👥</Text>
+              <View className="flex-row items-start">
+                <View className="w-10 h-10 rounded-[10px] bg-guardian-button-secondary items-center justify-center mr-3">
+                  <Text className="text-[18px]">👥</Text>
                 </View>
-                <View style={styles.summaryTextCol}>
-                  <Text style={styles.summaryRowLabel}>면회 유형</Text>
-                  <Text style={styles.summaryRowValue}>{visitType.summary}</Text>
+                <View className="flex-1">
+                  <Text className="text-xs text-guardian-text-neutral opacity-60 mb-1">면회 유형</Text>
+                  <Text className="text-[15px] font-bold text-guardian-text-primary">{visitType.summary}</Text>
                 </View>
               </View>
             </View>
 
-            <Text style={styles.fieldLabel}>신청자 성함</Text>
+            {/* 신청자 성함 */}
+            <Text className="text-[14px] font-bold text-guardian-text-primary mb-2 mt-1">
+              신청자 성함
+            </Text>
             <TextInput
-              style={styles.input}
+              className="bg-guardian-bg-secondary rounded-xl px-[14px] py-[14px] text-base text-guardian-text-primary mb-1"
               value={applicantName}
               onChangeText={setApplicantName}
               placeholder="성함을 입력하세요"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#949BA0"
             />
 
-            <Text style={styles.fieldLabel}>연락처</Text>
+            {/* 연락처 */}
+            <Text className="text-[14px] font-bold text-guardian-text-primary mb-2 mt-1">
+              연락처
+            </Text>
             <TextInput
-              style={styles.input}
+              className="bg-guardian-bg-secondary rounded-xl px-[14px] py-[14px] text-base text-guardian-text-primary mb-1"
               value={contact}
               onChangeText={setContact}
               placeholder="010-0000-0000"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#949BA0"
               keyboardType="phone-pad"
             />
 
-            <Text style={styles.fieldLabel}>환자와의 관계</Text>
+            {/* 환자와의 관계 */}
+            <Text className="text-[14px] font-bold text-guardian-text-primary mb-2 mt-1">
+              환자와의 관계
+            </Text>
             <TouchableOpacity
-              style={styles.selectBox}
+              className="flex-row items-center justify-between bg-guardian-bg-secondary rounded-xl px-[14px] py-[14px] mb-2"
               onPress={() => setRelModalOpen(true)}
             >
-              <Text
-                style={[
-                  styles.selectText,
-                  !relationship && styles.selectPlaceholder,
-                ]}
-              >
+              <Text className={`text-base flex-1 ${relationship ? "text-guardian-text-primary" : "text-guardian-text-neutral opacity-50"}`}>
                 {relationship || "관계를 선택해주세요"}
               </Text>
-              <Text style={styles.chev}>⌄</Text>
+              <Text className="text-[18px] text-guardian-text-neutral">⌄</Text>
             </TouchableOpacity>
 
-            <View style={styles.noticeBox}>
-              <Text style={styles.noticeTitle}>ⓘ 방문 시 유의사항</Text>
-              <Text style={styles.noticeBullet}>
-                • 면회 시작 10분 전까지 도착하여 원무과에서 본인 확인을 완료해주시기
-                바랍니다.
+            {/* 방문 시 유의사항 */}
+            <View className="mt-4 bg-guardian-button-secondary rounded-xl p-[14px] mb-2">
+              <Text className="text-[14px] font-bold text-guardian-text-primary mb-2">
+                ⓘ 방문 시 유의사항
               </Text>
-              <Text style={styles.noticeBullet}>
+              <Text className="text-[13px] text-guardian-text-neutral leading-5 mb-[6px]">
+                • 면회 시작 10분 전까지 도착하여 원무과에서 본인 확인을 완료해주시기 바랍니다.
+              </Text>
+              <Text className="text-[13px] text-guardian-text-neutral leading-5 mb-[6px]">
                 • 호흡기 증상(기침, 발열)이 있는 경우 병원 입장이 제한될 수 있습니다.
               </Text>
             </View>
 
             <TouchableOpacity
-              style={[
-                styles.primaryBtn,
-                !canSubmit && styles.primaryBtnDisabled,
-              ]}
+              className={`mt-6 bg-guardian-button-primary py-4 rounded-xl items-center ${!canSubmit ? "opacity-50" : ""}`}
               onPress={submitReservation}
               disabled={!canSubmit}
             >
               {submitting ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color="#503115" />
               ) : (
-                <Text style={styles.primaryBtnText}>예약 신청하기 →</Text>
+                <Text className="text-guardian-text-primary text-base font-extrabold">
+                  예약 신청하기 →
+                </Text>
               )}
             </TouchableOpacity>
           </ScrollView>
         </KeyboardAvoidingView>
       )}
 
+      {/* 관계 선택 모달 */}
       <Modal
         visible={relModalOpen}
         transparent
@@ -453,21 +461,26 @@ export default function VisitReservationPage({ onBack, onComplete }) {
         onRequestClose={() => setRelModalOpen(false)}
       >
         <Pressable
-          style={styles.modalOverlay}
+          className="flex-1 bg-black/40 justify-end"
           onPress={() => setRelModalOpen(false)}
         >
-          <Pressable style={styles.modalSheet} onPress={(e) => e.stopPropagation()}>
-            <Text style={styles.modalTitle}>관계 선택</Text>
+          <Pressable
+            className="bg-background-neutral rounded-t-2xl py-3 pb-7"
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Text className="text-base font-extrabold px-5 pb-3 text-guardian-text-primary">
+              관계 선택
+            </Text>
             {RELATION_OPTIONS.map((opt) => (
               <TouchableOpacity
                 key={opt}
-                style={styles.modalItem}
+                className="py-[14px] px-5 border-t border-guardian-bg-secondary"
                 onPress={() => {
                   setRelationship(opt);
                   setRelModalOpen(false);
                 }}
               >
-                <Text style={styles.modalItemText}>{opt}</Text>
+                <Text className="text-base text-guardian-text-primary">{opt}</Text>
               </TouchableOpacity>
             ))}
           </Pressable>
@@ -476,188 +489,3 @@ export default function VisitReservationPage({ onBack, onComplete }) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F4F6F8" },
-  flex1: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: "#fff",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#E5E7EB",
-  },
-  back: { fontSize: 22, color: PRIMARY, width: 40 },
-  headerTitle: { fontSize: 17, fontWeight: "700", color: PRIMARY },
-  headerSpacer: { width: 40 },
-  progressWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#fff",
-    gap: 12,
-  },
-  progressSegments: { flex: 1, flexDirection: "row", gap: 6 },
-  progressSeg: { flex: 1, height: 6, borderRadius: 3 },
-  progressSegOn: { backgroundColor: PRIMARY },
-  progressSegOff: { backgroundColor: "#E5E7EB" },
-  progressLabel: { fontSize: 12, color: "#6B7280", fontWeight: "600" },
-  scroll: { flex: 1 },
-  scrollPad: { padding: 16, paddingBottom: 36 },
-  blockTitle: {
-    fontSize: 17,
-    fontWeight: "800",
-    color: "#111827",
-    marginBottom: 8,
-  },
-  typeHint: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginBottom: 12,
-  },
-  dateTitle: { marginTop: 20, marginBottom: 8 },
-  typeCard: {
-    borderRadius: 16,
-    padding: 20,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(11, 78, 162, 0.12)",
-  },
-  typeIconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-  typeIcon: { fontSize: 26 },
-  typeMain: { fontSize: 18, fontWeight: "800", color: PRIMARY, marginBottom: 4 },
-  typeSub: { fontSize: 14, fontWeight: "600", color: "#2563EB" },
-  primaryBtn: {
-    marginTop: 24,
-    backgroundColor: PRIMARY,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  primaryBtnDisabled: { opacity: 0.45 },
-  primaryBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
-  step2Title: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#111827",
-    marginBottom: 8,
-  },
-  step2Sub: { fontSize: 14, color: "#6B7280", marginBottom: 18, lineHeight: 20 },
-  summaryCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  summaryHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 14,
-  },
-  summaryLabel: { fontSize: 12, color: "#9CA3AF", fontWeight: "600" },
-  summaryShield: { fontSize: 18, opacity: 0.35 },
-  summaryRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 14,
-  },
-  summaryIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: "#DBEAFE",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  summaryEmoji: { fontSize: 18 },
-  summaryTextCol: { flex: 1 },
-  summaryRowLabel: { fontSize: 12, color: "#9CA3AF", marginBottom: 4 },
-  summaryRowValue: { fontSize: 15, fontWeight: "700", color: "#111827" },
-  fieldLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 8,
-    marginTop: 4,
-  },
-  input: {
-    backgroundColor: "#F3F4F6",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: "#111827",
-    marginBottom: 4,
-  },
-  selectBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#F3F4F6",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    marginBottom: 8,
-  },
-  selectText: { fontSize: 16, color: "#111827", flex: 1 },
-  selectPlaceholder: { color: "#9CA3AF" },
-  chev: { fontSize: 18, color: "#6B7280" },
-  noticeBox: {
-    marginTop: 16,
-    backgroundColor: "#FEF3C7",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 8,
-  },
-  noticeTitle: { fontSize: 14, fontWeight: "700", color: "#92400E", marginBottom: 8 },
-  noticeBullet: {
-    fontSize: 13,
-    color: "#78350F",
-    lineHeight: 20,
-    marginBottom: 6,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "flex-end",
-  },
-  modalSheet: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingVertical: 12,
-    paddingBottom: 28,
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: "800",
-    paddingHorizontal: 20,
-    paddingBottom: 12,
-    color: "#111827",
-  },
-  modalItem: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#E5E7EB",
-  },
-  modalItemText: { fontSize: 16, color: "#111827" },
-});

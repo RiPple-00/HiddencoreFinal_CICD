@@ -46,6 +46,11 @@ public class PostApplication {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patientId;
 
+    /** 프로그램 신청 문서(승인·반려 상태는 Document와 동기화) */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "document_id")
+    private Document document;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "postapplication_status", nullable = false, length = 50)
     private PostApplicationStatus status;
@@ -70,20 +75,11 @@ public class PostApplication {
         }
     }
 
-    public enum PostApplicationStatus{
-     WAITING,        // 대기
-    CANCELLED,      // 신청취소
-    COMPLETED,      // 신청완료
-    FULL            // 정원마감
-}
-
-    public static Object findByPostApplicationId(Long postApplicationId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByPostApplicationId'");
-    }
-
-    public void confirm() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'confirm'");
+    public enum PostApplicationStatus {
+        WAITING, // 대기(원무 승인 전)
+        REJECTED, // 반려
+        COMPLETED, // 정원 내 확정
+        CANCELLED, // 신청 취소(보호자 등)
+        FULL // 정원 마감(예약)
     }
 }

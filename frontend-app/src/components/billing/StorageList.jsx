@@ -16,28 +16,30 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity, Pressable,
+  View, ScrollView, TouchableOpacity, Pressable,
   ActivityIndicator, SafeAreaView,
 } from "react-native";
+import Text from "../Text";
 import storageApi from "../../api/storageApi";
 import { normalizeInvoice, normalizePatient, formatWon } from "../../utils/Storageformat";
-import { styles } from "../../styles/storageList.styles";
-import { COLORS } from "../../styles/colors";
 
 const STATUS_OPTIONS = ["전체", "완납", "부분납", "미납"];
 const PATIENT_ID = 1; // TODO: 인증/세션에서
 
-const STATUS_BADGE_COLOR = {
-  완납:   { bg: COLORS.green50,  border: COLORS.green200,  text: COLORS.green700 },
-  부분납: { bg: COLORS.orange50, border: COLORS.orange200, text: COLORS.orange700 },
-  미납:   { bg: COLORS.red50,    border: COLORS.red200,    text: COLORS.red600 },
+// 상태 뱃지 색상 토큰
+const STATUS_STYLE = {
+  완납:   { bg: "bg-success-secondary",         border: "border-success-primary",         text: "text-success-primary" },
+  부분납: { bg: "bg-guardian-button-secondary",  border: "border-guardian-button-primary",  text: "text-guardian-text-primary" },
+  미납:   { bg: "bg-error-secondary",            border: "border-error-primary",            text: "text-error-primary" },
 };
 
 function StatusBadge({ status }) {
-  const color = STATUS_BADGE_COLOR[status] ?? { bg: "#f3f4f6", border: COLORS.borderNormal, text: COLORS.textMuted };
+  const s = STATUS_STYLE[status] ?? {
+    bg: "bg-guardian-bg-secondary", border: "border-guardian-button-secondary", text: "text-guardian-text-neutral",
+  };
   return (
-    <View style={[styles.statusBadge, { backgroundColor: color.bg, borderColor: color.border }]}>
-      <Text style={[styles.statusBadgeText, { color: color.text }]}>{status}</Text>
+    <View className={`px-2 py-[3px] rounded-full border ${s.bg} ${s.border}`}>
+      <Text className={`text-[11px] font-bold ${s.text}`}>{status}</Text>
     </View>
   );
 }
@@ -48,14 +50,13 @@ export default function StorageList({ route, navigation }) {
 
   // null = 전체 기간, { year, month } = 특정 월
   const [selectedYearMonth, setSelectedYearMonth] = useState(null);
-  const [pickerYear, setPickerYear] = useState(new Date().getFullYear());
-  const [selectedStatus, setSelectedStatus] = useState("전체");
-  const [openDropdown, setOpenDropdown] = useState(null);
-
-  const [patient, setPatient]   = useState(null);
-  const [invoices, setInvoices] = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState(null);
+  const [pickerYear,        setPickerYear]        = useState(new Date().getFullYear());
+  const [selectedStatus,    setSelectedStatus]    = useState("전체");
+  const [openDropdown,      setOpenDropdown]      = useState(null);
+  const [patient,           setPatient]           = useState(null);
+  const [invoices,          setInvoices]          = useState([]);
+  const [loading,           setLoading]           = useState(true);
+  const [error,             setError]             = useState(null);
 
   const dateLabel = selectedYearMonth
     ? `${selectedYearMonth.year}년 ${selectedYearMonth.month}월`
@@ -66,7 +67,7 @@ export default function StorageList({ route, navigation }) {
     let cancelled = false;
     (async () => {
       try {
-        const res = await storageApi.getPatients({ id: PATIENT_ID });
+        const res  = await storageApi.getPatients({ id: PATIENT_ID });
         if (cancelled) return;
         const data = res.data?.data ?? res.data ?? [];
         setPatient(
@@ -147,29 +148,38 @@ export default function StorageList({ route, navigation }) {
     setOpenDropdown(null);
   };
 
-  const isDateActive   = openDropdown === "date" || selectedYearMonth;
+  const isDateActive   = openDropdown === "date"   || !!selectedYearMonth;
   const isStatusActive = openDropdown === "status" || selectedStatus !== "전체";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
+
       {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backIcon}>‹</Text>
+      <View className="flex-row items-center justify-between px-4 py-3 bg-background-neutral border-b border-guardian-button-secondary">
+        <TouchableOpacity onPress={() => navigation.goBack()} className="w-10">
+          <Text className="text-3xl text-guardian-text-primary">‹</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{pageTitle}</Text>
-        <View style={styles.headerRight} />
+        <Text className="text-lg font-bold text-guardian-text-primary">{pageTitle}</Text>
+        <View className="w-10" />
       </View>
 
       {/* 환자 요약 바 */}
-      <View style={styles.patientBar}>
-        <View style={styles.patientAvatar}>
-          <Text style={styles.patientAvatarText}>{patient?.name?.[0] ?? "?"}</Text>
+      <View className="flex-row items-center px-4 py-3 bg-background-neutral gap-3 border-b border-guardian-button-secondary">
+        <View className="w-10 h-10 rounded-full bg-guardian-button-primary justify-center items-center">
+          <Text className="text-base font-bold text-guardian-text-primary">
+            {patient?.name?.[0] ?? "?"}
+          </Text>
         </View>
-        <View style={styles.patientInfo}>
-          <Text style={styles.patientName}>{patient?.name ?? "-"}</Text>
-          {patient?.status && <Text style={styles.patientStatus}>({patient.status})</Text>}
-          <Text style={styles.patientMeta}>
+        <View>
+          <View className="flex-row items-center gap-1">
+            <Text className="text-base font-bold text-guardian-text-primary">
+              {patient?.name ?? "-"}
+            </Text>
+            {patient?.status && (
+              <Text className="text-xs text-guardian-text-neutral">({patient.status})</Text>
+            )}
+          </View>
+          <Text className="text-xs text-guardian-text-neutral mt-[2px]">
             {patient?.room ? `${patient.room}호` : ""}
             {patient?.admissionDate ? ` · 입원일 ${patient.admissionDate}` : ""}
           </Text>
@@ -177,54 +187,67 @@ export default function StorageList({ route, navigation }) {
       </View>
 
       {/* 필터 바 */}
-      <View style={styles.filterBar}>
+      <View className="flex-row gap-2 px-4 py-3">
+
         {/* 날짜(년/월) 피커 */}
         <View>
           <TouchableOpacity
             onPress={() => toggleDropdown("date")}
-            style={[styles.filterButton, isDateActive && styles.filterButtonActive]}
+            className={`flex-row items-center gap-1 px-3 py-2 rounded-full border ${
+              isDateActive
+                ? "bg-guardian-button-primary border-guardian-button-primary"
+                : "bg-guardian-bg-secondary border-guardian-button-secondary"
+            }`}
           >
-            <Text style={styles.filterIcon}>📅</Text>
-            <Text style={[styles.filterButtonText, isDateActive && styles.filterButtonTextActive]}>
+            <Text>📅</Text>
+            <Text className={`text-sm font-bold ${
+              isDateActive ? "text-guardian-text-primary" : "text-guardian-text-neutral"
+            }`}>
               {dateLabel} ▾
             </Text>
           </TouchableOpacity>
 
           {openDropdown === "date" && (
-            <View style={styles.pickerBox}>
+            <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-64 p-3">
+
               {/* 년도 네비게이션 */}
-              <View style={styles.yearNav}>
-                <TouchableOpacity onPress={() => setPickerYear((y) => y - 1)} style={styles.yearNavButton}>
-                  <Text style={styles.yearNavArrow}>‹</Text>
+              <View className="flex-row items-center justify-between mb-2">
+                <TouchableOpacity onPress={() => setPickerYear((y) => y - 1)} className="p-2">
+                  <Text className="text-xl text-guardian-text-primary font-bold">‹</Text>
                 </TouchableOpacity>
-                <Text style={styles.yearLabel}>{pickerYear}년</Text>
-                <TouchableOpacity onPress={() => setPickerYear((y) => y + 1)} style={styles.yearNavButton}>
-                  <Text style={styles.yearNavArrow}>›</Text>
+                <Text className="text-base font-bold text-guardian-text-primary">{pickerYear}년</Text>
+                <TouchableOpacity onPress={() => setPickerYear((y) => y + 1)} className="p-2">
+                  <Text className="text-xl text-guardian-text-primary font-bold">›</Text>
                 </TouchableOpacity>
               </View>
 
               {/* 월 그리드 */}
-              <View style={styles.monthGrid}>
+              <View className="flex-row flex-wrap">
                 {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
                   const isSelected =
                     selectedYearMonth?.year === pickerYear &&
                     selectedYearMonth?.month === m;
-                  const key = `${pickerYear}.${String(m).padStart(2, "0")}`;
+                  const key        = `${pickerYear}.${String(m).padStart(2, "0")}`;
                   const hasInvoice = invoiceMonthsSet.has(key);
-
                   return (
-                    <View key={m} style={styles.monthCell}>
+                    <View key={m} className="w-1/4 items-center py-1">
                       <Pressable
                         onPress={() => selectMonth(pickerYear, m)}
-                        style={[styles.monthButton, isSelected && styles.monthButtonSelected]}
+                        className={`px-2 py-2 rounded-xl items-center ${
+                          isSelected ? "bg-guardian-button-primary" : ""
+                        }`}
                       >
-                        <Text style={[
-                          styles.monthText,
-                          isSelected ? styles.monthTextSelected : (hasInvoice ? styles.monthTextHasInvoice : styles.monthTextEmpty),
-                        ]}>
+                        <Text className={`text-sm font-bold ${
+                          isSelected    ? "text-guardian-text-primary"
+                          : hasInvoice  ? "text-guardian-text-primary"
+                          : "text-guardian-text-neutral opacity-40"
+                        }`}>
                           {m}월
                         </Text>
-                        {hasInvoice && !isSelected && <View style={styles.monthDot} />}
+                        {/* 청구서 있는 월 표시 도트 */}
+                        {hasInvoice && !isSelected && (
+                          <View className="w-1 h-1 rounded-full bg-guardian-button-primary mt-1" />
+                        )}
                       </Pressable>
                     </View>
                   );
@@ -234,9 +257,11 @@ export default function StorageList({ route, navigation }) {
               {/* 전체 기간 */}
               <Pressable
                 onPress={clearDateFilter}
-                style={[styles.clearButton, !selectedYearMonth && styles.clearButtonActive]}
+                className={`mt-2 items-center py-2 border-t border-guardian-bg-secondary ${
+                  !selectedYearMonth ? "bg-guardian-bg-secondary rounded-lg" : ""
+                }`}
               >
-                <Text style={styles.clearButtonText}>전체 기간 보기</Text>
+                <Text className="text-sm text-guardian-text-neutral font-bold">전체 기간 보기</Text>
               </Pressable>
             </View>
           )}
@@ -246,21 +271,33 @@ export default function StorageList({ route, navigation }) {
         <View>
           <TouchableOpacity
             onPress={() => toggleDropdown("status")}
-            style={[styles.filterButton, isStatusActive && styles.filterButtonActive]}
+            className={`px-3 py-2 rounded-full border ${
+              isStatusActive
+                ? "bg-guardian-button-primary border-guardian-button-primary"
+                : "bg-guardian-bg-secondary border-guardian-button-secondary"
+            }`}
           >
-            <Text style={[styles.filterButtonText, isStatusActive && styles.filterButtonTextActive]}>
+            <Text className={`text-sm font-bold ${
+              isStatusActive ? "text-guardian-text-primary" : "text-guardian-text-neutral"
+            }`}>
               {selectedStatus === "전체" ? "전체 상태" : selectedStatus} ▾
             </Text>
           </TouchableOpacity>
           {openDropdown === "status" && (
-            <View style={styles.dropdownBox}>
+            <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-32">
               {STATUS_OPTIONS.map((opt) => (
                 <TouchableOpacity
                   key={opt}
                   onPress={() => { setSelectedStatus(opt); setOpenDropdown(null); }}
-                  style={[styles.dropdownItem, selectedStatus === opt && styles.dropdownItemActive]}
+                  className={`px-4 py-3 border-b border-guardian-bg-secondary ${
+                    selectedStatus === opt ? "bg-guardian-button-secondary" : ""
+                  }`}
                 >
-                  <Text style={[styles.dropdownItemText, selectedStatus === opt && styles.dropdownItemTextActive]}>
+                  <Text className={`text-sm ${
+                    selectedStatus === opt
+                      ? "text-guardian-text-primary font-bold"
+                      : "text-guardian-text-neutral"
+                  }`}>
                     {opt === "전체" ? "전체 상태" : opt}
                   </Text>
                 </TouchableOpacity>
@@ -271,29 +308,30 @@ export default function StorageList({ route, navigation }) {
       </View>
 
       {/* 요약 행 */}
-      <View style={styles.summaryRow}>
-        <Text style={styles.summaryCount}>총 {filtered.length}건</Text>
-        <Text style={styles.summaryAmount}>
-          총 청구금액 <Text style={styles.summaryAmountBold}>{totalAmount}</Text>
+      <View className="flex-row justify-between items-center px-4 py-2 bg-guardian-bg-secondary">
+        <Text className="text-sm text-guardian-text-neutral">총 {filtered.length}건</Text>
+        <Text className="text-sm text-guardian-text-neutral">
+          총 청구금액{" "}
+          <Text className="font-bold text-guardian-text-primary">{totalAmount}</Text>
         </Text>
       </View>
 
       {/* 청구서 목록 */}
-      <ScrollView contentContainerStyle={styles.listContent}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
         {error ? (
-          <View style={styles.emptyBox}>
-            <Text style={styles.errorText}>{error}</Text>
+          <View className="py-10 items-center">
+            <Text className="text-error-primary text-sm">{error}</Text>
           </View>
         ) : loading ? (
-          <View style={styles.emptyBox}>
-            <ActivityIndicator size="large" color={COLORS.blue400} />
+          <View className="py-10 items-center">
+            <ActivityIndicator size="large" color="#FCC101" />
           </View>
         ) : filtered.length === 0 ? (
-          <View style={styles.emptyBox}>
-            <Text style={styles.emptyText}>해당하는 청구서가 없습니다.</Text>
+          <View className="py-10 items-center">
+            <Text className="text-guardian-text-neutral text-sm">해당하는 청구서가 없습니다.</Text>
             {selectedYearMonth && (
               <TouchableOpacity onPress={clearDateFilter}>
-                <Text style={styles.emptyAction}>전체 기간 보기</Text>
+                <Text className="text-guardian-text-secondary font-bold mt-2">전체 기간 보기</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -301,28 +339,44 @@ export default function StorageList({ route, navigation }) {
           filtered.map((inv) => (
             <TouchableOpacity
               key={inv.id}
-              style={styles.invoiceCard}
+              className="bg-background-neutral rounded-2xl p-4 mb-3 border border-guardian-button-secondary"
               onPress={() => navigation.navigate("InvoicePaymentList", { invoice: inv })}
             >
-              <Text style={styles.invoiceMonth}>{inv.month}</Text>
-              <View style={styles.invoiceTitleRow}>
-                <Text style={styles.invoiceTitle}>{inv.title}</Text>
+              {/* 년/월 */}
+              <Text className="text-xs text-guardian-text-neutral mb-1">{inv.month}</Text>
+
+              {/* 제목 + 상태 뱃지 */}
+              <View className="flex-row justify-between items-center mb-2">
+                <Text className="text-base font-bold text-guardian-text-primary flex-1 mr-2" numberOfLines={1}>
+                  {inv.title}
+                </Text>
                 <StatusBadge status={inv.status} />
               </View>
-              <View style={styles.invoiceDateRow}>
-                <Text style={styles.invoiceDate}>발행일 {inv.issued}</Text>
-                <Text style={styles.invoiceDate}>
-                  납부기한 <Text style={inv.status === "미납" ? styles.invoiceDateRed : null}>{inv.due}</Text>
+
+              {/* 발행일 / 납부기한 */}
+              <View className="flex-row justify-between mb-2">
+                <Text className="text-xs text-guardian-text-neutral">발행일 {inv.issued}</Text>
+                <Text className="text-xs text-guardian-text-neutral">
+                  납부기한{" "}
+                  <Text className={inv.status === "미납" ? "text-error-primary font-bold" : ""}>
+                    {inv.due}
+                  </Text>
                 </Text>
               </View>
-              <View style={styles.tagRow}>
+
+              {/* 태그 */}
+              <View className="flex-row flex-wrap gap-1 mb-2">
                 {inv.tags.map((tag) => (
-                  <View key={tag} style={styles.tagBadge}>
-                    <Text style={styles.tagBadgeText}>{tag}</Text>
+                  <View key={tag} className="bg-guardian-button-secondary px-2 py-[3px] rounded-full">
+                    <Text className="text-xs font-bold text-guardian-text-primary">{tag}</Text>
                   </View>
                 ))}
               </View>
-              <Text style={styles.invoiceAmount}>{inv.amount}</Text>
+
+              {/* 금액 */}
+              <Text className="text-lg font-extrabold text-guardian-text-primary text-right">
+                {inv.amount}
+              </Text>
             </TouchableOpacity>
           ))
         )}
@@ -330,5 +384,3 @@ export default function StorageList({ route, navigation }) {
     </SafeAreaView>
   );
 }
-
-

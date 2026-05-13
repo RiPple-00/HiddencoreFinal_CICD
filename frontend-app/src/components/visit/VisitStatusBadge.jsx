@@ -1,36 +1,25 @@
-import React from 'react';
-import styled from 'styled-components'; 
-
 // 상태 표시 배지
 
-const VisitStatusBadge = ({ status }) => {
-  const getStatusColor = (status) => {
-    switch (status) {
-        case '승인':
-            return '#4CAF50'; // 초록색
-        case '승인 대기':
-            return '#FFC107'; // 노란색
-        case '반려':
-            return '#F44336'; // 빨간색
-        default:
-            return '#9E9E9E'; // 회색
-    }
-    };
+import React from "react";
+import { View, } from "react-native";
+import Text from "../Text";
 
-    return (
-        <Badge color={getStatusColor(status)}>
-            {status}
-        </Badge>
-    );
+const STATUS_STYLE = {
+  "승인":      { bg: "bg-success-secondary",        text: "text-success-primary" },
+  "승인 대기": { bg: "bg-guardian-button-secondary", text: "text-guardian-text-primary" },
+  "반려":      { bg: "bg-error-secondary",           text: "text-error-primary" },
 };
 
-const Badge = styled.span`
-    display: inline-block;
-    padding: 5px 10px;
-    border-radius: 12px;
-    color: white;
-    font-size: 12px;
-    background-color: ${props => props.color};
-`;
+const VisitStatusBadge = ({ status }) => {
+  const style = STATUS_STYLE[status] ?? { bg: "bg-guardian-bg-secondary", text: "text-guardian-text-neutral" };
+
+  return (
+    <View className={`px-[10px] py-[5px] rounded-full self-start ${style.bg}`}>
+      <Text className={`text-xs font-bold ${style.text}`}>
+        {status}
+      </Text>
+    </View>
+  );
+};
 
 export default VisitStatusBadge;

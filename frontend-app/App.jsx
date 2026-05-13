@@ -19,6 +19,8 @@ import GuardianMorePage from "./src/pages/guardian/activePhoto/GuardianMorePage"
 import CaregiverMainPage from "./src/pages/caregiver/CaregiverMainPage";
 import CaregiverWorkCheckPage from "./src/pages/caregiver/CaregiverWorkCheckPage";
 import CaregiverPatientListPage from "./src/pages/caregiver/CaregiverPatientListPage";
+import CaregiverTaskCheckPage from "./src/pages/caregiver/CaregiverTaskCheckPage";
+import ProgramPage from "./src/pages/guardian/ProgramPage";
 
 import StoragePage from "./src/pages/billing/StoragePage";
 import StorageList from "./src/components/billing/StorageList";
@@ -26,9 +28,31 @@ import StorageDetail from "./src/components/billing/StorageDetail";
 import PaymentHistory from "./src/components/billing/PaymentHistory";
 import InvoicePaymentList from "./src/components/billing/InvoicePaymentList";
 
+import { useFonts } from "expo-font";
+import {
+  NotoSansKR_400Regular,
+  NotoSansKR_700Bold,
+} from "@expo-google-fonts/noto-sans-kr";
+import {
+  Poppins_400Regular,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  Poppins_800ExtraBold,
+} from "@expo-google-fonts/poppins";
+import "./global.css";
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    NotoSansKR_400Regular,
+    NotoSansKR_700Bold,
+    Poppins_400Regular,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
+  });
+
   const content = (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="GuardianLogin">
@@ -36,13 +60,15 @@ export default function App() {
         <Stack.Screen name="GuardianMain" component={GuardianMainPage} options={{ headerShown: false }} />
         <Stack.Screen name="CaregiverMain" component={CaregiverMainPage} options={{ headerShown: false }} />
         <Stack.Screen name="CaregiverWorkCheck" component={CaregiverWorkCheckPage} options={{ headerShown: false }} />
+        <Stack.Screen name="CaregiverTaskCheck" component={CaregiverTaskCheckPage} options={{ headerShown: false }} />
         <Stack.Screen name="CaregiverPatientList" component={CaregiverPatientListPage} options={{ headerShown: false }} />
         <Stack.Screen name="Report" component={ReportPage} options={{ title: "보고서 확인" }} />
-        <Stack.Screen name="Consent" component={ConsentPage} options={{ title: "동의서 확인" }} />
+        <Stack.Screen name="Consent" component={ConsentPage} options={{ headerShown: false }} />
         <Stack.Screen name="VisitApply" component={VisitApplyPage} options={{ title: "면회 신청" }} />
         <Stack.Screen name="Notice" component={NoticePage} options={{ title: "공지사항" }} />
         <Stack.Screen name="Calendar" component={CalendarPage} options={{ title: "달력" }} />
         <Stack.Screen name="Payment" component={PaymentPage} options={{ headerShown: false }} />
+        <Stack.Screen name="Program" component={ProgramPage} options={{ title: "프로그램 신청" }} />
 
         {/* 수납 플로우 */}
         <Stack.Screen name="StoragePage" component={StoragePage} options={{ headerShown: false }} />

@@ -34,16 +34,16 @@ public class PostDto {
         @NotNull(message = "게시글 상태는 필수입니다")
         private PostStatus status; // ACTIVE | INACTIVE | RESERVE
 
-        private Boolean isPinned;       // 상단 고정 여부. null이면 false로 처리
-        private String targetRoles;     // 공지 게시판 공개 대상. "DOCTOR,CAREGIVER" 형태. null이면 전체 공개
+        private Boolean isPinned; // 상단 고정 여부. null이면 false로 처리
+        private String targetRoles; // 공지 게시판 공개 대상. "DOCTOR,CAREGIVER" 형태. null이면 전체 공개
 
         private Integer capacity; // PROGRAM일 때만 사용
         private LocalDateTime startAt; // PROGRAM일 때만 사용
         private LocalDateTime endAt; // PROGRAM일 때만 사용
         private String attachmentUrls;
         private LocalDateTime reservationAt; // 예약 시간. null이면 즉시 게시, 값이 있으면 RESERVE 상태로 처리
-        
-        private LocalDateTime scheduledAt;   // 실제 시작일 (SCHEDULE용)
+
+        private LocalDateTime scheduledAt; // 실제 시작일 (SCHEDULE용)
         private LocalDateTime scheduleEndAt; // 실제 종료일 (SCHEDULE용)
 
     } //
@@ -59,7 +59,7 @@ public class PostDto {
         private String authorName;
         private PostType type;
         private Boolean isPinned;
-        private String targetRoles;     // "DOCTOR,CAREGIVER" 형태 그대로 반환. 프론트에서 split(",")으로 파싱
+        private String targetRoles; // "DOCTOR,CAREGIVER" 형태 그대로 반환. 프론트에서 split(",")으로 파싱
         private String title;
         private String content;
         private PostStatus status;
@@ -100,10 +100,13 @@ public class PostDto {
         // 조회 시점에 startAt, endAt 기준으로 모집 상태 계산
         // DB에 저장하지 않고 DTO 변환 시점에 계산하여 반환
         public String getRecruitStatus() {
-            if (startAt == null || endAt == null) return null;
+            if (startAt == null || endAt == null)
+                return null;
             LocalDateTime now = LocalDateTime.now();
-            if (now.isBefore(startAt)) return "모집 예정";
-            if (now.isAfter(endAt)) return "마감";
+            if (now.isBefore(startAt))
+                return "모집 예정";
+            if (now.isAfter(endAt))
+                return "마감";
             return "모집 중";
         }
     }
@@ -119,10 +122,13 @@ public class PostDto {
         private String authorName;
         private PostType type;
         private Boolean isPinned;
-        private String targetRoles;     // "DOCTOR,CAREGIVER" 형태 그대로 반환. 프론트에서 split(",")으로 파싱
+        private String targetRoles; // "DOCTOR,CAREGIVER" 형태 그대로 반환. 프론트에서 split(",")으로 파싱
         private String title;
         private PostStatus status;
         private Integer views;
+        private String content;
+        private LocalDateTime startAt;
+        private LocalDateTime endAt;
         private Integer capacity;
         private Integer currentEnrolled;
         private LocalDateTime scheduledAt;
@@ -142,9 +148,12 @@ public class PostDto {
 
             String recruitStatus = null;
             if (start != null && end != null) {
-                if (now.isBefore(start)) recruitStatus = "모집 예정";
-                else if (now.isAfter(end)) recruitStatus = "마감";
-                else recruitStatus = "모집 중";
+                if (now.isBefore(start))
+                    recruitStatus = "모집 예정";
+                else if (now.isAfter(end))
+                    recruitStatus = "마감";
+                else
+                    recruitStatus = "모집 중";
             }
 
             return PostListResponse.builder()
@@ -155,8 +164,11 @@ public class PostDto {
                     .isPinned(post.getIsPinned())
                     .targetRoles(post.getTargetRoles())
                     .title(post.getTitle())
+                    .content(post.getContent())
                     .status(post.getStatus())
                     .views(post.getViews())
+                    .startAt(post.getStartAt())
+                    .endAt(post.getEndAt())
                     .capacity(post.getCapacity())
                     .currentEnrolled(post.getCurrentEnrolled())
                     .scheduledAt(scheduledAt)
@@ -184,9 +196,9 @@ public class PostDto {
         @NotBlank(message = "내용은 필수입니다")
         private String content;
 
-        private Boolean isPinned;       // null이면 기존 값 유지
-        private String targetRoles;     // null이면 기존 값 유지
-        
+        private Boolean isPinned; // null이면 기존 값 유지
+        private String targetRoles; // null이면 기존 값 유지
+
         // CHECK!! 공지/일반 게시글은 아래 필드 null로 전달 ? 공지 게시글 필수 필드
         // PROGRAM일 때만 사용. null이면 기존 값 유지
         private PostStatus status;

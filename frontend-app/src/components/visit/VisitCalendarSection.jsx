@@ -1,14 +1,15 @@
 import React, { useMemo, useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity } from "react-native";
+import Text from "../Text";
 
 const WEEKDAYS = [
-  { label: "SUN", color: "#DC2626" },
-  { label: "MON", color: "#111827" },
-  { label: "TUE", color: "#111827" },
-  { label: "WED", color: "#111827" },
-  { label: "THU", color: "#111827" },
-  { label: "FRI", color: "#111827" },
-  { label: "SAT", color: "#2563EB" },
+  { label: "SUN", colorClass: "text-error-primary" },
+  { label: "MON", colorClass: "text-guardian-text-primary" },
+  { label: "TUE", colorClass: "text-guardian-text-primary" },
+  { label: "WED", colorClass: "text-guardian-text-primary" },
+  { label: "THU", colorClass: "text-guardian-text-primary" },
+  { label: "FRI", colorClass: "text-guardian-text-primary" },
+  { label: "SAT", colorClass: "text-guardian-text-secondary" },
 ];
 
 function stripTime(d) {
@@ -35,26 +36,14 @@ function buildMonthCells(viewYear, viewMonthIndex) {
   const cells = [];
   for (let i = 0; i < startPad; i++) {
     const day = prevMonthLast - startPad + i + 1;
-    cells.push({
-      key: `p-${day}`,
-      inMonth: false,
-      date: new Date(viewYear, viewMonthIndex - 1, day),
-    });
+    cells.push({ key: `p-${day}`, inMonth: false, date: new Date(viewYear, viewMonthIndex - 1, day) });
   }
   for (let d = 1; d <= daysInMonth; d++) {
-    cells.push({
-      key: `c-${d}`,
-      inMonth: true,
-      date: new Date(viewYear, viewMonthIndex, d),
-    });
+    cells.push({ key: `c-${d}`, inMonth: true, date: new Date(viewYear, viewMonthIndex, d) });
   }
   const tail = (7 - (cells.length % 7)) % 7;
   for (let i = 1; i <= tail; i++) {
-    cells.push({
-      key: `n-${i}`,
-      inMonth: false,
-      date: new Date(viewYear, viewMonthIndex + 1, i),
-    });
+    cells.push({ key: `n-${i}`, inMonth: false, date: new Date(viewYear, viewMonthIndex + 1, i) });
   }
   return cells;
 }
@@ -68,35 +57,22 @@ const VisitCalendarSection = ({ selectedDate, onDateChange }) => {
   const [viewYear, setViewYear] = useState(initial.getFullYear());
   const [viewMonthIndex, setViewMonthIndex] = useState(initial.getMonth());
 
-  const cells = useMemo(
-    () => buildMonthCells(viewYear, viewMonthIndex),
-    [viewYear, viewMonthIndex]
-  );
+  const cells = useMemo(() => buildMonthCells(viewYear, viewMonthIndex), [viewYear, viewMonthIndex]);
 
   const rows = useMemo(() => {
     const r = [];
-    for (let i = 0; i < cells.length; i += 7) {
-      r.push(cells.slice(i, i + 7));
-    }
+    for (let i = 0; i < cells.length; i += 7) r.push(cells.slice(i, i + 7));
     return r;
   }, [cells]);
 
   const goPrevMonth = useCallback(() => {
-    if (viewMonthIndex === 0) {
-      setViewYear((y) => y - 1);
-      setViewMonthIndex(11);
-    } else {
-      setViewMonthIndex((m) => m - 1);
-    }
+    if (viewMonthIndex === 0) { setViewYear((y) => y - 1); setViewMonthIndex(11); }
+    else setViewMonthIndex((m) => m - 1);
   }, [viewMonthIndex]);
 
   const goNextMonth = useCallback(() => {
-    if (viewMonthIndex === 11) {
-      setViewYear((y) => y + 1);
-      setViewMonthIndex(0);
-    } else {
-      setViewMonthIndex((m) => m + 1);
-    }
+    if (viewMonthIndex === 11) { setViewYear((y) => y + 1); setViewMonthIndex(0); }
+    else setViewMonthIndex((m) => m + 1);
   }, [viewMonthIndex]);
 
   const monthTitle = `${viewYear}년 ${viewMonthIndex + 1}월`;
@@ -112,51 +88,55 @@ const VisitCalendarSection = ({ selectedDate, onDateChange }) => {
   const sel = selectedDate ? stripTime(selectedDate) : null;
 
   return (
-    <View style={cal.card}>
-      <View style={cal.monthRow}>
+    <View className="bg-background-neutral rounded-2xl py-3 px-2 border border-guardian-button-secondary">
+
+      {/* 월 네비게이션 */}
+      <View className="flex-row items-center justify-between px-1 mb-2">
         <TouchableOpacity onPress={goPrevMonth} hitSlop={10}>
-          <Text style={cal.monthNav}>‹</Text>
+          <Text className="text-[22px] text-guardian-text-primary font-bold px-3">‹</Text>
         </TouchableOpacity>
-        <Text style={cal.monthTitle}>{monthTitle}</Text>
+        <Text className="text-base font-bold text-guardian-text-primary">{monthTitle}</Text>
         <TouchableOpacity onPress={goNextMonth} hitSlop={10}>
-          <Text style={cal.monthNav}>›</Text>
+          <Text className="text-[22px] text-guardian-text-primary font-bold px-3">›</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={cal.weekRow}>
+      {/* 요일 헤더 */}
+      <View className="flex-row mb-[6px]">
         {WEEKDAYS.map((w) => (
-          <Text key={w.label} style={[cal.weekCell, { color: w.color }]}>
+          <Text
+            key={w.label}
+            className={`flex-1 text-center text-[11px] font-bold ${w.colorClass}`}
+          >
             {w.label}
           </Text>
         ))}
       </View>
 
-      <View style={cal.grid}>
+      {/* 날짜 그리드 */}
+      <View>
         {rows.map((row, ri) => (
-          <View key={ri} style={cal.row}>
+          <View key={ri} className="flex-row justify-between">
             {row.map((cell) => {
               const d = cell.date.getDate();
               const selected = sel && isSameDay(sel, cell.date);
               return (
                 <TouchableOpacity
                   key={cell.date.getTime()}
-                  style={cal.dayTouch}
+                  className="flex-1 items-center justify-center py-1"
                   onPress={() => onPressDay(cell.date, cell.inMonth)}
                   activeOpacity={0.7}
                 >
                   <View
-                    style={[
-                      cal.dayInner,
-                      selected && cal.daySelected,
-                      !cell.inMonth && cal.dayMuted,
-                    ]}
+                    className={`w-9 h-9 rounded-lg justify-center items-center ${selected ? "bg-guardian-button-primary" : ""
+                      } ${!cell.inMonth ? "opacity-35" : ""
+                      }`}
                   >
                     <Text
-                      style={[
-                        cal.dayText,
-                        selected && cal.dayTextSelected,
-                        !cell.inMonth && cal.dayTextMuted,
-                      ]}
+                      className={`text-[15px] font-bold ${selected
+                        ? "text-guardian-text-primary"   // 노란 배경 위 갈색
+                        : "text-guardian-text-neutral"   // 기본 날짜
+                        }`}
                     >
                       {d}
                     </Text>
@@ -170,79 +150,5 @@ const VisitCalendarSection = ({ selectedDate, onDateChange }) => {
     </View>
   );
 };
-
-const cal = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#E5E7EB",
-  },
-  monthRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 4,
-    marginBottom: 8,
-  },
-  monthNav: {
-    fontSize: 22,
-    color: "#0B4EA2",
-    paddingHorizontal: 12,
-    fontWeight: "600",
-  },
-  monthTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#0B4EA2",
-  },
-  weekRow: {
-    flexDirection: "row",
-    marginBottom: 6,
-  },
-  weekCell: {
-    flex: 1,
-    textAlign: "center",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  grid: {},
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  dayTouch: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 4,
-  },
-  dayInner: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  daySelected: {
-    backgroundColor: "#0B4EA2",
-  },
-  dayMuted: {
-    opacity: 0.35,
-  },
-  dayText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#111827",
-  },
-  dayTextSelected: {
-    color: "#fff",
-  },
-  dayTextMuted: {
-    color: "#9CA3AF",
-  },
-});
 
 export default VisitCalendarSection;

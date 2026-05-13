@@ -47,6 +47,7 @@ public class PostApplicationDto {
         private ProgramInfo programInfo;
         private java.util.List<ApplicationInfo> confirmedApplicants;
         private java.util.List<ApplicationInfo> waitingApplicants;
+        private java.util.List<ApplicationInfo> rejectedApplicants;
     }
 
     @Data

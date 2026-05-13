@@ -4,7 +4,7 @@ import RoomComponent from '../components/ward/RoomComponent';
 import TopNavBar from "../components/bedroom/TopNavBar";
 import GuardianPanel from "../components/bedroom/GuardianPanel";
 import AdminMenuPanel from "../components/bedroom/AdminMenuPanel";
-import VisitorsPanel from "../components/bedroom/VisitorsPanel";
+// import VisitorsPanel from "../components/bedroom/VisitorsPanel";
 import MealCarePage from "./MealCarePage";
 import { useAuth } from '../contexts/AutoContext.jsx';
 import PostList from '../components/board/PostList';
@@ -253,7 +253,7 @@ function HomePage() {
           <aside className="w-[360px] shrink-0 space-y-6 self-start lg:sticky lg:top-6">
             <GuardianPanel />
             <AdminMenuPanel />
-            <VisitorsPanel />
+            {/* <VisitorsPanel /> */}
             <MealCarePage />
           </aside>
         </div>

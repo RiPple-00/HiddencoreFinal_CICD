@@ -52,7 +52,6 @@ export function resolveApiBaseUrl() {
   if (Platform.OS === "android") {
     return `http://10.0.2.2:${port}`;
   }
-  // 웹: 브라우저 출처와 API 호스트명을 맞춤 (localhost vs 127.0.0.1 혼용 시 CORS 방지)
   if (
     Platform.OS === "web" &&
     typeof window !== "undefined" &&
@@ -63,7 +62,6 @@ export function resolveApiBaseUrl() {
       const pagePort =
         window.location.port ||
         (window.location.protocol === "https:" ? "443" : "80");
-      // Expo 웹과 Spring이 같은 포트를 쓰면 API 요청이 번들러로 감 → API 포트는 .env로 분리
       if (String(pagePort) === String(port) && !process.env.EXPO_PUBLIC_API_BASE_URL?.trim()) {
         const fallback =
           process.env.EXPO_PUBLIC_API_FALLBACK_PORT?.trim() || "8080";
@@ -100,6 +98,34 @@ api.interceptors.request.use(async (config) => {
 if (__DEV__) {
   // eslint-disable-next-line no-console
   console.log("[api] baseURL =", baseURL);
+}
+
+export async function saveAccessToken(token) {
+  await persistAccessToken(token);
+}
+
+export async function getAccessToken() {
+  return AsyncStorage.getItem(ACCESS_TOKEN_KEY);
+}
+
+/** JWT payload (role, facilityId 등). base64url 디코딩. */
+export function decodeJwtPayload(token) {
+  if (!token || typeof token !== "string") return null;
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+  try {
+    let base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) base64 += "=";
+    if (typeof atob === "undefined") return null;
+    const raw = atob(base64);
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export async function clearAccessToken() {
+  await AsyncStorage.removeItem(ACCESS_TOKEN_KEY);
 }
 
 export default api;

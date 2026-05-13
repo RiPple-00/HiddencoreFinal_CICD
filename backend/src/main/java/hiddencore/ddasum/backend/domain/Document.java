@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -43,6 +44,10 @@ public class Document {
     @JoinColumn(name = "facility_id", nullable = false)
     private Facility facilityId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post postId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type", nullable = false, length = 50)
     private DocumentType type;
@@ -64,6 +69,18 @@ public class Document {
     @Enumerated(EnumType.STRING)
     @Column(name = "document_status", nullable = false, length = 50)
     private DocumentStatus status;
+
+    /**
+     * 정상/이상 종합 상태(간호 체크리스트 등에서 활용).
+     * 일반 문서에는 null 일 수 있으며, CARE_CHECK 등 정상/이상 판정이 필요한 문서에서만 사용한다.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "overall_status", length = 20)
+    private Status overallStatus;
+
+    // CARE_CHECK 등 일자별 문서가 동일 (환자, 일자) 키로 식별될 수 있도록 보조 컬럼 추가
+    @Column(name = "record_date")
+    private LocalDate recordDate;
 
     // 문서에 첨부된 파일 URL 목록(쉼표 구분 문자열)
     @Column(name = "file_urls", columnDefinition = "TEXT")
@@ -107,7 +124,9 @@ public class Document {
         PAYMENT, // 결제/수납 문서
         VISIT_REQUEST, // 면회 신청
         CERTIFICATE, // 증명서
-        GALLERYCARD, //프로그램 게시물 카드
+        GALLERYCARD, // 프로그램 게시물 카드
+        CARE_CHECK, // 간병인 일일 업무 체크리스트(식사/위생/상태/배뇨배변/특이사항)
+        PROGRAM_APPLICATION, // 프로그램 신청
         ETC
     }
 
@@ -121,6 +140,11 @@ public class Document {
         PAID, // 결제 완료
         ISSUED, // 발급 완료
         CANCELLED // 취소
+    }
+
+    public enum Status {
+        NORMAL,
+        ABNORMAL
     }
 
 }

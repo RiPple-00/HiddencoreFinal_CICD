@@ -1,16 +1,10 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity } from "react-native";
+import Text from "../Text";
 
 const DEFAULT_TIMES = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
+  "09:00","10:00","11:00","13:00",
+  "14:00","15:00","16:00","17:00","18:00",
 ];
 
 /**
@@ -23,23 +17,38 @@ const VisitTimeSelector = ({
   onTimeSelect,
 }) => {
   return (
-    <View style={styles.wrap}>
-      <Text style={styles.sectionTitle}>시간 선택</Text>
+    <View className="mt-2">
+      <Text className="text-[17px] font-extrabold text-guardian-text-primary mb-3">
+        시간 선택
+      </Text>
+
       {availableTimes.length === 0 ? (
-        <Text style={styles.empty}>선택 가능한 시간이 없습니다.</Text>
+        <Text className="text-sm text-guardian-text-neutral">
+          선택 가능한 시간이 없습니다.
+        </Text>
       ) : (
-        <View style={styles.grid}>
+        <View className="flex-row flex-wrap gap-[10px]">
           {availableTimes.map((time) => {
             const selected = selectedTime === time;
             return (
               <TouchableOpacity
                 key={time}
-                style={[styles.slot, selected && styles.slotSelected]}
+                // 퍼센트는 NativeWind에서 불안정함: inline style 유지
+                style={{ width: "30%", flexGrow: 1, minWidth: "28%", maxWidth: "32%" }}
+                className={`py-3 rounded-[10px] border items-center ${
+                  selected
+                    ? "bg-guardian-button-primary border-guardian-button-primary"
+                    : "bg-background-neutral border-guardian-button-secondary"
+                }`}
                 onPress={() => onTimeSelect?.(time)}
                 activeOpacity={0.85}
               >
                 <Text
-                  style={[styles.slotText, selected && styles.slotTextSelected]}
+                  className={`text-[15px] font-bold ${
+                    selected
+                      ? "text-guardian-text-primary"  // 노란 배경 위 갈색
+                      : "text-guardian-text-neutral"  // 기본
+                  }`}
                 >
                   {time}
                 </Text>
@@ -51,46 +60,5 @@ const VisitTimeSelector = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  wrap: { marginTop: 8 },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: "800",
-    color: "#111827",
-    marginBottom: 12,
-  },
-  empty: { fontSize: 14, color: "#6B7280" },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-    justifyContent: "flex-start",
-  },
-  slot: {
-    width: "30%",
-    flexGrow: 1,
-    minWidth: "28%",
-    maxWidth: "32%",
-    paddingVertical: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    backgroundColor: "#fff",
-    alignItems: "center",
-  },
-  slotSelected: {
-    backgroundColor: "#0B4EA2",
-    borderColor: "#0B4EA2",
-  },
-  slotText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#111827",
-  },
-  slotTextSelected: {
-    color: "#fff",
-  },
-});
 
 export default VisitTimeSelector;

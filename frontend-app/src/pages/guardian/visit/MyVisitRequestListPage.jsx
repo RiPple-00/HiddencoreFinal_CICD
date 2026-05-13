@@ -4,8 +4,9 @@
 // 상태별 신청 확인
 
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import { getVisitRequests } from "../../api/visitApi";
+import { SafeAreaView, ScrollView, View, } from "react-native";
+import Text from "@/components/Text";
+import { getVisitRequests } from "@/api/visitApi";
 import VisitRequestCard from "../../components/VisitRequestCard";
 
 function MyVisitRequestListPage() {
@@ -25,36 +26,32 @@ function MyVisitRequestListPage() {
   }, []);
 
   return (
-    <Container>
-      <Title>내 방문 신청 내역</Title>
-      {visitRequests.length === 0 ? (
-        <Message>방문 신청 내역이 없습니다.</Message>
-      ) : (
-        <RequestList>
-          {visitRequests.map((request) => (
-            <VisitRequestCard key={request.id} request={request} />
-          ))}
-        </RequestList>
-      )}
-    </Container>
+    // 전체 배경: 보호자 기본 배경색
+    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
+      <ScrollView className="flex-1 px-5 pt-5" showsVerticalScrollIndicator={false}>
+
+        {/* 페이지 제목 */}
+        <Text className="text-2xl font-extrabold text-guardian-text-primary mb-5">
+          내 방문 신청 내역
+        </Text>
+
+        {visitRequests.length === 0 ? (
+          // 신청 내역 없을 때 안내 메시지
+          <Text className="text-base text-guardian-text-neutral opacity-60">
+            방문 신청 내역이 없습니다.
+          </Text>
+        ) : (
+          // 신청 목록: 카드 간격 15px
+          <View className="flex-col gap-[15px] pb-10">
+            {visitRequests.map((request) => (
+              <VisitRequestCard key={request.id} request={request} />
+            ))}
+          </View>
+        )}
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const Container = styled.div`
-  padding: 20px;
-`;
-const Title = styled.h1`
-  font-size: 24px;
-  margin-bottom: 20px;
-`;
-const Message = styled.p`
-  font-size: 16px;
-  color: #888;
-`;
-const RequestList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-`;
 
 export default MyVisitRequestListPage;

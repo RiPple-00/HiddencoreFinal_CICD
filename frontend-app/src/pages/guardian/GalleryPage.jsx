@@ -1,23 +1,12 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, } from "react-native";
+import Text from "@/components/Text";
 
 export default function ReportPage() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>갤러리 목록</Text>
+    <View className="flex-1 justify-center items-center bg-guardian-bg-primary">
+      <Text className="text-[22px] font-extrabold text-guardian-text-primary">
+        갤러리 목록
+      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F4F6F8",
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#0B4EA2",  
-  },
-});

@@ -14,13 +14,13 @@
 
 import { useEffect, useState } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity,
+  View, ScrollView, TouchableOpacity,
   ActivityIndicator, SafeAreaView,
 } from "react-native";
 import storageApi from "../../api/storageApi";
 import { normalizePatient, normalizePayment } from "../../utils/Storageformat";
-import { styles } from "../../styles/storagePage.styles";
-import { TAG_COLORS, STATUS_COLORS, COLORS } from "../../styles/colors";
+import { TAG_COLORS, STATUS_COLORS } from "../../styles/colors";
+import Text from "@/components/Text";
 
 // TODO: 인증/세션에서 환자 ID 가져오도록 변경 필요
 const PATIENT_ID = 1;
@@ -66,38 +66,46 @@ export default function StoragePage({ navigation }) {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* 상단 헤더 */}
-      <View style={styles.header}>
+    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
+
+      {/* 헤더 */}
+      <View className="flex-row items-center justify-between px-4 py-3 bg-background-neutral border-b border-guardian-button-secondary">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={styles.backButton}
+          className="w-10 justify-center"
           accessibilityRole="button"
           accessibilityLabel="뒤로가기"
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Text className="text-3xl text-guardian-text-primary">‹</Text>
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>청구 내역</Text>
+        <Text className="text-lg font-bold text-guardian-text-primary">청구 내역</Text>
 
-        {/* 가운데 정렬을 위한 오른쪽 스페이서 */}
-        <View style={styles.headerRightSpacer} />
+        {/* 가운데 정렬용 스페이서 */}
+        <View className="w-10" />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+
         {/* 환자 정보 + 예상 수납 카드 */}
-        <View style={styles.topSection}>
-          <View style={styles.patientRow}>
-            <View style={styles.patientAvatar}>
-              <Text style={styles.patientAvatarText}>{patient?.name?.[0] ?? "?"}</Text>
+        <View className="mx-4 mt-4 bg-background-neutral rounded-2xl p-4 mb-4">
+
+          {/* 환자 행 */}
+          <View className="flex-row items-center gap-3 mb-4">
+            <View className="w-12 h-12 rounded-full bg-guardian-button-primary justify-center items-center">
+              <Text className="text-lg font-bold text-guardian-text-primary">
+                {patient?.name?.[0] ?? "?"}
+              </Text>
             </View>
-            <View style={{ flex: 1 }}>
+            <View className="flex-1">
               {loading ? (
-                <ActivityIndicator size="small" color={COLORS.blue400} />
+                <ActivityIndicator size="small" color="#FCC101" />
               ) : (
                 <>
-                  <Text style={styles.patientName}>{patient?.name ?? "-"} 님</Text>
-                  <Text style={styles.patientMeta}>
+                  <Text className="text-base font-bold text-guardian-text-primary">
+                    {patient?.name ?? "-"} 님
+                  </Text>
+                  <Text className="text-xs text-guardian-text-neutral mt-[2px]">
                     {patient?.room ? `${patient.room}호 ` : ""}{patient?.status ?? ""}
                   </Text>
                 </>
@@ -105,77 +113,89 @@ export default function StoragePage({ navigation }) {
             </View>
           </View>
 
-          <View style={styles.expectedHeader}>
-            <Text style={styles.expectedLabel}>예상 수납 금액</Text>
-            <Text style={styles.expectedDate}>
+          {/* 예상 수납 헤더 */}
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="text-sm font-bold text-guardian-text-primary">예상 수납 금액</Text>
+            <Text className="text-xs text-guardian-text-neutral">
               {patient?.expectedTotalAsOf ? `${patient.expectedTotalAsOf} 기준` : ""}
             </Text>
           </View>
 
-          <View style={styles.expectedCard}>
-            <Text style={styles.expectedSubLabel}>현재까지 정산된 금액</Text>
+          {/* 금액 카드 */}
+          <View className="bg-guardian-bg-secondary rounded-2xl p-4">
+            <Text className="text-xs text-guardian-text-neutral mb-1">현재까지 정산된 금액</Text>
             {loading ? (
-              <ActivityIndicator size="small" color={COLORS.blue400} style={{ marginVertical: 8 }} />
+              <ActivityIndicator size="small" color="#FCC101" style={{ marginVertical: 8 }} />
             ) : (
-              <Text style={styles.expectedAmount}>
+              <Text className="text-2xl font-extrabold text-guardian-text-primary mb-4">
                 {(patient?.expectedTotal ?? 0).toLocaleString("ko-KR")}
-                <Text style={styles.expectedAmountUnit}> KRW</Text>
+                <Text className="text-base font-normal text-guardian-text-neutral"> KRW</Text>
               </Text>
             )}
 
             <TouchableOpacity
-              style={styles.primaryButton}
+              className="bg-guardian-button-primary rounded-full py-3 items-center mb-2"
               onPress={() => navigation.navigate("PaymentHistory")}
             >
-              <Text style={styles.primaryButtonText}>최근 결제 내역 보기 →</Text>
+              <Text className="font-bold text-guardian-text-primary">최근 결제 내역 보기 →</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.secondaryButton}
+              className="bg-guardian-button-secondary border border-guardian-button-primary rounded-full py-3 items-center"
               onPress={() => navigation.navigate("StorageList")}
             >
-              <Text style={styles.secondaryButtonText}>청구서 내역 보기 →</Text>
+              <Text className="font-bold text-guardian-text-primary">청구서 내역 보기 →</Text>
             </TouchableOpacity>
           </View>
         </View>
 
+        {/* 에러 */}
         {error && (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{error}</Text>
+          <View className="mx-4 bg-error-secondary rounded-xl p-4 mb-4">
+            <Text className="text-error-primary text-sm">{error}</Text>
           </View>
         )}
 
+        {/* 미납·부분납 */}
         {!loading && pendingList.length > 0 && (
-          <View style={styles.pendingSection}>
-            <View style={styles.pendingHeader}>
-              <Text style={styles.pendingTitle}>미납·부분납 항목</Text>
+          <View className="mx-4">
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-base font-bold text-guardian-text-primary">미납·부분납 항목</Text>
               <TouchableOpacity onPress={() => navigation.navigate("InvoicePaymentList")}>
-                <Text style={styles.pendingMore}>전체보기 →</Text>
+                <Text className="text-sm font-bold text-guardian-text-secondary">전체보기 →</Text>
               </TouchableOpacity>
             </View>
 
             {pendingList.map((pay) => {
-              const tagColor    = TAG_COLORS[pay.tag] ?? { bg: "#f3f4f6", text: COLORS.textMuted };
+              const tagColor    = TAG_COLORS[pay.tag]    ?? { bg: "#FEF7E5", text: "#503115" };
               const statusColor = STATUS_COLORS[pay.status] ?? STATUS_COLORS.미납;
               return (
                 <TouchableOpacity
                   key={pay.id}
-                  style={styles.pendingCard}
+                  className="bg-background-neutral rounded-2xl p-4 mb-3 border border-guardian-button-secondary flex-row justify-between items-center"
                   onPress={() => navigation.navigate("InvoicePaymentList", { payment: pay })}
                 >
-                  <View style={styles.pendingCardLeft}>
-                    <View style={styles.pendingBadgeRow}>
-                      <View style={[styles.pendingBadge, { backgroundColor: statusColor.bg }]}>
-                        <Text style={[styles.pendingBadgeText, { color: statusColor.text }]}>{pay.status}</Text>
+                  <View className="flex-1 mr-3">
+                    <View className="flex-row gap-2 mb-2">
+                      <View style={{ backgroundColor: statusColor.bg }} className="px-2 py-[3px] rounded-full">
+                        <Text style={{ color: statusColor.text }} className="text-[11px] font-bold">
+                          {pay.status}
+                        </Text>
                       </View>
-                      <View style={[styles.pendingBadge, { backgroundColor: tagColor.bg }]}>
-                        <Text style={[styles.pendingTagText, { color: tagColor.text }]}>{pay.tag}</Text>
+                      <View style={{ backgroundColor: tagColor.bg }} className="px-2 py-[3px] rounded-full">
+                        <Text style={{ color: tagColor.text }} className="text-[11px] font-bold">
+                          {pay.tag}
+                        </Text>
                       </View>
                     </View>
-                    <Text style={styles.pendingItemTitle} numberOfLines={1}>{pay.title}</Text>
-                    <Text style={styles.pendingItemDate}>{pay.date} {pay.time}</Text>
+                    <Text className="text-sm font-bold text-guardian-text-primary mb-1" numberOfLines={1}>
+                      {pay.title}
+                    </Text>
+                    <Text className="text-xs text-guardian-text-neutral">
+                      {pay.date} {pay.time}
+                    </Text>
                   </View>
-                  <Text style={[styles.pendingAmount, { color: statusColor.amount }]}>
+                  <Text style={{ color: statusColor.amount }} className="font-bold text-base">
                     {pay.amount}
                   </Text>
                 </TouchableOpacity>
@@ -184,9 +204,10 @@ export default function StoragePage({ navigation }) {
           </View>
         )}
 
+        {/* 로딩 */}
         {loading && (
-          <View style={styles.loadingBox}>
-            <ActivityIndicator size="large" color={COLORS.blue400} />
+          <View className="py-10 items-center">
+            <ActivityIndicator size="large" color="#FCC101" />
           </View>
         )}
       </ScrollView>

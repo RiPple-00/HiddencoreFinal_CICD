@@ -11,13 +11,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity,
+  View, ScrollView, TouchableOpacity,
   ActivityIndicator, SafeAreaView,
 } from "react-native";
+import Text from "../Text";
 import storageApi from "../../api/storageApi";
 import { normalizePayment, formatWonSymbol } from "../../utils/Storageformat";
-import { styles } from "../../styles/payMent.styles.js";
-import { TAG_COLORS, STATUS_COLORS, COLORS } from "../../styles/colors";
+import { TAG_COLORS, STATUS_COLORS } from "../../styles/colors";
 
 const CATEGORY_OPTIONS = ["전체", "진료비", "식대", "입원비", "약제비"];
 const DATE_OPTIONS     = ["전체 기간", "최근 1개월", "최근 3개월", "최근 6개월", "2023년"];
@@ -46,7 +46,7 @@ function makeFormatDateLabel() {
 }
 
 function dateOptionToRange(opt) {
-  const now = new Date();
+  const now   = new Date();
   const today = now.toISOString().slice(0, 10);
   if (opt === "전체 기간") return null;
   if (opt === "2023년")    return { from: "2023-01-01", to: "2023-12-31" };
@@ -63,10 +63,9 @@ export default function InvoicePaymentList({ navigation }) {
   const [selectedDate,     setSelectedDate]     = useState("전체 기간");
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [openDropdown,     setOpenDropdown]     = useState(null);
-
-  const [payments, setPayments] = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState(null);
+  const [payments,         setPayments]         = useState([]);
+  const [loading,          setLoading]          = useState(true);
+  const [error,            setError]            = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,9 +91,7 @@ export default function InvoicePaymentList({ navigation }) {
   }, [selectedCategory, selectedDate]);
 
   const filtered = useMemo(() =>
-    payments.filter((p) =>
-      selectedCategory === "전체" || p.tag === selectedCategory
-    ),
+    payments.filter((p) => selectedCategory === "전체" || p.tag === selectedCategory),
   [payments, selectedCategory]);
 
   const grouped = useMemo(() => groupByDate(filtered), [filtered]);
@@ -120,47 +117,66 @@ export default function InvoicePaymentList({ navigation }) {
   const isCategoryActive = openDropdown === "category";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
+
       {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backIcon}>‹</Text>
+      <View className="flex-row items-center justify-between px-4 py-3 bg-background-neutral border-b border-guardian-button-secondary">
+        <TouchableOpacity onPress={() => navigation.goBack()} className="w-10">
+          <Text className="text-3xl text-guardian-text-primary">‹</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>결제 내역</Text>
-        <View style={styles.headerRight} />
+        <Text className="text-lg font-bold text-guardian-text-primary">결제 내역</Text>
+        <View className="w-10" />
       </View>
 
       <ScrollView>
         {/* 최근 30일 총 결제금액 */}
-        <View style={styles.summaryHeader}>
-          <Text style={styles.summaryHeaderLabel}>총 결제 금액 (최근 30일)</Text>
+        <View className="bg-background-neutral mx-4 mt-4 rounded-2xl p-4 mb-3">
+          <Text className="text-sm text-guardian-text-neutral mb-1">
+            총 결제 금액 (최근 30일)
+          </Text>
           {loading ? (
-            <ActivityIndicator size="small" color={COLORS.blue400} />
+            <ActivityIndicator size="small" color="#FCC101" />
           ) : (
-            <Text style={styles.summaryHeaderAmount}>{thisMonthTotal}</Text>
+            <Text className="text-2xl font-extrabold text-guardian-text-primary">
+              {thisMonthTotal}
+            </Text>
           )}
         </View>
 
         {/* 필터 바 */}
-        <View style={styles.filterBar}>
+        <View className="flex-row gap-2 px-4 py-3">
+
+          {/* 기간 필터 */}
           <View>
             <TouchableOpacity
               onPress={() => toggleDropdown("date")}
-              style={[styles.filterButton, isDateActive && styles.filterButtonActive]}
+              className={`px-3 py-2 rounded-full border ${
+                isDateActive
+                  ? "bg-guardian-button-primary border-guardian-button-primary"
+                  : "bg-guardian-bg-secondary border-guardian-button-secondary"
+              }`}
             >
-              <Text style={[styles.filterButtonText, isDateActive && styles.filterButtonTextActive]}>
+              <Text className={`text-sm font-bold ${
+                isDateActive ? "text-guardian-text-primary" : "text-guardian-text-neutral"
+              }`}>
                 {selectedDate} ▾
               </Text>
             </TouchableOpacity>
             {isDateActive && (
-              <View style={styles.dropdownBox}>
+              <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-36">
                 {DATE_OPTIONS.map((opt) => (
                   <TouchableOpacity
                     key={opt}
                     onPress={() => { setSelectedDate(opt); setOpenDropdown(null); }}
-                    style={[styles.dropdownItem, selectedDate === opt && styles.dropdownItemActive]}
+                    className={`px-4 py-3 border-b border-guardian-bg-secondary ${
+                      selectedDate === opt ? "bg-guardian-button-secondary" : ""
+                    }`}
                   >
-                    <Text style={[styles.dropdownItemText, selectedDate === opt && styles.dropdownItemTextActive]}>
+                    <Text className={`text-sm ${
+                      selectedDate === opt
+                        ? "text-guardian-text-primary font-bold"
+                        : "text-guardian-text-neutral"
+                    }`}>
                       {opt}
                     </Text>
                   </TouchableOpacity>
@@ -169,24 +185,37 @@ export default function InvoicePaymentList({ navigation }) {
             )}
           </View>
 
+          {/* 카테고리 필터 */}
           <View>
             <TouchableOpacity
               onPress={() => toggleDropdown("category")}
-              style={[styles.filterButton, isCategoryActive && styles.filterButtonActive]}
+              className={`px-3 py-2 rounded-full border ${
+                isCategoryActive
+                  ? "bg-guardian-button-primary border-guardian-button-primary"
+                  : "bg-guardian-bg-secondary border-guardian-button-secondary"
+              }`}
             >
-              <Text style={[styles.filterButtonText, isCategoryActive && styles.filterButtonTextActive]}>
+              <Text className={`text-sm font-bold ${
+                isCategoryActive ? "text-guardian-text-primary" : "text-guardian-text-neutral"
+              }`}>
                 {selectedCategory === "전체" ? "전체 항목" : selectedCategory} ▾
               </Text>
             </TouchableOpacity>
             {isCategoryActive && (
-              <View style={styles.dropdownBox}>
+              <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-32">
                 {CATEGORY_OPTIONS.map((opt) => (
                   <TouchableOpacity
                     key={opt}
                     onPress={() => { setSelectedCategory(opt); setOpenDropdown(null); }}
-                    style={[styles.dropdownItem, selectedCategory === opt && styles.dropdownItemActive]}
+                    className={`px-4 py-3 border-b border-guardian-bg-secondary ${
+                      selectedCategory === opt ? "bg-guardian-button-secondary" : ""
+                    }`}
                   >
-                    <Text style={[styles.dropdownItemText, selectedCategory === opt && styles.dropdownItemTextActive]}>
+                    <Text className={`text-sm ${
+                      selectedCategory === opt
+                        ? "text-guardian-text-primary font-bold"
+                        : "text-guardian-text-neutral"
+                    }`}>
                       {opt === "전체" ? "전체 항목" : opt}
                     </Text>
                   </TouchableOpacity>
@@ -197,48 +226,68 @@ export default function InvoicePaymentList({ navigation }) {
         </View>
 
         {/* 목록 */}
-        <View style={styles.listContent}>
+        <View className="px-4 pb-10">
           {error ? (
-            <View style={styles.emptyBox}>
-              <Text style={styles.errorText}>{error}</Text>
+            <View className="py-10 items-center">
+              <Text className="text-error-primary text-sm">{error}</Text>
             </View>
           ) : loading ? (
-            <View style={styles.emptyBox}>
-              <ActivityIndicator size="large" color={COLORS.blue400} />
+            <View className="py-10 items-center">
+              <ActivityIndicator size="large" color="#FCC101" />
             </View>
           ) : grouped.length === 0 ? (
-            <View style={styles.emptyBox}>
-              <Text style={styles.emptyText}>해당하는 결제 내역이 없습니다.</Text>
+            <View className="py-10 items-center">
+              <Text className="text-guardian-text-neutral text-sm">
+                해당하는 결제 내역이 없습니다.
+              </Text>
             </View>
           ) : (
             grouped.map(([date, dayPayments]) => (
-              <View key={date} style={styles.dateGroup}>
-                <View style={styles.dateLabelRow}>
-                  <Text style={styles.dateLabel}>{formatDateLabel(date)}</Text>
-                  <View style={styles.dateLine} />
+              <View key={date} className="mb-4">
+
+                {/* 날짜 레이블 */}
+                <View className="flex-row items-center gap-2 mb-2">
+                  <Text className="text-sm font-bold text-guardian-text-primary">
+                    {formatDateLabel(date)}
+                  </Text>
+                  <View className="flex-1 h-[0.5px] bg-guardian-button-secondary" />
                 </View>
+
                 {dayPayments.map((pay) => {
-                  const tagColor    = TAG_COLORS[pay.tag] ?? { bg: "#f3f4f6", text: COLORS.textMuted };
-                  const statusColor = STATUS_COLORS[pay.status] ?? { bg: "#f3f4f6", text: COLORS.textMuted, amount: COLORS.textPrimary };
-                  const isMiNap = pay.status === "미납";
+                  const tagColor    = TAG_COLORS[pay.tag]    ?? { bg: "#FEF7E5", text: "#503115" };
+                  const statusColor = STATUS_COLORS[pay.status] ?? STATUS_COLORS.미납;
+                  const isMiNap     = pay.status === "미납";
                   return (
                     <TouchableOpacity
                       key={pay.id}
-                      style={styles.bigCard}
+                      className="bg-background-neutral rounded-2xl p-4 mb-3 border border-guardian-button-secondary"
                       onPress={() => navigation.navigate("StorageDetail", { payment: pay })}
                     >
-                      <View style={styles.bigCardStatusRow}>
-                        <View style={[styles.statusBadge, { backgroundColor: statusColor.bg }]}>
-                          <Text style={[styles.statusBadgeText, { color: statusColor.text }]}>{pay.status}</Text>
+                      {/* 상태 뱃지 + 날짜 */}
+                      <View className="flex-row justify-between items-center mb-2">
+                        <View style={{ backgroundColor: statusColor.bg }} className="px-2 py-[3px] rounded-full">
+                          <Text style={{ color: statusColor.text }} className="text-[11px] font-bold">
+                            {pay.status}
+                          </Text>
                         </View>
-                        <Text style={styles.bigCardDate}>{pay.date} {pay.time}</Text>
+                        <Text className="text-xs text-guardian-text-neutral">
+                          {pay.date} {pay.time}
+                        </Text>
                       </View>
-                      <Text style={styles.bigCardLabel}>결제 금액</Text>
-                      <Text style={[styles.bigCardAmount, isMiNap && styles.bigCardAmountRed]}>
+
+                      {/* 결제 금액 */}
+                      <Text className="text-xs text-guardian-text-neutral mb-1">결제 금액</Text>
+                      <Text className={`text-xl font-extrabold mb-3 ${
+                        isMiNap ? "text-error-primary" : "text-guardian-text-primary"
+                      }`}>
                         {pay.amount}
                       </Text>
-                      <View style={[styles.bigCardTagPill, { backgroundColor: tagColor.bg }]}>
-                        <Text style={[styles.bigCardTagText, { color: tagColor.text }]}>{pay.tag}</Text>
+
+                      {/* 태그 */}
+                      <View style={{ backgroundColor: tagColor.bg }} className="self-start px-2 py-[3px] rounded-full">
+                        <Text style={{ color: tagColor.text }} className="text-[11px] font-bold">
+                          {pay.tag}
+                        </Text>
                       </View>
                     </TouchableOpacity>
                   );

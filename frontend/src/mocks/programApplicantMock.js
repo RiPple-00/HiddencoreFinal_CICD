@@ -62,4 +62,5 @@ export const programApplicantMock = {
       statusLabel: '대기중',
     },
   ],
+  rejectedApplicants: [],
 };

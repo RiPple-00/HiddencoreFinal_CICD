@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, SafeAreaView, View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Alert, SafeAreaView, View, ScrollView, TouchableOpacity } from "react-native";
 import { fetchCaregiverPatients } from "../../api/careChecklistApi";
-import { styles } from "../../styles/caregiverMain.styles";
+import Text from "@/components/Text";
 
 export default function CaregiverMainPage({ navigation }) {
   const [patients, setPatients] = useState([]);
@@ -39,46 +39,56 @@ export default function CaregiverMainPage({ navigation }) {
       ? "불러오는 중…"
       : "등록된 환자 없음";
 
+  const goWorkCheck = () => {
+    if (selectedPatientId == null) {
+      Alert.alert("안내", "먼저 담당 환자를 선택해 주세요.");
+      return;
+    }
+    navigation.navigate("CaregiverWorkCheck", { patientId: selectedPatientId });
+  };
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <View style={styles.logoRow}>
-              <Text style={styles.iconText}>🏥</Text>
-              <Text style={styles.logoText}>따숨</Text>
+    <SafeAreaView className="flex-1 bg-caregiver-bg-primary">
+      <View className="flex-1">
+        <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
+          <View className="flex-row justify-between items-center px-5 py-4 bg-background-neutral border-b border-caregiver-button-secondary">
+            <View className="flex-row items-center gap-2">
+              <Text className="text-xl">🏥</Text>
+              <Text className="text-lg font-extrabold text-caregiver-text-primary">따숨</Text>
             </View>
-            <View style={styles.headerIcons}>
-              <Text style={styles.iconText}>🔔</Text>
-              <Text style={styles.iconText}>☰</Text>
+            <View className="flex-row gap-4">
+              <Text className="text-xl">🔔</Text>
+              <Text className="text-xl">☰</Text>
             </View>
           </View>
 
-          <View style={styles.section}>
+          <View className="mx-4 mt-4">
             <TouchableOpacity
-              style={styles.patientSelect}
+              className="bg-caregiver-button-primary rounded-xl px-4 py-3"
               onPress={() => !loadingPatients && patients.length > 0 && setPickerOpen((prev) => !prev)}
               activeOpacity={0.8}
             >
               {loadingPatients ? (
-                <ActivityIndicator color="#0B4EA2" />
+                <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.patientSelectText}>{selectedLine} ▾</Text>
+                <Text className="text-white font-bold text-center">
+                  {selectedLine} ▾
+                </Text>
               )}
             </TouchableOpacity>
 
             {pickerOpen && patients.length > 0 ? (
-              <View style={styles.patientPickerList}>
+              <View className="bg-background-neutral rounded-xl border border-caregiver-button-secondary mt-1">
                 {patients.map((patient) => (
                   <TouchableOpacity
                     key={patient.patientId}
-                    style={styles.patientPickerItem}
+                    className="px-4 py-3 border-b border-caregiver-bg-secondary"
                     onPress={() => {
                       setSelectedPatientId(patient.patientId);
                       setPickerOpen(false);
                     }}
                   >
-                    <Text style={styles.patientPickerItemText}>
+                    <Text className="text-caregiver-text-primary font-bold">
                       {patient.name} ({patient.age ?? "?"}세) / {patient.room ?? "-"}호
                     </Text>
                   </TouchableOpacity>
@@ -87,101 +97,112 @@ export default function CaregiverMainPage({ navigation }) {
             ) : null}
           </View>
 
-          <View style={styles.section}>
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>2주 일정 요약</Text>
-              <View style={styles.dayRow}>
-                {["12", "13", "14", "15", "16", "17", "18"].map((d) => (
-                  <View key={d} style={[styles.dayCell, d === "14" && styles.dayCellActive]}>
-                    <Text style={styles.dayText}>{d}</Text>
-                  </View>
-                ))}
-              </View>
-              <View style={styles.dayRow}>
-                {["19", "20", "21", "22", "23", "24", "25"].map((d) => (
-                  <View key={d} style={styles.dayCell}>
-                    <Text style={styles.dayText}>{d}</Text>
-                  </View>
-                ))}
-              </View>
-              <Text style={styles.legendItem}>● 03/11 09:00 오전 근무</Text>
-              <Text style={styles.legendItem}>● 03/14 15:00 휴무</Text>
+          <View className="mx-4 mt-4">
+            <View className="bg-background-neutral rounded-2xl p-4">
+              <Text className="font-bold text-caregiver-text-primary mb-3">2주 일정 요약</Text>
+              {[
+                ["12", "13", "14", "15", "16", "17", "18"],
+                ["19", "20", "21", "22", "23", "24", "25"],
+              ].map((week, wi) => (
+                <View key={wi} className="flex-row justify-between mb-2">
+                  {week.map((d) => (
+                    <View
+                      key={d}
+                      className={`w-9 h-9 rounded-lg justify-center items-center ${
+                        d === "14" ? "bg-caregiver-button-primary" : "bg-caregiver-bg-secondary"
+                      }`}
+                    >
+                      <Text
+                        className={`text-sm font-bold ${
+                          d === "14" ? "text-white" : "text-caregiver-text-primary"
+                        }`}
+                      >
+                        {d}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              ))}
+              <Text className="text-xs text-caregiver-text-neutral mt-1">● 03/11 09:00 오전 근무</Text>
+              <Text className="text-xs text-caregiver-text-neutral mt-1">● 03/14 15:00 휴무</Text>
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>오늘 중요 일정</Text>
-            <View style={styles.importantCard}>
-              <Text style={styles.importantTitle}>김태진 (68세)</Text>
-              <Text style={styles.importantDesc}>수술입력 및 복약 준비 및 금식</Text>
-            </View>
-            <View style={styles.importantCard}>
-              <Text style={styles.importantTitle}>이성우 (88세)</Text>
-              <Text style={styles.importantDesc}>체계기록 면회</Text>
-            </View>
+          <View className="mx-4 mt-4">
+            <Text className="font-bold text-caregiver-text-primary mb-2">오늘 중요 일정</Text>
+            {[
+              { name: "김태진 (68세)", desc: "수술입력 및 복약 준비 및 금식" },
+              { name: "이성우 (88세)", desc: "체계기록 면회" },
+            ].map(({ name, desc }) => (
+              <View key={name} className="bg-caregiver-bg-secondary rounded-xl p-3 mb-2">
+                <Text className="font-bold text-caregiver-text-primary mb-1">{name}</Text>
+                <Text className="text-sm text-caregiver-text-neutral">{desc}</Text>
+              </View>
+            ))}
           </View>
 
-          <View style={styles.section}>
-            <View style={styles.quickWrap}>
+          <View className="mx-4 mt-4 flex-row justify-between gap-3">
+            {[
+              { icon: "📋", label: "업무 체크", onPress: goWorkCheck },
+              { icon: "📂", label: "환자 목록", onPress: () => navigation.navigate("CaregiverPatientList") },
+              { icon: "🗓️", label: "사진 업로드", onPress: null },
+            ].map(({ icon, label, onPress }) => (
               <TouchableOpacity
-                style={styles.quickCard}
-                onPress={() => {
-                  if (selectedPatientId == null) {
-                    Alert.alert("안내", "먼저 담당 환자를 선택해 주세요.");
-                    return;
-                  }
-                  navigation.navigate("CaregiverWorkCheck", { patientId: selectedPatientId });
-                }}
+                key={label}
+                className="flex-1 bg-background-neutral rounded-2xl items-center py-4"
+                onPress={onPress ?? undefined}
               >
-                <Text style={styles.iconText}>📋</Text>
-                <Text style={styles.quickLabel}>업무 체크</Text>
+                <Text className="text-xl">{icon}</Text>
+                <Text className="text-xs font-bold text-caregiver-text-primary mt-2">{label}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.quickCard} onPress={() => navigation.navigate("CaregiverPatientList")}>
-                <Text style={styles.iconText}>📂</Text>
-                <Text style={styles.quickLabel}>환자 목록</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.quickCard}>
-                <Text style={styles.iconText}>🗓️</Text>
-                <Text style={styles.quickLabel}>사진 업로드</Text>
-              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View className="mx-4 mt-4">
+            <View className="bg-background-neutral rounded-2xl p-4">
+              <Text className="font-bold text-caregiver-text-primary mb-2">오늘의 식단</Text>
+              {["메인 메뉴: 전복죽", "계란찜, 시금치 나물, 백김치", "후식용 계절 과일"].map((item) => (
+                <Text key={item} className="text-sm text-caregiver-text-neutral">
+                  {item}
+                </Text>
+              ))}
             </View>
           </View>
 
-          <View style={styles.section}>
-            <View style={styles.mealCard}>
-              <Text style={styles.mealTitle}>오늘의 식단</Text>
-              <Text style={styles.importantDesc}>메인 메뉴: 전복죽</Text>
-              <Text style={styles.importantDesc}>계란찜, 시금치 나물, 백김치</Text>
-              <Text style={styles.importantDesc}>후식용 계절 과일</Text>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.noticeTitle}>공지사항</Text>
-            <View style={styles.noticeCard}>
-              <Text style={styles.noticeMain}>춘계 보호자 간담회 안내</Text>
-              <Text style={styles.noticeDate}>2024.03.28</Text>
-            </View>
-            <View style={styles.noticeCard}>
-              <Text style={styles.noticeMain}>면회 예약 시스템 점검 안내</Text>
-              <Text style={styles.noticeDate}>2024.03.25</Text>
-            </View>
+          <View className="mx-4 mt-4">
+            <Text className="font-bold text-caregiver-text-primary mb-2">공지사항</Text>
+            {[
+              { title: "춘계 보호자 간담회 안내", date: "2024.03.28" },
+              { title: "면회 예약 시스템 점검 안내", date: "2024.03.25" },
+            ].map(({ title, date }) => (
+              <View
+                key={title}
+                className="flex-row justify-between items-center bg-background-neutral rounded-xl px-4 py-3 mb-2 border border-caregiver-bg-secondary"
+              >
+                <Text className="text-sm font-bold text-caregiver-text-primary">{title}</Text>
+                <Text className="text-xs text-caregiver-text-secondary">{date}</Text>
+              </View>
+            ))}
           </View>
         </ScrollView>
 
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.bottomItem}>
-            <Text>🏠</Text>
-            <Text style={[styles.bottomLabel, styles.bottomLabelActive]}>홈</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomItem}>
-            <Text>📷</Text>
-            <Text style={styles.bottomLabel}>QR 체크</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomItem}>
-            <Text>🚨</Text>
-            <Text style={styles.bottomLabel}>긴급 호출</Text>
-          </TouchableOpacity>
+        <View className="flex-row justify-around bg-background-neutral border-t border-caregiver-button-secondary py-3">
+          {[
+            { icon: "🏠", label: "홈", active: true },
+            { icon: "📷", label: "QR 체크" },
+            { icon: "🚨", label: "긴급 호출" },
+          ].map(({ icon, label, active }) => (
+            <TouchableOpacity key={label} className="items-center">
+              <Text className="text-xl">{icon}</Text>
+              <Text
+                className={`text-[10px] font-bold mt-1 ${
+                  active ? "text-caregiver-text-primary" : "text-caregiver-text-neutral"
+                }`}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
     </SafeAreaView>
