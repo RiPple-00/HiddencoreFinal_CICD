@@ -13,8 +13,9 @@ import {
   createGuardianFreePost,
   getGuardianPost,
   getGuardianPosts,
-} from "../../../api/guardianApi";
+} from "../../../api/guardian/guardianApi";
 import { boardStyles } from "../../../styles/guardianBoard.styles";
+import { G } from "../../../styles/guardianTheme";
 import {
   BOARD_MENUS,
   FACILITY_ID,
@@ -218,7 +219,7 @@ export default function GuardianBoardSection({ selectedBoard }) {
 
       {loading ? (
         <View style={boardStyles.loadingBox}>
-          <ActivityIndicator size="large" color="#0B4EA2" />
+          <ActivityIndicator size="large" color={G.textSecondary} />
           <Text style={boardStyles.loadingText}>게시글을 불러오는 중...</Text>
         </View>
       ) : (
@@ -230,7 +231,9 @@ export default function GuardianBoardSection({ selectedBoard }) {
           }
         >
           <View style={boardStyles.boardSectionHeader}>
-            <Text style={boardStyles.boardSectionTitle}>{selectedBoardLabel}</Text>
+            <Text style={boardStyles.boardSectionTitle} numberOfLines={1}>
+              {selectedBoardLabel}
+            </Text>
             <Text style={boardStyles.boardSectionCount}>
               {filteredPosts.length}개
             </Text>

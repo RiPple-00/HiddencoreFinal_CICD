@@ -1,17 +1,17 @@
-import TopNavBar from "../components/bedroom/TopNavBar";
+import Header from "../components/common/Header";
 import RoomLayoutCard from "../components/bedroom/RoomLayoutCard";
 import PatientSummaryCard from "../components/bedroom/PatientSummaryCard";
 import TransferRequestCard from "../components/bedroom/TransferRequestCard";
 import GuardianPanel from "../components/bedroom/GuardianPanel";
 import AdminMenuPanel from "../components/bedroom/AdminMenuPanel";
-// import VisitorsPanel from "../components/bedroom/VisitorsPanel";
+import VisitorsPanel from "../components/bedroom/VisitorsPanel";
 import MealCarePage from "./MealCarePage";
 
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import bedRoomApi from "../api/bedRoomApi";
 import patientApi from "../api/patientApi";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const mapDetailToSummaryPatient = (d) => {
   if (!d) return null;
@@ -39,6 +39,8 @@ const mapDetailToSummaryPatient = (d) => {
 
 function BedRoomPage() {
   const { room } = useParams();
+  const [searchParams] = useSearchParams();
+  const building = searchParams.get("building")?.trim() || undefined;
 
   const [beds, setBeds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +69,7 @@ function BedRoomPage() {
       setLoading(true);
       setError("");
 
-      const res = await bedRoomApi.getBedsByRoom(room);
+      const res = await bedRoomApi.getBedsByRoom(room, building);
 
       const data = res?.data ?? [];
       const mappedBeds = data.map((bed) => ({
@@ -105,7 +107,7 @@ function BedRoomPage() {
     } finally {
       setLoading(false);
     }
-  }, [room]);
+  }, [room, building]);
 
   useEffect(() => {
     loadBeds();
@@ -247,7 +249,7 @@ function BedRoomPage() {
   */
   return (
     <>
-      <TopNavBar activeNav="rooms" />
+      <Header activeNav="rooms" />
       <div className="min-h-screen bg-slate-50">
         <div className="mx-auto flex max-w-[1440px] gap-6 px-6 py-6">
           <main className="flex-1 space-y-6">

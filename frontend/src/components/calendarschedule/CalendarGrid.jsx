@@ -103,10 +103,17 @@ const buildWeekBars = (weekDates, schedules) => {
     });
   }
 
+  const mealLaneOrder = (seg) => {
+    const m = String(seg?.schedule?.mealType ?? "").toUpperCase();
+    const o = { BREAKFAST: 0, LUNCH: 1, DINNER: 2 };
+    return o[m] ?? 99;
+  };
+
   segments.sort((a, b) => {
     if (a.isMultiDay !== b.isMultiDay) return a.isMultiDay ? -1 : 1;
     if (a.startIdx !== b.startIdx) return a.startIdx - b.startIdx;
-    return b.endIdx - a.endIdx;
+    if (a.endIdx !== b.endIdx) return b.endIdx - a.endIdx;
+    return mealLaneOrder(a) - mealLaneOrder(b);
   });
 
   const lanes = [];
@@ -153,11 +160,10 @@ const CalendarGrid = ({ year, month, schedules = [], selectedDate, onDateClick }
       <div className="divide-y divide-gray-200">
         {weeks.map((week, wIdx) => {
           const { placed, laneCount } = buildWeekBars(week, schedules);
-          // bar 간격: 거의 붙게 (rowGap 1px)
-          const barHeight = 14;
-          const rowGap = 1;
-          // 날짜 숫자 아래부터 bar가 시작되도록 여유를 둠
-          const barsTopPadding = 26;
+          // bar 간격: Meal 캘린더(page)와 동일
+          const barHeight = 16;
+          const rowGap = 2;
+          const barsTopPadding = 28;
           const overlayHeight =
             barsTopPadding +
             (laneCount > 0 ? laneCount * barHeight + (laneCount - 1) * rowGap : 0) +
@@ -198,13 +204,14 @@ const CalendarGrid = ({ year, month, schedules = [], selectedDate, onDateClick }
                             background: style.bg,
                             border: `1px solid ${style.border}`,
                             color: style.text,
-                            fontSize: 10,
-                            lineHeight: "12px",
-                            padding: "0 6px",
+                            fontSize: 11,
+                            lineHeight: "14px",
+                            padding: "1px 6px",
                             overflow: "hidden",
                             whiteSpace: "nowrap",
                             textOverflow: "ellipsis",
                             cursor: "default",
+                            fontWeight: 500,
                           }}
                           title={schedule?.title}
                         >
@@ -229,9 +236,8 @@ const CalendarGrid = ({ year, month, schedules = [], selectedDate, onDateClick }
                       type="button"
                       onClick={() => onDateClick?.(dateString)}
                       className={[
-                        "relative text-left border-r border-gray-200 last:border-r-0 border-b border-gray-200",
-                        // 날짜 숫자는 absolute로 두고, bar 공간 확보를 위해 상단 패딩을 더 줌
-                        "h-[96px] px-2 pt-7 pb-2",
+                        "relative text-left border-r border-b border-gray-200 last:border-r-0",
+                        "h-[110px] px-2 pt-6 pb-2",
                         isCurrentMonth ? "bg-white" : "bg-gray-50 text-gray-400",
                       ].join(" ")}
                       style={{ outline: isSelected || isToday ? "2px solid #2563eb" : "none", outlineOffset: -2 }}

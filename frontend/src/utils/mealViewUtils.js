@@ -43,6 +43,8 @@ export function toIsoDateKey(value) {
 export function normalizeMealListResponse(data) {
   if (Array.isArray(data)) return data;
   if (data && Array.isArray(data.content)) return data.content;
+  if (data && Array.isArray(data.data)) return data.data;
+  if (data && Array.isArray(data.meals)) return data.meals;
   return [];
 }
 

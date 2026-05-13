@@ -1,10 +1,11 @@
 import { StyleSheet } from "react-native";
+import { G, GMuted, GMutedLight, GBorder, GInkSoft } from "./guardianTheme";
 
 export const boardStyles = StyleSheet.create({
   boardTopArea: {
     paddingHorizontal: 20,
     paddingBottom: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
   },
 
   boardMenuRow: {
@@ -16,26 +17,26 @@ export const boardStyles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 999,
-    backgroundColor: "#EEF2F7",
+    backgroundColor: G.buttonSecondary,
   },
   boardMenuButtonActive: {
-    backgroundColor: "#0B4EA2",
+    backgroundColor: G.buttonPrimary,
   },
   boardMenuText: {
     fontSize: 13,
     fontWeight: "900",
-    color: "#64748B",
+    color: GMuted,
   },
   boardMenuTextActive: {
-    color: "#FFFFFF",
+    color: G.textPrimary,
   },
 
   boardSearchBox: {
     height: 46,
     borderRadius: 14,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: G.bgSecondary,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: GBorder,
     paddingHorizontal: 14,
     flexDirection: "row",
     alignItems: "center",
@@ -44,20 +45,20 @@ export const boardStyles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: "700",
-    color: "#111827",
+    color: GInkSoft,
   },
   searchClearButton: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: GBorder,
     justifyContent: "center",
     alignItems: "center",
   },
   searchClearText: {
     fontSize: 18,
     fontWeight: "900",
-    color: "#64748B",
+    color: GMuted,
     lineHeight: 20,
   },
 
@@ -65,13 +66,19 @@ export const boardStyles = StyleSheet.create({
     marginTop: 12,
     borderRadius: 14,
     paddingVertical: 13,
-    backgroundColor: "#0B4EA2",
+    backgroundColor: G.buttonPrimary,
   },
   writeButtonText: {
     textAlign: "center",
     fontSize: 15,
     fontWeight: "900",
-    color: "#FFFFFF",
+    color: G.textPrimary,
+  },
+
+  /** 목록 스크롤 — 상단 검색 영역(20)과 동일한 가로 패딩 */
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 36,
   },
 
   boardSectionHeader: {
@@ -79,20 +86,25 @@ export const boardStyles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
+    /** postCard padding(18)과 동일 — 아래 제목 첫 글자·조회수 끝과 수직 정렬 */
+    paddingHorizontal: 18,
   },
   boardSectionTitle: {
+    flex: 1,
+    marginRight: 10,
     fontSize: 18,
     fontWeight: "900",
-    color: "#111827",
+    color: GInkSoft,
   },
   boardSectionCount: {
     fontSize: 13,
     fontWeight: "900",
-    color: "#0B4EA2",
+    color: G.textSecondary,
+    textAlign: "right",
   },
 
   postCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 20,
     padding: 18,
     marginBottom: 14,
@@ -111,20 +123,20 @@ export const boardStyles = StyleSheet.create({
   postTitle: {
     fontSize: 18,
     fontWeight: "900",
-    color: "#111827",
+    color: GInkSoft,
     lineHeight: 24,
   },
   postContent: {
     marginTop: 8,
     fontSize: 14,
     lineHeight: 20,
-    color: "#64748B",
+    color: GMuted,
   },
   postMetaRow: {
     marginTop: 14,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: GBorder,
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 8,
@@ -132,43 +144,43 @@ export const boardStyles = StyleSheet.create({
   postMetaText: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#94A3B8",
+    color: GMutedLight,
   },
 
   boardBadge: {
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 999,
-    backgroundColor: "#EAF3FF",
+    backgroundColor: G.buttonSecondary,
   },
   boardBadgeUrgent: {
-    backgroundColor: "#FEF2F2",
+    backgroundColor: G.errorSecondary,
   },
   boardBadgeNotice: {
-    backgroundColor: "#EAF3FF",
+    backgroundColor: G.buttonSecondary,
   },
   boardBadgeProgram: {
-    backgroundColor: "#EAFBF1",
+    backgroundColor: G.successSecondary,
   },
   boardBadgeGeneral: {
-    backgroundColor: "#F1F5F9",
+    backgroundColor: G.bgSecondary,
   },
   boardBadgeText: {
     fontSize: 12,
     fontWeight: "900",
-    color: "#0B4EA2",
+    color: G.textSecondary,
   },
   boardBadgeTextUrgent: {
-    color: "#DC2626",
+    color: G.errorPrimary,
   },
   boardBadgeTextNotice: {
-    color: "#0B4EA2",
+    color: G.textSecondary,
   },
   boardBadgeTextProgram: {
-    color: "#15803D",
+    color: G.successPrimary,
   },
   boardBadgeTextGeneral: {
-    color: "#64748B",
+    color: GMuted,
   },
 
   pinnedBadge: {
@@ -191,7 +203,7 @@ export const boardStyles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: "#64748B",
+    color: GMuted,
   },
   emptyBox: {
     paddingVertical: 60,
@@ -200,38 +212,38 @@ export const boardStyles = StyleSheet.create({
   emptyText: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#94A3B8",
+    color: GMutedLight,
   },
 
   detailModalOverlay: {
-  flex: 1,
-  backgroundColor: "rgba(15, 23, 42, 0.55)",
-  justifyContent: "flex-end",
-  alignItems: "center",
-},
+    flex: 1,
+    backgroundColor: "rgba(80, 49, 21, 0.55)",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
 
-detailSheet: {
-  width: "100%",
-  maxWidth: 430,
-  height: "90%",
-  backgroundColor: "#F4F6F8",
-  borderTopLeftRadius: 30,
-  borderTopRightRadius: 30,
-  paddingTop: 10,
-  overflow: "hidden",
-},
+  detailSheet: {
+    width: "100%",
+    maxWidth: 430,
+    height: "90%",
+    backgroundColor: G.bgSecondary,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingTop: 10,
+    overflow: "hidden",
+  },
   detailHandle: {
     width: 42,
     height: 5,
     borderRadius: 999,
-    backgroundColor: "#CBD5E1",
+    backgroundColor: GMutedLight,
     alignSelf: "center",
     marginBottom: 10,
   },
   detailModalHeader: {
     height: 54,
     paddingHorizontal: 20,
-    backgroundColor: "#F4F6F8",
+    backgroundColor: G.bgSecondary,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -239,20 +251,20 @@ detailSheet: {
   detailModalTitle: {
     fontSize: 18,
     fontWeight: "900",
-    color: "#111827",
+    color: GInkSoft,
   },
   detailCloseButton: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: GBorder,
     justifyContent: "center",
     alignItems: "center",
   },
   detailCloseButtonText: {
     fontSize: 22,
     fontWeight: "900",
-    color: "#64748B",
+    color: GMuted,
     lineHeight: 24,
   },
 
@@ -270,7 +282,7 @@ detailSheet: {
     paddingBottom: 36,
   },
   detailHeroCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 24,
     padding: 20,
     marginBottom: 14,
@@ -289,7 +301,7 @@ detailSheet: {
   detailTitle: {
     fontSize: 22,
     fontWeight: "900",
-    color: "#111827",
+    color: GInkSoft,
     lineHeight: 30,
   },
 
@@ -312,77 +324,77 @@ detailSheet: {
   },
   detailMetaItem: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 18,
     paddingVertical: 13,
     paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: GBorder,
   },
   detailMetaLabel: {
     fontSize: 11,
     fontWeight: "900",
-    color: "#94A3B8",
+    color: GMutedLight,
     marginBottom: 5,
   },
   detailMetaValue: {
     fontSize: 12,
     fontWeight: "900",
-    color: "#334155",
+    color: GInkSoft,
   },
 
   detailContentCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 22,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: GBorder,
   },
   detailContentTitle: {
     fontSize: 15,
     fontWeight: "900",
-    color: "#111827",
+    color: GInkSoft,
     marginBottom: 12,
   },
   detailContent: {
     fontSize: 15,
     lineHeight: 24,
-    color: "#374151",
+    color: GMuted,
   },
 
   attachmentBox: {
     marginTop: 14,
     padding: 16,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: GBorder,
   },
   attachmentTitle: {
     fontSize: 14,
     fontWeight: "900",
-    color: "#111827",
+    color: GInkSoft,
     marginBottom: 8,
   },
   attachmentItem: {
     paddingVertical: 11,
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: GBorder,
   },
   attachmentText: {
     fontSize: 14,
     fontWeight: "800",
-    color: "#0B4EA2",
+    color: G.textSecondary,
   },
 
   writeModalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.45)",
+    backgroundColor: "rgba(80, 49, 21, 0.45)",
     justifyContent: "center",
     paddingHorizontal: 22,
   },
   writeModal: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 24,
     padding: 20,
     shadowColor: "#000",
@@ -401,26 +413,26 @@ detailSheet: {
     height: 48,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    backgroundColor: "#F8FAFC",
+    borderColor: GBorder,
+    backgroundColor: G.bgSecondary,
     paddingHorizontal: 14,
     fontSize: 15,
     fontWeight: "800",
-    color: "#111827",
+    color: GInkSoft,
     marginBottom: 12,
   },
   writeTextArea: {
     minHeight: 180,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    backgroundColor: "#F8FAFC",
+    borderColor: GBorder,
+    backgroundColor: G.bgSecondary,
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
     lineHeight: 22,
     fontWeight: "700",
-    color: "#111827",
+    color: GInkSoft,
   },
   writeButtonRow: {
     flexDirection: "row",
@@ -431,55 +443,55 @@ detailSheet: {
     flex: 1,
     borderRadius: 14,
     paddingVertical: 13,
-    backgroundColor: "#EEF2F7",
+    backgroundColor: G.buttonSecondary,
   },
   writeSubmitButton: {
     flex: 1,
     borderRadius: 14,
     paddingVertical: 13,
-    backgroundColor: "#0B4EA2",
+    backgroundColor: G.buttonPrimary,
   },
   writeSubmitButtonDisabled: {
-    backgroundColor: "#E5E7EB",
+    backgroundColor: GBorder,
   },
 
   modalCancelText: {
     textAlign: "center",
     fontSize: 15,
     fontWeight: "900",
-    color: "#64748B",
+    color: GMuted,
   },
   modalConfirmText: {
     textAlign: "center",
     fontSize: 15,
     fontWeight: "900",
-    color: "#FFFFFF",
+    color: G.textPrimary,
   },
   detailInfoCard: {
-  backgroundColor: "#FFFFFF",
-  borderRadius: 20,
-  padding: 16,
-  marginBottom: 14,
-  borderWidth: 1,
-  borderColor: "#E5E7EB",
-  gap: 10,
-},
-detailInfoRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: 12,
-},
-detailInfoLabel: {
-  fontSize: 13,
-  fontWeight: "900",
-  color: "#94A3B8",
-},
-detailInfoValue: {
-  flex: 1,
-  textAlign: "right",
-  fontSize: 13,
-  fontWeight: "800",
-  color: "#334155",
-},
+    backgroundColor: G.backgroundNeutral,
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: GBorder,
+    gap: 10,
+  },
+  detailInfoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+  },
+  detailInfoLabel: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: GMutedLight,
+  },
+  detailInfoValue: {
+    flex: 1,
+    textAlign: "right",
+    fontSize: 13,
+    fontWeight: "800",
+    color: GInkSoft,
+  },
 });

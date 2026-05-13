@@ -14,8 +14,9 @@
 import { useEffect, useState } from "react";
 import {
   View, ScrollView, TouchableOpacity,
-  ActivityIndicator, SafeAreaView, Linking, Alert,
+  ActivityIndicator, Linking, Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "../Text";
 import storageApi from "../../api/storageApi";
 import {
@@ -121,9 +122,10 @@ export default function StorageDetail({ route, navigation }) {
   const nonCovered = invoice?.nonCovered ?? [];
 
   return (
-    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
-
-      {/* 헤더 */}
+    <SafeAreaView
+      className="flex-1 bg-guardian-bg-primary"
+      edges={["bottom", "left", "right"]}
+    >
       <View className="flex-row items-center justify-between px-4 py-3 bg-background-neutral border-b border-guardian-button-secondary">
         <TouchableOpacity onPress={() => navigation.goBack()} className="w-10">
           <Text className="text-3xl text-guardian-text-primary">‹</Text>

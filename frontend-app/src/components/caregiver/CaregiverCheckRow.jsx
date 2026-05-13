@@ -1,3 +1,4 @@
+// 컴포넌트 설명: 간병인 체크리스트의 각 항목을 나타내는 행 컴포넌트. 상태 토글과 이상 시 사유 입력란을 포함한다.
 import React from "react";
 import { TextInput, View } from "react-native";
 import Text from "../Text";

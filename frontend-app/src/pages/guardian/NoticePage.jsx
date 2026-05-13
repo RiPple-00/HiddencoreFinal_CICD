@@ -4,7 +4,7 @@ import Text from "@/components/Text";
 import { boardStyles } from "../../styles/guardianBoard.styles";
 import BoardTabs from "../../components/guardian/board/BoardTabs";
 import GuardianBoardSection from "../../components/guardian/board/GuardianBoardSection";
-import GuardianProgramSection from "../../components/guardian/program/GuardianProgramSection";
+import GuardianProgramSection from "./GuardianProgramApplicationPage";
 
 export default function NoticePage() {
   const [selectedBoard, setSelectedBoard] = useState("ALL");

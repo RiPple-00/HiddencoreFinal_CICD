@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import postApi from '../../api/postApi';
 import { useAuth } from '../../contexts/AutoContext.jsx';
+import Header from '../../components/common/Header';
 import PostList from '../../components/board/PostList';
 
 // 작성 이력과 보관함
@@ -52,20 +53,25 @@ const BoardUserPostsPage = ({ variant }) => {
 
   if (!user) {
     return (
-      <div className="max-w-lg mx-auto text-center py-16 px-4">
-        <p className="text-gray-600 mb-4">로그인 후 이용할 수 있습니다.</p>
-        <Link
-          to="/login"
-          className="inline-flex text-teal-600 font-medium hover:underline"
-        >
-          로그인하기
-        </Link>
+      <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
+        <Header activeNav="notice" />
+        <div className="mx-auto max-w-lg px-4 py-16 text-center">
+          <p className="mb-4 text-gray-600">로그인 후 이용할 수 있습니다.</p>
+          <Link
+            to="/login"
+            className="inline-flex font-medium text-teal-600 hover:underline"
+          >
+            로그인하기
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4">
+    <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
+      <Header activeNav="notice" />
+      <div className="mx-auto max-w-5xl px-4 py-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-semibold text-gray-900">
           {HEADINGS[variant] ?? '내 게시글'}
@@ -93,6 +99,7 @@ const BoardUserPostsPage = ({ variant }) => {
           <PostList posts={posts} mode="table" facilityId={facilityId} />
         </div>
       )}
+      </div>
     </div>
   );
 };

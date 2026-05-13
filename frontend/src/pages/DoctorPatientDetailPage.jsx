@@ -1,4 +1,4 @@
-import TopNavBar from '../components/bedroom/TopNavBar';
+import Header from '../components/common/Header';
 import { useNavigate } from 'react-router-dom';
 
 const navItems = [
@@ -26,7 +26,7 @@ export default function DoctorPatientDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
-      <TopNavBar activeNav="rooms" navItems={navItems} brandLabel="따숨" userName="김관리자 (Admin Kim)" userRole="SUPERUSER" />
+      <Header activeNav="rooms" navItems={navItems} brandLabel="따숨" userName="김관리자 (Admin Kim)" userRole="SUPERUSER" />
 
       <div className="mx-auto w-full max-w-[1360px] px-5 py-6">
         <section className="rounded-md border border-[#d6deea] bg-white p-5">

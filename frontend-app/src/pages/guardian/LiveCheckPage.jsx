@@ -3,13 +3,13 @@
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 
 import {
@@ -17,12 +17,13 @@ import {
   fetchGuardianLinkedPatients,
 } from "../../api/careChecklistApi";
 import { buildDefaultChecklist, mergeChecklistFromServer } from "../../utils/careChecklistModel";
+import { G, GMuted, GMutedLight, GBorder, GInkSoft } from "../../styles/guardianTheme";
 
 function ReadOnlyRow({ label, abnormal, warnText }) {
   return (
     <View style={rowStyles.row}>
       <View style={rowStyles.rowLeft}>
-        <Text style={[rowStyles.rowLabel, abnormal && { color: "#B94753" }]}>{label}</Text>
+        <Text style={[rowStyles.rowLabel, abnormal && { color: G.errorPrimary }]}>{label}</Text>
         {warnText ? <Text style={rowStyles.rowSubWarn}>{warnText}</Text> : null}
       </View>
       <View style={rowStyles.stateWrap}>
@@ -121,15 +122,15 @@ export default function LiveCheckPage() {
   const activePatient = linked.find((p) => p.patientId === patientId);
 
   return (
-    <SafeAreaView style={pageStyles.safe}>
+    <SafeAreaView style={pageStyles.safe} edges={["bottom", "left", "right"]}>
       <View style={pageStyles.topBar}>
         <Text style={pageStyles.title}>실시간 요양 체크</Text>
-        {refreshing ? <ActivityIndicator size="small" color="#0B4EA2" /> : null}
+        {refreshing ? <ActivityIndicator size="small" color={G.textSecondary} /> : null}
       </View>
 
       {loadingPatients ? (
         <View style={pageStyles.center}>
-          <ActivityIndicator size="large" color="#0B4EA2" />
+          <ActivityIndicator size="large" color={G.textSecondary} />
           <Text style={pageStyles.muted}>연결 환자 확인 중…</Text>
         </View>
       ) : null}
@@ -194,7 +195,9 @@ export default function LiveCheckPage() {
                   </View>
                 ) : null}
               </View>
+              
             </View>
+            
           ))}
 
           <Text style={pageStyles.hint}>5초마다 자동 새로고침됩니다.</Text>
@@ -205,62 +208,62 @@ export default function LiveCheckPage() {
 }
 
 const pageStyles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F4F6F8" },
+  safe: { flex: 1, backgroundColor: G.bgSecondary },
   topBar: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: G.backgroundNeutral,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5EAF2",
+    borderBottomColor: GBorder,
   },
-  title: { fontSize: 18, fontWeight: "800", color: "#0B4EA2" },
+  title: { fontSize: 18, fontWeight: "800", color: G.textPrimary },
   scroll: { paddingBottom: 32, paddingHorizontal: 12 },
   center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 24 },
-  muted: { marginTop: 6, fontSize: 13, color: "#73839A" },
-  errorText: { textAlign: "center", color: "#B91C1C", fontSize: 15 },
+  muted: { marginTop: 6, fontSize: 13, color: GMuted },
+  errorText: { textAlign: "center", color: G.errorPrimary, fontSize: 15 },
   banner: {
-    backgroundColor: "#FEF2F2",
+    backgroundColor: G.errorSecondary,
     padding: 10,
     borderRadius: 8,
     marginBottom: 8,
   },
-  bannerText: { color: "#B91C1C", fontSize: 13 },
+  bannerText: { color: G.errorPrimary, fontSize: 13 },
   tabs: { marginVertical: 8, maxHeight: 44 },
   tab: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "#E8EEF6",
+    backgroundColor: G.buttonSecondary,
     marginRight: 8,
   },
-  tabActive: { backgroundColor: "#0B4EA2" },
-  tabText: { fontSize: 14, color: "#274062", fontWeight: "600" },
-  tabTextActive: { color: "#fff" },
+  tabActive: { backgroundColor: G.buttonPrimary },
+  tabText: { fontSize: 14, color: GMuted, fontWeight: "600" },
+  tabTextActive: { color: G.textPrimary },
   patientStrip: {
-    backgroundColor: "#F8FAFD",
+    backgroundColor: G.bgSecondary,
     borderRadius: 12,
     padding: 14,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: "#E1E6EF",
+    borderColor: GBorder,
   },
-  patientName: { fontSize: 20, fontWeight: "700", color: "#243B58" },
+  patientName: { fontSize: 20, fontWeight: "700", color: GInkSoft },
   section: { marginTop: 12 },
-  sectionTitle: { fontSize: 15, fontWeight: "800", color: "#243B58", marginBottom: 6 },
+  sectionTitle: { fontSize: 15, fontWeight: "800", color: G.textPrimary, marginBottom: 6 },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 12,
     paddingVertical: 4,
     borderWidth: 1,
-    borderColor: "#E5EAF2",
+    borderColor: GBorder,
   },
-  memoBox: { padding: 12, borderTopWidth: 1, borderTopColor: "#EEF2F7" },
-  memoLabel: { fontSize: 12, color: "#73839A", marginBottom: 4 },
-  memoBody: { fontSize: 14, color: "#243B58", lineHeight: 20 },
-  hint: { textAlign: "center", marginTop: 16, fontSize: 12, color: "#9AA7B8" },
+  memoBox: { padding: 12, borderTopWidth: 1, borderTopColor: GBorder },
+  memoLabel: { fontSize: 12, color: GMuted, marginBottom: 4 },
+  memoBody: { fontSize: 14, color: GInkSoft, lineHeight: 20 },
+  hint: { textAlign: "center", marginTop: 16, fontSize: 12, color: GMutedLight },
 });
 
 const rowStyles = StyleSheet.create({
@@ -271,22 +274,22 @@ const rowStyles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F3F8",
+    borderBottomColor: G.buttonSecondary,
   },
   rowLeft: { flex: 1, paddingRight: 8 },
-  rowLabel: { fontSize: 14, color: "#243B58", fontWeight: "600" },
-  rowSubWarn: { fontSize: 11, color: "#B94753", marginTop: 2 },
+  rowLabel: { fontSize: 14, color: G.textPrimary, fontWeight: "600" },
+  rowSubWarn: { fontSize: 11, color: G.errorPrimary, marginTop: 2 },
   stateWrap: { flexDirection: "row" },
   stateBtn: {
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: "#EFF3F8",
+    backgroundColor: G.buttonSecondary,
   },
   stateBtnSpacer: { marginRight: 6 },
-  stateBtnActive: { backgroundColor: "#CBEFDE" },
-  stateBtnDanger: { backgroundColor: "#FCE8EA" },
-  stateText: { fontSize: 12, color: "#7A8BA2", fontWeight: "600" },
-  stateTextActive: { color: "#146C43" },
-  stateTextDanger: { color: "#B94753" },
+  stateBtnActive: { backgroundColor: G.successSecondary },
+  stateBtnDanger: { backgroundColor: G.errorSecondary },
+  stateText: { fontSize: 12, color: GMuted, fontWeight: "600" },
+  stateTextActive: { color: G.successPrimary },
+  stateTextDanger: { color: G.errorPrimary },
 });

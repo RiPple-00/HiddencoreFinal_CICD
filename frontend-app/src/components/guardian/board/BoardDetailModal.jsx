@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { boardStyles } from "../../../styles/guardianBoard.styles";
+import { G } from "../../../styles/guardianTheme";
 import {
   BADGE_LABELS,
   formatBoardDateTime,
@@ -79,7 +80,7 @@ export default function BoardDetailModal({
 
           {loading ? (
             <View style={boardStyles.detailLoadingBox}>
-              <ActivityIndicator size="large" color="#0B4EA2" />
+              <ActivityIndicator size="large" color={G.textSecondary} />
               <Text style={boardStyles.loadingText}>불러오는 중...</Text>
             </View>
           ) : post ? (

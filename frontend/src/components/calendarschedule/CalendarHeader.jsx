@@ -26,24 +26,14 @@ const CalendarHeader = ({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <button
-          type="button"
-          onClick={onPrevMonth}
-          style={{ ...buttonStyle(false), minWidth: 36 }}
-          aria-label="이전 달"
-        >
-          {"<"}
+        <button type="button" onClick={onPrevMonth} style={buttonStyle(false)}>
+          이전
         </button>
         <h2 style={{ margin: 0, minWidth: 140, textAlign: "center" }}>
           {year}년 {month}월
         </h2>
-        <button
-          type="button"
-          onClick={onNextMonth}
-          style={{ ...buttonStyle(false), minWidth: 36 }}
-          aria-label="다음 달"
-        >
-          {">"}
+        <button type="button" onClick={onNextMonth} style={buttonStyle(false)}>
+          다음
         </button>
       </div>
 

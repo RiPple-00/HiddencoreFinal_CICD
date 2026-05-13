@@ -1,16 +1,16 @@
 // 요양사 앱에서 환자 상태를 체크하는 페이지
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  SafeAreaView,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRoute } from "@react-navigation/native";
 
 import {
@@ -19,6 +19,7 @@ import {
   saveCaregiverCareChecklist,
 } from "../../api/careChecklistApi";
 import { buildDefaultChecklist, mergeChecklistFromServer } from "../../utils/careChecklistModel";
+import { C } from "../../styles/caregiverTheme";
 import { styles } from "../../styles/caregiverWorkCheck.styles";
 
 function StateButtons({ abnormal, onSelect }) {
@@ -44,7 +45,7 @@ function Row({ label, abnormal, warnText, onSelectAbnormal }) {
   return (
     <View style={styles.row}>
       <View style={styles.rowLeft}>
-        <Text style={[styles.rowLabel, abnormal && { color: "#B94753" }]}>{label}</Text>
+        <Text style={[styles.rowLabel, abnormal && { color: C.errorPrimary }]}>{label}</Text>
         {warnText ? <Text style={styles.rowSubWarn}>{warnText}</Text> : null}
       </View>
       <StateButtons abnormal={abnormal} onSelect={onSelectAbnormal} />
@@ -58,8 +59,13 @@ export default function CaregiverWorkCheckPage({ navigation }) {
 
   const [patientLabel, setPatientLabel] = useState("");
   const [model, setModel] = useState(buildDefaultChecklist());
+  const modelRef = useRef(model);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    modelRef.current = model;
+  }, [model]);
 
   useEffect(() => {
     if (patientId == null) {
@@ -100,6 +106,22 @@ export default function CaregiverWorkCheckPage({ navigation }) {
     };
   }, [patientId]);
 
+  const onSave = useCallback(async () => {
+    if (patientId == null) {
+      Alert.alert("안내", "환자가 선택되지 않았습니다. 홈에서 환자를 선택한 뒤 다시 들어와 주세요.");
+      return;
+    }
+    try {
+      setSaving(true);
+      await saveCaregiverCareChecklist(patientId, modelRef.current);
+      Alert.alert("저장 완료", "보호자 앱 실시간 화면에 반영됩니다.");
+    } catch (e) {
+      Alert.alert("저장 실패", e?.response?.data?.message ?? "네트워크 또는 권한을 확인해 주세요.");
+    } finally {
+      setSaving(false);
+    }
+  }, [patientId]);
+
   function setRowAbnormal(sectionId, rowKey, abnormal) {
     setModel((m) => ({
       ...m,
@@ -114,30 +136,16 @@ export default function CaregiverWorkCheckPage({ navigation }) {
     }));
   }
 
-  async function onSave() {
-    if (patientId == null) {
-      Alert.alert("안내", "환자가 선택되지 않았습니다. 홈에서 환자를 선택한 뒤 다시 들어와 주세요.");
-      return;
-    }
-    try {
-      setSaving(true);
-      await saveCaregiverCareChecklist(patientId, model);
-      Alert.alert("저장 완료", "보호자 앱 실시간 화면에 반영됩니다.");
-    } catch (e) {
-      Alert.alert("저장 실패", e?.response?.data?.message ?? "네트워크 또는 권한을 확인해 주세요.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
   if (patientId == null) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
         <View style={[styles.container, { padding: 24 }]}>
           <Text style={styles.logoText}>환자 선택 필요</Text>
-          <Text style={{ marginTop: 8, color: "#73839A" }}>홈 화면에서 담당 환자를 고른 뒤 업무 체크를 열어 주세요.</Text>
+          <Text style={{ marginTop: 8, color: C.textSecondary }}>
+            홈 화면에서 담당 환자를 고른 뒤 업무 체크를 열어 주세요.
+          </Text>
           <TouchableOpacity style={{ marginTop: 20 }} onPress={() => navigation.goBack()}>
-            <Text style={{ color: "#0B4EA2", fontWeight: "700" }}>‹ 돌아가기</Text>
+            <Text style={{ color: C.buttonPrimary, fontWeight: "700" }}>‹ 돌아가기</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -145,27 +153,24 @@ export default function CaregiverWorkCheckPage({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.logoRow}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Text style={styles.backButtonText}>‹</Text>
-            </TouchableOpacity>
-            <Text style={styles.iconText}>🏥</Text>
-            <Text style={styles.logoText}>따숨</Text>
-          </View>
-          <View style={{ flexDirection: "row", gap: 14, alignItems: "center" }}>
-            {saving ? <ActivityIndicator size="small" color="#0B4EA2" /> : null}
-            <TouchableOpacity onPress={onSave} disabled={saving || loading}>
-              <Text style={{ color: "#0B4EA2", fontWeight: "800" }}>저장</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.saveToolbar}>
+          {saving ? <ActivityIndicator size="small" color={C.buttonPrimary} /> : null}
+          <TouchableOpacity onPress={onSave} disabled={saving || loading}>
+            <Text style={[styles.saveToolbarText, (saving || loading) && { opacity: 0.45 }]}>
+              저장
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.patientStrip}>
           <View style={{ flex: 1 }}>
-            {loading ? <ActivityIndicator color="#0B4EA2" /> : <Text style={styles.patientName}>{patientLabel}</Text>}
+            {loading ? (
+              <ActivityIndicator color={C.buttonPrimary} />
+            ) : (
+              <Text style={styles.patientName}>{patientLabel}</Text>
+            )}
             <Text style={styles.patientMeta}>요양 체크 후 저장하면 보호자에게 실시간 반영</Text>
           </View>
           <Text style={styles.iconText}>🪪</Text>
@@ -191,7 +196,7 @@ export default function CaregiverWorkCheckPage({ navigation }) {
                     value={model.memo}
                     onChangeText={(memo) => setModel((m) => ({ ...m, memo }))}
                     placeholder="상세 사유를 입력해주세요 (발생 시각 및 증거 등)"
-                    placeholderTextColor="#9AA7B8"
+                    placeholderTextColor={C.textSecondary}
                     multiline
                   />
                 ) : null}
@@ -199,21 +204,6 @@ export default function CaregiverWorkCheckPage({ navigation }) {
             </View>
           ))}
         </ScrollView>
-
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.bottomItem} onPress={() => navigation.navigate("CaregiverMain")}>
-            <Text>🏠</Text>
-            <Text style={styles.bottomLabel}>홈</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomItem}>
-            <Text>📷</Text>
-            <Text style={[styles.bottomLabel, { color: "#0B4EA2" }]}>QR 체크</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomItem}>
-            <Text>🚨</Text>
-            <Text style={[styles.bottomLabel, { color: "#CC5A66" }]}>긴급 호출</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </SafeAreaView>
   );

@@ -5,12 +5,12 @@ import {
   deleteSchedule,
   updateSchedule,
 } from "../api/scheduleApi";
-import CalendarHeader from "../components/choco/CalendarHeader";
-import CalendarGrid from "../components/choco/CalendarGrid";
-import ScheduleFormModal from "../components/choco/ScheduleFormModal";
-import ScheduleDetailPanel from "../components/choco/ScheduleDetailPanel";
-import TodayScheduleList from "../components/choco/TodayScheduleList";
-import TopNavBar from "../components/bedroom/TopNavBar";
+import CalendarHeader from "../components/calendarschedule/CalendarHeader";
+import CalendarGrid from "../components/calendarschedule/CalendarGrid";
+import ScheduleFormModal from "../components/calendarschedule/ScheduleFormModal";
+import ScheduleDetailPanel from "../components/calendarschedule/ScheduleDetailPanel";
+import TodayScheduleList from "../components/calendarschedule/TodayScheduleList";
+import Header from "../components/common/Header";
 import { formatDate, toDate } from "../utils/dateUtils";
 import { useAuth } from '../contexts/AutoContext.jsx';
 
@@ -34,7 +34,7 @@ function formatDisplayDate(dateKey) {
   return `${p[0]}/${p[1]}/${p[2]}`;
 }
 
-function SchedulePage() {
+function SchedulePage({ embed = false }) {
   const today = new Date();
   const { user } = useAuth();
   const token = user?.accessToken ?? user?.token;
@@ -184,26 +184,37 @@ function SchedulePage() {
 
   const displayDateLabel = formatDisplayDate(selectedDate);
 
-  return (
-    <>
-      <TopNavBar activeNav="calendar" />
-      <div className="space-y-6 px-6 py-6">
-      <CalendarHeader
-        year={year}
-        month={month}
-        filter={filter}
-        onPrevMonth={handlePrevMonth}
-        onNextMonth={handleNextMonth}
-        onFilterChange={setFilter}
-      />
+  const shellStyle = { fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' };
 
-      <CalendarGrid
-        year={year}
-        month={month}
-        schedules={schedules}
-        selectedDate={selectedDate}
-        onDateClick={handleDateClick}
-      />
+  const body = (
+    <>
+      <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900">일정 캘린더</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            날짜를 선택하면 해당 일의 일정을 확인하거나 등록할 수 있습니다.
+          </p>
+        </div>
+
+        <CalendarHeader
+          year={year}
+          month={month}
+          filter={filter}
+          onPrevMonth={handlePrevMonth}
+          onNextMonth={handleNextMonth}
+          onFilterChange={setFilter}
+        />
+
+        <div className="mt-6">
+          <CalendarGrid
+            year={year}
+            month={month}
+            schedules={schedules}
+            selectedDate={selectedDate}
+            onDateClick={handleDateClick}
+          />
+        </div>
+      </div>
 
       {isFormOpen ? (
         <ScheduleFormModal
@@ -222,7 +233,7 @@ function SchedulePage() {
           loading={loading}
         />
       ) : (
-        <div className="space-y-3">
+        <div className="mt-6 space-y-3">
           <TodayScheduleList
             date={displayDateLabel}
             schedules={selectedDaySchedules}
@@ -232,8 +243,18 @@ function SchedulePage() {
           />
         </div>
       )}
-      </div>
     </>
+  );
+
+  if (embed) {
+    return body;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f7f8fa]" style={shellStyle}>
+      <Header activeNav="calendar" />
+      <div className="mx-auto w-full max-w-6xl px-4 py-6">{body}</div>
+    </div>
   );
 }
 

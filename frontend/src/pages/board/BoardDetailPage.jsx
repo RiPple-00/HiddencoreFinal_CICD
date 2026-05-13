@@ -8,6 +8,7 @@ import StatusBadge from '../../components/common/StatusBadge';
 import DetailActionBar from '../../components/board/detail/DetailActionBar';
 import AttachmentList from '../../components/board/detail/AttachmentList';
 import { useAuth } from '../../contexts/AutoContext.jsx';
+import Header from '../../components/common/Header';
 
 /**
  * post.type과 BOARD_TABS_MAP을 역참조해서 브레드크럼 라벨 반환
@@ -71,16 +72,22 @@ const BoardDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-32 text-sm text-gray-400">
-        불러오는 중...
+      <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
+        <Header activeNav="notice" />
+        <div className="flex items-center justify-center py-32 text-sm text-gray-400">
+          불러오는 중...
+        </div>
       </div>
     );
   }
 
   if (error || !post) {
     return (
-      <div className="flex items-center justify-center py-32 text-sm text-red-400">
-        {error ?? '게시글을 찾을 수 없습니다.'}
+      <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
+        <Header activeNav="notice" />
+        <div className="flex items-center justify-center py-32 text-sm text-red-400">
+          {error ?? '게시글을 찾을 수 없습니다.'}
+        </div>
       </div>
     );
   }
@@ -89,6 +96,8 @@ const BoardDetailPage = () => {
   const isProgram = ['APPLY', 'REVIEW'].includes(post.type);
 
   return (
+    <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
+      <Header activeNav="notice" />
     <div>
       {/* 상단 고정 액션바 */}
       <DetailActionBar
@@ -167,6 +176,7 @@ const BoardDetailPage = () => {
         <AttachmentList attachmentUrls={post.attachmentUrls} />
 
       </div>
+    </div>
     </div>
   );
 };

@@ -1,12 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Header from "../components/common/Header";
 import CalendarHeader from "../components/page/CalendarHeader";
 import CalendarGrid from "../components/page/CalendarGrid";
 import mealApi from "../api/mealApi";
-import { MEAL_TYPE_ORDER, normalizeMealListResponse } from "../utils/mealViewUtils";
+import { useAuth } from "../contexts/AutoContext.jsx";
+import { MEAL_TYPE_ORDER, normalizeMealListResponse, resolveFacilityId } from "../utils/mealViewUtils";
 
-function CalendarPage() {
+function CalendarPage({ embed = false }) {
   const today = new Date();
+  const { user } = useAuth();
+  const facilityId = useMemo(() => {
+    const fromAuth = resolveFacilityId(user);
+    if (fromAuth != null) return fromAuth;
+    try {
+      const raw = localStorage.getItem("user");
+      if (!raw) return null;
+      return resolveFacilityId(JSON.parse(raw));
+    } catch {
+      return null;
+    }
+  }, [user]);
+
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [filter, setFilter] = useState("ALL");
@@ -43,7 +58,7 @@ function CalendarPage() {
     const endDate = `${year}-${String(month).padStart(2, "0")}-${String(endDay).padStart(2, "0")}`;
 
     mealApi
-      .getMealsByRange(startDate, endDate)
+      .getMealsByRange(startDate, endDate, facilityId)
       .then((response) => {
         const raw = normalizeMealListResponse(response?.data);
         const mapped = raw.map((meal) => {
@@ -87,47 +102,58 @@ function CalendarPage() {
         console.error("캘린더 식단 조회 실패", error);
         setSchedules([]);
       });
-  }, [year, month]);
+  }, [year, month, facilityId]);
 
-  return (
-    <div className="w-full mx-auto">
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-200">
-        <div className="mb-6">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">캘린더</h1>
-              <p className="mt-2 text-sm text-slate-600">
-                식단 계획을 확인하거나 날짜를 선택해보세요.
-              </p>
-            </div>
-            <Link
-              to="/meal-upload"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-            >
-              식단 등록
-            </Link>
+  const shellStyle = { fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' };
+
+  const body = (
+    <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="mb-6">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">식단 캘린더</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              식단 계획을 확인하거나 날짜를 선택해보세요.
+            </p>
           </div>
-        </div>
-
-        <CalendarHeader
-          year={year}
-          month={month}
-          filter={filter}
-          onPrevMonth={handlePrevMonth}
-          onNextMonth={handleNextMonth}
-          onFilterChange={setFilter}
-        />
-
-        <div className="mt-6">
-          <CalendarGrid
-            year={year}
-            month={month}
-            schedules={schedules}
-            selectedDate={selectedDate}
-            onDateClick={handleDateClick}
-          />
+          <Link
+            to="/meal-upload"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            식단 등록
+          </Link>
         </div>
       </div>
+
+      <CalendarHeader
+        year={year}
+        month={month}
+        filter={filter}
+        onPrevMonth={handlePrevMonth}
+        onNextMonth={handleNextMonth}
+        onFilterChange={setFilter}
+      />
+
+      <div className="mt-6">
+        <CalendarGrid
+          year={year}
+          month={month}
+          schedules={schedules}
+          selectedDate={selectedDate}
+          onDateClick={handleDateClick}
+        />
+      </div>
+    </div>
+  );
+
+  if (embed) {
+    return body;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f7f8fa]" style={shellStyle}>
+      <Header activeNav="calendar" />
+      <div className="mx-auto w-full max-w-6xl px-4 py-6">{body}</div>
     </div>
   );
 }

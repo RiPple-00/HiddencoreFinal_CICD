@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import patientApi from "../../api/patientApi";
 import SectionCard from "../../components/patient/SectionCard";
-import TopNavBar from "../../components/bedroom/TopNavBar";
+import Header from "../../components/common/Header";
 
 
 
@@ -89,7 +89,7 @@ export default function PatientDetailPage() {
     if (loading) {
         return (
             <>
-                <TopNavBar activeNav="patients" />
+                <Header activeNav="patients" />
                 <div className="min-h-screen bg-slate-50 px-6 py-6">
                     <div className="mx-auto max-w-[960px] rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm">
                         <h1 className="mb-4 text-2xl font-bold text-slate-900">환자 상세 정보</h1>
@@ -103,7 +103,7 @@ export default function PatientDetailPage() {
     if (!patient) {
         return (
             <>
-                <TopNavBar activeNav="patients" />
+                <Header activeNav="patients" />
                 <div className="min-h-screen bg-slate-50 px-6 py-6">
                     <div className="mx-auto max-w-[960px] rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm">
                         <h1 className="mb-4 text-2xl font-bold text-slate-900">환자 상세 정보</h1>
@@ -122,7 +122,7 @@ export default function PatientDetailPage() {
     }
     return (
         <>
-            <TopNavBar activeNav="patients" />
+            <Header activeNav="patients" />
             <div className="min-h-screen bg-slate-50 px-6 py-6">
                 <div className="mx-auto max-w-[960px] space-y-4">
             {/* 상단 프로필 카드 */}

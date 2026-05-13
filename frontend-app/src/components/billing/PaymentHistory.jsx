@@ -13,8 +13,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   View, ScrollView, TouchableOpacity,
-  ActivityIndicator, SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "../Text";
 import storageApi from "../../api/storageApi";
 import { normalizePayment, normalizePatient, formatWon } from "../../utils/Storageformat";
@@ -126,7 +127,10 @@ export default function PaymentHistory({ navigation }) {
   const isCategoryActive = openDropdown === "category";
 
   return (
-    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
+    <SafeAreaView
+      className="flex-1 bg-guardian-bg-primary"
+      edges={["bottom", "left", "right"]}
+    >
 
       {/* 헤더 */}
       <View className="flex-row items-center justify-between px-4 py-3 bg-background-neutral border-b border-guardian-button-secondary">

@@ -10,6 +10,7 @@ import {
   dateOnlyToLocalDateTimeString,
 } from '../../utils/boardUtils';
 import { useAuth } from '../../contexts/AutoContext.jsx';
+import Header from '../../components/common/Header';
 import CreateSidebar from '../../components/board/create/CreateSidebar';
 import CreateForm from '../../components/board/create/CreateForm';
 import NoticePanel from '../../components/board/create/panel/NoticePanel';
@@ -195,7 +196,9 @@ const BoardCreatePage = () => {
   };
 
   return (
-    <div className="flex gap-6 max-w-6xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
+      <Header activeNav="notice" />
+      <div className="mx-auto flex max-w-6xl gap-6 px-4 py-6">
       <CreateSidebar
         postType={postType}
         onTypeChange={handleTypeChange}
@@ -219,6 +222,7 @@ const BoardCreatePage = () => {
         onSubmit={handleSubmit}
       />
       {renderPanel()}
+    </div>
     </div>
   );
 };

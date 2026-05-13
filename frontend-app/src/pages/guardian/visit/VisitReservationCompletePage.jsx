@@ -2,15 +2,18 @@ import React from "react";
 import {
   View,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/Text";
 
 export default function VisitReservationCompletePage({ data, onHome }) {
   if (!data) {
     return (
-      <SafeAreaView className="flex-1 bg-guardian-bg-secondary">
+      <SafeAreaView
+        className="flex-1 bg-guardian-bg-secondary"
+        edges={["bottom", "left", "right"]}
+      >
         <TouchableOpacity
           className="bg-guardian-button-primary py-4 rounded-xl items-center mx-5 mt-5"
           onPress={onHome}
@@ -24,9 +27,10 @@ export default function VisitReservationCompletePage({ data, onHome }) {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-guardian-bg-secondary">
-
-      {/* 헤더 */}
+    <SafeAreaView
+      className="flex-1 bg-guardian-bg-secondary"
+      edges={["bottom", "left", "right"]}
+    >
       <View className="flex-row items-center justify-between px-4 py-[14px] bg-background-neutral border-b border-guardian-button-secondary">
         <TouchableOpacity onPress={onHome} hitSlop={12}>
           <Text className="text-[22px] text-guardian-text-primary w-10">←</Text>

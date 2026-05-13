@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getRoomSummary } from '../api/LocationApi';
 import RoomComponent from '../components/ward/RoomComponent';
-import TopNavBar from "../components/bedroom/TopNavBar";
+import Header from "../components/common/Header";
 import GuardianPanel from "../components/bedroom/GuardianPanel";
 import AdminMenuPanel from "../components/bedroom/AdminMenuPanel";
 // import VisitorsPanel from "../components/bedroom/VisitorsPanel";
@@ -127,7 +127,7 @@ function HomePage() {
 
   return (
     <>
-      <TopNavBar activeNav="rooms" />
+      <Header activeNav="rooms" />
       <div className="min-h-screen bg-slate-50">
         <div className="mx-auto flex w-full max-w-[1680px] items-start gap-8 px-8 py-6">
           <main className="min-w-0 flex-1 space-y-6">
@@ -191,6 +191,7 @@ function HomePage() {
                   <RoomComponent
                     key={room.id}
                     room={room}
+                    building={selectedWard}
                     isDimmed={!isRoomHighlighted(room.roomType, selectedSpecial)}
                   />
                 ))}
@@ -205,6 +206,7 @@ function HomePage() {
                   <RoomComponent
                     key={room.id}
                     room={room}
+                    building={selectedWard}
                     isDimmed={!isRoomHighlighted(room.roomType, selectedSpecial)}
                   />
                 ))}

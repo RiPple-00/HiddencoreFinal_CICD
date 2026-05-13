@@ -1,4 +1,4 @@
-import TopNavBar from '../components/bedroom/TopNavBar';
+import Header from '../components/common/Header';
 import { useNavigate } from 'react-router-dom';
 
 const navItems = [
@@ -46,7 +46,7 @@ export default function DoctorMainPage() {
 
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
-      <TopNavBar
+      <Header
         activeNav="patients"
         navItems={navItems}
         brandLabel="따숨"

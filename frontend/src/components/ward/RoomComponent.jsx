@@ -14,7 +14,7 @@ const STATUS_STYLE = {
   },
 };
 
-function RoomComponent({ room, isDimmed = false }) {
+function RoomComponent({ room, isDimmed = false, building }) {
   const navigate = useNavigate();
   const statusStyle = STATUS_STYLE[room.status] || STATUS_STYLE.STABLE;
   const occupiedRatio = Math.min(100, (room.patientCount / room.roomCapacity) * 100);
@@ -23,7 +23,9 @@ function RoomComponent({ room, isDimmed = false }) {
   const handleClick = () => {
     const id = String(room.roomNumber ?? room.id ?? '').trim();
     if (!id) return;
-    navigate(`/bedroompage/${encodeURIComponent(id)}`);
+    const b = building != null ? String(building).trim() : '';
+    const qs = b ? `?building=${encodeURIComponent(b)}` : '';
+    navigate(`/bedroompage/${encodeURIComponent(id)}${qs}`);
   };
 
   return (

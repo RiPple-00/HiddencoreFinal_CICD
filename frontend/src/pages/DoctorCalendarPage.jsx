@@ -1,4 +1,4 @@
-import TopNavBar from '../components/bedroom/TopNavBar';
+import Header from '../components/common/Header';
 
 const navItems = [
   { key: 'rooms', label: '병동 관리', to: '/doctor' },
@@ -18,7 +18,7 @@ const weeks = [
 export default function DoctorCalendarPage() {
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
-      <TopNavBar activeNav="calendar" navItems={navItems} brandLabel="따숨" userName="김관리자 (Admin Kim)" userRole="SUPERUSER" />
+      <Header activeNav="calendar" navItems={navItems} brandLabel="따숨" userName="김관리자 (Admin Kim)" userRole="SUPERUSER" />
 
       <div className="mx-auto w-full max-w-[1360px] px-5 py-6">
         <section className="mb-4 rounded-2xl border border-[#e1e6ef] bg-white p-5">

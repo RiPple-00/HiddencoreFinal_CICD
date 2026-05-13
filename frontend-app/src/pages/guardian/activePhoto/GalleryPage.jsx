@@ -1,4 +1,5 @@
-import { Image, View, SafeAreaView } from 'react-native';
+import { Image, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Text from "@/components/Text";
 import ActivePhotoMobileShell from '../../../components/guardian/activePhoto/ActivePhotoMobileShell';
 import ActivePhotoTopBar from '../../../components/guardian/activePhoto/ActivePhotoTopBar';
@@ -47,7 +48,10 @@ function GuardianGalleryPage({ navigation }) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
+    <SafeAreaView
+      className="flex-1 bg-guardian-bg-primary"
+      edges={["bottom", "left", "right"]}
+    >
       <View className="flex-1">
         <ActivePhotoMobileShell>
           <ActivePhotoTopBar

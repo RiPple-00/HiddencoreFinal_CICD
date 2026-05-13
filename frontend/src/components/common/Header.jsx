@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../../contexts/AutoContext";
+import { useAuth } from "../../contexts/AutoContext.jsx";
 
 function SearchIcon({ className }) {
   return (
@@ -62,16 +62,16 @@ function BellIcon({ className }) {
 }
 
 /**
- * @param {Object} props
- * @param {'rooms'|'patients'|'calendar'|'notice'} [props.activeNav]
- * @param {{ key: string, label: string, to: string | null }[]} [props.navItems]
- * @param {string} [props.brandLabel]
- * @param {string} [props.userName]
- * @param {string} [props.userRole]
- * @param {string} [props.searchPlaceholder]
- * @param {boolean} [props.showNotificationDot]
+ * 원무과·공통 상단 네비 (따숨, 병실/환자/캘린더/공지, 검색, 알림, 프로필).
+ * @param {'rooms'|'patients'|'calendar'|'notice'} [activeNav]
+ * @param {{ key: string, label: string, to: string | null }[]} [navItems]
+ * @param {string} [brandLabel]
+ * @param {string} [userName]
+ * @param {string} [userRole]
+ * @param {string} [searchPlaceholder]
+ * @param {boolean} [showNotificationDot]
  */
-function TopNavBar({
+export default function Header({
   activeNav = "rooms",
   navItems,
   brandLabel = "따숨",
@@ -188,5 +188,3 @@ function TopNavBar({
     </header>
   );
 }
-
-export default TopNavBar;

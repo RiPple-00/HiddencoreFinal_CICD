@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  SafeAreaView,
   Modal,
   Pressable,
   KeyboardAvoidingView,
@@ -12,11 +11,13 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/Text";
 import VisitCalendarSection from "../../../components/visit/VisitCalendarSection";
 import VisitTimeSelector from "../../../components/visit/VisitTimeSelector";
 import visitApi from "@/api/visitApi";
 import { resolveApiBaseUrl } from "@/api/index";
+import { G, GMutedLight } from "@/styles/guardianTheme";
 
 const TIME_SLOTS = [
   "09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00",
@@ -54,7 +55,7 @@ const VISIT_TYPES = [
     summary: "방문 면회",
     detailLine: "일반 대면 면회 (병동 면회실)",
     apiValue: "방문 면회",
-    tint: "#EDE9FE",
+    tint: "#FEF7E5",
     icon: "👥",
   },
   {
@@ -63,7 +64,7 @@ const VISIT_TYPES = [
     summary: "외출 및 외박 면회",
     detailLine: "외출·외박 (사전 신청)",
     apiValue: "외출 및 외박 면회",
-    tint: "#E0F2FE",
+    tint: "#FEFAF2",
     icon: "🚶",
   },
   {
@@ -261,7 +262,10 @@ export default function VisitReservationPage({ onBack, onComplete }) {
     !submitting;
 
   return (
-    <SafeAreaView className="flex-1 bg-guardian-bg-secondary">
+    <SafeAreaView
+      className="flex-1 bg-guardian-bg-secondary"
+      edges={["bottom", "left", "right"]}
+    >
 
       {/* 헤더 */}
       <View className="flex-row items-center justify-between px-4 py-[14px] bg-background-neutral border-b border-guardian-button-secondary">
@@ -393,7 +397,7 @@ export default function VisitReservationPage({ onBack, onComplete }) {
               value={applicantName}
               onChangeText={setApplicantName}
               placeholder="성함을 입력하세요"
-              placeholderTextColor="#949BA0"
+              placeholderTextColor={GMutedLight}
             />
 
             {/* 연락처 */}
@@ -405,7 +409,7 @@ export default function VisitReservationPage({ onBack, onComplete }) {
               value={contact}
               onChangeText={setContact}
               placeholder="010-0000-0000"
-              placeholderTextColor="#949BA0"
+              placeholderTextColor={GMutedLight}
               keyboardType="phone-pad"
             />
 
@@ -442,7 +446,7 @@ export default function VisitReservationPage({ onBack, onComplete }) {
               disabled={!canSubmit}
             >
               {submitting ? (
-                <ActivityIndicator color="#503115" />
+                <ActivityIndicator color={G.textSecondary} />
               ) : (
                 <Text className="text-guardian-text-primary text-base font-extrabold">
                   예약 신청하기 →

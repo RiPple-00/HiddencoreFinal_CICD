@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import GuardianProgramSection from "../../components/guardian/program/GuardianProgramSection";
+import GuardianProgramSection from "./GuardianProgramApplicationPage";
 import { styles } from "../../styles/guardianProgram.styles";
 
 export default function ProgramPage() {

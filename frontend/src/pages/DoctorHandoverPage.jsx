@@ -1,4 +1,4 @@
-import TopNavBar from '../components/bedroom/TopNavBar';
+import Header from '../components/common/Header';
 
 const navItems = [
   { key: 'rooms', label: '병동 관리', to: '/doctor' },
@@ -104,7 +104,7 @@ function TimelineCard({ item }) {
 export default function DoctorHandoverPage() {
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
-      <TopNavBar activeNav="rooms" navItems={navItems} brandLabel="따숨" userName="김관리자 (Admin Kim)" userRole="SUPERUSER" />
+      <Header activeNav="rooms" navItems={navItems} brandLabel="따숨" userName="김관리자 (Admin Kim)" userRole="SUPERUSER" />
 
       <div className="mx-auto flex w-full max-w-[1360px] gap-8 px-5 py-6">
         <aside className="w-[180px] shrink-0 border-r border-[#e5eaf3] pt-10">

@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import {
   View,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/Text";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -47,7 +47,10 @@ export default function ReportPage() {
     setExpandedRows((prev) => ({ ...prev, [index]: !prev[index] }));
 
   return (
-    <SafeAreaView className="flex-1 bg-guardian-bg-secondary">
+    <SafeAreaView
+      className="flex-1 bg-guardian-bg-secondary"
+      edges={["bottom", "left", "right"]}
+    >
       <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
 
         {/* 헤더 */}

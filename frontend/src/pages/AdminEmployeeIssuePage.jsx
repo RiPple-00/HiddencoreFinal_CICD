@@ -5,6 +5,7 @@ import authApi from '../api/authApi';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { useAuth } from '../contexts/AutoContext.jsx';
+import Header from '../components/common/Header';
 
 export default function AdminEmployeeIssuePage() {
     const { isAuthenticated, canIssueEmployees } = useAuth();
@@ -20,11 +21,14 @@ export default function AdminEmployeeIssuePage() {
 
     if (!isAuthenticated || !canIssueEmployees) {
         return (
-            <div className="max-w-lg mx-auto mt-10 text-center text-slate-600 space-y-4">
-                <p>원무(또는 관리자) 계정으로 로그인한 경우에만 직원을 발급할 수 있습니다.</p>
-                <Link to="/staff-login" className="text-emerald-600 hover:underline">
-                    직원 로그인
-                </Link>
+            <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
+                <Header activeNav="rooms" />
+                <div className="mx-auto mt-10 max-w-lg space-y-4 px-4 text-center text-slate-600">
+                    <p>원무(또는 관리자) 계정으로 로그인한 경우에만 직원을 발급할 수 있습니다.</p>
+                    <Link to="/staff-login" className="text-emerald-600 hover:underline">
+                        직원 로그인
+                    </Link>
+                </div>
             </div>
         );
     }
@@ -63,7 +67,9 @@ export default function AdminEmployeeIssuePage() {
     };
 
     return (
-        <div className="max-w-lg mx-auto mt-10">
+        <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
+            <Header activeNav="rooms" />
+            <div className="mx-auto mt-10 max-w-lg px-4">
             <div className="bg-white rounded-2xl shadow-sm p-8 border border-slate-200">
                 <h1 className="text-2xl font-bold text-slate-800 mb-2">직원 계정 발급</h1>
                 <p className="text-sm text-slate-500 mb-6">
@@ -110,6 +116,7 @@ export default function AdminEmployeeIssuePage() {
                         홈으로
                     </Link>
                 </p>
+            </div>
             </div>
         </div>
     );

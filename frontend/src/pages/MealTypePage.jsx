@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import mealApi from "../api/mealApi";
 import { mapMealRowsToSlots, normalizeMealListResponse, toIsoDateKey } from "../utils/mealViewUtils";
+import Header from "../components/common/Header";
 
 const sideMenus = [
   "대시보드",
@@ -142,6 +143,12 @@ export default function MealType() {
   }, [activeDateKey]);
 
   return (
+    <div
+      className="min-h-screen bg-[#f7f8fa]"
+      style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}
+    >
+      <Header activeNav="calendar" />
+      <div className="mx-auto w-full max-w-6xl px-4 py-4">
     <div className="w-full overflow-hidden rounded-3xl border border-[#d7e6ff] bg-[#f8fbff] text-slate-900 shadow-sm">
       <div className="flex min-h-[640px]">
         <aside className="w-[230px] border-r border-[#d7e6ff] bg-white">
@@ -271,6 +278,8 @@ export default function MealType() {
             })}
           </div>
         </main>
+      </div>
+    </div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import TopNavBar from '../../components/bedroom/TopNavBar';
+import Header from '../../components/common/Header';
 import ApplicantStatsCards from '../../components/board/applicants/ApplicantStatsCards';
 import ApplicantSection from '../../components/board/applicants/ApplicantSection';
 import ApplicantTable from '../../components/board/applicants/ApplicantTable';
@@ -74,7 +74,7 @@ const ProgramApplicantManagementPage = () => {
 
   return (
     <>
-      <TopNavBar activeNav="notice" />
+      <Header activeNav="notice" />
 
       <div className="min-h-screen bg-slate-50">
         <div className="mx-auto w-full max-w-[1440px] px-6 py-8">

@@ -1,3 +1,4 @@
+// 컴포넌트 설명: 간병인 체크리스트의 각 섹션을 나타내는 컴포넌트. 섹션 제목과 해당 섹션의 체크 항목들을 포함한다.
 import React from "react";
 import { View } from "react-native";
 import Text from "../Text";

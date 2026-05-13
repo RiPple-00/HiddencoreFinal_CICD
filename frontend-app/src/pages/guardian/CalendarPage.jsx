@@ -1,12 +1,13 @@
-import { View, } from "react-native";
+import { View } from "react-native";
 import Text from "@/components/Text";
 
-export default function ReportPage() {
+export default function CalendarPage() {
   return (
     <View className="flex-1 justify-center items-center bg-guardian-bg-primary">
       <Text className="text-[22px] font-extrabold text-guardian-text-primary">
         달력 페이지
       </Text>
     </View>
+    
   );
 }

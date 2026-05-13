@@ -1,44 +1,45 @@
 import { StyleSheet } from "react-native";
+import { G, GMuted, GMutedLight, GBorder, GInkSoft } from "./guardianTheme";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F6F8",
+    backgroundColor: G.bgSecondary,
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: 22,
     paddingBottom: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
   },
   pageTitle: {
     fontSize: 24,
     fontWeight: "900",
-    color: "#0B4EA2",
+    color: G.textPrimary,
   },
   pageSubtitle: {
     marginTop: 6,
     fontSize: 14,
     lineHeight: 20,
-    color: "#6B7280",
+    color: GMuted,
   },
 
   programSectionHeader: {
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
   },
   programSectionTitle: {
     fontSize: 19,
     fontWeight: "900",
-    color: "#111827",
+    color: GInkSoft,
   },
   programSectionSubtitle: {
     marginTop: 5,
     fontSize: 13,
     lineHeight: 19,
-    color: "#64748B",
+    color: GMuted,
   },
 
   tokenWarningBox: {
@@ -62,25 +63,25 @@ export const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
   },
   tabButton: {
     flex: 1,
     paddingVertical: 11,
     borderRadius: 999,
-    backgroundColor: "#EEF2F7",
+    backgroundColor: G.buttonSecondary,
   },
   tabButtonActive: {
-    backgroundColor: "#0B4EA2",
+    backgroundColor: G.buttonPrimary,
   },
   tabText: {
     textAlign: "center",
     fontSize: 14,
     fontWeight: "800",
-    color: "#64748B",
+    color: GMuted,
   },
   tabTextActive: {
-    color: "#FFFFFF",
+    color: G.textPrimary,
   },
 
   scrollContent: {
@@ -95,7 +96,7 @@ export const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: "#64748B",
+    color: GMuted,
   },
   emptyBox: {
     paddingVertical: 60,
@@ -104,11 +105,11 @@ export const styles = StyleSheet.create({
   emptyText: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#94A3B8",
+    color: GMutedLight,
   },
 
   programCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 20,
     padding: 18,
     marginBottom: 14,
@@ -128,60 +129,60 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 999,
-    backgroundColor: "#EAF3FF",
+    backgroundColor: G.buttonSecondary,
   },
   statusBadgeActive: {
-    backgroundColor: "#EAFBF1",
+    backgroundColor: G.successSecondary,
   },
   statusBadgeUpcoming: {
     backgroundColor: "#FFF7E6",
   },
   statusBadgeClosed: {
-    backgroundColor: "#F1F5F9",
+    backgroundColor: G.bgSecondary,
   },
   statusBadgeDefault: {
-    backgroundColor: "#EAF3FF",
+    backgroundColor: G.buttonSecondary,
   },
   statusBadgeText: {
     fontSize: 12,
     fontWeight: "800",
-    color: "#0B4EA2",
+    color: G.textPrimary,
   },
   statusBadgeTextActive: {
-    color: "#15803D",
+    color: G.successPrimary,
   },
   statusBadgeTextUpcoming: {
     color: "#D97706",
   },
   statusBadgeTextClosed: {
-    color: "#64748B",
+    color: GMuted,
   },
   statusBadgeTextDefault: {
-    color: "#0B4EA2",
+    color: G.textPrimary,
   },
 
   programDate: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#64748B",
+    color: GMuted,
   },
   programTitle: {
     fontSize: 18,
     fontWeight: "900",
-    color: "#111827",
+    color: GInkSoft,
   },
   programContent: {
     marginTop: 8,
     fontSize: 14,
     lineHeight: 20,
-    color: "#64748B",
+    color: GMuted,
   },
 
   detailBox: {
     marginTop: 14,
     padding: 14,
     borderRadius: 16,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: G.bgSecondary,
     gap: 8,
   },
   detailRow: {
@@ -192,14 +193,14 @@ export const styles = StyleSheet.create({
   detailLabel: {
     fontSize: 13,
     fontWeight: "900",
-    color: "#64748B",
+    color: GMuted,
   },
   detailValue: {
     flex: 1,
     textAlign: "right",
     fontSize: 13,
     fontWeight: "800",
-    color: "#111827",
+    color: GInkSoft,
   },
 
   infoRow: {
@@ -209,85 +210,85 @@ export const styles = StyleSheet.create({
   infoText: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#475569",
+    color: GMuted,
   },
 
   applyButton: {
     borderRadius: 14,
     paddingVertical: 13,
-    backgroundColor: "#0B4EA2",
+    backgroundColor: G.buttonPrimary,
   },
   applyButtonDisabled: {
-    backgroundColor: "#E5E7EB",
+    backgroundColor: GBorder,
   },
   applyButtonText: {
     textAlign: "center",
     fontSize: 15,
     fontWeight: "900",
-    color: "#FFFFFF",
+    color: G.textPrimary,
   },
   applyButtonTextDisabled: {
-    color: "#94A3B8",
+    color: GMutedLight,
   },
 
   historyCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 18,
     padding: 17,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: GBorder,
   },
   historyTitle: {
     fontSize: 17,
     fontWeight: "900",
-    color: "#111827",
+    color: GInkSoft,
     marginBottom: 10,
   },
   historyInfo: {
     fontSize: 14,
     lineHeight: 21,
-    color: "#475569",
+    color: GMuted,
   },
   historyBottomRow: {
     marginTop: 14,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: GBorder,
     flexDirection: "row",
     justifyContent: "space-between",
   },
   historyStatus: {
     fontSize: 13,
     fontWeight: "800",
-    color: "#0B4EA2",
+    color: G.textSecondary,
   },
   historyDate: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#94A3B8",
+    color: GMutedLight,
   },
 
   cancelButton: {
     marginTop: 14,
     borderRadius: 14,
     paddingVertical: 12,
-    backgroundColor: "#FEF2F2",
+    backgroundColor: G.errorSecondary,
     borderWidth: 1,
     borderColor: "#FECACA",
   },
   cancelButtonDisabled: {
-    backgroundColor: "#F3F4F6",
-    borderColor: "#E5E7EB",
+    backgroundColor: G.bgSecondary,
+    borderColor: GBorder,
   },
   cancelButtonText: {
     textAlign: "center",
     fontSize: 14,
     fontWeight: "900",
-    color: "#DC2626",
+    color: G.errorPrimary,
   },
   cancelButtonTextDisabled: {
-    color: "#9CA3AF",
+    color: GMutedLight,
   },
 
   filterScroll: {
@@ -301,26 +302,26 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 999,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: GBorder,
   },
   filterButtonActive: {
-    backgroundColor: "#0B4EA2",
-    borderColor: "#0B4EA2",
+    backgroundColor: G.buttonPrimary,
+    borderColor: G.buttonPrimary,
   },
   filterButtonText: {
     fontSize: 13,
     fontWeight: "900",
-    color: "#64748B",
+    color: GMuted,
   },
   filterButtonTextActive: {
-    color: "#FFFFFF",
+    color: G.textPrimary,
   },
 
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.45)",
+    backgroundColor: "rgba(80, 49, 21, 0.45)",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
@@ -328,7 +329,7 @@ export const styles = StyleSheet.create({
   confirmModal: {
     width: "100%",
     maxWidth: 340,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 24,
     padding: 24,
     alignItems: "center",
@@ -342,7 +343,7 @@ export const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#EAF3FF",
+    backgroundColor: G.buttonSecondary,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 14,
@@ -353,20 +354,20 @@ export const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "900",
-    color: "#0B4EA2",
+    color: G.textPrimary,
     marginBottom: 10,
   },
   modalProgramTitle: {
     fontSize: 17,
     fontWeight: "900",
-    color: "#111827",
+    color: GInkSoft,
     textAlign: "center",
     marginBottom: 8,
   },
   modalDescription: {
     fontSize: 15,
     lineHeight: 22,
-    color: "#475569",
+    color: GMuted,
     textAlign: "center",
     marginBottom: 22,
   },
@@ -381,24 +382,30 @@ export const styles = StyleSheet.create({
     paddingVertical: 13,
   },
   modalCancelButton: {
-    backgroundColor: "#EEF2F7",
+    backgroundColor: G.buttonSecondary,
   },
   modalConfirmButton: {
-    backgroundColor: "#0B4EA2",
+    backgroundColor: G.buttonPrimary,
   },
   modalDangerButton: {
-    backgroundColor: "#DC2626",
+    backgroundColor: G.errorPrimary,
   },
   modalCancelText: {
     textAlign: "center",
     fontSize: 15,
     fontWeight: "900",
-    color: "#64748B",
+    color: GMuted,
   },
   modalConfirmText: {
     textAlign: "center",
     fontSize: 15,
     fontWeight: "900",
-    color: "#FFFFFF",
+    color: G.textPrimary,
+  },
+  modalDangerText: {
+    textAlign: "center",
+    fontSize: 15,
+    fontWeight: "900",
+    color: G.backgroundNeutral,
   },
 });

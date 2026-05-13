@@ -4,7 +4,8 @@
 // 상태별 신청 확인
 
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, View, } from "react-native";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/Text";
 import { getVisitRequests } from "@/api/visitApi";
 import VisitRequestCard from "../../components/VisitRequestCard";
@@ -27,7 +28,10 @@ function MyVisitRequestListPage() {
 
   return (
     // 전체 배경: 보호자 기본 배경색
-    <SafeAreaView className="flex-1 bg-guardian-bg-primary">
+    <SafeAreaView
+      className="flex-1 bg-guardian-bg-primary"
+      edges={["bottom", "left", "right"]}
+    >
       <ScrollView className="flex-1 px-5 pt-5" showsVerticalScrollIndicator={false}>
 
         {/* 페이지 제목 */}

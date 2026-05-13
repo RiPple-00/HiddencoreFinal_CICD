@@ -5,7 +5,7 @@ import StaffLoginPage from './pages/StaffLoginPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import AdminEmployeeIssuePage from './pages/AdminEmployeeIssuePage';
 import EmailConsentPage from './pages/EmailConsentPage';
-import SchedulePage from './pages/SchedulePage';
+import CalendarHubPage from './pages/CalendarHubPage';
 import BoardListPage from './pages/board/BoardListPage';
 import BoardDetailPage from './pages/board/BoardDetailPage';
 import BoardCreatePage from './pages/board/BoardCreatePage';
@@ -13,7 +13,6 @@ import BoardUserPostsPage from './pages/board/BoardUserPostsPage';
 import ProgramApplicantManagementPage from './pages/board/ProgramApplicantManagementPage';
 import MealEditPage from './pages/MealEditPage';
 import MealCarePage from './pages/MealCarePage';
-import CalendarPage from './pages/CalendarPage';
 import MealTypePage from './pages/MealTypePage';
 import MealUploadPage from './pages/MealUploadPage';
 import BedRoomPage from './pages/BedRoomPage';
@@ -91,7 +90,7 @@ function App() {
           <Route path="/change-password" element={<ChangePasswordPage />} />
           <Route path="/admin/employees" element={<AdminEmployeeIssuePage />} />
           <Route path="/email-consent" element={<EmailConsentPage />} />
-          <Route path="/schedule" element={<SchedulePage />} />
+          <Route path="/schedule" element={<CalendarHubPage />} />
           <Route
             path="/meal-care"
             element={
@@ -100,7 +99,7 @@ function App() {
               </div>
             }
           />
-          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/calendar" element={<CalendarHubPage />} />
           <Route path="/meal-edit" element={<MealEditPage />} />
           <Route path="/meal-edit/:date" element={<MealEditPage />} />
           <Route path="/admin/menu/edit/:id" element={<MealEditPage />} />

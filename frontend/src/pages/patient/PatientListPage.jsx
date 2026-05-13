@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"; //useMemo: 계산결과 기억하기
 
 import PatientTable from "../../components/patient/PatientTable";
-import TopNavBar from "../../components/bedroom/TopNavBar";
+import Header from "../../components/common/Header";
 import GuardianPanel from "../../components/bedroom/GuardianPanel";
 import AdminMenuPanel from "../../components/bedroom/AdminMenuPanel";
 // import VisitorsPanel from "../../components/bedroom/VisitorsPanel";
@@ -134,7 +134,7 @@ export default function PatientListPage() {
 
   return (
     <>
-      <TopNavBar activeNav="patients" />
+      <Header activeNav="patients" />
 
       <div className="min-h-screen bg-slate-50">
         <div className="mx-auto flex w-full max-w-[1680px] items-start gap-8 px-8 py-6">

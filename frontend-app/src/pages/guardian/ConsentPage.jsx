@@ -5,16 +5,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, Feather } from "@expo/vector-icons";
-
-const BLUE = "#1D4ED8";
-const BG = "#F8FAFC";
-const SLATE_700 = "#334155";
-const SLATE_600 = "#475569";
-const SLATE_500 = "#64748B";
+import { G, GMuted, GMutedLight, GBorder, GInkSoft } from "../../styles/guardianTheme";
 
 const FAQ_ITEMS = [
   "수술 시간은 총 얼마나 소요되나요?",
@@ -27,14 +22,14 @@ export default function ConsentPage({ navigation }) {
   const [showGeneralAnesthesiaNote, setShowGeneralAnesthesiaNote] = useState(true);
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={["bottom", "left", "right"]}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation?.goBack?.()}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           style={styles.headerBack}
         >
-          <Ionicons name="chevron-back" size={24} color={BLUE} />
+          <Ionicons name="chevron-back" size={24} color={G.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>동의서 확인</Text>
         <View style={styles.headerSpacer} />
@@ -47,14 +42,14 @@ export default function ConsentPage({ navigation }) {
         <Text style={styles.mainTitle}>환자 권리 및 수술 동의</Text>
         <Text style={styles.intro}>
           수술 전 꼭 확인해야 할 항목입니다.{"\n"}
-          각 문항의 설명을 읽으시고, 파란색으로 표시된 용어를 눌러 상세 안내를 확인해 주세요.
+          각 문항의 설명을 읽으시고, 강조된 용어를 눌러 상세 안내를 확인해 주세요.
         </Text>
 
         {/* Q1 */}
         <View style={styles.card}>
           <View style={styles.cardIconRow}>
             <View style={styles.docIconWrap}>
-              <Ionicons name="document-text-outline" size={22} color={BLUE} />
+              <Ionicons name="document-text-outline" size={22} color={G.textPrimary} />
             </View>
           </View>
           <Text style={styles.question}>Q1. 마취 방식은 어떻게 결정되나요?</Text>
@@ -91,7 +86,7 @@ export default function ConsentPage({ navigation }) {
         <View style={styles.card}>
           <View style={styles.cardIconRow}>
             <View style={styles.docIconWrap}>
-              <Ionicons name="document-text-outline" size={22} color={BLUE} />
+              <Ionicons name="document-text-outline" size={22} color={G.textPrimary} />
             </View>
           </View>
           <Text style={styles.question}>Q2. 수술 후 회복 과정은 어떻게 되나요?</Text>
@@ -104,7 +99,7 @@ export default function ConsentPage({ navigation }) {
             onPress={() => Alert.alert("안내", "회복 타임라인은 병원 안내에 따라 달라질 수 있습니다.")}
             activeOpacity={0.85}
           >
-            <Ionicons name="information-circle-outline" size={20} color={SLATE_600} />
+            <Ionicons name="information-circle-outline" size={20} color={GMuted} />
             <Text style={styles.outlineBtnText}>회복 타임라인 보기</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -112,7 +107,7 @@ export default function ConsentPage({ navigation }) {
             onPress={() => Alert.alert("안내", "재활 프로그램은 진단과 회복 정도에 맞춰 별도 안내됩니다.")}
             activeOpacity={0.85}
           >
-            <Ionicons name="shield-checkmark-outline" size={20} color={SLATE_600} />
+            <Ionicons name="shield-checkmark-outline" size={20} color={GMuted} />
             <Text style={styles.outlineBtnText}>재활 프로그램 확인</Text>
           </TouchableOpacity>
         </View>
@@ -121,7 +116,7 @@ export default function ConsentPage({ navigation }) {
         <View style={styles.card}>
           <View style={styles.cardIconRow}>
             <View style={styles.docIconWrap}>
-              <Ionicons name="document-text-outline" size={22} color={BLUE} />
+              <Ionicons name="document-text-outline" size={22} color={G.textPrimary} />
             </View>
           </View>
           <Text style={styles.question}>Q3. 동의 후에도 거부할 권리가 있나요?</Text>
@@ -146,7 +141,7 @@ export default function ConsentPage({ navigation }) {
         <View style={styles.signCard}>
           <View style={styles.signHeaderRow}>
             <View style={styles.shieldIcon}>
-              <Ionicons name="shield-checkmark" size={26} color={BLUE} />
+              <Ionicons name="shield-checkmark" size={26} color={G.textPrimary} />
             </View>
             <View style={styles.signHeaderText}>
               <Text style={styles.signTitle}>서명 준비 완료</Text>
@@ -161,7 +156,7 @@ export default function ConsentPage({ navigation }) {
             activeOpacity={0.9}
             onPress={() => Alert.alert("전자 서명", "실제 연동 시 서명 패드가 열립니다.")}
           >
-            <Feather name="edit-3" size={22} color="rgba(255,255,255,0.95)" />
+            <Feather name="edit-3" size={22} color={G.textPrimary} />
             <Text style={styles.signPadText}>전자 서명 영역 (클릭하여 시작)</Text>
           </TouchableOpacity>
 
@@ -187,7 +182,7 @@ export default function ConsentPage({ navigation }) {
               onPress={() => Alert.alert("FAQ", q)}
             >
               <Text style={styles.faqRowText}>{q}</Text>
-              <Ionicons name="chevron-forward" size={20} color={SLATE_500} />
+              <Ionicons name="chevron-forward" size={20} color={GMutedLight} />
             </TouchableOpacity>
           ))}
         </View>
@@ -199,7 +194,7 @@ export default function ConsentPage({ navigation }) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: BG,
+    backgroundColor: G.bgSecondary,
   },
   header: {
     flexDirection: "row",
@@ -207,9 +202,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 8,
     paddingVertical: 10,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#E2E8F0",
+    borderBottomColor: GBorder,
   },
   headerBack: {
     width: 44,
@@ -220,7 +215,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 17,
     fontWeight: "800",
-    color: BLUE,
+    color: G.textPrimary,
   },
   headerSpacer: {
     width: 44,
@@ -233,18 +228,18 @@ const styles = StyleSheet.create({
   mainTitle: {
     fontSize: 22,
     fontWeight: "900",
-    color: "#0F172A",
+    color: GInkSoft,
     marginBottom: 10,
     letterSpacing: -0.3,
   },
   intro: {
     fontSize: 14,
     lineHeight: 22,
-    color: SLATE_600,
+    color: GMuted,
     marginBottom: 20,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 16,
     padding: 18,
     marginBottom: 14,
@@ -261,31 +256,31 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: "#EFF6FF",
+    backgroundColor: G.buttonSecondary,
     alignItems: "center",
     justifyContent: "center",
   },
   question: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#1E293B",
+    color: GInkSoft,
     marginBottom: 10,
   },
   answer: {
     fontSize: 14,
     lineHeight: 22,
-    color: SLATE_700,
+    color: GMuted,
     marginBottom: 12,
   },
   linkInline: {
-    color: BLUE,
+    color: G.textSecondary,
     fontWeight: "700",
     textDecorationLine: "underline",
   },
   infoBoxAccent: {
-    backgroundColor: "#F1F5F9",
+    backgroundColor: G.buttonSecondary,
     borderLeftWidth: 4,
-    borderLeftColor: BLUE,
+    borderLeftColor: G.textSecondary,
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 14,
@@ -294,32 +289,32 @@ const styles = StyleSheet.create({
   infoBoxText: {
     fontSize: 13,
     lineHeight: 20,
-    color: SLATE_600,
+    color: GMuted,
   },
   q1Btn: {
-    backgroundColor: "#E2E8F0",
+    backgroundColor: G.buttonSecondary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
   },
   q1BtnDone: {
-    backgroundColor: "#CBD5E1",
+    backgroundColor: G.buttonPrimary,
   },
   q1BtnText: {
     fontSize: 15,
     fontWeight: "800",
-    color: SLATE_700,
+    color: GMuted,
   },
   q1BtnTextDone: {
-    color: "#0F172A",
+    color: G.textPrimary,
   },
   outlineBtn: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: GBorder,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 14,
@@ -328,15 +323,15 @@ const styles = StyleSheet.create({
   outlineBtnText: {
     fontSize: 14,
     fontWeight: "700",
-    color: SLATE_700,
+    color: GInkSoft,
   },
   signCard: {
-    backgroundColor: BLUE,
+    backgroundColor: G.buttonPrimary,
     borderRadius: 18,
     padding: 20,
     marginBottom: 18,
-    shadowColor: BLUE,
-    shadowOpacity: 0.35,
+    shadowColor: G.textPrimary,
+    shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 10 },
     shadowRadius: 20,
     elevation: 8,
@@ -350,7 +345,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
@@ -361,18 +356,18 @@ const styles = StyleSheet.create({
   signTitle: {
     fontSize: 18,
     fontWeight: "900",
-    color: "#FFFFFF",
+    color: G.textPrimary,
     marginBottom: 6,
   },
   signDesc: {
     fontSize: 13,
     lineHeight: 20,
-    color: "rgba(255,255,255,0.92)",
+    color: "rgba(80, 49, 21, 0.85)",
   },
   signPad: {
     borderWidth: 2,
     borderStyle: "dashed",
-    borderColor: "rgba(255,255,255,0.85)",
+    borderColor: "rgba(80, 49, 21, 0.35)",
     borderRadius: 14,
     paddingVertical: 28,
     paddingHorizontal: 16,
@@ -380,16 +375,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 10,
     marginBottom: 14,
-    backgroundColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(255, 255, 255, 0.35)",
   },
   signPadText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "rgba(255,255,255,0.95)",
+    color: G.textPrimary,
     textAlign: "center",
   },
   signSubmit: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
@@ -398,16 +393,16 @@ const styles = StyleSheet.create({
   signSubmitText: {
     fontSize: 16,
     fontWeight: "900",
-    color: BLUE,
+    color: G.textPrimary,
   },
   signFooter: {
     fontSize: 12,
     fontWeight: "600",
-    color: "rgba(191,219,254,0.95)",
+    color: "rgba(80, 49, 21, 0.75)",
     textAlign: "center",
   },
   faqSection: {
-    backgroundColor: "#EEF2F6",
+    backgroundColor: G.buttonSecondary,
     borderRadius: 16,
     padding: 14,
     paddingBottom: 6,
@@ -415,7 +410,7 @@ const styles = StyleSheet.create({
   faqSectionTitle: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#475569",
+    color: GMuted,
     marginBottom: 12,
     marginLeft: 4,
   },
@@ -423,7 +418,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: G.backgroundNeutral,
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 16,
@@ -433,7 +428,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: "600",
-    color: SLATE_700,
+    color: GInkSoft,
     paddingRight: 8,
   },
 });

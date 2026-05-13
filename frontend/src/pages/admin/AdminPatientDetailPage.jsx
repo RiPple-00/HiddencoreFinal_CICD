@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import TopNavBar from '../../components/bedroom/TopNavBar';
+import Header from '../../components/common/Header';
 import patientApi from '../../api/patientApi';
 import mealApi from '../../api/mealApi';
 import { useAuth } from '../../contexts/AutoContext.jsx';
@@ -12,13 +12,6 @@ import GuardianAlertCard from '../../components/adminPatient/GuardianAlertCard';
 import GuardianVisitCard from '../../components/adminPatient/GuardianVisitCard';
 import AdminQuickMenu from '../../components/adminPatient/AdminQuickMenu';
 import MealPreviewCard from '../../components/adminPatient/MealPreviewCard';
-
-const navItemsBase = [
-  { key: 'rooms', label: '병실 조회', to: '/ward' },
-  { key: 'patients', label: '환자 조회', to: '/patients' },
-  { key: 'calendar', label: '캘린더', to: '/schedule' },
-  { key: 'notice', label: '공지사항', to: null },
-];
 
 export default function AdminPatientDetailPage() {
   const { patientId } = useParams();
@@ -39,16 +32,6 @@ export default function AdminPatientDetailPage() {
       return null;
     }
   }, [user]);
-
-  const navItems = useMemo(
-    () =>
-      navItemsBase.map((item) =>
-        item.key === 'notice' && facilityId
-          ? { ...item, to: `/facilities/${facilityId}/board` }
-          : item,
-      ),
-    [facilityId],
-  );
 
   useEffect(() => {
     let cancelled = false;
@@ -98,9 +81,8 @@ export default function AdminPatientDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
-      <TopNavBar
+      <Header
         activeNav="patients"
-        navItems={navItems}
         userName="김관리자 (Admin Kim)"
         userRole="SUPERUSER"
         searchPlaceholder="환자 검색..."
@@ -149,4 +131,3 @@ export default function AdminPatientDetailPage() {
     </div>
   );
 }
-

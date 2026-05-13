@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import { SafeAreaView, View, ScrollView, TouchableOpacity } from "react-native";
+import { View, ScrollView, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/Text";
 
 const patients = [
@@ -11,7 +11,6 @@ const patients = [
 ];
 
 export default function CaregiverPatientListPage() {
-  const navigation = useNavigation();
   const [selectedPatientName, setSelectedPatientName] = useState("김영희");
 
   const selectedPatient = useMemo(
@@ -20,25 +19,12 @@ export default function CaregiverPatientListPage() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-caregiver-bg-primary">
+    <SafeAreaView
+      className="flex-1 bg-caregiver-bg-primary"
+      edges={["bottom", "left", "right"]}
+    >
       <View className="flex-1">
-
-        {/* 헤더 */}
-        <View className="flex-row justify-between items-center px-5 py-4 bg-background-neutral border-b border-caregiver-button-secondary">
-          <View className="flex-row items-center gap-2">
-            <TouchableOpacity className="w-10" onPress={() => navigation.goBack()}>
-              <Text className="text-3xl text-caregiver-text-primary">‹</Text>
-            </TouchableOpacity>
-            <Text className="text-xl">🏥</Text>
-            <Text className="text-lg font-extrabold text-caregiver-text-primary">따숨</Text>
-          </View>
-          <View className="flex-row gap-[14px]">
-            <Text className="text-xl">🔔</Text>
-            <Text className="text-xl">☰</Text>
-          </View>
-        </View>
-
-        <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
 
           {/* 검색 */}
           <View className="mx-4 mt-4">
@@ -143,27 +129,6 @@ export default function CaregiverPatientListPage() {
           </View>
 
         </ScrollView>
-
-        {/* 하단 네비게이션 */}
-        <View className="flex-row justify-around bg-background-neutral border-t border-caregiver-button-secondary py-3">
-          {[
-            { icon: "🏠", label: "홈",     active: true },
-            { icon: "📷", label: "QR 체크" },
-            { icon: "📞", label: "긴급 호출", danger: true },
-          ].map(({ icon, label, active, danger }) => (
-            <TouchableOpacity key={label} className="items-center">
-              <Text className="text-xl">{icon}</Text>
-              <Text className={`text-[10px] font-bold mt-1 ${
-                danger  ? "text-error-primary"
-                : active ? "text-caregiver-text-primary"
-                : "text-caregiver-text-neutral"
-              }`}>
-                {label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
       </View>
     </SafeAreaView>
   );

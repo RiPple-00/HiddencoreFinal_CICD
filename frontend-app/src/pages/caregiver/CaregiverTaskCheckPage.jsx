@@ -1,16 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ActivityIndicator, Alert, Pressable, SafeAreaView,
+  ActivityIndicator, Alert, Pressable,
   ScrollView, TextInput, View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/Text";
 
 import caregiverApi from "../../api/caregiverApi";
 import { applyResponseToState, buildPayload, initialState, todayStr } from "../../utils/careCheckState";
-import CaregiverBottomNav      from "../../components/caregiver/CaregiverBottomNav";
 import CaregiverConditionRow   from "../../components/caregiver/CaregiverConditionRow";
 import CaregiverEliminationCard from "../../components/caregiver/CaregiverEliminationCard";
-import CaregiverHeader         from "../../components/caregiver/CaregiverHeader";
 import CaregiverHygieneRow     from "../../components/caregiver/CaregiverHygieneRow";
 import CaregiverMealCheckTable from "../../components/caregiver/CaregiverMealCheckTable";
 import CaregiverPatientStrip   from "../../components/caregiver/CaregiverPatientStrip";
@@ -114,11 +113,10 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
   }, [saveStatus]);
 
   return (
-    <SafeAreaView className="flex-1 bg-caregiver-bg-primary">
+    <SafeAreaView className="flex-1 bg-caregiver-bg-primary" edges={["bottom", "left", "right"]}>
       {/* maxWidth 430은 NativeWind 불안정 → inline style 유지 */}
       <View className="flex-1 w-full self-center" style={{ maxWidth: 430 }}>
 
-        <CaregiverHeader onBack={() => navigation?.goBack?.()} />
         <CaregiverPatientStrip name={patientName} genderAge={genderAge} metaItems={metaItems} />
 
         {/* 자동 저장 상태 표시 */}
@@ -134,7 +132,7 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
           </View>
         ) : (
           <ScrollView
-            contentContainerStyle={{ paddingBottom: 30 }}
+            contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
@@ -198,8 +196,6 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
             </View>
           </ScrollView>
         )}
-
-        <CaregiverBottomNav active="qr" onPressHome={() => navigation?.navigate?.("CaregiverMain")} />
       </View>
     </SafeAreaView>
   );

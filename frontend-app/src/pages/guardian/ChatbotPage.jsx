@@ -1,17 +1,21 @@
 import React from "react";
 import {
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   View,
   TextInput,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/Text";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { G, GMutedLight } from "@/styles/guardianTheme";
 
 export default function ChatbotPage() {
   return (
-    <SafeAreaView className="flex-1 bg-guardian-bg-secondary relative">
+    <SafeAreaView
+      className="flex-1 bg-guardian-bg-secondary relative"
+      edges={["bottom", "left", "right"]}
+    >
       <ScrollView className="flex-1 px-[18px]" showsVerticalScrollIndicator={false}>
 
         {/* 날짜 뱃지 */}
@@ -72,7 +76,7 @@ export default function ChatbotPage() {
             SCHEDULE DETAIL
           </Text>
           <View className="w-7 h-7 rounded-full bg-background-neutral justify-center items-center">
-            <MaterialIcons name="calendar-month" size={16} color="#F6B308" />
+            <MaterialIcons name="calendar-month" size={16} color={G.textSecondary} />
           </View>
         </TouchableOpacity>
 
@@ -102,11 +106,11 @@ export default function ChatbotPage() {
         <View className="flex-row items-center bg-guardian-bg-secondary rounded-full pl-[18px]">
           <TextInput
             placeholder="메시지를 입력하세요..."
-            placeholderTextColor="#949BA0"
+            placeholderTextColor={GMutedLight}
             className="flex-1 h-[52px] text-guardian-text-neutral"
           />
           <TouchableOpacity className="w-[46px] h-[46px] rounded-full bg-guardian-button-primary justify-center items-center mr-1">
-            <Ionicons name="send" size={20} color="#503115" />
+            <Ionicons name="send" size={20} color={G.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>

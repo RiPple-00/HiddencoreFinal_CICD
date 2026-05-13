@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import mealApi from "../api/mealApi";
 import { useAuth } from "../contexts/AutoContext.jsx";
 import { resolveFacilityId, toIsoDateKey } from "../utils/mealViewUtils";
+import Header from "../components/common/Header";
 
 function MealExcelUploader() {
   const [mealData, setMealData] = useState([]);
@@ -178,7 +179,12 @@ function MealExcelUploader() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-10">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}
+    >
+      <Header activeNav="calendar" />
+      <div className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-100 p-10">
       <div className="max-w-6xl mx-auto">
 
         {/* 헤더 */}
@@ -393,6 +399,7 @@ function MealExcelUploader() {
 
           </div>
         )}
+      </div>
       </div>
     </div>
   );
