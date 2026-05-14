@@ -11,12 +11,14 @@ export const CAREGIVER_BOTTOM_TAB_HEIGHT = 76;
 /**
  * 하단 고정 네비게이션 바.
  * 활성 탭은 active 로 하나만 지정 ("home" | "qr" | "emergency" | 생략 시 비활성만).
+ * @param {boolean} [qrDisabled] — true면 QR 체크 탭을 비활성 표시(탭은 누를 수 있으나 상위에서 안내 처리).
  */
 export default function CaregiverBottomNav({
   active,
   onPressHome,
   onPressQr,
   onPressEmergency,
+  qrDisabled = false,
 }) {
   return (
     <View className="h-[76px] bg-background-neutral border-t border-caregiver-button-secondary flex-row justify-around items-center pb-[6px]">
@@ -32,13 +34,26 @@ export default function CaregiverBottomNav({
         </Text>
       </Pressable>
 
-      <Pressable className="items-center flex-1" onPress={onPressQr} hitSlop={6}>
-        <View className={`w-11 h-11 rounded-full items-center justify-center ${active === "qr" ? "bg-caregiver-button-primary" : "bg-background-neutral"}`}>
+      <Pressable
+        className={`items-center flex-1 ${qrDisabled ? "opacity-45" : ""}`}
+        onPress={onPressQr}
+        hitSlop={6}
+      >
+        <View
+          className={`w-11 h-11 rounded-full items-center justify-center ${
+            !qrDisabled && active === "qr" ? "bg-caregiver-button-primary" : "bg-background-neutral"
+          }`}
+        >
           <Text className="text-[18px]">📷</Text>
         </View>
-        <Text className={`mt-[2px] text-xs font-bold ${active === "qr" ? "text-caregiver-text-primary" : "text-caregiver-text-secondary"}`}>
+        <Text
+          className={`mt-[2px] text-xs font-bold ${
+            !qrDisabled && active === "qr" ? "text-caregiver-text-primary" : "text-caregiver-text-secondary"
+          }`}
+        >
           QR 체크
         </Text>
+        
       </Pressable>
 
       <Pressable className="items-center flex-1" onPress={onPressEmergency} hitSlop={6}>

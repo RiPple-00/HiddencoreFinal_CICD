@@ -111,6 +111,29 @@ export function buildPayload(state, patientId, recordDate) {
   };
 }
 
+/** 요양사 환자 목록 API 한 건 → CaregiverTaskCheck 라우트 파라미터 */
+export function caregiverPatientToTaskCheckRouteParams(p) {
+  if (!p || p.patientId == null) return null;
+  const gEnum = p.gender;
+  const g =
+    gEnum === "MALE" || gEnum === "M"
+      ? "M"
+      : gEnum === "FEMALE" || gEnum === "F"
+        ? "F"
+        : "?";
+  const genderAge = `${g}/${p.age ?? "?"}`;
+  const roomPart = p.room != null ? `${p.room}호` : null;
+  const ward = [p.building, roomPart].filter(Boolean).join(" ").trim();
+  const metaItems = [ward || null, String(p.patientId)].filter(Boolean);
+  return {
+    patientId: p.patientId,
+    patientName: p.name ?? "환자",
+    genderAge,
+    metaItems: metaItems.length ? metaItems : [String(p.patientId)],
+    recordDate: todayStr(),
+  };
+}
+
 export function applyResponseToState(response) {
   if (!response || !response.content) return initialState();
   const c = response.content;

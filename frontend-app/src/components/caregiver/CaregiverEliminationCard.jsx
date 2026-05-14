@@ -18,7 +18,7 @@ import Text from "../Text";
  *   logs?: [{ id, status: "normal"|"abnormal", memo: string, createdAt }]
  * }
  */
-export default function CaregiverEliminationCard({ icon, label, value, onChange, isLast = false }) {
+export default function CaregiverEliminationCard({ icon, label, value, onChange, isLast = false, readOnly = false }) {
   const safeValue = value || {};
   const logs = Array.isArray(safeValue.logs) ? safeValue.logs : [];
 
@@ -27,6 +27,61 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
   const [pendingMemo,     setPendingMemo]     = useState("");
 
   const count = useMemo(() => logs.length, [logs]);
+
+  if (readOnly) {
+    return (
+      <View className={`px-[14px] py-3 ${!isLast ? "border-b border-caregiver-bg-secondary" : ""}`}>
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center gap-[6px] flex-1">
+            {icon && <Text className="text-base">{icon}</Text>}
+            <Text className="text-sm font-bold text-caregiver-text-primary">{label}</Text>
+          </View>
+          <View className="flex-row items-center gap-2">
+            <Text className="text-xs text-caregiver-text-secondary font-bold">횟수</Text>
+            <View className="px-[10px] py-1 rounded-lg bg-caregiver-bg-secondary border border-caregiver-button-secondary items-center" style={{ minWidth: 36 }}>
+              <Text className="text-sm font-extrabold text-caregiver-text-primary">{count}</Text>
+            </View>
+          </View>
+        </View>
+        <View className="mt-[10px] p-[10px] rounded-[10px] bg-caregiver-bg-secondary border border-caregiver-button-secondary">
+          <Text className="text-xs font-bold text-caregiver-text-primary mb-[6px]">
+            입력 로그 ({logs.length})
+          </Text>
+          {logs.length === 0 ? (
+            <Text className="text-xs text-caregiver-text-secondary">아직 입력된 로그가 없습니다.</Text>
+          ) : (
+            logs.map((log) => (
+              <View key={log.id} className="flex-row items-start py-2 border-t border-caregiver-bg-secondary">
+                <View className="flex-1">
+                  <View className="flex-row items-center gap-2">
+                    <View className={`px-2 py-[2px] rounded-full border ${
+                      log.status === "abnormal"
+                        ? "bg-error-secondary border-error-primary"
+                        : "bg-success-secondary border-success-primary"
+                    }`}>
+                      <Text className={`text-[11px] font-extrabold ${
+                        log.status === "abnormal" ? "text-error-primary" : "text-success-primary"
+                      }`}>
+                        {log.status === "abnormal" ? "이상" : "정상"}
+                      </Text>
+                    </View>
+                    <Text className="text-[11px] text-caregiver-text-secondary">
+                      {formatTime(log.createdAt)}
+                    </Text>
+                  </View>
+                  {log.memo ? (
+                    <Text className="mt-1 text-xs text-caregiver-text-primary leading-4" numberOfLines={5}>
+                      {log.memo}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
+            ))
+          )}
+        </View>
+      </View>
+    );
+  }
 
   const writeLogs = (nextLogs) => {
     onChange({ ...safeValue, logs: nextLogs, count: nextLogs.length });

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Alert, View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchCaregiverPatients } from "../../api/careChecklistApi";
+import { caregiverPatientToTaskCheckRouteParams } from "../../utils/careCheckState";
 import CaregiverPatientSelect from "@/components/caregiver/basic/CaregiverPatientSelect";
 import CaregiverCalendar from "@/components/caregiver/basic/CaregiverCalendar";
 import CaregiverTodaySchedule from "@/components/caregiver/basic/CaregiverTodaySchedule";
@@ -51,7 +52,12 @@ export default function CaregiverMainPage({ navigation }) {
       Alert.alert("안내", "먼저 담당 환자를 선택해 주세요.");
       return;
     }
-    navigation.navigate("CaregiverWorkCheck", { patientId: selectedPatientId });
+    const params = caregiverPatientToTaskCheckRouteParams(selectedPatient);
+    if (!params) {
+      Alert.alert("안내", "환자 정보를 확인할 수 없습니다.");
+      return;
+    }
+    navigation.navigate("CaregiverTaskCheck", params);
   };
 
   return (

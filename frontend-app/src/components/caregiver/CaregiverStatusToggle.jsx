@@ -8,7 +8,7 @@ import Text from "../Text";
  * - onChange: (newValue) => void
  * - size: "md" (기본) | "sm"
  */
-export default function CaregiverStatusToggle({ value, onChange, size = "md" }) {
+export default function CaregiverStatusToggle({ value, onChange, size = "md", readOnly = false }) {
   const isNormal   = value === "normal";
   const isAbnormal = value === "abnormal";
 
@@ -19,39 +19,39 @@ export default function CaregiverStatusToggle({ value, onChange, size = "md" }) 
     : "min-w-[56px] rounded-lg py-[6px] px-[14px] items-center justify-center";
   const textClass  = isSm ? "text-xs font-bold" : "text-[13px] font-bold";
 
+  const Btn = readOnly ? View : Pressable;
+
   return (
     <View className={wrapClass} style={{ borderWidth: 0 }}>
       {/* 정상 버튼 */}
-      <Pressable
-        onPress={() => onChange(isNormal ? null : "normal")}
+      <Btn
+        {...(readOnly ? {} : { onPress: () => onChange(isNormal ? null : "normal"), hitSlop: 6 })}
         className={`${btnBase} border ${
           isNormal
             ? "bg-caregiver-button-primary border-caregiver-button-primary"
             : "bg-background-neutral border-caregiver-button-primary"
         }`}
         style={{ borderWidth: 1.2 }}
-        hitSlop={6}
       >
         <Text className={`${textClass} ${isNormal ? "text-white" : "text-caregiver-text-primary"}`}>
           정상
         </Text>
-      </Pressable>
+      </Btn>
 
       {/* 이상 버튼 */}
-      <Pressable
-        onPress={() => onChange(isAbnormal ? null : "abnormal")}
+      <Btn
+        {...(readOnly ? {} : { onPress: () => onChange(isAbnormal ? null : "abnormal"), hitSlop: 6 })}
         className={`${btnBase} border ${
           isAbnormal
             ? "bg-error-primary border-error-primary"
             : "bg-background-neutral border-caregiver-button-secondary"
         }`}
         style={{ borderWidth: 1.2 }}
-        hitSlop={6}
       >
         <Text className={`${textClass} ${isAbnormal ? "text-white" : "text-caregiver-text-secondary"}`}>
           이상
         </Text>
-      </Pressable>
+      </Btn>
     </View>
   );
 }

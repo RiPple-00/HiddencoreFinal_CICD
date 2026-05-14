@@ -9,12 +9,18 @@ import CaregiverStatusToggle from "./CaregiverStatusToggle";
  *
  * value = { status: null|"normal"|"abnormal", memo: string }
  */
-export default function CaregiverHygieneRow({ label, value, onChange, isLast = false }) {
+export default function CaregiverHygieneRow({ label, value, onChange, isLast = false, readOnly = false }) {
   const safeValue  = value || {};
   const isAbnormal = safeValue.status === "abnormal";
 
-  const updateStatus = (next) => onChange({ ...safeValue, status: next });
-  const updateMemo   = (text) => onChange({ ...safeValue, memo: text });
+  const updateStatus = (next) => {
+    if (readOnly) return;
+    onChange({ ...safeValue, status: next });
+  };
+  const updateMemo   = (text) => {
+    if (readOnly) return;
+    onChange({ ...safeValue, memo: text });
+  };
 
   return (
     <View className={`px-[14px] py-3 ${!isLast ? "border-b border-caregiver-bg-secondary" : ""}`}>
@@ -22,10 +28,15 @@ export default function CaregiverHygieneRow({ label, value, onChange, isLast = f
         <Text className={`flex-1 text-sm font-bold pr-2 ${isAbnormal ? "text-error-primary" : "text-caregiver-text-primary"}`}>
           {label}
         </Text>
-        <CaregiverStatusToggle value={safeValue.status} onChange={updateStatus} />
+        <CaregiverStatusToggle readOnly={readOnly} value={safeValue.status} onChange={updateStatus} />
       </View>
 
       {isAbnormal && (
+        readOnly ? (
+          <Text className="mt-2 border border-error-primary bg-caregiver-bg-primary rounded-lg px-[10px] py-2 text-[13px] text-caregiver-text-primary min-h-[44px]">
+            {safeValue.memo?.trim() ? safeValue.memo : "—"}
+          </Text>
+        ) : (
         <TextInput
           value={safeValue.memo ?? ""}
           onChangeText={updateMemo}
@@ -36,6 +47,7 @@ export default function CaregiverHygieneRow({ label, value, onChange, isLast = f
           multiline
           textAlignVertical="top"
         />
+        )
       )}
     </View>
   );

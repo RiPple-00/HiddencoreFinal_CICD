@@ -19,10 +19,11 @@ const ROWS = [
   { key: "incident",  label: "사례 여부" },
 ];
 
-export default function CaregiverMealCheckTable({ value, onChange }) {
+export default function CaregiverMealCheckTable({ value, onChange, readOnly = false }) {
   const safeValue = value || {};
 
   const updateCell = (slotKey, rowKey, partial) => {
+    if (readOnly) return;
     const slot = safeValue[slotKey] || {};
     const cell = slot[rowKey] || {};
     onChange({
@@ -77,6 +78,7 @@ export default function CaregiverMealCheckTable({ value, onChange }) {
             <View key={slot.key} className="flex-1 items-center justify-center">
               <CaregiverStatusToggle
                 size="sm"
+                readOnly={readOnly}
                 value={safeValue[slot.key]?.[row.key]?.status ?? null}
                 onChange={(next) =>
                   updateCell(slot.key, row.key, {
@@ -104,6 +106,11 @@ export default function CaregiverMealCheckTable({ value, onChange }) {
                   </Text>
                 </View>
               </View>
+              {readOnly ? (
+                <Text className="border border-error-primary bg-caregiver-bg-primary rounded-lg px-[10px] py-2 text-[13px] text-caregiver-text-primary min-h-[40px]">
+                  {cell.memo?.trim() ? cell.memo : "—"}
+                </Text>
+              ) : (
               <TextInput
                 value={cell.memo}
                 onChangeText={(text) => updateCell(cell.slotKey, cell.rowKey, { memo: text })}
@@ -114,6 +121,7 @@ export default function CaregiverMealCheckTable({ value, onChange }) {
                 multiline
                 textAlignVertical="top"
               />
+              )}
             </View>
           ))}
         </View>

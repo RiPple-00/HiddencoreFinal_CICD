@@ -11,11 +11,12 @@ import CaregiverStatusToggle from "./CaregiverStatusToggle";
  *
  * value = { status: null|"normal"|"abnormal", memo: string }
  */
-export default function CaregiverConditionRow({ label, value, onChange, warnText, isLast = false }) {
+export default function CaregiverConditionRow({ label, value, onChange, warnText, isLast = false, readOnly = false }) {
   const safeValue  = value || {};
   const isAbnormal = safeValue.status === "abnormal";
 
   const updateStatus = (next) => {
+    if (readOnly) return;
     // 이상에서 정상/미선택으로 돌아가면 항목 메모도 함께 비운다.
     if (next !== "abnormal") {
       onChange({ ...safeValue, status: next, memo: "" });
@@ -23,7 +24,10 @@ export default function CaregiverConditionRow({ label, value, onChange, warnText
       onChange({ ...safeValue, status: next });
     }
   };
-  const updateMemo = (text) => onChange({ ...safeValue, memo: text });
+  const updateMemo = (text) => {
+    if (readOnly) return;
+    onChange({ ...safeValue, memo: text });
+  };
 
   return (
     <View className={`px-[14px] py-3 ${!isLast ? "border-b border-caregiver-bg-secondary" : ""}`}>
@@ -41,10 +45,15 @@ export default function CaregiverConditionRow({ label, value, onChange, warnText
             <Text className="mt-[3px] text-[11px] font-bold text-error-primary">{warnText}</Text>
           )}
         </View>
-        <CaregiverStatusToggle value={safeValue.status} onChange={updateStatus} />
+        <CaregiverStatusToggle readOnly={readOnly} value={safeValue.status} onChange={updateStatus} />
       </View>
 
       {isAbnormal && (
+        readOnly ? (
+          <Text className="mt-2 border border-error-primary bg-caregiver-bg-primary rounded-lg px-[10px] py-2 text-[13px] text-caregiver-text-primary min-h-[44px]">
+            {safeValue.memo?.trim() ? safeValue.memo : "—"}
+          </Text>
+        ) : (
         <TextInput
           value={safeValue.memo ?? ""}
           onChangeText={updateMemo}
@@ -55,6 +64,7 @@ export default function CaregiverConditionRow({ label, value, onChange, warnText
           multiline
           textAlignVertical="top"
         />
+        )
       )}
     </View>
   );

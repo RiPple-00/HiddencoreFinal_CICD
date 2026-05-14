@@ -25,7 +25,6 @@ import GalleryPage from "./src/pages/guardian/GalleryPage";
 import ActivePhotoGalleryPage from "./src/pages/guardian/activePhoto/GalleryPage";
 import GuardianMorePage from "./src/pages/guardian/activePhoto/GuardianMorePage";
 import CaregiverMainPage from "./src/pages/caregiver/CaregiverMainPage";
-import CaregiverWorkCheckPage from "./src/pages/caregiver/CaregiverWorkCheckPage";
 import CaregiverPatientListPage from "./src/pages/caregiver/CaregiverPatientListPage";
 import CaregiverTaskCheckPage from "./src/pages/caregiver/CaregiverTaskCheckPage";
 import ProgramPage from "./src/pages/guardian/ProgramPage";
@@ -97,7 +96,6 @@ const BOTTOM_TAB_HEIGHT = 72;
 
 const CAREGIVER_SCREENS = new Set([
   "CaregiverMain",
-  "CaregiverWorkCheck",
   "CaregiverTaskCheck",
   "CaregiverPatientList",
 ]);
@@ -171,12 +169,6 @@ function AppNavigation() {
   const caregiverActiveTab = useMemo(() => {
     if (!currentRouteName) return undefined;
     if (currentRouteName === "CaregiverMain") return "home";
-    if (
-      currentRouteName === "CaregiverTaskCheck" ||
-      currentRouteName === "CaregiverWorkCheck"
-    ) {
-      return "qr";
-    }
     return undefined;
   }, [currentRouteName]);
 
@@ -223,11 +215,6 @@ function AppNavigation() {
             <Stack.Screen
               name="CaregiverMain"
               component={CaregiverMainPage}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="CaregiverWorkCheck"
-              component={CaregiverWorkCheckPage}
               options={{ headerShown: false }}
             />
             <Stack.Screen
@@ -358,14 +345,10 @@ function AppNavigation() {
           <View style={styles.bottomTabContainer}>
             <CaregiverBottomNav
               active={caregiverActiveTab}
+              qrDisabled
               onPressHome={() => navigationRef.navigate("CaregiverMain")}
               onPressQr={() =>
-                navigationRef.navigate("CaregiverTaskCheck", {
-                  patientId: 1,
-                  patientName: "김따숨",
-                  genderAge: "M/82",
-                  metaItems: ["441212", "Ward 402", "72283944"],
-                })
+                Alert.alert("QR 체크", "QR 체크 기능은 준비 중입니다.\n업무 체크는 홈 화면에서 이용해 주세요.")
               }
               onPressEmergency={() =>
                 Alert.alert("긴급 호출", "담당실 연동은 준비 중입니다.")
