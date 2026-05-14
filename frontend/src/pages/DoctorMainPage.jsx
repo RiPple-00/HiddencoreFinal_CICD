@@ -47,7 +47,7 @@ export default function DoctorMainPage() {
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
       <Header
-        activeNav="patients"
+        activeNav="rooms"
         navItems={navItems}
         brandLabel="따숨"
         userName="김관리자 (Admin Kim)"
@@ -60,11 +60,11 @@ export default function DoctorMainPage() {
           <span className="float-right text-xs font-bold tracking-wide text-[#9d1b1b]">REVIEW NOW</span>
         </section>
 
-        <section className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_280px]">
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_280px] lg:items-stretch">
           <button
             type="button"
             onClick={() => navigate('/doctor/calendar')}
-            className="w-full rounded-xl border border-[#dde4ee] bg-white p-5 text-left transition hover:bg-[#f8fbff]"
+            className="flex h-full min-h-0 w-full flex-col rounded-xl border border-[#dde4ee] bg-white p-5 text-left transition hover:bg-[#f8fbff]"
           >
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-[38px] font-bold leading-none text-[#1f2c3f]">Schedule Overview</h2>
@@ -123,24 +123,24 @@ export default function DoctorMainPage() {
             </div>
           </button>
 
-          <div className="space-y-4">
+          <div className="flex min-h-0 flex-col gap-4 lg:h-full">
             <button
               type="button"
               onClick={() => navigate('/doctor/patients')}
-              className="w-full rounded-xl border border-[#dbe6f5] bg-[#ecf3ff] p-5 text-left transition hover:bg-[#e4eeff]"
+              className="flex min-h-0 flex-1 flex-col justify-between rounded-xl border border-[#dbe6f5] bg-[#ecf3ff] p-5 text-left transition hover:bg-[#e4eeff]"
             >
               <p className="text-[11px] font-bold tracking-wide text-[#7e95bd]">CLINIC OPERATIONS</p>
-              <p className="mt-1 text-[38px] font-bold leading-tight text-[#3f6aab]">환자 목록 보기</p>
-              <p className="mt-2 text-sm font-medium text-[#5f79a0]">현재 담당 12명 →</p>
+              <p className="text-[35px] font-bold leading-tight text-[#3f6aab]">환자 목록 보기</p>
+              <p className="text-sm font-medium text-[#5f79a0]">현재 담당 12명 →</p>
             </button>
             <button
               type="button"
               onClick={() => navigate('/doctor/handover')}
-              className="w-full rounded-xl border border-[#7f9ed8] bg-[#7aa0df] p-5 text-left text-white transition hover:bg-[#6e95d8]"
+              className="flex min-h-0 flex-1 flex-col justify-between rounded-xl border border-[#7f9ed8] bg-[#7aa0df] p-5 text-left text-white transition hover:bg-[#6e95d8]"
             >
               <p className="text-[11px] font-bold tracking-wide text-[#d8e5ff]">HANDOVER LOGS</p>
-              <p className="mt-1 text-[38px] font-bold leading-tight">인수인계 조회</p>
-              <p className="mt-2 text-sm text-[#eef4ff]">최근 업데이트 14분 전 →</p>
+              <p className="text-[35px] font-bold leading-tight">인수인계 조회</p>
+              <p className="text-sm text-[#eef4ff]">최근 업데이트 14분 전 →</p>
             </button>
           </div>
         </section>
