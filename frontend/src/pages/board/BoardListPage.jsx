@@ -112,6 +112,14 @@ const BoardListContent = () => {
           + 새 게시물 작성
         </Button>
       </div>
+      {/* 검색바 */}
+      <SearchBar
+        searchType={searchType}
+        searchKeyword={searchKeyword}
+        onSearch={search}
+        onReset={resetSearch}
+      />
+
 
       {/* 탭: 전체 게시판(ALL)과 자유 게시판(GENERAL)은 탭 없음 */}
       {currentTabs && (
@@ -166,14 +174,7 @@ const BoardListContent = () => {
         onPageChange={changePage}
       />
 
-      {/* 검색바 */}
-      <SearchBar
-        searchType={searchType}
-        searchKeyword={searchKeyword}
-        onSearch={search}
-        onReset={resetSearch}
-      />
-
+      
     </div>
   );
 };

@@ -1,36 +1,126 @@
-import Header from '../components/common/Header';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import DoctorHeader from '../components/doctor/DoctorHeader';
 import { useNavigate } from 'react-router-dom';
-
-const navItems = [
-  { key: 'rooms', label: '병동 관리', to: '/doctor' },
-  { key: 'patients', label: '환자 조회', to: '/doctor/patients' },
-  { key: 'calendar', label: '캘린더', to: '/schedule' },
-  { key: 'notice', label: '게시판', to: '/facilities/1/board' },
-];
+import patientApi from '../api/patientApi';
 
 const leftMenus = ['개요', '활력징후', '처방약', '검사 결과', '인수인계', '진료기록'];
 
-const rows = [
-  { name: '박지민', info: '32세 / 남성', id: '#ADM-2024-001', ward: '중환자실 (ICU)', room: '3층 - 302호', doctor: '김철수 원장', admitted: '2024.03.15', time: '11:20 입원', meal: '한눈식', status: '위급' },
-  { name: '김소연', info: '28세 / 여성', id: '#ADM-2024-042', ward: '일반병동 (GEN)', room: '5층 - 508호', doctor: '이명희 과장', admitted: '2024.03.18', time: '09:15 입원', meal: '일반식', status: '안정' },
-  { name: '최우식', info: '45세 / 남성', id: '#ADM-2024-112', ward: '소아과병동 (PED)', room: '2층 - 201호', doctor: '박지성 팀장', admitted: '2024.03.20', time: '11:00 입원', meal: '금식', status: '관찰 중' },
-  { name: '한소희', info: '31세 / 여성', id: '#ADM-2024-088', ward: '일반병동 (GEN)', room: '4층 - 415호', doctor: '김철수 원장', admitted: '2024.03.12', time: '16:45 입원', meal: '일반식', status: '회복 중' },
-  { name: '김종우', info: '31세 / 남성', id: '#ADM-2024-088', ward: '일반병동 (GEN)', room: '4층 - 415호', doctor: '김철수 원장', admitted: '2024.03.12', time: '16:45 입원', meal: '일반식', status: '회복 중' },
-  { name: '박진우', info: '31세 / 여성', id: '#ADM-2024-088', ward: '일반병동 (GEN)', room: '4층 - 415호', doctor: '김철수 원장', admitted: '2024.03.12', time: '16:45 입원', meal: '일반식', status: '회복 중' },
-];
+const ROWS_PER_PAGE = 10;
+
+const genderLabel = (g) => {
+  if (g == null) return '-';
+  if (g === 'MALE') return '남성';
+  if (g === 'FEMALE') return '여성';
+  if (g === 'OTHER') return '기타';
+  return String(g);
+};
+
+const getStatusLabel = (status) => {
+  switch (status) {
+    case 'STABLE':
+      return '안정';
+    case 'MONITORING':
+      return '집중 관찰';
+    case 'DISCHARGE':
+      return '퇴원예정';
+    case 'POSTOPERATIVE':
+      return '수술후';
+    case 'CRITICAL':
+      return '위험';
+    case 'DISCHARGED':
+      return '퇴원완료';
+    default:
+      return '-';
+  }
+};
+
+/** API camelCase(admissionDate) · snake_case(admission_date) 모두 지원 */
+function getAdmissionDate(patient) {
+  return patient?.admissionDate ?? patient?.admission_date ?? null;
+}
+
+function formatAdmissionDate(iso) {
+  if (!iso) return '-';
+  const s = typeof iso === 'string' ? iso.slice(0, 10) : String(iso).slice(0, 10);
+  const [y, m, d] = s.split('-');
+  if (!y || !m || !d) return s;
+  return `${y}.${m}.${d}`;
+}
 
 const mealTone = (meal) => {
-  if (meal === '금식') return 'bg-red-50 text-red-500';
-  if (meal === '한눈식') return 'bg-amber-50 text-amber-600';
+  if (!meal || meal === '-') return 'bg-slate-100 text-slate-500';
+  if (meal.includes('금식')) return 'bg-red-50 text-red-500';
+  if (meal.includes('연식') || meal.includes('죽')) return 'bg-amber-50 text-amber-600';
   return 'bg-indigo-50 text-indigo-500';
 };
 
+function wardLine(patient) {
+  if (patient.building && patient.room) {
+    return { ward: patient.building, room: `${patient.room}호` };
+  }
+  return { ward: '병실 미배정', room: '-' };
+}
+
 export default function DoctorPatientListPage() {
   const navigate = useNavigate();
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const fetchPatients = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const response = await patientApi.getPatients();
+      const list = Array.isArray(response.data) ? response.data : [];
+      setPatients(list.sort((a, b) => (b.patientId ?? 0) - (a.patientId ?? 0)));
+    } catch (e) {
+      console.error(e);
+      setPatients([]);
+      setError('환자 목록을 불러오지 못했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPatients();
+  }, [fetchPatients]);
+
+  const admittedPatients = useMemo(
+    () => patients.filter((p) => p.patientStatus !== 'DISCHARGED'),
+    [patients],
+  );
+
+  const totalCount = admittedPatients.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / ROWS_PER_PAGE));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [totalCount]);
+
+  const currentRows = useMemo(() => {
+    const start = (currentPage - 1) * ROWS_PER_PAGE;
+    return admittedPatients.slice(start, start + ROWS_PER_PAGE);
+  }, [admittedPatients, currentPage]);
+
+  const pageNumbers = useMemo(() => {
+    if (totalPages <= 1) return [1];
+    const maxVisible = 3;
+    let start = Math.max(1, currentPage - 1);
+    let end = Math.min(totalPages, start + maxVisible - 1);
+    if (end - start < maxVisible - 1) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+    const pages = [];
+    for (let i = start; i <= end; i += 1) pages.push(i);
+    return pages;
+  }, [currentPage, totalPages]);
 
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
-      <Header activeNav="patients" navItems={navItems} brandLabel="따숨" userName="김관리자 (Admin Kim)" userRole="SUPERUSER" />
+      <DoctorHeader activeNav="patients" />
 
       <div className="mx-auto flex w-full max-w-[1360px] gap-8 px-5 py-6">
         <aside className="w-[180px] shrink-0 pt-10">
@@ -47,9 +137,16 @@ export default function DoctorPatientListPage() {
           <div className="mb-4 flex items-start justify-between">
             <div>
               <h1 className="text-[46px] font-bold text-[#1d2b3f]">환자 통합 관리</h1>
-              <p className="mt-1 text-lg text-slate-500">총 12명의 입원 환자가 등록되어 있습니다.</p>
+              <p className="mt-1 text-lg text-slate-500">
+                {loading
+                  ? '환자 목록을 불러오는 중…'
+                  : `총 ${totalCount.toLocaleString()}명의 입원 환자가 등록되어 있습니다.`}
+              </p>
+              {error ? <p className="mt-2 text-sm font-semibold text-red-600">{error}</p> : null}
             </div>
-            <button className="rounded-xl bg-[#eef2f7] px-5 py-2 text-sm font-semibold text-slate-600">목록 인쇄</button>
+            <button type="button" className="rounded-xl bg-[#eef2f7] px-5 py-2 text-sm font-semibold text-slate-600">
+              목록 인쇄
+            </button>
           </div>
 
           <section className="rounded-2xl border border-[#e0e6f0] bg-white p-5">
@@ -70,9 +167,15 @@ export default function DoctorPatientListPage() {
             </div>
 
             <div className="mt-5 flex justify-end gap-2">
-              <button className="rounded-lg bg-[#e9f1ff] px-3 py-2 text-xs font-semibold text-[#4a79c0]">병동 이동</button>
-              <button className="rounded-lg bg-[#e9f1ff] px-3 py-2 text-xs font-semibold text-[#4a79c0]">식단 일괄변경</button>
-              <button className="rounded-lg bg-[#fdeaea] px-3 py-2 text-xs font-semibold text-[#d06464]">퇴원 처리</button>
+              <button type="button" className="rounded-lg bg-[#e9f1ff] px-3 py-2 text-xs font-semibold text-[#4a79c0]">
+                병동 이동
+              </button>
+              <button type="button" className="rounded-lg bg-[#e9f1ff] px-3 py-2 text-xs font-semibold text-[#4a79c0]">
+                식단 일괄변경
+              </button>
+              <button type="button" className="rounded-lg bg-[#fdeaea] px-3 py-2 text-xs font-semibold text-[#d06464]">
+                퇴원 처리
+              </button>
             </div>
 
             <div className="mt-4 overflow-hidden rounded-xl border border-[#e3e8f1]">
@@ -82,49 +185,102 @@ export default function DoctorPatientListPage() {
                     <th className="px-4 py-3">환자 정보</th>
                     <th className="px-3 py-3">환자 ID</th>
                     <th className="px-3 py-3">병동 / 병실</th>
-                    <th className="px-3 py-3">담당의</th>
+                    <th className="px-3 py-3">담당 요양사</th>
                     <th className="px-3 py-3">입원 일자</th>
                     <th className="px-3 py-3">식단 유형</th>
                     <th className="px-3 py-3">상태</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm text-slate-700">
-                  {rows.map((row, idx) => (
-                    <tr
-                      key={`${row.id}-${row.name}`}
-                      className={`border-t border-[#edf1f7] ${idx === 0 ? 'cursor-pointer hover:bg-[#f8fbff]' : ''}`}
-                      onClick={idx === 0 ? () => navigate('/doctor/patients/ADM-2024-001') : undefined}
-                    >
-                      <td className="px-4 py-4">
-                        <p className="font-bold text-slate-900">{row.name}</p>
-                        <p className="text-xs text-slate-400">{row.info}</p>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                        불러오는 중…
                       </td>
-                      <td className="px-3 py-4 font-mono text-xs text-slate-500">{row.id}</td>
-                      <td className="px-3 py-4">
-                        <p className="font-semibold">{row.ward}</p>
-                        <p className="text-xs text-slate-400">{row.room}</p>
-                      </td>
-                      <td className="px-3 py-4">{row.doctor}</td>
-                      <td className="px-3 py-4">
-                        <p>{row.admitted}</p>
-                        <p className="text-xs text-slate-400">{row.time}</p>
-                      </td>
-                      <td className="px-3 py-4">
-                        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${mealTone(row.meal)}`}>{row.meal}</span>
-                      </td>
-                      <td className="px-3 py-4 text-xs font-semibold text-slate-600">{row.status}</td>
                     </tr>
-                  ))}
+                  ) : currentRows.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                        {error || '등록된 입원 환자가 없습니다.'}
+                      </td>
+                    </tr>
+                  ) : (
+                    currentRows.map((patient) => {
+                      const { ward, room } = wardLine(patient);
+                      const meal = patient.dietType?.trim() || '-';
+                      const ageText = patient.age != null ? `${patient.age}세` : '?세';
+
+                      return (
+                        <tr
+                          key={patient.patientId}
+                          className="cursor-pointer border-t border-[#edf1f7] hover:bg-[#f8fbff]"
+                          onClick={() => navigate(`/doctor/patients/${patient.patientId}`)}
+                        >
+                          <td className="px-4 py-4">
+                            <p className="font-bold text-slate-900">{patient.name ?? '-'}</p>
+                            <p className="text-xs text-slate-400">
+                              {ageText} / {genderLabel(patient.gender)}
+                            </p>
+                          </td>
+                          <td className="px-3 py-4 font-mono text-xs text-slate-500">
+                            {patient.patientId}
+                          </td>
+                          <td className="px-3 py-4">
+                            <p className="font-semibold">{ward}</p>
+                            <p className="text-xs text-slate-400">{room}</p>
+                          </td>
+                          <td className="px-3 py-4">{patient.primaryCaregiverName ?? '-'}</td>
+                          <td className="px-3 py-4">{formatAdmissionDate(getAdmissionDate(patient))}</td>
+                          <td className="px-3 py-4">
+                            <span className={`rounded-full px-2 py-1 text-xs font-semibold ${mealTone(meal)}`}>
+                              {meal}
+                            </span>
+                          </td>
+                          <td className="px-3 py-4 text-xs font-semibold text-slate-600">
+                            {getStatusLabel(patient.patientStatus)}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
 
-            <div className="mt-4 flex justify-end gap-2">
-              <button className="h-8 w-8 rounded-lg border border-[#e0e6ef] text-xs text-slate-400">‹</button>
-              <button className="h-8 w-8 rounded-lg bg-[#1f73d0] text-xs font-semibold text-white">1</button>
-              <button className="h-8 w-8 rounded-lg border border-[#e0e6ef] text-xs text-slate-600">2</button>
-              <button className="h-8 w-8 rounded-lg border border-[#e0e6ef] text-xs text-slate-400">›</button>
-            </div>
+            {totalCount > 0 && !loading ? (
+              <div className="mt-4 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="h-8 w-8 rounded-lg border border-[#e0e6ef] text-xs text-slate-400 disabled:opacity-40"
+                >
+                  ‹
+                </button>
+                {pageNumbers.map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setCurrentPage(page)}
+                    className={`h-8 w-8 rounded-lg text-xs font-semibold ${
+                      currentPage === page
+                        ? 'bg-[#1f73d0] text-white'
+                        : 'border border-[#e0e6ef] text-slate-600'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="h-8 w-8 rounded-lg border border-[#e0e6ef] text-xs text-slate-400 disabled:opacity-40"
+                >
+                  ›
+                </button>
+              </div>
+            ) : null}
           </section>
         </main>
       </div>

@@ -1,12 +1,5 @@
-import Header from '../components/common/Header';
+import DoctorHeader from '../components/doctor/DoctorHeader';
 import { useNavigate } from 'react-router-dom';
-
-const navItems = [
-  { key: 'rooms', label: '병동 관리', to: '/doctor' },
-  { key: 'patients', label: '환자 조회', to: '/doctor/patients' },
-  { key: 'calendar', label: '캘린더', to: '/schedule' },
-  { key: 'notice', label: '게시판', to: '/facilities/1/board' },
-];
 
 const timeline = [
   { date: '2024.05.10', text: '간헐적 기침 및 미열 관찰. 해열제 처방 후 증상 완화.' },
@@ -26,7 +19,7 @@ export default function DoctorPatientDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
-      <Header activeNav="rooms" navItems={navItems} brandLabel="따숨" userName="김관리자 (Admin Kim)" userRole="SUPERUSER" />
+      <DoctorHeader activeNav="patients" />
 
       <div className="mx-auto w-full max-w-[1360px] px-5 py-6">
         <section className="rounded-md border border-[#d6deea] bg-white p-5">

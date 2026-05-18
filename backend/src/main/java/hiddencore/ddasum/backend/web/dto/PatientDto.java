@@ -27,6 +27,8 @@ public class PatientDto {
         private LocalDate birthDate;
         private Long locationId;
         private Patient.PatientStatus patientStatus;
+        private LocalDate admissionDate;
+        private String dietType;
 
         private Long primaryCaregiverUserId;
         private String primaryCaregiverName;
@@ -41,6 +43,8 @@ public class PatientDto {
                     .building(patient.getLocationId() != null ? patient.getLocationId().getBuilding() : null)
                     .room(patient.getLocationId() != null ? patient.getLocationId().getRoom() : null)
                     .patientStatus(patient.getStatus())
+                    .admissionDate(patient.getAdmissionDate())
+                    .dietType(patient.getDietType())
                     .locationId(patient.getLocationId() != null ? patient.getLocationId().getLocationId() : null)
                     .primaryCaregiverUserId(
                             patient.getPrimaryCaregiver() != null

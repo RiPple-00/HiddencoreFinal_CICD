@@ -25,6 +25,11 @@ const TIME_SLOTS = [
 
 const RELATION_OPTIONS = ["배우자", "자녀", "부모", "형제·자매", "기타"];
 
+/** 발표 시연용: 신청 정보(2단계) 진입 시 미리 채움 — 상용 배포 전 제거·비우기 권장 */
+const DEMO_VISIT_APPLICANT_NAME = "김보호";
+const DEMO_VISIT_CONTACT = "010-1234-5678";
+const DEMO_VISIT_RELATIONSHIP = "자녀";
+
 const DEFAULT_PATIENT_ID = Number(process.env.EXPO_PUBLIC_PATIENT_ID) || 260401001;
 
 /** API 응답 이름이 인코딩 문제로 깨질 때(Expo QR 등) UI에 쓸 더미 표기 — DB 시드와 동일 */
@@ -151,9 +156,9 @@ export default function VisitReservationPage({ onBack, onComplete }) {
   const [step,          setStep]          = useState(1);
   const [selectedDate,  setSelectedDate]  = useState(() => new Date());
   const [selectedTime,  setSelectedTime]  = useState("11:00");
-  const [applicantName, setApplicantName] = useState("");
-  const [contact,       setContact]       = useState("");
-  const [relationship,  setRelationship]  = useState("");
+  const [applicantName, setApplicantName] = useState(DEMO_VISIT_APPLICANT_NAME);
+  const [contact,       setContact]       = useState(DEMO_VISIT_CONTACT);
+  const [relationship,  setRelationship]  = useState(DEMO_VISIT_RELATIONSHIP);
   const [relModalOpen,  setRelModalOpen]  = useState(false);
   const [submitting,    setSubmitting]    = useState(false);
   const [visitTypeIdx,  setVisitTypeIdx]  = useState(0);

@@ -1,18 +1,8 @@
-import Header from '../components/common/Header';
+import DoctorHeader from '../components/doctor/DoctorHeader';
 import { useNavigate } from 'react-router-dom';
 
-const navItems = [
-  { key: 'rooms', label: '병동 관리', to: '/doctor' },
-  { key: 'patients', label: '환자 조회', to: '/doctor' },
-  { key: 'calendar', label: '캘린더', to: '/schedule' },
-  { key: 'notice', label: '게시판', to: '/facilities/1/board' },
-];
-
-const patients = [
-  { id: 1, name: '이정훈 (M/64)', summary: 'Post-op Recovery / RM 402', status: 'CRITICAL', statusText: 'SpO2 88%' },
-  { id: 2, name: '박지원 (F/29)', summary: 'Acute Gastritis / RM 205', status: 'MONITORING', statusText: 'Pain Scale 6' },
-  { id: 3, name: '강성민 (M/72)', summary: 'Routine Check / RM 311', status: 'STABLE', statusText: 'Next BP Check: 14:00' },
-];
+import MainPatientManagement from '../components/doctor/MainPatientManagement';
+import MealMenu from '../components/doctor/MealMenu';
 
 const notices = [
   { type: 'URGENT', text: '5월 정기 소방 점검 및 대피 훈련 실시 안내 (5/15)', date: '24.05.04' },
@@ -46,13 +36,7 @@ export default function DoctorMainPage() {
 
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
-      <Header
-        activeNav="rooms"
-        navItems={navItems}
-        brandLabel="따숨"
-        userName="김관리자 (Admin Kim)"
-        userRole="SUPERUSER"
-      />
+      <DoctorHeader />
 
       <div className="mx-auto max-w-[1360px] space-y-5 px-5 py-6">
         <section className="rounded-xl border border-[#f0d2d2] bg-[#fff8f8] px-5 py-3 text-sm font-semibold text-[#ad2727]">
@@ -146,29 +130,7 @@ export default function DoctorMainPage() {
         </section>
 
         <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-[#dde4ee] bg-white p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-[32px] font-bold text-[#232f42]">주요 환자 관리</h3>
-              <span className="text-xs font-semibold text-[#20a3c3]">3 URGENT</span>
-            </div>
-            <div className="space-y-2">
-              {patients.map((patient) => (
-                <div key={patient.id} className="flex items-center justify-between rounded-lg border border-[#e5e9f1] px-4 py-3">
-                  <div className="flex items-center justify-between">
-                    <div className="mr-3 h-10 w-1 rounded-full bg-[#3b7de3]" />
-                    <div>
-                      <p className="text-xl font-bold text-slate-900">{patient.name}</p>
-                      <p className="mt-0.5 text-xs text-slate-500">{patient.summary}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[11px] font-bold text-[#7a8291]">{patient.status}</p>
-                    <p className="mt-1 text-sm font-semibold text-[#3f4b61]">{patient.statusText}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <MainPatientManagement />
 
           <div className="rounded-xl border border-[#dde4ee] bg-white p-5">
             <div className="mb-4 flex items-center justify-between">
@@ -214,25 +176,7 @@ export default function DoctorMainPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-[#dde4ee] bg-white p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-[32px] font-bold text-[#232f42]">구내 식당 메뉴</h3>
-              <span className="text-xs font-semibold text-slate-400">TODAY</span>
-            </div>
-            <div className="mb-2 flex items-center gap-4 text-sm text-slate-400">
-              <span>Breakfast</span>
-              <span className="font-semibold text-[#35a5bf]">Lunch</span>
-              <span>Dinner</span>
-            </div>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[28px] font-bold text-slate-900">영양 한우 불고기 & 쌈채소</p>
-                <p className="mt-2 text-sm text-slate-500">흑미밥, 소고기무국, 고등어구이, 시금치나물, 포기김치, 과일샐러드</p>
-                <p className="mt-4 text-xs font-semibold text-[#2c95a9]">🥗 SPECIAL DIET AVAILABLE</p>
-              </div>
-              <div className="h-20 w-28 shrink-0 rounded-lg bg-gradient-to-br from-[#e9eef5] to-[#c7d0dd]" />
-            </div>
-          </div>
+          <MealMenu />
         </section>
 
         <footer className="flex justify-between border-t border-[#e5e9f2] pt-5 text-xs text-slate-400">

@@ -1,11 +1,4 @@
-import Header from '../components/common/Header';
-
-const navItems = [
-  { key: 'rooms', label: '병동 관리', to: '/doctor' },
-  { key: 'patients', label: '환자 조회', to: '/doctor/patients' },
-  { key: 'calendar', label: '캘린더', to: '/schedule' },
-  { key: 'notice', label: '게시판', to: '/facilities/1/board' },
-];
+import DoctorHeader from '../components/doctor/DoctorHeader';
 
 const weeks = [
   ['28', '29', '30', '1', '2', '3', '4'],
@@ -18,7 +11,7 @@ const weeks = [
 export default function DoctorCalendarPage() {
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
-      <Header activeNav="calendar" navItems={navItems} brandLabel="따숨" userName="김관리자 (Admin Kim)" userRole="SUPERUSER" />
+      <DoctorHeader activeNav="calendar" />
 
       <div className="mx-auto w-full max-w-[1360px] px-5 py-6">
         <section className="mb-4 rounded-2xl border border-[#e1e6ef] bg-white p-5">

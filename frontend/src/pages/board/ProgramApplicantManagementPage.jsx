@@ -6,7 +6,7 @@ import ApplicantStatsCards from '../../components/board/applicants/ApplicantStat
 import ApplicantSection from '../../components/board/applicants/ApplicantSection';
 import ApplicantTable from '../../components/board/applicants/ApplicantTable';
 import postApplicationApi from '../../api/postApplicationApi';
-import { programApplicantMock } from '../../mocks/programApplicantMock';
+import { programApplicantMock } from '../../utils/programApplicantMock';
 
 const ProgramApplicantManagementPage = () => {
   const navigate = useNavigate();

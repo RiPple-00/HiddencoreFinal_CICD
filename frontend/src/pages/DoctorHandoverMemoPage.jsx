@@ -1,18 +1,11 @@
-import Header from '../components/common/Header';
-
-const navItems = [
-  { key: 'rooms', label: '병동 관리', to: '/doctor' },
-  { key: 'patients', label: '환자 조회', to: '/doctor/patients' },
-  { key: 'calendar', label: '캘린더', to: '/schedule' },
-  { key: 'notice', label: '게시판', to: '/facilities/1/board' },
-];
+import DoctorHeader from '../components/doctor/DoctorHeader';
 
 const sideMenus = ['개요', '활력징후', '처방약', '검사 결과', '인수인계', '진료기록'];
 
 export default function DoctorHandoverMemoPage() {
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
-      <Header activeNav="rooms" navItems={navItems} brandLabel="따숨" userName="김관리자 (Admin Kim)" userRole="SUPERUSER" />
+      <DoctorHeader />
 
       <div className="mx-auto flex w-full max-w-[1360px] gap-8 px-5 py-6">
         <aside className="w-[180px] shrink-0 border-r border-[#e5eaf3] pt-10">

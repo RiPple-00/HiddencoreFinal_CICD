@@ -66,6 +66,7 @@ function BellIcon({ className }) {
  * @param {'rooms'|'patients'|'calendar'|'notice'} [activeNav]
  * @param {{ key: string, label: string, to: string | null }[]} [navItems]
  * @param {string} [brandLabel]
+ * @param {string} [brandTo] — 지정 시 브랜드(따숨) 클릭 시 이동 경로
  * @param {string} [userName]
  * @param {string} [userRole]
  * @param {string} [searchPlaceholder]
@@ -75,6 +76,7 @@ export default function Header({
   activeNav = "rooms",
   navItems,
   brandLabel = "따숨",
+  brandTo,
   userName = "김관리자 (Admin Kim)",
   userRole = "SUPERUSER",
   searchPlaceholder = "환자 검색...",
@@ -131,7 +133,16 @@ export default function Header({
     >
       <div className="mx-auto flex h-[64px] max-w-[1440px] items-center justify-between px-5">
         <div className="flex min-w-0 flex-1 items-center">
-          <span className="shrink-0 text-lg font-bold text-[#2c52a1]">{brandLabel}</span>
+          {brandTo ? (
+            <Link
+              to={brandTo}
+              className="shrink-0 text-lg font-bold text-[#2c52a1] transition hover:text-[#1e3d7a]"
+            >
+              {brandLabel}
+            </Link>
+          ) : (
+            <span className="shrink-0 text-lg font-bold text-[#2c52a1]">{brandLabel}</span>
+          )}
           <nav className="ml-10 hidden items-center md:flex" aria-label="메인">
             {resolvedNavItems.map((item) => renderNavLink(item))}
           </nav>

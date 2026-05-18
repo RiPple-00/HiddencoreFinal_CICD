@@ -10,13 +10,14 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
   beds = [],
 }) {
 
-  const [formData, setFormData] = useState({
-    name: "",
-    gender: "",
-    birthDate: "",
-    address: "",
-    bloodType: "",
-    admissionDate: "",
+  // 발표용 기본값 포함
+  const initialFormData = {
+    name: "이환자",
+    gender: "MALE",
+    birthDate: "1970-06-11",
+    address: "서울특별시 강남구 역삼동 123-456",
+    bloodType: "A_POSITIVE",
+    admissionDate: new Date().toISOString().split("T")[0],
     building: "",
     floor: "",
     room: "",
@@ -24,7 +25,9 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
     roomType: "",
     locationId: null,
     memo: "",
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
 
    // 병상 배정 방식
   // none   : 병상 없이 접수
@@ -37,21 +40,7 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
   if (!open) return null;  // 모달이 닫혀 있으면 렌더링하지 않음
 
   const resetForm = () => {  // 모달 닫을 때 입력값 전체 초기화
-    setFormData({
-      name: "",
-      gender: "",
-      birthDate: "",
-      address: "",
-      bloodType: "",
-      admissionDate: "",
-      building: "",
-      floor: "",
-      room: "",
-      bed: "",
-      roomType: "",
-      locationId: null,
-      memo: "",
-    });
+    setFormData(initialFormData);
     setAssignMode("none");
     setSelectedBed(null);
   };
@@ -362,6 +351,7 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
             />
           </div>
 
+          {/* 이하 기존 코드 그대로 유지 */}
           <div className="md:col-span-2 mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
             <p className="mb-3 text-base font-semibold text-slate-800">
               병상 배정 방식
