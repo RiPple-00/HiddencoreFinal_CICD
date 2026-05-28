@@ -7,7 +7,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/Text";
 
 import caregiverApi from "../../api/caregiverApi";
-import { applyResponseToState, buildPayload, initialState, todayStr } from "../../utils/careCheckState";
+import {
+  applyResponseToState,
+  buildPayload,
+  hasBlockingAbnormalMemo,
+  initialState,
+  isRequiredChecklistComplete,
+  todayStr,
+} from "../../utils/careCheckState";
 import CaregiverConditionRow   from "../../components/caregiver/CaregiverConditionRow";
 import CaregiverEliminationCard from "../../components/caregiver/CaregiverEliminationCard";
 import CaregiverHygieneRow     from "../../components/caregiver/CaregiverHygieneRow";
@@ -70,6 +77,11 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
     if (!bootstrappedRef.current) return; // 초기 로딩 직후의 setState 는 무시
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
+    if (hasBlockingAbnormalMemo(state)) {
+      setSaveStatus("blocked");
+      return;
+    }
+
     setSaveStatus("saving");
     debounceRef.current = setTimeout(async () => {
       try {
@@ -89,7 +101,7 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
 
   // ---------- 제출 ----------
   const handleSubmit = useCallback(async () => {
-    if (submitting) return;
+    if (submitting || !isRequiredChecklistComplete(state)) return;
     setSubmitting(true);
     try {
       // 마지막 입력이 디바운스를 안 거치고 끝났을 수도 있으므로 즉시 저장 후 제출.
@@ -109,8 +121,14 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
     if (saveStatus === "saving") return "자동 저장 중…";
     if (saveStatus === "saved")  return "자동 저장됨";
     if (saveStatus === "error")  return "자동 저장 실패";
+    if (saveStatus === "blocked") return "이상 사유를 입력해야 자동 저장됩니다";
     return "";
   }, [saveStatus]);
+
+  const canSubmit = useMemo(
+    () => isRequiredChecklistComplete(state),
+    [state],
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-caregiver-bg-primary" edges={["bottom", "left", "right"]}>
@@ -186,8 +204,8 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
             <View className="px-[14px] pt-[18px] pb-2">
               <Pressable
                 onPress={handleSubmit}
-                disabled={submitting}
-                className={`bg-caregiver-button-primary rounded-xl py-[14px] items-center ${submitting ? "opacity-50" : ""}`}
+                disabled={submitting || !canSubmit}
+                className={`bg-caregiver-button-primary rounded-xl py-[14px] items-center ${(submitting || !canSubmit) ? "opacity-50" : ""}`}
               >
                 <Text className="text-white text-base font-extrabold">
                   {submitting ? "제출 중…" : "제출하기"}

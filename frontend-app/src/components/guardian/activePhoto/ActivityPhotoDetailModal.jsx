@@ -1,4 +1,4 @@
-import { Image, Modal, Pressable, View } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, View } from 'react-native';
 import Text from "../../Text";
 
 const FALLBACK_IMAGE =
@@ -39,7 +39,10 @@ function ActivityPhotoDetailModal({ photo, onClose, onSave }) {
     >
       <View className="flex-1 bg-black/[0.45] justify-center items-center p-4">
         {/* maxWidth는 NativeWind에서 불안정하여 inline style 유지 */}
-        <View className="w-full bg-background-neutral rounded-[28px] p-4" style={{ maxWidth: 330 }}>
+        <View
+          className="w-full bg-background-neutral rounded-[28px] p-4"
+          style={{ maxWidth: 330, maxHeight: '85%' }}
+        >
 
           {/* 상단 액션 바 */}
           <View className="mb-3 flex-row justify-between items-center">
@@ -49,14 +52,16 @@ function ActivityPhotoDetailModal({ photo, onClose, onSave }) {
             >
               <Text className="text-guardian-text-primary text-xs font-bold">저장</Text>
             </Pressable>
-            <Text className="text-guardian-text-neutral opacity-50">•••</Text>
             <Pressable onPress={onClose}>
               <Text className="text-[30px] leading-[30px] text-guardian-text-neutral opacity-50">×</Text>
             </Pressable>
           </View>
 
           {normalizedPhoto && (
-            <>
+            <ScrollView
+              showsVerticalScrollIndicator={true}
+              contentContainerStyle={{ paddingBottom: 8 }}
+            >
               <Image
                 source={{ uri: normalizedPhoto.imageUrl }}
                 className="mb-4 w-full h-64 rounded-2xl"
@@ -73,7 +78,7 @@ function ActivityPhotoDetailModal({ photo, onClose, onSave }) {
                   {normalizedPhoto.desc}
                 </Text>
               </View>
-            </>
+            </ScrollView>
           )}
 
         </View>

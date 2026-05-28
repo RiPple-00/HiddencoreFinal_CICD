@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Alert, TextInput, TouchableOpacity, View } from "react-native";
 import api, { persistAccessToken } from "../../api";
+import { applyFacilityIdFromLogin } from "../../utils/facilityId";
 import Text from "@/components/Text";
 
 export default function GuardianLoginPage({ navigation }) {
@@ -47,6 +48,7 @@ export default function GuardianLoginPage({ navigation }) {
         }
         const g = await api.post("/api/auth/guardian/login", { loginId, password });
         await persistAccessToken(g.data.accessToken);
+        applyFacilityIdFromLogin(g.data.accessToken, g.data.facilityId);
         navigation.replace("GuardianMain");
       } else {
         if (!facilityCode || !employeeLoginId || !employeePassword) {
@@ -59,6 +61,7 @@ export default function GuardianLoginPage({ navigation }) {
           password: employeePassword,
         });
         await persistAccessToken(e.data.accessToken);
+        applyFacilityIdFromLogin(e.data.accessToken, e.data.facilityId);
         navigation.replace("CaregiverMain");
       }
     } catch (e) {

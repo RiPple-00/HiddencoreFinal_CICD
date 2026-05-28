@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
+  CommonActions,
   NavigationContainer,
   createNavigationContainerRef,
 } from "@react-navigation/native";
@@ -58,6 +59,8 @@ import CaregiverHeader, {
   CAREGIVER_HEADER_INNER_HEIGHT,
 } from "./src/components/caregiver/basic/CaregiverHeader";
 import { G } from "./src/styles/guardianTheme";
+import { clearAccessToken } from "./src/api";
+import AppSideMenu from "./src/components/common/AppSideMenu";
 
 const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
@@ -100,7 +103,7 @@ const CAREGIVER_SCREENS = new Set([
   "CaregiverPatientList",
 ]);
 
-function CaregiverAppHeader({ navigationRef, currentRouteName }) {
+function CaregiverAppHeader({ navigationRef, currentRouteName, onOpenMenu }) {
   const insets = useSafeAreaInsets();
 
   const onBack =
@@ -130,7 +133,7 @@ function CaregiverAppHeader({ navigationRef, currentRouteName }) {
         onPressNotification={() =>
           Alert.alert("알림", "알림 목록은 준비 중입니다.")
         }
-        onPressMenu={() => Alert.alert("메뉴", "메뉴는 준비 중입니다.")}
+        onPressMenu={onOpenMenu}
       />
     </View>
   );
@@ -148,6 +151,7 @@ function AppNavigation() {
   });
 
   const [currentRouteName, setCurrentRouteName] = useState(null);
+  const [caregiverMenuOpen, setCaregiverMenuOpen] = useState(false);
 
   const showGuardianChrome = useMemo(() => {
     if (!currentRouteName) return false;
@@ -173,6 +177,21 @@ function AppNavigation() {
   }, [currentRouteName]);
 
   const caregiverTopInset = insets.top + CAREGIVER_HEADER_INNER_HEIGHT;
+
+  const handleCaregiverLogout = async () => {
+    try {
+      await clearAccessToken();
+      setCaregiverMenuOpen(false);
+      navigationRef.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "GuardianLogin" }],
+        }),
+      );
+    } catch (error) {
+      Alert.alert("로그아웃 실패", "다시 시도해주세요.");
+    }
+  };
 
   const content = (
     <NavigationContainer
@@ -338,6 +357,35 @@ function AppNavigation() {
           <CaregiverAppHeader
             navigationRef={navigationRef}
             currentRouteName={currentRouteName}
+            onOpenMenu={() => setCaregiverMenuOpen(true)}
+          />
+        )}
+
+        {showCaregiverChrome && (
+          <AppSideMenu
+            visible={caregiverMenuOpen}
+            topInset={insets.top}
+            onClose={() => setCaregiverMenuOpen(false)}
+            items={[
+              {
+                label: "마이페이지",
+                onPress: () => {
+                  setCaregiverMenuOpen(false);
+                  Alert.alert("마이페이지", "요양사 마이페이지는 준비 중입니다.");
+                },
+              },
+              {
+                label: "설정",
+                onPress: () => {
+                  setCaregiverMenuOpen(false);
+                  Alert.alert("설정", "설정 기능은 준비 중입니다.");
+                },
+              },
+              {
+                label: "로그아웃",
+                onPress: handleCaregiverLogout,
+              },
+            ]}
           />
         )}
 

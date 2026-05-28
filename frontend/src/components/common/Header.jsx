@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AutoContext.jsx";
+import { resolveStaffFacilityId } from "../../utils/jwtUtils";
 
 function SearchIcon({ className }) {
   return (
@@ -83,16 +84,7 @@ export default function Header({
   showNotificationDot = true,
 }) {
   const { user } = useAuth();
-  const token = user?.accessToken ?? user?.token;
-  let facilityId = null;
-  if (token && typeof token === "string") {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      facilityId = payload?.facilityId ?? null;
-    } catch {
-      facilityId = null;
-    }
-  }
+  const facilityId = resolveStaffFacilityId(user);
 
   const defaultNavItems = [
     { key: "rooms", label: "병실 조회", to: "/ward" },

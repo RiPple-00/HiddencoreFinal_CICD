@@ -8,7 +8,7 @@ function ActivePhotoTopBar({ title, onBack }) {
         <Text className="text-[28px] text-guardian-text-primary w-7">‹</Text>
       </Pressable>
       <Text className="text-lg font-bold text-guardian-text-primary">{title}</Text>
-      <Text className="text-lg w-7 text-right">🔔</Text>
+      <Text className="text-lg w-7 text-right">🖼️</Text>
     </View>
   );
 }

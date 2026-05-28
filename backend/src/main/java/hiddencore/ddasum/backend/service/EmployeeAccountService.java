@@ -138,18 +138,18 @@ public class EmployeeAccountService {
         return EmployeeLoginResponse.builder()
                 .accessToken(token)
                 .role(user.getRole())
+                .facilityId(facilityPk)
                 .mustChangePassword(Boolean.TRUE.equals(user.getMustChangePassword()))
                 .build();
     }
 
     private static boolean isStaffRole(UsersRole role) {
-        return role == UsersRole.OFFICE || role == UsersRole.DOCTOR || role == UsersRole.CAREGIVER || role == UsersRole.ADMIN;
+        return role == UsersRole.OFFICE || role == UsersRole.CAREGIVER || role == UsersRole.ADMIN;
     }
 
     private static UsersRole parseStaffRole(String role) {
         return switch (role) {
             case "OFFICE" -> UsersRole.OFFICE;
-            case "DOCTOR" -> UsersRole.DOCTOR;
             case "CAREGIVER" -> UsersRole.CAREGIVER;
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원하지 않는 직군입니다.");
         };
@@ -158,7 +158,6 @@ public class EmployeeAccountService {
     private static String jobCodePrefix(UsersRole role) {
         return switch (role) {
             case OFFICE -> "11";
-            case DOCTOR -> "21";
             case CAREGIVER -> "31";
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원하지 않는 직군입니다.");
         };

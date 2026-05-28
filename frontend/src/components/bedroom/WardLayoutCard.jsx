@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getRoomSummary } from '../../api/LocationApi';
-import RoomComponent from '../../components/ward/RoomComponent';
+import RoomComponent from '../ward/RoomComponent';
 
 const WARDS = [
   { value: 'A동', label: 'A동' },
@@ -9,7 +9,6 @@ const WARDS = [
 ];
 const FLOORS = [1, 2, 3, 4, 5];
 const SPECIALS = ['중환자실', '격리실'];
-const ROOMS_PER_PAGE = 10;
 
 const ROOM_TYPE_MAP = {
   GENERAL: '일반실',
@@ -29,7 +28,7 @@ const btnInactiveClass = 'bg-white text-gray-800 hover:bg-blue-50';
 
 const getStatus = (patientCount, roomCapacity) => {
   if (patientCount >= roomCapacity) return 'FULL';
-  return 'STABLE';
+  return 'AVAILABLE';
 };
 
 const isRoomHighlighted = (roomType, selectedSpecial) => {
@@ -37,12 +36,11 @@ const isRoomHighlighted = (roomType, selectedSpecial) => {
   return roomType === selectedSpecial;
 };
 
-function WardLayoutCard({ onSelectRoom }) {
+function WardLayoutCard() {
   const [selectedWard, setSelectedWard] = useState('A동');
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [selectedSpecial, setSelectedSpecial] = useState(null);
   const [roomCounts, setRoomCounts] = useState({});
-  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchRoomSummary = async () => {
@@ -60,11 +58,11 @@ function WardLayoutCard({ onSelectRoom }) {
             roomCapacity: item.roomCapacity ?? 4,
             roomType: item.roomType,
             roomGenderType: item.roomGenderType,
+            floor: item.floor,
           };
         });
 
         setRoomCounts(counts);
-        setCurrentPage(1); // 병동/층 바꾸면 1페이지로 초기화
       } catch (error) {
         console.error('병실 환자 수 조회 실패:', error);
         setRoomCounts({});
@@ -84,6 +82,7 @@ function WardLayoutCard({ onSelectRoom }) {
       return {
         id: roomKey,
         roomNumber: roomKey,
+        floor: data.floor,
         gender,
         patientCount,
         roomCapacity,
@@ -94,119 +93,91 @@ function WardLayoutCard({ onSelectRoom }) {
     });
   }, [roomCounts]);
 
-  const totalPages = Math.ceil(roomData.length / ROOMS_PER_PAGE);
-  const pagedRooms = roomData.slice((currentPage - 1) * ROOMS_PER_PAGE, currentPage * ROOMS_PER_PAGE);
-  const topRooms = pagedRooms.slice(0, 5);
-  const bottomRooms = pagedRooms.slice(5, 10);
+  const topRooms = roomData.slice(0, 5);
+  const bottomRooms = roomData.slice(5, 10);
 
   return (
-    <>
-      <div className="min-h-screen bg-slate-50">
-        <div className="mx-auto flex w-full max-w-[1680px] items-start gap-8 px-8 py-6">
-          <main className="min-w-0 flex-1 space-y-6">
-            <div className="rounded-2xl bg-gray-300 p-6">
-              <div className="flex flex-wrap gap-10">
-                <div>
-                  <p className="mb-4 text-lg text-blue-600">WARD SELECTION</p>
-                  <div className="flex gap-3">
-                    {WARDS.map(({ value, label }) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setSelectedWard(value)}
-                        className={`${btnBaseClass} ${selectedWard === value ? btnActiveClass : btnInactiveClass}`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="mb-4 text-lg text-blue-600">FLOOR SELECTION</p>
-                  <div className="flex gap-2">
-                    {FLOORS.map((floor) => (
-                      <button
-                        key={floor}
-                        type="button"
-                        onClick={() => setSelectedFloor(floor)}
-                        className={`${btnBaseClass} rounded ${selectedFloor === floor ? btnActiveClass : btnInactiveClass}`}
-                      >
-                        {floor}F
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="mb-4 text-lg text-blue-600">SPECIAL SELECTION</p>
-                  <div className="flex gap-2">
-                    {SPECIALS.map((special) => (
-                      <button
-                        key={special}
-                        type="button"
-                        onClick={() =>
-                          setSelectedSpecial((prev) => (prev === special ? null : special))
-                        }
-                        className={`${btnBaseClass} ${selectedSpecial === special ? btnActiveClass : btnInactiveClass}`}
-                      >
-                        {special}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+    <div className="space-y-6">
+      <div className="rounded-2xl bg-gray-300 p-6">
+        <div className="flex flex-wrap gap-10">
+          <div>
+            <p className="mb-4 text-lg text-blue-600">WARD SELECTION</p>
+            <div className="flex gap-3">
+              {WARDS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setSelectedWard(value)}
+                  className={`${btnBaseClass} ${selectedWard === value ? btnActiveClass : btnInactiveClass}`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
+          </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 md:p-5">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                {topRooms.map((room) => (
-                  <RoomComponent
-                    key={room.id}
-                    room={room}
-                    isDimmed={!isRoomHighlighted(room.roomType, selectedSpecial)}
-                    onClick={() => onSelectRoom?.(room)}
-                  />
-                ))}
-              </div>
-
-              <div className="my-5 flex h-28 items-center justify-center rounded-xl border border-blue-200 bg-gray-200 text-2xl font-bold tracking-widest text-slate-500">
-                복도(HALL)
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                {bottomRooms.map((room) => (
-                  <RoomComponent
-                    key={room.id}
-                    room={room}
-                    isDimmed={!isRoomHighlighted(room.roomType, selectedSpecial)}
-                    onClick={() => onSelectRoom?.(room)}
-                  />
-                ))}
-              </div>
-
-
-              {/* 페이지네이션 */}
-              <div className="mt-5 flex items-center justify-center gap-3 text-xl font-semibold text-gray-500">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    type="button"
-                    onClick={() => setCurrentPage(page)}
-                    className={`${page === currentPage ? 'text-blue-600' : 'hover:text-gray-800'}`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
+          <div>
+            <p className="mb-4 text-lg text-blue-600">FLOOR SELECTION</p>
+            <div className="flex gap-2">
+              {FLOORS.map((floor) => (
+                <button
+                  key={floor}
+                  type="button"
+                  onClick={() => setSelectedFloor(floor)}
+                  className={`${btnBaseClass} rounded ${selectedFloor === floor ? btnActiveClass : btnInactiveClass}`}
+                >
+                  {floor}F
+                </button>
+              ))}
             </div>
+          </div>
 
-          </main>
-
+          <div>
+            <p className="mb-4 text-lg text-blue-600">SPECIAL SELECTION</p>
+            <div className="flex gap-2">
+              {SPECIALS.map((special) => (
+                <button
+                  key={special}
+                  type="button"
+                  onClick={() =>
+                    setSelectedSpecial((prev) => (prev === special ? null : special))
+                  }
+                  className={`${btnBaseClass} ${selectedSpecial === special ? btnActiveClass : btnInactiveClass}`}
+                >
+                  {special}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-    </>
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 md:p-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {topRooms.map((room) => (
+            <RoomComponent
+              key={room.id}
+              room={room}
+              building={selectedWard}
+              isDimmed={!isRoomHighlighted(room.roomType, selectedSpecial)}
+            />
+          ))}
+        </div>
+
+        <div className="my-6 h-px w-full bg-slate-300" />
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {bottomRooms.map((room) => (
+            <RoomComponent
+              key={room.id}
+              room={room}
+              building={selectedWard}
+              isDimmed={!isRoomHighlighted(room.roomType, selectedSpecial)}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 export default WardLayoutCard;

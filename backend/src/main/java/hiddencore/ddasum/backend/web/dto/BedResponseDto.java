@@ -22,6 +22,7 @@ public class BedResponseDto {
     private Integer age;
     private String type;
     private LocalDate admissionDate;
+    private String roomGenderType;
     private Integer roomCapacity; // (4인실/6인실)
     private LocalDate birthDate;
 
@@ -47,6 +48,7 @@ public class BedResponseDto {
                 .birthDate(patient != null ? patient.getBirthDate() : null)
                 .type(patient != null && patient.getType() != null ? patient.getType().getDescription() : null)
                 .admissionDate(patient != null ? patient.getAdmissionDate() : null)
+                .roomGenderType(location.getRoomGenderType() != null ? location.getRoomGenderType().name() : null)
                 .roomCapacity(location.getRoomCapacity())
                 .build();
     }

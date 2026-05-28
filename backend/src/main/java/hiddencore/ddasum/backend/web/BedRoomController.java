@@ -33,8 +33,9 @@ public class BedRoomController {
     @GetMapping("/{room}/beds")
     public ResponseEntity<List<BedResponseDto>> getBedsByRoom(
             @Parameter(description = "병실 식별자 (LOCATION.room)", example = "303") @PathVariable String room,
-            @RequestParam(required = false) String building) {
-        List<BedResponseDto> beds = bedRoomService.getBedsByRoom(room, building);
+            @RequestParam(required = false) String building,
+            @RequestParam(required = false) Integer floor) {
+        List<BedResponseDto> beds = bedRoomService.getBedsByRoom(room, building, floor);
         return ResponseEntity.ok(beds);
     }
 

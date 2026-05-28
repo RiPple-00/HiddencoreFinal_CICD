@@ -119,26 +119,6 @@ public class DataSeeder {
                         office.setEmailAgreedAt(LocalDateTime.now());
                         office = memberRepository.save(office);
 
-                        String demoDoctorEmployeeId = "2120010101";
-                        String doctorLoginId = StaffLoginIdCodec.encode(facility.getFacilityCode(),
-                                        demoDoctorEmployeeId);
-                        Users doctor = memberRepository.findByLoginId(doctorLoginId)
-                                        .orElse(Users.builder().loginId(doctorLoginId)
-                                                        .employeeLoginId(demoDoctorEmployeeId).build());
-                        doctor.setFacilityId(facility);
-                        doctor.setEmployeeLoginId(demoDoctorEmployeeId);
-                        doctor.setHireDate(LocalDate.of(2020, 1, 1));
-                        doctor.setPassword(passwordEncoder.encode("office123!"));
-                        doctor.setName("데모 의사");
-                        doctor.setPhone("01020000001");
-                        doctor.setEmail("doctor-demo@ddasum.local");
-                        doctor.setRole(UsersRole.DOCTOR);
-                        doctor.setStatus(UsersStatus.ACTIVE);
-                        doctor.setMustChangePassword(false);
-                        doctor.setEmailAgreed(true);
-                        doctor.setEmailAgreedAt(LocalDateTime.now());
-                        doctor = memberRepository.save(doctor);
-
                         String demoCaregiverEmployeeId = "3120010101";
                         String caregiverLoginId = StaffLoginIdCodec.encode(facility.getFacilityCode(),
                                         demoCaregiverEmployeeId);
@@ -320,25 +300,25 @@ public class DataSeeder {
                                                                 .type(PostType.URGENT).title("긴급 서버 점검 안내")
                                                                 .content("오늘 오후 11시부터 새벽 2시까지 시스템 점검이 있습니다.")
                                                                 .status(PostStatus.ACTIVE).isPinned(true)
-                                                                .targetRoles("DOCTOR,CAREGIVER,OFFICE").views(42)
+                                                                .targetRoles("OFFICE,CAREGIVER").views(42)
                                                                 .build(),
                                                 Post.builder().facilityId(facility).authorUserId(office)
                                                                 .type(PostType.ADMIN).title("추석 연휴 면회 예약 시스템 오픈")
                                                                 .content("추석 연휴 기간 면회 예약을 시스템을 통해 진행해 주세요.")
                                                                 .status(PostStatus.ACTIVE).isPinned(false)
-                                                                .targetRoles("DOCTOR,CAREGIVER,OFFICE").views(15)
+                                                                .targetRoles("OFFICE,CAREGIVER").views(15)
                                                                 .build(),
                                                 Post.builder().facilityId(facility).authorUserId(office)
                                                                 .type(PostType.FACILITY).title("3층 엘리베이터 점검 안내")
                                                                 .content("3층 엘리베이터가 5월 5일 오전 10시부터 12시까지 점검 예정입니다.")
                                                                 .status(PostStatus.ACTIVE).isPinned(false)
-                                                                .targetRoles("DOCTOR,CAREGIVER,OFFICE").views(8)
+                                                                .targetRoles("OFFICE,CAREGIVER").views(8)
                                                                 .build(),
-                                                Post.builder().facilityId(facility).authorUserId(doctor)
+                                                Post.builder().facilityId(facility).authorUserId(office)
                                                                 .type(PostType.CLINICAL).title("당뇨 환자 식이 가이드라인 업데이트")
                                                                 .content("최신 당뇨 환자 식이 가이드라인이 업데이트되었습니다.")
                                                                 .status(PostStatus.ACTIVE).isPinned(false)
-                                                                .targetRoles("DOCTOR,CAREGIVER").views(23).build(),
+                                                                .targetRoles("OFFICE,CAREGIVER").views(23).build(),
                                                 Post.builder().facilityId(facility).authorUserId(office)
                                                                 .type(PostType.APPLY).title("5월 종이접기 프로그램 참여 신청")
                                                                 .content("5월 종이접기 프로그램을 진행합니다. 정원 20명이니 빠른 신청 바랍니다.")

@@ -19,12 +19,6 @@ import BedRoomPage from './pages/BedRoomPage';
 import PatientListPage from './pages/patient/PatientListPage';
 import AdminPatientDetailPage from './pages/admin/AdminPatientDetailPage';
 import WardPage from './pages/WardPage';
-import DoctorMainPage from './pages/DoctorMainPage';
-import DoctorPatientListPage from './pages/DoctorPatientListPage';
-import DoctorPatientDetailPage from './pages/DoctorPatientDetailPage';
-import DoctorHandoverPage from './pages/DoctorHandoverPage';
-import DoctorHandoverMemoPage from './pages/DoctorHandoverMemoPage';
-import DoctorCalendarPage from './pages/DoctorCalendarPage';
 import { useAuth } from './contexts/AutoContext.jsx';
 
 
@@ -78,12 +72,12 @@ function App() {
           <Route path="/" element={<StaffLoginPage />} />
           <Route path="/home" element={<WardPage />} />
           <Route path="/ward" element={<WardPage />} />
-          <Route path="/doctor" element={<DoctorMainPage />} />
-          <Route path="/doctor/patients" element={<DoctorPatientListPage />} />
-          <Route path="/doctor/patients/:patientCode" element={<DoctorPatientDetailPage />} />
-          <Route path="/doctor/handover" element={<DoctorHandoverPage />} />
-          <Route path="/doctor/handover/memo" element={<DoctorHandoverMemoPage />} />
-          <Route path="/doctor/calendar" element={<DoctorCalendarPage />} />
+          <Route path="/doctor" element={<Navigate to="/ward" replace />} />
+          <Route path="/doctor/patients" element={<Navigate to="/ward" replace />} />
+          <Route path="/doctor/patients/:patientCode" element={<Navigate to="/ward" replace />} />
+          <Route path="/doctor/handover" element={<Navigate to="/ward" replace />} />
+          <Route path="/doctor/handover/memo" element={<Navigate to="/ward" replace />} />
+          <Route path="/doctor/calendar" element={<Navigate to="/ward" replace />} />
           <Route path="/signup" element={<StaffLoginPage />} />
           <Route path="/login" element={<StaffLoginPage />} />
           <Route path="/staff-login" element={<StaffLoginPage />} />

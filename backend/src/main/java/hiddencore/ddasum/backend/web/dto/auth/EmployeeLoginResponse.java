@@ -14,5 +14,6 @@ public class EmployeeLoginResponse {
 
     private String accessToken;
     private UsersRole role;
+    private Long facilityId;
     private boolean mustChangePassword;
 }

@@ -11,8 +11,13 @@ import org.springframework.web.server.ResponseStatusException;
 import hiddencore.ddasum.backend.domain.Users;
 import hiddencore.ddasum.backend.domain.Users.UsersRole;
 import hiddencore.ddasum.backend.domain.Users.UsersStatus;
+import hiddencore.ddasum.backend.domain.GuardianPatient;
+import hiddencore.ddasum.backend.domain.Patient;
+import hiddencore.ddasum.backend.repository.GuardianPatientRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
 import hiddencore.ddasum.backend.security.JwtService;
+
+import java.util.List;
 import hiddencore.ddasum.backend.web.dto.auth.GuardianLoginRequest;
 import hiddencore.ddasum.backend.web.dto.auth.GuardianLoginResponse;
 import hiddencore.ddasum.backend.web.dto.guardian.GuardianSignupRequest;
@@ -24,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class GuardianAccountService {
 
     private final MemberRepository memberRepository;
+    private final GuardianPatientRepository guardianPatientRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
@@ -69,11 +75,26 @@ public class GuardianAccountService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        String token = jwtService.createAccessToken(user.getUserId(), user.getRole().name(), null);
+        Long facilityPk = resolveGuardianFacilityId(user.getUserId());
+        String token = jwtService.createAccessToken(user.getUserId(), user.getRole().name(), facilityPk);
         return GuardianLoginResponse.builder()
                 .accessToken(token)
                 .role(user.getRole())
+                .facilityId(facilityPk)
                 .mustChangePassword(Boolean.TRUE.equals(user.getMustChangePassword()))
                 .build();
+    }
+
+    /** 연결된 환자 시설(주 보호자 우선) → 게시판·프로그램 API용 */
+    private Long resolveGuardianFacilityId(Long guardianUserId) {
+        List<GuardianPatient> links =
+                guardianPatientRepository.findByGuardianUserId_UserIdOrderByIsPrimaryDesc(guardianUserId);
+        for (GuardianPatient link : links) {
+            Patient patient = link.getPatientId();
+            if (patient != null && patient.getFacilityId() != null) {
+                return patient.getFacilityId().getFacilityId();
+            }
+        }
+        return null;
     }
 }

@@ -21,7 +21,7 @@ const INITIAL_PANEL = {
     isPinned: false,
     publishType: 'IMMEDIATE',
     reservationAt: '',
-    targetRoles: ['DOCTOR'],
+    targetRoles: ['OFFICE', 'CAREGIVER'],
     authorName: null,
     updatedAt: null,
   },

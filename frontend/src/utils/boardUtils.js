@@ -103,9 +103,8 @@ export const POST_STATUS = {
 
 /** 공지 작성 시 공개 대상 체크박스 */
 export const TARGET_ROLES = [
-  { value: 'DOCTOR', label: '의사' },
-  { value: 'CAREGIVER', label: '간병인' },
-  { value: 'STAFF', label: '시설 직원' },
+  { value: 'OFFICE', label: '원무과' },
+  { value: 'CAREGIVER', label: '요양사' },
 ];
 
 /**

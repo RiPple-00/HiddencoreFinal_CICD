@@ -18,10 +18,10 @@ export default function GuardianBottomTab({
       inactiveIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/home.svg"),
     },
     {
-      label: "달력",
-      route: "Calendar",
-      activeIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/calendar-active.svg"),
-      inactiveIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/calendar.svg"),
+      label: "스캔",
+      route: "MedicationQrScan",
+      activeIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/home-active.svg"),
+      inactiveIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/home.svg"),
     },
     {
       label: "수납",

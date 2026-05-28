@@ -103,6 +103,7 @@ public class Users {
 
     public enum UsersRole {
         OFFICE,
+        /** DB 레거시·기존 시드 전용 (신규 직원 발급에는 사용하지 않음) */
         DOCTOR,
         CAREGIVER,
         GUARDIAN,

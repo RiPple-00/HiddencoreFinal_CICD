@@ -14,6 +14,8 @@ public class GuardianLoginResponse {
 
     private String accessToken;
     private UsersRole role;
+    /** 연결 환자 소속 시설 (없으면 null) */
+    private Long facilityId;
     /** 보호자는 직접 가입으로 기본 false */
     private boolean mustChangePassword;
 }

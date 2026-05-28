@@ -1,8 +1,6 @@
 import BedCard from "./BedCard";
-import WardLayoutCard from "./WardLayoutCard";
 
-
-function RoomLayoutCard({ beds, onAssignClick, onBedClick}) {
+function RoomLayoutCard({ beds, roomGenderLabel, onAssignClick, onBedClick}) {
 
   
   return (
@@ -15,7 +13,7 @@ function RoomLayoutCard({ beds, onAssignClick, onBedClick}) {
         <div className="flex flex-wrap items-center gap-6 text-sm text-slate-600">
          
           <div>
-            <span className="font-semibold">병실 유형</span> 여성 병동
+            <span className="font-semibold">병실 유형</span> {roomGenderLabel || "-"}
           </div>
           <div>
             <span className="font-semibold">병상 수</span> {beds[0]?.roomCapacity || 0}개

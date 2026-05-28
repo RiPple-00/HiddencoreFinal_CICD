@@ -51,6 +51,7 @@ export default function StaffLoginPage() {
                 token,
                 accessToken: token,
                 role: data.role,
+                facilityId: data.facilityId ?? null,
                 mustChangePassword: data.mustChangePassword,
                 username: form.employeeLoginId,
                 userId: form.employeeLoginId,
@@ -60,7 +61,7 @@ export default function StaffLoginPage() {
             if (data.mustChangePassword) {
                 navigate('/change-password');
             } else {
-                navigate(data.role === 'DOCTOR' ? '/doctor' : '/ward');
+                navigate('/ward');
             }
         } catch {
             /* axios interceptor */

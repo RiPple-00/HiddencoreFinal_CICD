@@ -111,6 +111,47 @@ export function buildPayload(state, patientId, recordDate) {
   };
 }
 
+const hasStatus = (item) => item?.status === "normal" || item?.status === "abnormal";
+const hasRequiredMemo = (item) =>
+  item?.status !== "abnormal" || Boolean(item?.memo?.trim());
+
+export function hasBlockingAbnormalMemo(state) {
+  const mealSlots = [state?.meal?.morning, state?.meal?.lunch, state?.meal?.dinner];
+  const mealCells = mealSlots.flatMap((slot) => [slot?.intake, slot?.hydration, slot?.incident]);
+  const hygieneItems = [
+    state?.hygiene?.bedding,
+    state?.hygiene?.patientItems,
+    state?.hygiene?.bathing,
+  ];
+  const conditionItems = [
+    state?.condition?.breathing,
+    state?.condition?.pain,
+    state?.condition?.fall,
+  ];
+
+  return [...mealCells, ...hygieneItems, ...conditionItems].some(
+    (item) => item?.status === "abnormal" && !item?.memo?.trim(),
+  );
+}
+
+export function isRequiredChecklistComplete(state) {
+  const mealSlots = [state?.meal?.morning, state?.meal?.lunch, state?.meal?.dinner];
+  const mealCells = mealSlots.flatMap((slot) => [slot?.intake, slot?.hydration, slot?.incident]);
+  const hygieneItems = [
+    state?.hygiene?.bedding,
+    state?.hygiene?.patientItems,
+    state?.hygiene?.bathing,
+  ];
+  const conditionItems = [
+    state?.condition?.breathing,
+    state?.condition?.pain,
+    state?.condition?.fall,
+  ];
+
+  const requiredItems = [...mealCells, ...hygieneItems, ...conditionItems];
+  return requiredItems.every((item) => hasStatus(item) && hasRequiredMemo(item));
+}
+
 /** 요양사 환자 목록 API 한 건 → CaregiverTaskCheck 라우트 파라미터 */
 export function caregiverPatientToTaskCheckRouteParams(p) {
   if (!p || p.patientId == null) return null;

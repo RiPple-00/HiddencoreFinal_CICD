@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../../contexts/AutoContext.jsx';
+import { resolveStaffFacilityId } from '../../utils/jwtUtils';
 import { BoardProvider, useBoardContext } from '../../contexts/BoardContext';
 import { BOARD_OPTIONS, BOARD_TABS_MAP } from '../../utils/boardUtils';
 import FilterTab from '../../components/common/FilterTab';
@@ -184,12 +186,49 @@ const BoardListContent = () => {
  * BoardProvider로 감싸서 Context 제공
  */
 const BoardListPage = () => {
-  const { facilityId } = useParams();
+  const navigate = useNavigate();
+  const { facilityId: facilityIdParam } = useParams();
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const board = searchParams.get('board');
+  const initialBoardValue = BOARD_OPTIONS.some((option) => option.value === board)
+    ? board
+    : 'ALL';
+
+  const paramId = Number(facilityIdParam);
+  const facilityId =
+    Number.isFinite(paramId) && paramId > 0
+      ? paramId
+      : resolveStaffFacilityId(user);
+
+  useEffect(() => {
+    if (!facilityId) return;
+    const paramNum = Number(facilityIdParam);
+    if (!Number.isFinite(paramNum) || paramNum <= 0 || paramNum !== facilityId) {
+      const q = board ? `?board=${board}` : '';
+      navigate(`/facilities/${facilityId}/board${q}`, { replace: true });
+    }
+  }, [facilityId, facilityIdParam, board, navigate]);
+
+  if (!facilityId) {
+    return (
+      <>
+        <Header activeNav="notice" />
+        <div className="max-w-5xl mx-auto px-4 py-16 text-center text-gray-500">
+          시설 정보를 확인할 수 없습니다. 다시 로그인해 주세요.
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <Header activeNav="notice" />
-      <BoardProvider facilityId={Number(facilityId)}>
+      <BoardProvider
+        key={`${facilityId}-${initialBoardValue}`}
+        facilityId={facilityId}
+        initialBoardValue={initialBoardValue}
+      >
         <BoardListContent />
       </BoardProvider>
     </>

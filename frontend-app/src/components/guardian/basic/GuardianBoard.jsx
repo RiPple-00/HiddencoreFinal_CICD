@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { View, TouchableOpacity } from "react-native";
 import Text from "@/components/Text";
 import { getGuardianPosts } from "@/api/guardian/guardianApi";
-import { FACILITY_ID, rowId } from "@/utils/guardianBoardUtils";
+import { rowId } from "@/utils/guardianBoardUtils";
 
 function formatMainNoticeDate(dateText) {
   if (!dateText) return "날짜 미정";
@@ -23,7 +23,7 @@ export default function GuardianBoard({ navigation }) {
   useEffect(() => {
     const fetchMainNotices = async () => {
       try {
-        const response = await getGuardianPosts(FACILITY_ID);
+        const response = await getGuardianPosts();
 
         const list = Array.isArray(response.data)
           ? response.data

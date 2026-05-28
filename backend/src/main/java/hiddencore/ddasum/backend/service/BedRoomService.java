@@ -21,10 +21,17 @@ public class BedRoomService {
     private final PatientRepository patientRepository;
 
     @Transactional(readOnly = true)
-    public List<BedResponseDto> getBedsByRoom(String room, String building) {
-        List<Location> locations = (building != null && !building.isBlank())
-                ? locationRepository.findByBuildingAndRoomOrderByBedAsc(building, room)
-                : locationRepository.findByRoomOrderByBedAsc(room);
+    public List<BedResponseDto> getBedsByRoom(String room, String building, Integer floor) {
+        List<Location> locations;
+
+        if (building != null && !building.isBlank() && floor != null) {
+            locations = locationRepository.findByBuildingAndFloorAndRoomOrderByBedAsc(building, floor, room);
+        } else if (building != null && !building.isBlank()) {
+            locations = locationRepository.findByBuildingAndRoomOrderByBedAsc(building, room);
+        } else {
+            locations = locationRepository.findByRoomOrderByBedAsc(room);
+        }
+
         return locations.stream()
                 .map(this::toDto)
                 .toList();

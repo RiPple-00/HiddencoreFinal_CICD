@@ -14,14 +14,16 @@ export const useBoardContext = () => {
   return ctx;
 };
 
-export const BoardProvider = ({ facilityId, children }) => {
+export const BoardProvider = ({ facilityId, initialBoardValue = 'ALL', children }) => {
 
   // 원본 전체 데이터 - 마운트 시 1회 로드 후 변경 안 함
   const [allPosts, setAllPosts] = useState([]);
   
   // 드롭다운 선택 상태 (게시판 종류)
   // BOARD_OPTIONS[0] = { label: '전체 게시판', value: 'ALL' }
-  const [selectedBoard, setSelectedBoard] = useState(BOARD_OPTIONS[0]);
+  const [selectedBoard, setSelectedBoard] = useState(
+    BOARD_OPTIONS.find((option) => option.value === initialBoardValue) ?? BOARD_OPTIONS[0]
+  );
 
   // 필터/검색 상태
   const [currentTab, setCurrentTab] = useState(null);   // null = 전체
@@ -43,10 +45,14 @@ export const BoardProvider = ({ facilityId, children }) => {
     try {
       // type=null, size=9999로 전체 데이터 1회 로드
       // 탭/검색/페이지네이션은 모두 프론트에서 처리
-      const res = await postApi.getPostList(facilityId, null, 0, 9999);
-
-      // CHECK!!! 백엔드 응답 구조 확인 필요 - res.data가 배열인지, res.data.content인지
-      setAllPosts(res.data ?? []);
+      const res = await postApi.getPostList(facilityId, null, 0, 500);
+      const raw = res.data;
+      const list = Array.isArray(raw)
+        ? raw
+        : Array.isArray(raw?.content)
+          ? raw.content
+          : [];
+      setAllPosts(list);
     } catch (err) {
       setError(err);
     } finally {

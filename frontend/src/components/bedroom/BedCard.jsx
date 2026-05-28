@@ -2,6 +2,16 @@ import { genderCodeToLabel } from "../../utils/genderDisplay";
 
 function BedCard({ bed, onAssignClick, onBedClick }) {
   if (!bed.occupied) {
+    if (bed.isVirtual || !bed.locationId) {
+      return (
+        <div className="flex min-h-[210px] w-full flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-300">
+          <div className="mb-2 text-5xl">-</div>
+          <p className="text-sm font-semibold">침상 {bed.id}</p>
+          <p className="text-base font-bold">침상 정보 없음</p>
+        </div>
+      );
+    }
+
     return (
       // 비어 있는 침상 카드를 클릭할때 검색창 
       <button

@@ -3,9 +3,9 @@ import api from "./index";
 const bedRoomApi = {
 
     //병상 배치도 불러오기
-    getBedsByRoom: (room, building) => {
+    getBedsByRoom: (room, building, floor) => {
         return api.get(`/rooms/${room}/beds`, {
-            params: { building }
+            params: { building, floor }
         });
     },
 

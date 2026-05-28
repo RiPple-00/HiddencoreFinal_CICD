@@ -37,14 +37,57 @@ const mapDetailToSummaryPatient = (d) => {
   };
 };
 
+const getBedOrder = (bedId) => {
+  if (!bedId) return Number.MAX_SAFE_INTEGER;
+  const matched = String(bedId).match(/-(\d+)$/);
+  return matched ? Number(matched[1]) : Number.MAX_SAFE_INTEGER;
+};
+
+const normalizeBedsByCapacity = (room, roomCapacity, rawBeds) => {
+  if (!roomCapacity || roomCapacity <= 0) return rawBeds;
+
+  const bedMap = new Map(
+    rawBeds.map((bed) => [getBedOrder(bed.id), bed]),
+  );
+
+  return Array.from({ length: roomCapacity }, (_, idx) => {
+    const bedNo = idx + 1;
+    const existing = bedMap.get(bedNo);
+
+    if (existing) {
+      return existing;
+    }
+
+    return {
+      locationId: null,
+      patientId: null,
+      id: `${room}-${bedNo}`,
+      patientName: null,
+      gender: null,
+      age: null,
+      status: "미등록 침상",
+      occupied: false,
+      bloodType: null,
+      admissionDate: null,
+      roomGenderType: null,
+      roomCapacity,
+      birthDate: null,
+      isVirtual: true,
+    };
+  });
+};
+
 function BedRoomPage() {
   const { room } = useParams();
   const [searchParams] = useSearchParams();
   const building = searchParams.get("building")?.trim() || undefined;
+  const floorParam = searchParams.get("floor");
+  const floor = floorParam ? Number(floorParam) : undefined;
 
   const [beds, setBeds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roomCapacity, setRoomCapacity] = useState(null);
+  const [roomGenderType, setRoomGenderType] = useState(null);
   const [error, setError] = useState("");
 
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
@@ -63,13 +106,22 @@ function BedRoomPage() {
   const [searchAttempted, setSearchAttempted] = useState(false);
   const [assigningPatientId, setAssigningPatientId] = useState(null);
 
+  const roomGenderLabel =
+    roomGenderType === "MALE"
+      ? "남성 병동"
+      : roomGenderType === "FEMALE"
+        ? "여성 병동"
+        : roomGenderType === "CONCOCTION"
+          ? "혼합 병동"
+          : "-";
+
   const loadBeds = useCallback(async () => {
     if (!room) return;
     try {
       setLoading(true);
       setError("");
 
-      const res = await bedRoomApi.getBedsByRoom(room, building);
+      const res = await bedRoomApi.getBedsByRoom(room, building, floor);
 
       const data = res?.data ?? [];
       const mappedBeds = data.map((bed) => ({
@@ -83,15 +135,20 @@ function BedRoomPage() {
         occupied: bed.occupied,
         bloodType: bed.type,
         admissionDate: bed.admissionDate,
+        roomGenderType: bed.roomGenderType,
         roomCapacity: bed.roomCapacity,
         birthDate: bed.birthDate,
+        isVirtual: false,
       }));
 
-      setBeds(mappedBeds);
-
       if (data.length > 0) {
-        setRoomCapacity(data[0].roomCapacity);
+        const capacity = data[0].roomCapacity ?? mappedBeds.length;
+        setBeds(normalizeBedsByCapacity(room, capacity, mappedBeds));
+        setRoomGenderType(data[0].roomGenderType ?? null);
+        setRoomCapacity(capacity);
       } else {
+        setBeds([]);
+        setRoomGenderType(null);
         setRoomCapacity(null);
       }
     } catch (e) {
@@ -107,7 +164,7 @@ function BedRoomPage() {
     } finally {
       setLoading(false);
     }
-  }, [room, building]);
+  }, [room, building, floor]);
 
   useEffect(() => {
     loadBeds();
@@ -273,6 +330,7 @@ function BedRoomPage() {
             ) : (
               <RoomLayoutCard
                 beds={beds}
+                roomGenderLabel={roomGenderLabel}
                 onAssignClick={openAssignModal}
                 onBedClick={handleBedClick}
               />

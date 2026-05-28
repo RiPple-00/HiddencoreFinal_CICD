@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { generateCalendar, isSameDay } from "../../utils/calendarUtils";
 import { toDate, formatDate as fmtDate } from "../../utils/dateUtils";
+import { isRedCalendarDay } from "../../utils/koreanHolidays";
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -149,9 +150,14 @@ const CalendarGrid = ({ year, month, schedules = [], selectedDate, onDateClick }
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
-      <div className="grid grid-cols-7 bg-blue-50 border-b border-gray-200 font-semibold text-blue-700 text-sm">
+      <div className="grid grid-cols-7 bg-blue-50 border-b border-gray-200 font-semibold text-sm">
         {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
-          <div key={d} className="py-2 text-center">
+          <div
+            key={d}
+            className={`py-2 text-center border-r border-gray-200 last:border-r-0 ${
+              d === "SUN" ? "text-red-600" : "text-blue-700"
+            }`}
+          >
             {d}
           </div>
         ))}
@@ -229,6 +235,7 @@ const CalendarGrid = ({ year, month, schedules = [], selectedDate, onDateClick }
                   const dateString = fmtDate(date);
                   const isSelected = selectedDate === dateString;
                   const isToday = isSameDay(date, today);
+                  const isRedDay = isRedCalendarDay(date);
 
                   return (
                     <button
@@ -238,11 +245,20 @@ const CalendarGrid = ({ year, month, schedules = [], selectedDate, onDateClick }
                       className={[
                         "relative text-left border-r border-b border-gray-200 last:border-r-0",
                         "h-[110px] px-2 pt-6 pb-2",
-                        isCurrentMonth ? "bg-white" : "bg-gray-50 text-gray-400",
+                        isCurrentMonth ? "bg-white" : "bg-gray-50",
                       ].join(" ")}
                       style={{ outline: isSelected || isToday ? "2px solid #2563eb" : "none", outlineOffset: -2 }}
                     >
-                      <div className="absolute top-1 left-2 text-xs font-semibold z-10">
+                      <div
+                        className={[
+                          "absolute top-1 left-2 text-xs font-semibold z-10",
+                          isRedDay
+                            ? "text-red-600"
+                            : isCurrentMonth
+                              ? "text-gray-900"
+                              : "text-gray-400",
+                        ].join(" ")}
+                      >
                         {date.getDate()}
                       </div>
                     </button>

@@ -1,7 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import { CommonActions } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Text from "@/components/Text";
+import AppSideMenu from "@/components/common/AppSideMenu";
+import { clearAccessToken } from "@/api";
 
 /** 상단 안전 영역 아래 콘텐츠 줄 높이(px) — App.jsx `paddingTop`과 동기화 */
 export const GUARDIAN_TOP_BAR_INNER_HEIGHT = 56;
@@ -16,6 +19,22 @@ function navigateGuardian(navigation, routeName, params) {
 export default function GuardianTopTab({ navigation }) {
   const insets = useSafeAreaInsets();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await clearAccessToken();
+      navigation?.dispatch?.(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "GuardianLogin" }],
+        }),
+      );
+    } catch (error) {
+      Alert.alert("로그아웃 실패", "다시 시도해주세요.");
+    } finally {
+      setMenuOpen(false);
+    }
+  };
 
   return (
     <>
@@ -42,44 +61,31 @@ export default function GuardianTopTab({ navigation }) {
         </View>
       </View>
 
-      {menuOpen ? (
-        <View style={styles.menuLayer} pointerEvents="box-none">
-          <TouchableOpacity
-            activeOpacity={1}
-            style={[StyleSheet.absoluteFillObject, styles.menuBackdrop]}
-            onPress={() => setMenuOpen(false)}
-          />
-          <View
-            className="absolute right-0 bottom-0 w-64 bg-background-neutral p-6 border-l border-guardian-button-secondary"
-            style={{ top: 0, paddingTop: insets.top + 12 }}
-          >
-            <Text className="text-lg font-extrabold text-guardian-text-primary mb-6">
-              메뉴
-            </Text>
-            {[
-              {
-                label: "마이페이지",
-                onPress: () => {
-                  setMenuOpen(false);
-                  navigateGuardian(navigation, "MyPage");
-                },
-              },
-              { label: "설정", onPress: () => {} },
-              { label: "로그아웃", onPress: () => {} },
-            ].map(({ label, onPress }) => (
-              <TouchableOpacity
-                key={label}
-                className="py-4 border-b border-guardian-button-secondary"
-                onPress={onPress}
-              >
-                <Text className="font-bold text-guardian-text-primary">
-                  {label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      ) : null}
+      <AppSideMenu
+        visible={menuOpen}
+        topInset={insets.top}
+        onClose={() => setMenuOpen(false)}
+        items={[
+          {
+            label: "마이페이지",
+            onPress: () => {
+              setMenuOpen(false);
+              navigateGuardian(navigation, "MyPage");
+            },
+          },
+          {
+            label: "설정",
+            onPress: () => {
+              setMenuOpen(false);
+              Alert.alert("설정", "설정 기능은 준비 중입니다.");
+            },
+          },
+          {
+            label: "로그아웃",
+            onPress: handleLogout,
+          },
+        ]}
+      />
     </>
   );
 }
@@ -91,12 +97,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 2000,
-  },
-  menuLayer: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 3000,
-  },
-  menuBackdrop: {
-    backgroundColor: "rgba(0,0,0,0.5)",
   },
 });

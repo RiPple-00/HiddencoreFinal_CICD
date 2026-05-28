@@ -24,7 +24,11 @@ function RoomComponent({ room, isDimmed = false, building }) {
     const id = String(room.roomNumber ?? room.id ?? '').trim();
     if (!id) return;
     const b = building != null ? String(building).trim() : '';
-    const qs = b ? `?building=${encodeURIComponent(b)}` : '';
+    const floor = room.floor != null ? String(room.floor).trim() : '';
+    const params = new URLSearchParams();
+    if (b) params.set('building', b);
+    if (floor) params.set('floor', floor);
+    const qs = params.toString() ? `?${params.toString()}` : '';
     navigate(`/bedroompage/${encodeURIComponent(id)}${qs}`);
   };
 

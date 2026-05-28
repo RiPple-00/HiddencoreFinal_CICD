@@ -1,3 +1,4 @@
+/** @deprecated resolveFacilityId() 사용 */
 export const FACILITY_ID = 2;
 
 export const BOARD_MENUS = [

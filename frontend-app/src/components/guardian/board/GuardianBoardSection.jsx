@@ -18,7 +18,6 @@ import { boardStyles } from "../../../styles/guardianBoard.styles";
 import { G } from "../../../styles/guardianTheme";
 import {
   BOARD_MENUS,
-  FACILITY_ID,
   normalizePostList,
   rowId,
 } from "../../../utils/guardianBoardUtils";
@@ -45,7 +44,7 @@ export default function GuardianBoardSection({ selectedBoard }) {
     try {
       setLoading(true);
 
-      const response = await getGuardianPosts(FACILITY_ID);
+      const response = await getGuardianPosts();
       setPosts(normalizePostList(response.data));
     } catch (error) {
       console.error("게시글 목록 조회 실패", error);
@@ -106,7 +105,7 @@ export default function GuardianBoardSection({ selectedBoard }) {
       setDetailLoading(true);
       setSelectedPost(null);
 
-      const response = await getGuardianPost(postId, FACILITY_ID);
+      const response = await getGuardianPost(postId);
       setSelectedPost(response.data);
     } catch (error) {
       console.error("게시글 상세 조회 실패", error);
@@ -168,7 +167,7 @@ export default function GuardianBoardSection({ selectedBoard }) {
     try {
       setSubmitting(true);
 
-      await createGuardianFreePost(requestData, FACILITY_ID);
+      await createGuardianFreePost(requestData);
 
       Alert.alert("등록 완료", "자유게시판 글이 등록되었습니다.");
 
