@@ -1,7 +1,24 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import patientApi from "../../api/patientApi";
-import RoomLayoutCard from "../bedroom/RoomLayoutCard";
-import WardPage from '../../pages/WardPage'
+
+function ChevronDown({ className = "" }) {
+  return (
+    <svg
+      className={className}
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
 
 export default function PatientCreateModal({ //create 페이지에서 모달로 변경 - simple 방식 재형꺼 합친 후 수정 예정
   open,
@@ -10,11 +27,17 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
   beds = [],
 }) {
 
+  const today = useMemo(() => new Date(), []);
+  const todayY = today.getFullYear();
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const toIsoDate = (y, m, d) => `${y}-${pad2(m)}-${pad2(d)}`;
+  const daysInMonth = (y, m) => new Date(y, m, 0).getDate(); // m: 1~12
+
   // 발표용 기본값 포함
   const initialFormData = {
     name: "이환자",
     gender: "MALE",
-    birthDate: "1970-06-11",
+    birthDate: "",
     address: "서울특별시 강남구 역삼동 123-456",
     bloodType: "A_POSITIVE",
     admissionDate: new Date().toISOString().split("T")[0],
@@ -28,21 +51,20 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
   };
 
   const [formData, setFormData] = useState(initialFormData);
+  const [birthY, setBirthY] = useState(null);
+  const [birthM, setBirthM] = useState(null);
+  const [birthD, setBirthD] = useState(null);
 
-   // 병상 배정 방식
-  // none   : 병상 없이 접수
-  // simple : 간편 선택 배정
-  // layout : 병동 화면에서 선택
-  const [assignMode, setAssignMode] = useState("none"); // none | simple | layout
- 
-  const [selectedBed, setSelectedBed] = useState(null);  // layout 방식에서 사용자가 클릭한 병상 정보를 저장
+  const [openBirthPicker, setOpenBirthPicker] = useState(null); // 'y' | 'm' | 'd' | null
 
   if (!open) return null;  // 모달이 닫혀 있으면 렌더링하지 않음
 
   const resetForm = () => {  // 모달 닫을 때 입력값 전체 초기화
     setFormData(initialFormData);
-    setAssignMode("none");
-    setSelectedBed(null);
+    setBirthY(null);
+    setBirthM(null);
+    setBirthD(null);
+    setOpenBirthPicker(null);
   };
 
   const handleClose = () => {// 닫기 버튼 / 취소 버튼 눌렀을 때
@@ -98,92 +120,58 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
     });
   };
 
- const handleAssignModeChange = (mode) => {  // 병상 배정 방식 변경
-  setAssignMode(mode);
+  const yearOptions = useMemo(() => {
+    const minY = 1900;
+    const ys = [];
+    for (let y = todayY; y >= minY; y -= 1) ys.push(y);
+    return ys;
+  }, [todayY]);
 
-  if (mode === "none") {// 병상 없이 접수 선택 시
-    // 병상 관련 정보 전부 초기화
-    setSelectedBed(null);
-    setFormData((prev) => ({
-      ...prev,
-      building: "",
-      floor: "",
-      room: "",
-      bed: "",
-      roomType: "",
-      locationId: null,
-    }));
-    return;
-  }
+  const monthOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 1), []);
+  const maxDay = useMemo(() => {
+    if (!birthY || !birthM) return 31;
+    return daysInMonth(birthY, birthM);
+  }, [birthY, birthM]);
+  const dayOptions = useMemo(() => Array.from({ length: maxDay }, (_, i) => i + 1), [maxDay]);
 
-  if (mode === "simple") { // 똑같
-    setSelectedBed(null);
-    setFormData((prev) => ({
-      ...prev,
-      locationId: null,
-    }));
-    return;
-  }
-
-  if (mode === "layout") { // 똑같
-    setFormData((prev) => ({
-      ...prev,
-      building: "",
-      floor: "",
-      room: "",
-      bed: "",
-      roomType: "",
-    }));
-  }
-};
-
-  const getRoomAssignedGender = (room) => {
-    if (!room) return null;
-    const occupiedBedsInRoom = beds.filter(
-      (item) => String(item.room) === String(room) && item.occupied && item.gender,
-    );
-    if (occupiedBedsInRoom.length === 0) return null;
-    return occupiedBedsInRoom[0].gender;
-  };
-
-  const isGenderMismatchRoom = (room, patientGender) => {
-    if (!patientGender) return false;
-    const roomGender = getRoomAssignedGender(room);
-    return Boolean(roomGender && roomGender !== patientGender);
-  };
-
-  const handleSelectBedFromLayout = (bed) => {
-    if (isGenderMismatchRoom(bed.room, formData.gender)) {
-      alert("해당 병실은 현재 다른 성별 환자 병실입니다.");
+  const syncBirthDate = (y, m, d) => {
+    if (!y || !m || !d) {
+      setFormData((prev) => ({ ...prev, birthDate: "" }));
       return;
     }
-    setSelectedBed(bed);
-
-    setFormData((prev) => ({
-      ...prev,
-      locationId: bed.locationId || null,
-    }));
+    const safeD = Math.min(Math.max(1, d), daysInMonth(y, m));
+    setFormData((prev) => ({ ...prev, birthDate: toIsoDate(y, m, safeD) }));
   };
+
+  const onPickYear = (y) => {
+    setBirthY(y);
+    setBirthM(null);
+    setBirthD(null);
+    setOpenBirthPicker(null);
+    syncBirthDate(null, null, null);
+  };
+
+  const onPickMonth = (m) => {
+    setBirthM(m);
+    // 월이 바뀌면 일은 초기화(요구사항: 그 월 일수만큼 활성화)
+    setBirthD(null);
+    setOpenBirthPicker(null);
+    syncBirthDate(null, null, null);
+  };
+
+  const onPickDay = (d) => {
+    setBirthD(d);
+    setOpenBirthPicker(null);
+    syncBirthDate(birthY, birthM, d);
+  };
+
+  const monthEnabled = Boolean(birthY);
+  const dayEnabled = Boolean(birthY && birthM);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = { ...formData };
-
-    if (assignMode === "none") {
-      payload.building = "";
-      payload.room = "";
-      payload.bed = "";
-      payload.roomType = "";
-      payload.locationId = null;
-    } else if (assignMode === "simple") {
-      payload.locationId = null;
-    } else if (assignMode === "layout") {
-      payload.building = "";
-      payload.room = "";
-      payload.bed = "";
-      payload.roomType = "";
-    }
 
     try {
       await patientApi.createPatient(payload);
@@ -195,53 +183,6 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
       alert("환자 등록 실패");
     }
   };
-
-  const filteredSimpleLocations = beds.filter((bedItem) => {
-    const matchesRoomType =
-      !formData.roomType || bedItem.roomType === formData.roomType;
-
-    const matchesBuilding =
-      !formData.building || bedItem.building === formData.building;
-
-    const matchesFloor =
-      !formData.floor || String(bedItem.floor) === String(formData.floor);
-
-    return matchesRoomType && matchesBuilding && matchesFloor;
-  });
-
-  const simpleRoomOptions = Object.values(
-    filteredSimpleLocations.reduce((acc, bedItem) => {
-      const roomKey = String(bedItem.room);
-
-      if (!acc[roomKey]) {
-        acc[roomKey] = {
-          room: roomKey,
-          totalCount: 0,
-          occupiedCount: 0,
-        };
-      }
-
-      acc[roomKey].totalCount += 1;
-
-      if (bedItem.occupied) {
-        acc[roomKey].occupiedCount += 1;
-      }
-
-      return acc;
-    }, {}),
-  )
-    .map((roomItem) => ({
-      ...roomItem,
-      roomGender: getRoomAssignedGender(roomItem.room),
-    }))
-    .sort((a, b) => a.room.localeCompare(b.room, undefined, { numeric: true }));
-
-  const simpleBedOptions = filteredSimpleLocations.filter((bedItem) => {
-    if (!formData.room) return false;
-    if (String(bedItem.room) !== String(formData.room)) return false;
-    if (isGenderMismatchRoom(bedItem.room, formData.gender)) return false;
-    return true;
-  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 px-4 py-6">
@@ -289,13 +230,110 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
 
           <div>
             <label className="mb-1 block font-medium">생년월일</label>
-            <input
-              type="date"
-              name="birthDate"
-              value={formData.birthDate}
-              onChange={handleChange}
-              className="w-full rounded-lg border px-3 py-2"
-            />
+            <div className="grid grid-cols-3 gap-2">
+              {/* Year */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setOpenBirthPicker((v) => (v === "y" ? null : "y"))}
+                  className="flex w-full items-center justify-between rounded-lg border bg-white px-3 py-2 text-left"
+                >
+                  <span className={birthY ? "text-slate-900" : "text-slate-400"}>
+                    {birthY ? `${birthY}년` : "년"}
+                  </span>
+                  <ChevronDown className="text-slate-500" />
+                </button>
+                {openBirthPicker === "y" && (
+                  <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-lg border bg-white shadow-lg">
+                    <div className="max-h-56 overflow-y-auto">
+                      {yearOptions.map((y) => (
+                        <button
+                          key={y}
+                          type="button"
+                          onClick={() => onPickYear(y)}
+                          className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                            birthY === y ? "bg-slate-100 font-semibold" : ""
+                          }`}
+                        >
+                          {y}년
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Month */}
+              <div className="relative">
+                <button
+                  type="button"
+                  disabled={!monthEnabled}
+                  onClick={() => setOpenBirthPicker((v) => (v === "m" ? null : "m"))}
+                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left ${
+                    monthEnabled ? "bg-white" : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                  }`}
+                >
+                  <span className={birthM ? "text-slate-900" : "text-slate-400"}>
+                    {birthM ? `${birthM}월` : "월"}
+                  </span>
+                  <ChevronDown className={monthEnabled ? "text-slate-500" : "text-slate-300"} />
+                </button>
+                {openBirthPicker === "m" && monthEnabled && (
+                  <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-lg border bg-white shadow-lg">
+                    <div className="max-h-56 overflow-y-auto">
+                      {monthOptions.map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => onPickMonth(m)}
+                          className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                            birthM === m ? "bg-slate-100 font-semibold" : ""
+                          }`}
+                        >
+                          {m}월
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Day */}
+              <div className="relative">
+                <button
+                  type="button"
+                  disabled={!dayEnabled}
+                  onClick={() => setOpenBirthPicker((v) => (v === "d" ? null : "d"))}
+                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left ${
+                    dayEnabled ? "bg-white" : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                  }`}
+                >
+                  <span className={birthD ? "text-slate-900" : "text-slate-400"}>
+                    {birthD ? `${birthD}일` : "일"}
+                  </span>
+                  <ChevronDown className={dayEnabled ? "text-slate-500" : "text-slate-300"} />
+                </button>
+                {openBirthPicker === "d" && dayEnabled && (
+                  <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-lg border bg-white shadow-lg">
+                    <div className="max-h-56 overflow-y-auto">
+                      {dayOptions.map((d) => (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => onPickDay(d)}
+                          className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                            birthD === d ? "bg-slate-100 font-semibold" : ""
+                          }`}
+                        >
+                          {d}일
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          
           </div>
 
           <div>
@@ -350,224 +388,6 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
               placeholder="알레르기, 특이사항 등"
             />
           </div>
-
-          {/* 이하 기존 코드 그대로 유지 */}
-          <div className="md:col-span-2 mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-            <p className="mb-3 text-base font-semibold text-slate-800">
-              병상 배정 방식
-            </p>
-
-            <div className="grid grid-cols-3 gap-3">
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-                <input
-                  type="radio"
-                  name="assignMode"
-                  value="none"
-                  checked={assignMode === "none"}
-                  onChange={(e) => handleAssignModeChange(e.target.value)}
-                />
-                <span className="text-sm font-medium text-slate-700">
-                  병상 없이 접수
-                </span>
-              </label>
-
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-                <input
-                  type="radio"
-                  name="assignMode"
-                  value="simple"
-                  checked={assignMode === "simple"}
-                  onChange={(e) => handleAssignModeChange(e.target.value)}
-                />
-                <span className="text-sm font-medium text-slate-700">
-                  간편 선택 배정
-                </span>
-              </label>
-
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-                <input
-                  type="radio"
-                  name="assignMode"
-                  value="layout"
-                  checked={assignMode === "layout"}
-                  onChange={(e) => handleAssignModeChange(e.target.value)}
-                />
-                <span className="text-sm font-medium text-slate-700">
-                  병동 화면에서 선택
-                </span>
-              </label>
-            </div>
-          </div>
-
-          {assignMode === "simple" && (
-            <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-blue-50 p-5">
-              <p className="mb-4 text-base font-semibold text-slate-800">
-                간편 병상 배정
-              </p>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <div>
-                  <label className="mb-1 block font-medium">병실 유형</label>
-                  <select
-                    name="roomType"
-                    value={formData.roomType}
-                    onChange={handleChange}
-                    className="w-full rounded-lg border px-3 py-2"
-                  >
-                    <option value="">선택</option>
-                    <option value="GENERAL">일반실</option>
-                    <option value="ICU">중환자실</option>
-                    <option value="ISOLATION">격리실</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-1 block font-medium">건물</label>
-                  <select
-                    name="building"
-                    value={formData.building}
-                    onChange={handleChange}
-                    className="w-full rounded-lg border px-3 py-2"
-                  >
-                    <option value="">선택</option>
-                    <option value="A동">A동</option>
-                    <option value="B동">B동</option>
-                    <option value="C동">C동</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-1 block font-medium">층</label>
-                  <select
-                    name="floor"
-                    value={formData.floor}
-                    onChange={handleChange}
-                    className="w-full rounded-lg border px-3 py-2"
-                  >
-                    <option value="">선택</option>
-                    <option value="1">1층</option>
-                    <option value="2">2층</option>
-                    <option value="3">3층</option>
-                    <option value="4">4층</option>
-                    <option value="5">5층</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-1 block font-medium">호실</label>
-                  <select
-                    name="room"
-                    value={formData.room}
-                    onChange={handleChange}
-                    className="w-full rounded-lg border px-3 py-2"
-                    disabled={
-                      !formData.roomType ||
-                      !formData.building ||
-                      !formData.floor
-                    }
-                  >
-                    <option value="">선택</option>
-
-                    {simpleRoomOptions.map((roomItem) => {
-                      const remainCount =
-                        roomItem.totalCount - roomItem.occupiedCount;
-                      const isFull = remainCount === 0;
-                      const isGenderMismatch = isGenderMismatchRoom(
-                        roomItem.room,
-                        formData.gender,
-                      );
-
-                      return (
-                        <option
-                          key={roomItem.room}
-                          value={roomItem.room}
-                          disabled={isFull || isGenderMismatch}
-                        >
-                          {roomItem.room}호{" "}
-                          {isGenderMismatch
-                            ? "(성별 불일치)"
-                            : isFull
-                            ? "(마감)"
-                            : `(${roomItem.occupiedCount}/${roomItem.totalCount} 사용중)`}
-                        </option>
-                      );
-                    })}
-                  </select>
-
-                  {(!formData.roomType ||
-                    !formData.building ||
-                    !formData.floor) && (
-                    <p className="mt-1 text-sm text-slate-400">
-                      병실 유형, 건물, 층을 먼저 선택하세요.
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-1 block font-medium">병상</label>
-                  <select
-                    name="bed"
-                    value={formData.bed}
-                    onChange={handleChange}
-                    className="w-full rounded-lg border px-3 py-2"
-                    disabled={!formData.room}
-                  >
-                    <option value="">선택</option>
-
-                    {simpleBedOptions.map((bedItem) => (
-                      <option
-                        key={bedItem.locationId}
-                        value={bedItem.bed}
-                        disabled={bedItem.occupied}
-                      >
-                        {bedItem.bed}번{" "}
-                        {bedItem.occupied ? "(이미 배정됨)" : ""}
-                      </option>
-                    ))}
-                  </select>
-
-                  {!formData.room && (
-                    <p className="mt-1 text-sm text-slate-400">
-                      먼저 호실을 선택하세요.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {formData.gender && formData.room && isGenderMismatchRoom(formData.room, formData.gender) && (
-                <p className="mt-3 text-sm text-red-600">
-                  선택한 환자 성별과 병실 성별이 달라 해당 병실에는 배정할 수 없습니다.
-                </p>
-              )}
-            </div>
-          )}
-
-          {assignMode === "layout" && (
-            <div className="md:col-span-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
-              <p className="mb-4 text-base font-semibold text-slate-800">
-                병동 화면에서 병상 선택
-              </p>
-
-              {selectedBed && (
-                <div className="mb-4 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm text-slate-700">
-                  선택한 병상:
-                  <span className="ml-2 font-semibold text-emerald-700">
-                    {selectedBed.id}
-                  </span>
-                </div>
-              )}
-
-              <div className="overflow-hidden rounded-2xl bg-white p-2">
-                <div className="origin-top scale-[0.88]">
-                  <RoomLayoutCard
-                    beds={beds}
-                    onAssignClick={handleSelectBedFromLayout}
-                    onBedClick={undefined}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="mt-4 flex justify-end gap-2 md:col-span-2">
             <button

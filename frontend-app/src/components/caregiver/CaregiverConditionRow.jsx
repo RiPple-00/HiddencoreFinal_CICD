@@ -11,7 +11,7 @@ import CaregiverStatusToggle from "./CaregiverStatusToggle";
  *
  * value = { status: null|"normal"|"abnormal", memo: string }
  */
-export default function CaregiverConditionRow({ label, value, onChange, warnText, isLast = false, readOnly = false }) {
+export default function CaregiverConditionRow({ label, value, onChange, warnText, isLast = false, readOnly = false, showStatusError = false }) {
   const safeValue  = value || {};
   const isAbnormal = safeValue.status === "abnormal";
 
@@ -45,7 +45,9 @@ export default function CaregiverConditionRow({ label, value, onChange, warnText
             <Text className="mt-[3px] text-[11px] font-bold text-error-primary">{warnText}</Text>
           )}
         </View>
-        <CaregiverStatusToggle readOnly={readOnly} value={safeValue.status} onChange={updateStatus} />
+        <View className={showStatusError ? "rounded-xl border-2 border-error-primary p-[2px]" : ""}>
+          <CaregiverStatusToggle readOnly={readOnly} value={safeValue.status} onChange={updateStatus} />
+        </View>
       </View>
 
       {isAbnormal && (

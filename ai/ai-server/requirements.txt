@@ -1,0 +1,6 @@
+ultralytics
+notebook
+jupyter
+pillow
+fastapi
+uvicorn

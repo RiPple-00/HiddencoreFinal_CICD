@@ -9,7 +9,7 @@ import CaregiverStatusToggle from "./CaregiverStatusToggle";
  *
  * value = { status: null|"normal"|"abnormal", memo: string }
  */
-export default function CaregiverHygieneRow({ label, value, onChange, isLast = false, readOnly = false }) {
+export default function CaregiverHygieneRow({ label, value, onChange, isLast = false, readOnly = false, showStatusError = false }) {
   const safeValue  = value || {};
   const isAbnormal = safeValue.status === "abnormal";
 
@@ -28,7 +28,9 @@ export default function CaregiverHygieneRow({ label, value, onChange, isLast = f
         <Text className={`flex-1 text-sm font-bold pr-2 ${isAbnormal ? "text-error-primary" : "text-caregiver-text-primary"}`}>
           {label}
         </Text>
-        <CaregiverStatusToggle readOnly={readOnly} value={safeValue.status} onChange={updateStatus} />
+        <View className={showStatusError ? "rounded-xl border-2 border-error-primary p-[2px]" : ""}>
+          <CaregiverStatusToggle readOnly={readOnly} value={safeValue.status} onChange={updateStatus} />
+        </View>
       </View>
 
       {isAbnormal && (

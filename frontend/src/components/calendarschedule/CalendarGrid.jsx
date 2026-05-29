@@ -244,6 +244,7 @@ const CalendarGrid = ({ year, month, schedules = [], selectedDate, onDateClick }
                       onClick={() => onDateClick?.(dateString)}
                       className={[
                         "relative text-left border-r border-b border-gray-200 last:border-r-0",
+                        dIdx % 7 === 0 ? "border-l border-gray-200" : "",
                         "h-[110px] px-2 pt-6 pb-2",
                         isCurrentMonth ? "bg-white" : "bg-gray-50",
                       ].join(" ")}

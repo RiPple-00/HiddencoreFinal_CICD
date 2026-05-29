@@ -19,7 +19,7 @@ const ROWS = [
   { key: "incident",  label: "사례 여부" },
 ];
 
-export default function CaregiverMealCheckTable({ value, onChange, readOnly = false }) {
+export default function CaregiverMealCheckTable({ value, onChange, readOnly = false, statusErrorMap = null }) {
   const safeValue = value || {};
 
   const updateCell = (slotKey, rowKey, partial) => {
@@ -76,18 +76,20 @@ export default function CaregiverMealCheckTable({ value, onChange, readOnly = fa
           </View>
           {SLOTS.map((slot) => (
             <View key={slot.key} className="flex-1 items-center justify-center">
-              <CaregiverStatusToggle
-                size="sm"
-                readOnly={readOnly}
-                value={safeValue[slot.key]?.[row.key]?.status ?? null}
-                onChange={(next) =>
-                  updateCell(slot.key, row.key, {
-                    status: next,
-                    // 정상 / 미선택으로 돌리면 해당 셀 메모도 함께 비운다.
-                    ...(next !== "abnormal" ? { memo: "" } : {}),
-                  })
-                }
-              />
+              <View className={statusErrorMap?.[`${slot.key}.${row.key}`] ? "rounded-xl border-2 border-error-primary p-[2px]" : ""}>
+                <CaregiverStatusToggle
+                  size="sm"
+                  readOnly={readOnly}
+                  value={safeValue[slot.key]?.[row.key]?.status ?? null}
+                  onChange={(next) =>
+                    updateCell(slot.key, row.key, {
+                      status: next,
+                      // 정상 / 미선택으로 돌리면 해당 셀 메모도 함께 비운다.
+                      ...(next !== "abnormal" ? { memo: "" } : {}),
+                    })
+                  }
+                />
+              </View>
             </View>
           ))}
         </View>
