@@ -7,9 +7,21 @@ const formatRemainingDays = (remainingDays) => {
   return `D-${remainingDays}`;
 };
 
+const formatRecruitmentStatus = (programInfo) => {
+  const capacity = programInfo?.totalQuota;
+  const enrolled = programInfo?.currentEnrolled;
+  if (capacity == null && enrolled == null) return '-';
+  if (capacity == null) return `${enrolled ?? 0}명`;
+  return `${enrolled ?? 0} / ${capacity}`;
+};
+
 const ApplicantStatsCards = ({ programInfo }) => {
   const cards = [
-    { label: '모집 정원', value: `${programInfo?.totalQuota ?? 0}명`, tone: 'text-slate-900' },
+    {
+      label: '모집 현황',
+      value: formatRecruitmentStatus(programInfo),
+      tone: 'text-slate-900',
+    },
     { label: '확정 인원', value: `${programInfo?.confirmedCount ?? 0}명`, tone: 'text-blue-700' },
     { label: '대기 인원', value: `${programInfo?.waitingCount ?? 0}명`, tone: 'text-teal-700' },
     { label: '남은 기간', value: formatRemainingDays(programInfo?.remainingDays), tone: 'text-red-600' },

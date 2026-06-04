@@ -1,7 +1,9 @@
 import axios from 'axios'; // http 요청(API 호출)
 import toast from 'react-hot-toast'; // 알림 메세지
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL
+  || (import.meta.env.DEV ? '/api' : 'http://localhost:8080/api');
 
 // axios 인스턴스 생성
 const api = axios.create({

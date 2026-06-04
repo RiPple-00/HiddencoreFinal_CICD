@@ -3,6 +3,7 @@ export const programApplicantMock = {
     title: '심혈관 건강 증진 운동 교실',
     description: '프로그램 신청 현황을 관리합니다.',
     totalQuota: 20,
+    currentEnrolled: 14,
     confirmedCount: 7,
     waitingCount: 2,
     remainingDays: 2,

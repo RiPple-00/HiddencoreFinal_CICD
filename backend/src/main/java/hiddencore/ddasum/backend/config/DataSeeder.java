@@ -323,16 +323,16 @@ public class DataSeeder {
                                                                 .type(PostType.APPLY).title("5월 종이접기 프로그램 참여 신청")
                                                                 .content("5월 종이접기 프로그램을 진행합니다. 정원 20명이니 빠른 신청 바랍니다.")
                                                                 .status(PostStatus.ACTIVE).isPinned(false)
-                                                                .startAt(LocalDateTime.now().plusDays(3))
-                                                                .endAt(LocalDateTime.now().plusDays(10))
-                                                                .capacity(20).currentEnrolled(0).views(31).build(),
+                                                                .startAt(LocalDateTime.now().minusDays(5))
+                                                                .endAt(LocalDateTime.now().plusDays(20))
+                                                                .capacity(20).currentEnrolled(14).views(31).build(),
                                                 Post.builder().facilityId(facility).authorUserId(office)
                                                                 .type(PostType.APPLY).title("원예 치료 프로그램 모집")
                                                                 .content("봄 원예 치료 프로그램 참여자를 모집합니다.")
                                                                 .status(PostStatus.ACTIVE).isPinned(false)
-                                                                .startAt(LocalDateTime.now().plusDays(7))
-                                                                .endAt(LocalDateTime.now().plusDays(14))
-                                                                .capacity(15).currentEnrolled(0).views(18).build(),
+                                                                .startAt(LocalDateTime.now().minusDays(3))
+                                                                .endAt(LocalDateTime.now().plusDays(18))
+                                                                .capacity(15).currentEnrolled(9).views(18).build(),
                                                 Post.builder().facilityId(facility).authorUserId(office)
                                                                 .type(PostType.GENERAL).title("4월 생신잔치 후기")
                                                                 .content("4월 생신잔치가 성황리에 마무리되었습니다. 참여해 주신 모든 분께 감사드립니다.")

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Header from '../../components/common/Header';
@@ -6,37 +6,55 @@ import ApplicantStatsCards from '../../components/board/applicants/ApplicantStat
 import ApplicantSection from '../../components/board/applicants/ApplicantSection';
 import ApplicantTable from '../../components/board/applicants/ApplicantTable';
 import postApplicationApi from '../../api/postApplicationApi';
-import { programApplicantMock } from '../../utils/programApplicantMock';
+import { normalizeManagementResponse } from '../../utils/programApplicationUtils';
 
 const ProgramApplicantManagementPage = () => {
   const navigate = useNavigate();
-  const { facilityId, postId } = useParams();
-  const [managementData, setManagementData] = useState(programApplicantMock);
+  const { facilityId: facilityIdParam, postId: postIdParam } = useParams();
+  const facilityId = Number(facilityIdParam);
+  const postId = Number(postIdParam);
+  const [managementData, setManagementData] = useState({
+    programInfo: null,
+    confirmedApplicants: [],
+    waitingApplicants: [],
+    rejectedApplicants: [],
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [loadError, setLoadError] = useState(null);
 
-  const loadManagementData = async () => {
+  const loadManagementData = useCallback(async () => {
+    if (!Number.isFinite(facilityId) || facilityId <= 0 || !Number.isFinite(postId) || postId <= 0) {
+      setLoadError('게시글 정보가 올바르지 않습니다.');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
+    setLoadError(null);
     try {
       const response = await postApplicationApi.getApplications(facilityId, postId);
-      const data = response.data ?? programApplicantMock;
+      setManagementData(normalizeManagementResponse(response.data));
+    } catch (err) {
+      const msg = err?.response?.data?.message ?? '신청자 목록을 불러오지 못했습니다.';
+      setLoadError(msg);
+      toast.error(msg);
       setManagementData({
-        ...programApplicantMock,
-        ...data,
-        rejectedApplicants: data.rejectedApplicants ?? [],
+        programInfo: null,
+        confirmedApplicants: [],
+        waitingApplicants: [],
+        rejectedApplicants: [],
       });
-    } catch {
-      setManagementData(programApplicantMock);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [facilityId, postId]);
 
   useEffect(() => {
     loadManagementData();
-  }, [facilityId, postId]);
+  }, [loadManagementData]);
 
-  const programInfo = managementData?.programInfo ?? programApplicantMock.programInfo;
+  const programInfo = managementData?.programInfo;
   const confirmedApplicants = managementData?.confirmedApplicants ?? [];
   const waitingApplicants = managementData?.waitingApplicants ?? [];
   const rejectedApplicants = managementData?.rejectedApplicants ?? [];
@@ -84,6 +102,18 @@ const ProgramApplicantManagementPage = () => {
               {programInfo?.title ?? '프로그램 신청자 관리'}
             </h1>
             <p className="mt-2 text-sm text-slate-500">{pageDescription}</p>
+            {loadError ? (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                <span>{loadError}</span>
+                <button
+                  type="button"
+                  onClick={loadManagementData}
+                  className="rounded-md bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700"
+                >
+                  다시 불러오기
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <div className="space-y-6">

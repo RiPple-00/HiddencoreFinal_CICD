@@ -15,9 +15,12 @@ public class PostApplicationDto {
     @AllArgsConstructor
     public static class ProgramInfo {
         private Long postId;
+        private Long facilityId;
         private String title;
         private String description;
         private Integer totalQuota;
+        /** 게시판 모집 현황과 동일 (POST.current_enrolled) */
+        private Integer currentEnrolled;
         private Integer confirmedCount;
         private Integer waitingCount;
         private Integer remainingDays;

@@ -45,9 +45,17 @@ const getRecruitStatusTone = (recruitStatus) => {
   return 'bg-gray-100 text-gray-500';
 };
 
+const getCapacity = (post) => post?.capacity ?? null;
+
+const getCurrentEnrolled = (post) =>
+  post?.currentEnrolled ?? post?.current_enrolled ?? null;
+
 const formatCapacityStatus = (post) => {
-  if (post.capacity == null && post.currentEnrolled == null) return '-';
-  return `${post.currentEnrolled ?? 0} / ${post.capacity ?? 0}`;
+  const capacity = getCapacity(post);
+  const enrolled = getCurrentEnrolled(post);
+  if (capacity == null && enrolled == null) return '-';
+  if (capacity == null) return `${enrolled ?? 0}명`;
+  return `${enrolled ?? 0} / ${capacity}`;
 };
 
 const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {

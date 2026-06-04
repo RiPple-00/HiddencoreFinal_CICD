@@ -31,12 +31,19 @@ public class PostApplicationService {
     private final MemberRepository memberRepository;
     private final PostService postService;
     private final DocumentRepository documentRepository;
+    private final ProgramApplicationBootstrapService programApplicationBootstrapService;
 
     public PostApplicationDto.ManagementResponse getApplications(Long facilityId, Long postId) {
-        Post post = postRepository.findByPostIdAndFacilityId(postId, facilityId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
-        List<PostApplication> applications = postApplicationRepository.findManagementApplications(facilityId, postId);
+        Long postFacilityId = post.getFacilityId().getFacilityId();
+
+        List<PostApplication> applications = postApplicationRepository.findManagementApplications(
+                postFacilityId, postId);
+
+        programApplicationBootstrapService.ensureDemoApplicantsIfEmpty(post);
+        applications = postApplicationRepository.findManagementApplications(postFacilityId, postId);
         List<PostApplicationDto.ApplicationInfo> confirmedApplicants = applications.stream()
                 .filter(application -> application.getStatus() == PostApplicationStatus.COMPLETED)
                 .map(this::toApplicationInfo)
@@ -50,12 +57,16 @@ public class PostApplicationService {
                 .map(this::toApplicationInfo)
                 .toList();
 
+        int enrolled = post.getCurrentEnrolled() != null ? post.getCurrentEnrolled() : 0;
+
         return PostApplicationDto.ManagementResponse.builder()
                 .programInfo(PostApplicationDto.ProgramInfo.builder()
                         .postId(post.getPostId())
+                        .facilityId(postFacilityId)
                         .title(post.getTitle())
                         .description("프로그램의 신청 현황과 대기자 명단을 관리합니다.")
                         .totalQuota(post.getCapacity() != null ? post.getCapacity() : 0)
+                        .currentEnrolled(enrolled)
                         .confirmedCount(confirmedApplicants.size())
                         .waitingCount(waitingApplicants.size())
                         .remainingDays(calculateRemainingDays(post.getEndAt()))

@@ -4,6 +4,19 @@ import { PAGE_SIZE, BOARD_OPTIONS, BOARD_TYPE_MAP } from '../utils/boardUtils';
 
 const BoardContext = createContext(null);
 
+/** 목록 API 필드 정규화 (0명 신청도 숫자로 유지 — truthy 체크 시 '-' 로 보이던 문제 방지) */
+const normalizeProgramPostFields = (post) => {
+  if (!post || typeof post !== 'object') return post;
+  const rawEnrolled = post.currentEnrolled ?? post.current_enrolled;
+  const rawCapacity = post.capacity;
+  return {
+    ...post,
+    capacity: rawCapacity == null || rawCapacity === '' ? null : Number(rawCapacity),
+    currentEnrolled:
+      rawEnrolled == null || rawEnrolled === '' ? null : Number(rawEnrolled),
+  };
+};
+
 /**
  * BoardContext 훅
  * BoardProvider 외부에서 호출하면 에러를 던져 잘못된 사용을 방지
@@ -52,7 +65,7 @@ export const BoardProvider = ({ facilityId, initialBoardValue = 'ALL', children 
         : Array.isArray(raw?.content)
           ? raw.content
           : [];
-      setAllPosts(list);
+      setAllPosts(list.map(normalizeProgramPostFields));
     } catch (err) {
       setError(err);
     } finally {
