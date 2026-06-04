@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "image_id": "3/78.png",
+  "is_background": false,
+  "label_status": "pending",
+  "labeled_at": null,
+  "labeled_by": null,
+  "notes": null,
+  "persons": [
+    {
+      "person_index": 1,
+      "person_bbox": [
+        670.9,
+        24.7,
+        1387.4,
+        1084.2
+      ],
+      "person_confidence": 0.8743,
+      "patient_id_gt": null,
+      "notes": null
+    },
+    {
+      "person_index": 2,
+      "person_bbox": [
+        0.0,
+        286.4,
+        231.2,
+        851.1
+      ],
+      "person_confidence": 0.8353,
+      "patient_id_gt": null,
+      "notes": null
+    },
+    {
+      "person_index": 3,
+      "person_bbox": [
+        1320.0,
+        283.2,
+        1447.5,
+        1084.9
+      ],
+      "person_confidence": 0.8317,
+      "patient_id_gt": null,
+      "notes": null
+    },
+    {
+      "person_index": 4,
+      "person_bbox": [
+        97.9,
+        72.5,
+        842.6,
+        1086.0
+      ],
+      "person_confidence": 0.6942,
+      "patient_id_gt": null,
+      "notes": null
+    },
+    {
+      "person_index": 5,
+      "person_bbox": [
+        658.5,
+        301.7,
+        826.8,
+        462.8
+      ],
+      "person_confidence": 0.4346,
+      "patient_id_gt": null,
+      "notes": null
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "image_id": "2/45.png",
+  "is_background": false,
+  "label_status": "pending",
+  "labeled_at": null,
+  "labeled_by": null,
+  "notes": null,
+  "persons": [
+    {
+      "person_index": 1,
+      "person_bbox": [
+        74.2,
+        42.6,
+        1179.0,
+        1080.2
+      ],
+      "person_confidence": 0.8562,
+      "patient_id_gt": null,
+      "notes": null
+    }
+  ]
+}

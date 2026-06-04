@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "analysis_result_v1",
+  "title": "Ddasum Gallery AI Analysis Result (Phase 1: Identity Only)",
+  "description": "YOLO person detection + InsightFace patient identification. Action/program fields are reserved for later phases.",
+  "type": "object",
+  "required": ["schema_version", "pipeline_stage", "generated_at", "images"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "pipeline_stage": {
+      "type": "string",
+      "const": "identity_only"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "similarity_threshold": { "type": "number" },
+        "yolo_model": { "type": "string" },
+        "face_model": { "type": "string" }
+      }
+    },
+    "images": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/image_result" }
+    }
+  },
+  "$defs": {
+    "bbox": {
+      "type": "array",
+      "description": "[x1, y1, x2, y2] in pixel coordinates",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "type": "number" }
+    },
+    "identity_status": {
+      "type": "string",
+      "enum": ["MATCHED", "UNKNOWN", "NO_FACE"]
+    },
+    "person_result": {
+      "type": "object",
+      "required": ["person_index", "person_bbox", "identity_status"],
+      "properties": {
+        "person_index": { "type": "integer", "minimum": 1 },
+        "person_bbox": { "$ref": "#/$defs/bbox" },
+        "person_confidence": { "type": "number" },
+        "face_bbox": {
+          "oneOf": [{ "$ref": "#/$defs/bbox" }, { "type": "null" }]
+        },
+        "patient_id": {
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "identity": {
+          "description": "Patient display name from backend (filled in later integration)",
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "identity_status": { "$ref": "#/$defs/identity_status" },
+        "similarity": {
+          "oneOf": [{ "type": "number" }, { "type": "null" }]
+        },
+        "patient_scores": {
+          "description": "Similarity scores against all registered patients (patient_id -> score). null when NO_FACE.",
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": { "type": "number" }
+            },
+            { "type": "null" }
+          ]
+        },
+        "action": {
+          "description": "Reserved for phase 2 (YOLO action classifier)",
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "post_id": {
+          "description": "Reserved for phase 2 (program time matching)",
+          "oneOf": [{ "type": "integer" }, { "type": "null" }]
+        },
+        "title": {
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "content": {
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
+        }
+      }
+    },
+    "image_result": {
+      "type": "object",
+      "required": ["image_id", "is_background", "person_count", "persons"],
+      "properties": {
+        "image_id": {
+          "type": "string",
+          "description": "Relative path under data/gallery"
+        },
+        "image_path": { "type": "string" },
+        "taken_at": {
+          "description": "EXIF capture time (ISO 8601). null if unavailable.",
+          "oneOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "is_background": {
+          "type": "boolean",
+          "description": "true when YOLO detects no person"
+        },
+        "person_count": { "type": "integer", "minimum": 0 },
+        "persons": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/person_result" }
+        },
+        "output_image": { "type": "string" }
+      }
+    }
+  }
+}

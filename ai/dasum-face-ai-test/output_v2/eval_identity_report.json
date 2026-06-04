@@ -1,0 +1,669 @@
+{
+  "summary": {
+    "labeled_persons": 65,
+    "correct": 44,
+    "accuracy": 0.6769,
+    "uncertain_rate": 0.0,
+    "unknown_rate": 0.4364,
+    "error_breakdown": {
+      "missed_match": 21
+    },
+    "pred_status_counts": {
+      "MATCHED": 39,
+      "LOW_CONFIDENCE": 13,
+      "UNKNOWN": 13
+    }
+  },
+  "details": [
+    {
+      "image_id": "1/1.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_6",
+      "pred_similarity": 0.7647,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/10.png",
+      "face_index": 3,
+      "patient_id_gt": "patient_3",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.2897,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "1/10.png",
+      "face_index": 4,
+      "patient_id_gt": "patient_2",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4287,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "1/14.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_3",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_3",
+      "pred_similarity": 0.5448,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/2.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_5",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_5",
+      "pred_similarity": 0.8176,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/2.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_3",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.3878,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "1/21.png",
+      "face_index": 4,
+      "patient_id_gt": "patient_2",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_2",
+      "pred_similarity": 0.5068,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/24.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_3",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4407,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "1/3.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_6",
+      "pred_similarity": 0.5611,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/3.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_1",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4897,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "1/3.png",
+      "face_index": 3,
+      "patient_id_gt": "patient_4",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_4",
+      "pred_similarity": 0.6813,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/4.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_6",
+      "pred_similarity": 0.6621,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/4.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_2",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_2",
+      "pred_similarity": 0.6043,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/5.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_5",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_5",
+      "pred_similarity": 0.6522,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/5.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_4",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_4",
+      "pred_similarity": 0.642,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/5.png",
+      "face_index": 3,
+      "patient_id_gt": "patient_1",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_1",
+      "pred_similarity": 0.5802,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/5.png",
+      "face_index": 4,
+      "patient_id_gt": "patient_2",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4024,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "1/6.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4424,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "1/6.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_5",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_5",
+      "pred_similarity": 0.693,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/6.png",
+      "face_index": 3,
+      "patient_id_gt": "patient_3",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.2182,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "1/6.png",
+      "face_index": 4,
+      "patient_id_gt": "patient_4",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_4",
+      "pred_similarity": 0.6685,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/6.png",
+      "face_index": 5,
+      "patient_id_gt": "unknown",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.0934,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/7.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_4",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_4",
+      "pred_similarity": 0.7254,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/7.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_2",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_2",
+      "pred_similarity": 0.5258,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/8.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_6",
+      "pred_similarity": 0.5639,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/8.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_1",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_1",
+      "pred_similarity": 0.6101,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/8.png",
+      "face_index": 3,
+      "patient_id_gt": "unknown",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.0892,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/8.png",
+      "face_index": 4,
+      "patient_id_gt": "unknown",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.1718,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/9.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_5",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_5",
+      "pred_similarity": 0.692,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "1/9.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_6",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4481,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "1/9.png",
+      "face_index": 3,
+      "patient_id_gt": "patient_3",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.3994,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "1/9.png",
+      "face_index": 4,
+      "patient_id_gt": "patient_2",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.3833,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "2/34.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4374,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "2/34.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_4",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_4",
+      "pred_similarity": 0.8742,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/34.png",
+      "face_index": 3,
+      "patient_id_gt": "patient_1",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_1",
+      "pred_similarity": 0.6208,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/34.png",
+      "face_index": 4,
+      "patient_id_gt": "patient_2",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_2",
+      "pred_similarity": 0.7461,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/35.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_4",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_4",
+      "pred_similarity": 0.7837,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/36.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_6",
+      "pred_similarity": 0.629,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/36.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_2",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_2",
+      "pred_similarity": 0.7182,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/36.png",
+      "face_index": 3,
+      "patient_id_gt": "unknown",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.0958,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/36.png",
+      "face_index": 4,
+      "patient_id_gt": "unknown",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.0716,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/37.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_5",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_5",
+      "pred_similarity": 0.683,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/37.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_1",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_1",
+      "pred_similarity": 0.697,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/37.png",
+      "face_index": 3,
+      "patient_id_gt": "patient_4",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_4",
+      "pred_similarity": 0.9085,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/37.png",
+      "face_index": 4,
+      "patient_id_gt": "patient_2",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_2",
+      "pred_similarity": 0.6922,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/49.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_3",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_3",
+      "pred_similarity": 0.5349,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "2/60.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_3",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.368,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "2/61.png",
+      "face_index": 4,
+      "patient_id_gt": "patient_3",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.3221,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "3/63.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_6",
+      "pred_similarity": 0.5183,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "3/64.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_2",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_2",
+      "pred_similarity": 0.548,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "3/65.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.47,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "3/66.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4476,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "3/66.png",
+      "face_index": 3,
+      "patient_id_gt": "patient_3",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_3",
+      "pred_similarity": 0.5267,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "3/70.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_6",
+      "pred_similarity": 0.5279,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "3/71.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4267,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "3/71.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_2",
+      "pred_status": "LOW_CONFIDENCE",
+      "pred_patient_id": null,
+      "pred_similarity": 0.383,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "3/72.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_6",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_6",
+      "pred_similarity": 0.5194,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "3/72.png",
+      "face_index": 3,
+      "patient_id_gt": "patient_1",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4542,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "3/81.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_2",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_2",
+      "pred_similarity": 0.5346,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "3/82.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_5",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_5",
+      "pred_similarity": 0.5184,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "3/82.png",
+      "face_index": 3,
+      "patient_id_gt": "patient_3",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.434,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "3/86.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_5",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_5",
+      "pred_similarity": 0.5172,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "3/88.png",
+      "face_index": 1,
+      "patient_id_gt": "patient_5",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_5",
+      "pred_similarity": 0.5285,
+      "correct": true,
+      "error_type": null
+    },
+    {
+      "image_id": "3/88.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_3",
+      "pred_status": "UNKNOWN",
+      "pred_patient_id": null,
+      "pred_similarity": 0.4892,
+      "correct": false,
+      "error_type": "missed_match"
+    },
+    {
+      "image_id": "3/93.png",
+      "face_index": 2,
+      "patient_id_gt": "patient_3",
+      "pred_status": "MATCHED",
+      "pred_patient_id": "patient_3",
+      "pred_similarity": 0.5093,
+      "correct": true,
+      "error_type": null
+    }
+  ]
+}
