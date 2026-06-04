@@ -43,6 +43,13 @@ public class PatientController {
         return ResponseEntity.ok(bedRoomService.getSearchPatientsForAssign(keyword));
     }
 
+    @Operation(summary = "병상 배정용 미배정 환자 목록", description = "침상에 배정되지 않은 환자 전체를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @GetMapping("/unassigned")
+    public ResponseEntity<List<PatientAssignSearchResponseDto>> getUnassignedPatientsForAssign() {
+        return ResponseEntity.ok(bedRoomService.getUnassignedPatientsForAssign());
+    }
+
     @Operation(summary = "환자 상세 조회", description = "patient_id로 환자 상세 정보를 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @ApiResponse(responseCode = "400", description = "환자 없음 등")

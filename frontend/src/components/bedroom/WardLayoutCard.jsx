@@ -31,7 +31,8 @@ const getStatus = (patientCount, roomCapacity) => {
   return 'AVAILABLE';
 };
 
-const isRoomHighlighted = (roomType, selectedSpecial) => {
+/** SPECIAL SELECTION에 맞춰 표시·클릭 가능 여부 (동일 규칙) */
+const isRoomSelectable = (roomType, selectedSpecial) => {
   if (!selectedSpecial) return roomType === '일반실';
   return roomType === selectedSpecial;
 };
@@ -159,7 +160,7 @@ function WardLayoutCard() {
               key={room.id}
               room={room}
               building={selectedWard}
-              isDimmed={!isRoomHighlighted(room.roomType, selectedSpecial)}
+              isDimmed={!isRoomSelectable(room.roomType, selectedSpecial)}
             />
           ))}
         </div>
@@ -172,7 +173,7 @@ function WardLayoutCard() {
               key={room.id}
               room={room}
               building={selectedWard}
-              isDimmed={!isRoomHighlighted(room.roomType, selectedSpecial)}
+              isDimmed={!isRoomSelectable(room.roomType, selectedSpecial)}
             />
           ))}
         </div>

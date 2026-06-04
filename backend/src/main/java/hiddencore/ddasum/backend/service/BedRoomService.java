@@ -49,6 +49,13 @@ public class BedRoomService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<PatientAssignSearchResponseDto> getUnassignedPatientsForAssign() {
+        return patientRepository.findUnassignedForAssign().stream()
+                .map(PatientAssignSearchResponseDto::from)
+                .toList();
+    }
+
     @Transactional
     public void assignPatientToBed(Long locationId, Long patientId) {
         Location location = locationRepository.findById(locationId)

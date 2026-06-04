@@ -1,6 +1,24 @@
 import { useMemo, useState } from "react";
 import patientApi from "../../api/patientApi";
 
+function createEmptyFormData() {
+  return {
+    name: "",
+    gender: "",
+    birthDate: "",
+    address: "",
+    bloodType: "",
+    admissionDate: new Date().toISOString().split("T")[0],
+    building: "",
+    floor: "",
+    room: "",
+    bed: "",
+    roomType: "",
+    locationId: null,
+    memo: "",
+  };
+}
+
 function ChevronDown({ className = "" }) {
   return (
     <svg
@@ -33,92 +51,12 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
   const toIsoDate = (y, m, d) => `${y}-${pad2(m)}-${pad2(d)}`;
   const daysInMonth = (y, m) => new Date(y, m, 0).getDate(); // m: 1~12
 
-  // 발표용 기본값 포함
-  const initialFormData = {
-    name: "이환자",
-    gender: "MALE",
-    birthDate: "",
-    address: "서울특별시 강남구 역삼동 123-456",
-    bloodType: "A_POSITIVE",
-    admissionDate: new Date().toISOString().split("T")[0],
-    building: "",
-    floor: "",
-    room: "",
-    bed: "",
-    roomType: "",
-    locationId: null,
-    memo: "",
-  };
-
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState(createEmptyFormData);
   const [birthY, setBirthY] = useState(null);
   const [birthM, setBirthM] = useState(null);
   const [birthD, setBirthD] = useState(null);
 
   const [openBirthPicker, setOpenBirthPicker] = useState(null); // 'y' | 'm' | 'd' | null
-
-  if (!open) return null;  // 모달이 닫혀 있으면 렌더링하지 않음
-
-  const resetForm = () => {  // 모달 닫을 때 입력값 전체 초기화
-    setFormData(initialFormData);
-    setBirthY(null);
-    setBirthM(null);
-    setBirthD(null);
-    setOpenBirthPicker(null);
-  };
-
-  const handleClose = () => {// 닫기 버튼 / 취소 버튼 눌렀을 때
-    resetForm();
-    onClose?.();
-  };
-
-  const handleChange = (e) => {  // input, select 공통 변경 핸들러
-    const { name, value } = e.target;
-
-    setFormData((prev) => {
-      if (name === "building") {// 건물이 바뀌면
-      // 하위 선택값(층, 호실, 병상)을 전부 초기화
-        return {
-          ...prev,
-          building: value,
-          floor: "",
-          room: "",
-          bed: "",
-        };
-      }
-
-      if (name === "floor") { // 위랑 똑같
-        return {
-          ...prev,
-          floor: value,
-          room: "",
-          bed: "",
-        };
-      }
-
-      if (name === "roomType") { // 위랑 똑같
-        return {
-          ...prev,
-          roomType: value,
-          room: "",
-          bed: "",
-        };
-      }
-
-      if (name === "room") { // 위랑 똑같
-        return {
-          ...prev,
-          room: value,
-          bed: "",
-        };
-      }
-
-      return {// 일반 입력값 변경
-        ...prev,
-        [name]: value,
-      };
-    });
-  };
 
   const yearOptions = useMemo(() => {
     const minY = 1900;
@@ -167,6 +105,68 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
 
   const monthEnabled = Boolean(birthY);
   const dayEnabled = Boolean(birthY && birthM);
+
+  if (!open) return null;
+
+  const resetForm = () => {
+    setFormData(createEmptyFormData());
+    setBirthY(null);
+    setBirthM(null);
+    setBirthD(null);
+    setOpenBirthPicker(null);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose?.();
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => {
+      if (name === "building") {
+        return {
+          ...prev,
+          building: value,
+          floor: "",
+          room: "",
+          bed: "",
+        };
+      }
+
+      if (name === "floor") {
+        return {
+          ...prev,
+          floor: value,
+          room: "",
+          bed: "",
+        };
+      }
+
+      if (name === "roomType") {
+        return {
+          ...prev,
+          roomType: value,
+          room: "",
+          bed: "",
+        };
+      }
+
+      if (name === "room") {
+        return {
+          ...prev,
+          room: value,
+          bed: "",
+        };
+      }
+
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

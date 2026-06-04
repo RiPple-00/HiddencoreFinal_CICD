@@ -90,7 +90,7 @@ export default function Header({
     { key: "rooms", label: "병실 조회", to: "/ward" },
     { key: "patients", label: "환자 조회", to: "/patients" },
     { key: "calendar", label: "캘린더", to: "/schedule" },
-    { key: "notice", label: "공지사항", to: facilityId ? `/facilities/${facilityId}/board` : null },
+    { key: "notice", label: "게시판", to: facilityId ? `/facilities/${facilityId}/board` : null },
   ];
   const resolvedNavItems = navItems ?? defaultNavItems;
 

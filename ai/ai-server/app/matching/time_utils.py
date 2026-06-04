@@ -1,12 +1,31 @@
-# 촬영 시간이 프로그램 시간 안에 들어가는지 확인
-# from datetime import datetime
+from datetime import datetime
+from typing import Union
 
-# def parse_datetime(value):
-#    return datetime.strptime(value, "%Y-%m-%d %H:%M")
 
-#def is_time_in_range(taken_at, start_time, end_time):
-#    taken = parse_datetime(taken_at)
-#    start = parse_datetime(start_time)
-#    end = parse_datetime(end_time)
+def parse_datetime(value: Union[str, datetime]) -> datetime:
+    if isinstance(value, datetime):
+        return value
 
-#    return start <= taken <= end
+    text = str(value).strip()
+    for fmt in (
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d %H:%M",
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M",
+    ):
+        try:
+            return datetime.strptime(text, fmt)
+        except ValueError:
+            continue
+    raise ValueError(f"지원하지 않는 날짜 형식입니다: {value}")
+
+
+def is_time_in_range(
+    taken_at: Union[str, datetime],
+    start_time: Union[str, datetime],
+    end_time: Union[str, datetime],
+) -> bool:
+    taken = parse_datetime(taken_at)
+    start = parse_datetime(start_time)
+    end = parse_datetime(end_time)
+    return start <= taken <= end

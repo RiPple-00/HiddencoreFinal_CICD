@@ -39,6 +39,8 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
   const [saveStatus,   setSaveStatus]   = useState("idle"); // idle | saving | saved | error
   const [submitting,   setSubmitting]   = useState(false);
   const [submitErrors, setSubmitErrors] = useState(null); // { mealMap, hygieneMap, conditionMap, sections }
+  const [submitBanner, setSubmitBanner] = useState(null); // { type: 'warning'|'success', message }
+  const [recordStatus, setRecordStatus] = useState(null); // DRAFT | PENDING_APPROVAL 등
 
   const scrollRef = useRef(null);
   const sectionYRef = useRef({ meal: 0, hygiene: 0, condition: 0 });
@@ -57,10 +59,12 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
         const { data } = await caregiverApi.getOne({ patientId, date: recordDate });
         if (cancelled) return;
         setState(applyResponseToState(data));
+        setRecordStatus(data?.status ?? null);
       } catch {
         // 네트워크 오류 등 - 빈 상태로 시작한다 (사용자에게 별도 알림은 띄우지 않음)
         if (cancelled) return;
         setState(initialState());
+        setRecordStatus(null);
       } finally {
         if (!cancelled) {
           setBootstrapping(false);
@@ -141,14 +145,29 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
     return { mealMap, hygieneMap, conditionMap, sections };
   }, []);
 
+  const scrollToTop = useCallback(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  }, []);
+
   const scrollToFirstError = useCallback((sections) => {
     const yMap = sectionYRef.current || {};
     const order = ["meal", "hygiene", "condition"];
     const first = order.find((k) => sections?.[k]);
-    if (!first) return;
+    if (!first) {
+      scrollToTop();
+      return;
+    }
     const y = Math.max(0, (yMap[first] ?? 0) - 10);
     scrollRef.current?.scrollTo({ y, animated: true });
+  }, [scrollToTop]);
+
+  const clearRequiredSectionFeedback = useCallback(() => {
+    setSubmitErrors(null);
+    setSubmitBanner(null);
   }, []);
+
+  const isSubmitted =
+    recordStatus === "PENDING_APPROVAL" || recordStatus === "APPROVED";
 
   // ---------- 제출 ----------
   const handleSubmit = useCallback(async () => {
@@ -157,24 +176,43 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
     const errs = computeSubmitErrors(state);
     if (errs.sections.meal || errs.sections.hygiene || errs.sections.condition) {
       setSubmitErrors(errs);
+      setSubmitBanner({
+        type: "warning",
+        message: "기입이 되지 않은 항목들 작성해주시기 바랍니다.",
+      });
       scrollToFirstError(errs.sections);
       return;
     }
 
     setSubmitting(true);
+    setSubmitBanner(null);
     try {
       // 마지막 입력이 디바운스를 안 거치고 끝났을 수도 있으므로 즉시 저장 후 제출.
       const payload = buildPayload(state, patientId, recordDate);
       await caregiverApi.autoSave(payload);
-      await caregiverApi.submit(payload);
-      Alert.alert("제출 완료", "오늘의 업무 체크리스트가 제출되었습니다.");
+      const { data } = await caregiverApi.submit(payload);
+      setRecordStatus(data?.status ?? "PENDING_APPROVAL");
+      setSubmitErrors(null);
+      setSubmitBanner({
+        type: "success",
+        message: "제출이 완료되었습니다.",
+      });
       setSaveStatus("saved");
+      scrollToTop();
     } catch {
       Alert.alert("제출 실패", "잠시 후 다시 시도해주세요.");
     } finally {
       if (isMountedRef.current) setSubmitting(false);
     }
-  }, [state, patientId, recordDate, submitting, computeSubmitErrors, scrollToFirstError]);
+  }, [
+    state,
+    patientId,
+    recordDate,
+    submitting,
+    computeSubmitErrors,
+    scrollToFirstError,
+    scrollToTop,
+  ]);
 
   const saveStatusText = useMemo(() => {
     if (saveStatus === "saving") return "자동 저장 중…";
@@ -184,8 +222,6 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
     return "";
   }, [saveStatus]);
 
-  const canSubmit = true;
-
   return (
     <SafeAreaView className="flex-1 bg-caregiver-bg-primary" edges={["bottom", "left", "right"]}>
       {/* maxWidth 430은 NativeWind 불안정 → inline style 유지 */}
@@ -193,10 +229,42 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
 
         <CaregiverPatientStrip name={patientName} genderAge={genderAge} metaItems={metaItems} />
 
+        {submitBanner && (
+          <View
+            className={`mx-[14px] mt-2 rounded-lg border px-3 py-2.5 ${
+              submitBanner.type === "success"
+                ? "border-emerald-200 bg-emerald-50"
+                : "border-amber-200 bg-amber-50"
+            }`}
+          >
+            <Text
+              className={`text-[13px] font-semibold leading-5 ${
+                submitBanner.type === "success"
+                  ? "text-emerald-800"
+                  : "text-amber-900"
+              }`}
+            >
+              {submitBanner.message}
+            </Text>
+          </View>
+        )}
+
+        {isSubmitted && !submitBanner && (
+          <View className="mx-[14px] mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5">
+            <Text className="text-[13px] font-semibold text-emerald-800">
+              제출이 완료되었습니다.
+            </Text>
+          </View>
+        )}
+
         {/* 자동 저장 상태 표시 */}
         <View className="px-[14px] pt-2 pb-[2px]">
           <Text className="text-[11px] text-caregiver-text-secondary text-right">
-            {bootstrapping ? "이전 기록 불러오는 중…" : saveStatusText}
+            {bootstrapping
+              ? "이전 기록 불러오는 중…"
+              : isSubmitted
+                ? "제출 완료 · 수정 시 자동 저장됩니다"
+                : saveStatusText}
           </Text>
         </View>
 
@@ -217,7 +285,7 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
               <CaregiverMealCheckTable
                 value={state.meal}
                 onChange={(v) => {
-                  setSubmitErrors(null);
+                  clearRequiredSectionFeedback();
                   updateMeal(v);
                 }}
                 statusErrorMap={submitErrors?.mealMap ?? null}
@@ -231,19 +299,19 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
               <CaregiverHygieneRow
                 label="침구류 청결도"
                 value={state.hygiene.bedding}
-                onChange={(v) => { setSubmitErrors(null); updateHygieneItem("bedding", v); }}
+                onChange={(v) => { clearRequiredSectionFeedback(); updateHygieneItem("bedding", v); }}
                 showStatusError={Boolean(submitErrors?.hygieneMap?.bedding)}
               />
               <CaregiverHygieneRow
                 label="환자 용품 청결"
                 value={state.hygiene.patientItems}
-                onChange={(v) => { setSubmitErrors(null); updateHygieneItem("patientItems", v); }}
+                onChange={(v) => { clearRequiredSectionFeedback(); updateHygieneItem("patientItems", v); }}
                 showStatusError={Boolean(submitErrors?.hygieneMap?.patientItems)}
               />
               <CaregiverHygieneRow
                 label="목욕 여부"
                 value={state.hygiene.bathing}
-                onChange={(v) => { setSubmitErrors(null); updateHygieneItem("bathing", v); }}
+                onChange={(v) => { clearRequiredSectionFeedback(); updateHygieneItem("bathing", v); }}
                 showStatusError={Boolean(submitErrors?.hygieneMap?.bathing)}
                 isLast
               />
@@ -256,20 +324,20 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
               <CaregiverConditionRow
                 label="호흡 양상"
                 value={state.condition.breathing}
-                onChange={(v) => { setSubmitErrors(null); updateConditionItem("breathing", v); }}
+                onChange={(v) => { clearRequiredSectionFeedback(); updateConditionItem("breathing", v); }}
                 warnText={state.condition.breathing.status === "abnormal" ? "최근 확인 필요" : null}
                 showStatusError={Boolean(submitErrors?.conditionMap?.breathing)}
               />
               <CaregiverConditionRow
                 label="통증 유무"
                 value={state.condition.pain}
-                onChange={(v) => { setSubmitErrors(null); updateConditionItem("pain", v); }}
+                onChange={(v) => { clearRequiredSectionFeedback(); updateConditionItem("pain", v); }}
                 showStatusError={Boolean(submitErrors?.conditionMap?.pain)}
               />
               <CaregiverConditionRow
                 label="낙상 유무"
                 value={state.condition.fall}
-                onChange={(v) => { setSubmitErrors(null); updateConditionItem("fall", v); }}
+                onChange={(v) => { clearRequiredSectionFeedback(); updateConditionItem("fall", v); }}
                 showStatusError={Boolean(submitErrors?.conditionMap?.fall)}
                 isLast
               />
@@ -306,7 +374,11 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
                 className={`bg-caregiver-button-primary rounded-xl py-[14px] items-center ${submitting ? "opacity-50" : ""}`}
               >
                 <Text className="text-white text-base font-extrabold">
-                  {submitting ? "제출 중…" : "제출하기"}
+                  {submitting
+                    ? "제출 중…"
+                    : isSubmitted
+                      ? "다시 제출하기"
+                      : "제출하기"}
                 </Text>
               </Pressable>
             </View>

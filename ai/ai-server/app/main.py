@@ -1,21 +1,25 @@
-# 테스트용 API
 from fastapi import FastAPI
-from schemas import ActionRequest
 
-from action.action_pipeline import run_action_pipeline
+from app.action.action_classifier import classify_action
+from app.matching.program_matcher import match_program
+from app.schemas import ActionRequest, ActionResponse
 
-app = FastAPI()
+app = FastAPI(title="HiddenCore AI Server")
 
-@app.post("/ai/action")
 
-def analyze_action(request: ActionRequest):
+@app.post("/ai/action", response_model=ActionResponse)
+def action_api(request: ActionRequest) -> ActionResponse:
+    result = classify_action(request.image_path)
 
-    result = run_action_pipeline(
-        person_crop_path=request.person_crop_path,
+    matched_program = match_program(
         taken_at=request.taken_at,
-        program_candidates=[
-            p.dict() for p in request.program_candidates
-        ]
+        action=result["action"],
+        program_candidates=request.program_candidates,
     )
 
-    return result
+    return ActionResponse(
+        action=result["action"],
+        action_ko=result["action_ko"],
+        confidence=result["confidence"],
+        matched_program=matched_program,
+    )

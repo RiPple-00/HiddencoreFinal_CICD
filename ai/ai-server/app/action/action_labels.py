@@ -3,5 +3,4 @@ ACTION_LABELS = {
     0: "drawing",
     1: "folding",
     2: "dancing",
-    3: "walking"
 }

@@ -106,6 +106,10 @@ function BedRoomPage() {
   const [searchAttempted, setSearchAttempted] = useState(false);
   const [assigningPatientId, setAssigningPatientId] = useState(null);
 
+  const [unassignedPatients, setUnassignedPatients] = useState([]);
+  const [unassignedLoading, setUnassignedLoading] = useState(false);
+  const [unassignedError, setUnassignedError] = useState("");
+
   const roomGenderLabel =
     roomGenderType === "MALE"
       ? "남성 병동"
@@ -170,6 +174,21 @@ function BedRoomPage() {
     loadBeds();
   }, [loadBeds]);
 
+  const fetchUnassignedPatients = useCallback(async () => {
+    try {
+      setUnassignedLoading(true);
+      setUnassignedError("");
+      const res = await bedRoomApi.getUnassignedPatientsForAssign();
+      setUnassignedPatients(res?.data ?? []);
+    } catch (e) {
+      console.error("미배정 환자 조회 실패", e);
+      setUnassignedError("미배정 환자 목록을 불러오지 못했습니다.");
+      setUnassignedPatients([]);
+    } finally {
+      setUnassignedLoading(false);
+    }
+  }, []);
+
   const handlePatientSearch = async () => {
     const keyword = patientSearch.trim();
     if (!keyword) {
@@ -200,7 +219,10 @@ function BedRoomPage() {
     setSearchedPatients([]);
     setSearchError("");
     setSearchAttempted(false);
+    setUnassignedPatients([]);
+    setUnassignedError("");
     setIsAssignModalOpen(true);
+    fetchUnassignedPatients();
   };
 
   // 환자 배정 모달 닫기 및 상태 초기화
@@ -212,6 +234,8 @@ function BedRoomPage() {
     setSearchError("");
     setSearchAttempted(false);
     setAssigningPatientId(null);
+    setUnassignedPatients([]);
+    setUnassignedError("");
   };
 
   const handleAssignPatientToSelectedBed = async (patient) => {
@@ -270,6 +294,86 @@ function BedRoomPage() {
 
 
   const [unassigning, setUnassigning] = useState(false);
+  const formatGenderLabel = (gender) => {
+    if (gender === "MALE") return "남";
+    if (gender === "FEMALE") return "여";
+    if (gender === "OTHER") return "기타";
+    return gender || "-";
+  };
+
+  const renderAssignPatientRow = (patient) => {
+    const isFemale = patient.gender === "FEMALE";
+    const iconClass = patient.assignable
+      ? isFemale
+        ? "bg-pink-100 text-pink-600"
+        : "bg-blue-100 text-blue-600"
+      : "bg-slate-200 text-slate-500";
+
+    return (
+      <div
+        key={patient.patientId}
+        className={`flex items-center justify-between rounded-2xl border px-4 py-4 ${
+          patient.assignable
+            ? "border-slate-200 bg-white"
+            : "border-dashed border-slate-200 bg-slate-50 opacity-80"
+        }`}
+      >
+        <div className="flex items-center gap-4">
+          <div
+            className={`flex h-12 w-12 items-center justify-center rounded-xl text-lg ${iconClass}`}
+          >
+            👤
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-2xl font-bold text-slate-900">{patient.name}</p>
+              <span
+                className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                  patient.assignmentStatus === "미배정"
+                    ? "bg-amber-100 text-amber-800"
+                    : "bg-slate-200 text-slate-700"
+                }`}
+              >
+                {patient.assignmentStatus === "미배정" ? "미배정" : "배정됨"}
+              </span>
+              {patient.assignedBedLabel && (
+                <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
+                  {patient.assignedBedLabel}
+                </span>
+              )}
+              <span className="rounded-full bg-sky-100 px-2 py-1 text-xs font-semibold text-sky-800">
+                {patient.condition || "-"}
+              </span>
+            </div>
+            <p className="mt-1 text-sm text-slate-500">
+              {formatGenderLabel(patient.gender)} / {patient.age ?? "-"}세
+              {patient.chartId ? ` · 차트 ${patient.chartId}` : ""}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          disabled={
+            !patient.assignable || assigningPatientId === patient.patientId
+          }
+          onClick={() => handleAssignPatientToSelectedBed(patient)}
+          className={`rounded-xl px-5 py-2 text-base font-semibold ${
+            patient.assignable
+              ? "bg-blue-500 text-white transition hover:bg-blue-600 disabled:opacity-60"
+              : "cursor-not-allowed bg-slate-200 text-slate-400"
+          }`}
+        >
+          {patient.assignable
+            ? assigningPatientId === patient.patientId
+              ? "처리 중..."
+              : "배정하기"
+            : "배정완료"}
+        </button>
+      </div>
+    );
+  };
+
   const handleUnassignSelectedBed = async () => {
     if (!selectedBed?.locationId) return;
     try {
@@ -363,7 +467,7 @@ function BedRoomPage() {
 
       {isAssignModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 px-4">
-          <div className="w-full max-w-[760px] rounded-3xl bg-white p-8 shadow-2xl">
+          <div className="flex max-h-[90vh] w-full max-w-[760px] flex-col overflow-hidden rounded-3xl bg-white p-8 shadow-2xl">
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-slate-900">
@@ -413,101 +517,60 @@ function BedRoomPage() {
               <p className="mb-3 text-sm text-red-500">{searchError}</p>
             )}
 
-            <div className="max-h-[320px] space-y-3 overflow-y-auto rounded-2xl border border-slate-100 bg-white p-1">
-              {searchedPatients.map((patient) => {
-                const isFemale =
-                  typeof patient.gender === "string" &&
-                  patient.gender.includes("여");
-                const iconClass = patient.assignable
-                  ? isFemale
-                    ? "bg-pink-100 text-pink-600"
-                    : "bg-blue-100 text-blue-600"
-                  : "bg-slate-200 text-slate-500";
-
-                return (
-                  <div
-                    key={patient.patientId}
-                    className={`flex items-center justify-between rounded-2xl border px-4 py-4 ${
-                      patient.assignable
-                        ? "border-slate-200 bg-white"
-                        : "border-dashed border-slate-200 bg-slate-50 opacity-80"
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-xl text-lg ${iconClass}`}
-                      >
-                        👤
-                      </div>
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-2xl font-bold text-slate-900">
-                            {patient.name}
-                          </p>
-                          <span
-                            className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                              patient.assignmentStatus === "미배정"
-                                ? "bg-amber-100 text-amber-800"
-                                : "bg-slate-200 text-slate-700"
-                            }`}
-                          >
-                            {patient.assignmentStatus === "미배정"
-                              ? "미배정"
-                              : "배정됨"}
-                          </span>
-                          {patient.assignedBedLabel && (
-                            <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
-                              {patient.assignedBedLabel}
-                            </span>
-                          )}
-                          <span className="rounded-full bg-sky-100 px-2 py-1 text-xs font-semibold text-sky-800">
-                            {patient.condition || "-"}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-sm text-slate-500">
-                          {patient.gender || "-"} / {patient.age ?? "-"}세
-                          {patient.chartId ? ` · 차트 ${patient.chartId}` : ""}
-                        </p>
-                      </div>
+            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pr-1">
+              <div>
+                <div className="max-h-[220px] space-y-3 overflow-y-auto rounded-2xl border border-slate-100 bg-white p-1">
+                  {searchLoading && (
+                    <div className="rounded-2xl border border-dashed border-slate-200 py-8 text-center text-slate-400">
+                      검색 중...
                     </div>
-
-                    <button
-                      type="button"
-                      disabled={
-                        !patient.assignable ||
-                        assigningPatientId === patient.patientId
-                      }
-                      onClick={() => handleAssignPatientToSelectedBed(patient)}
-                      className={`rounded-xl px-5 py-2 text-base font-semibold ${
-                        patient.assignable
-                          ? "bg-blue-500 text-white transition hover:bg-blue-600 disabled:opacity-60"
-                          : "cursor-not-allowed bg-slate-200 text-slate-400"
-                      }`}
-                    >
-                      {patient.assignable
-                        ? assigningPatientId === patient.patientId
-                          ? "처리 중..."
-                          : "배정하기"
-                        : "배정완료"}
-                    </button>
-                  </div>
-                );
-              })}
-              {!searchLoading &&
-                searchAttempted &&
-                searchedPatients.length === 0 && (
-                  <div className="rounded-2xl border border-dashed border-slate-200 py-10 text-center text-slate-400">
-                    검색된 환자가 없습니다.
-                  </div>
-                )}
-              {!searchLoading && !searchAttempted && (
-                <div className="rounded-2xl border border-dashed border-slate-200 py-10 text-center text-slate-400">
-                  환자 이름을 입력한 뒤 검색을 눌러주세요.
+                  )}
+                  {!searchLoading &&
+                    searchedPatients.map((patient) =>
+                      renderAssignPatientRow(patient),
+                    )}
+                  {!searchLoading &&
+                    searchAttempted &&
+                    searchedPatients.length === 0 && (
+                      <div className="rounded-2xl border border-dashed border-slate-200 py-8 text-center text-slate-400">
+                        검색된 환자가 없습니다.
+                      </div>
+                    )}
+                  {!searchLoading && !searchAttempted && (
+                    <div className="rounded-2xl border border-dashed border-slate-200 py-8 text-center text-slate-400">
+                      환자 이름을 입력한 뒤 검색을 눌러주세요.
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+
+              <div>
+                <p className="mb-3 text-sm font-semibold text-slate-700">
+                  미배정 환자 ({unassignedPatients.length})
+                </p>
+                {unassignedError && (
+                  <p className="mb-3 text-sm text-red-500">{unassignedError}</p>
+                )}
+                <div className="max-h-[220px] space-y-3 overflow-y-auto rounded-2xl border border-amber-100 bg-amber-50/40 p-1">
+                  {unassignedLoading && (
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-8 text-center text-slate-400">
+                      미배정 환자를 불러오는 중...
+                    </div>
+                  )}
+                  {!unassignedLoading &&
+                    unassignedPatients.map((patient) =>
+                      renderAssignPatientRow(patient),
+                    )}
+                  {!unassignedLoading && unassignedPatients.length === 0 && (
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-8 text-center text-slate-400">
+                      미배정 환자가 없습니다.
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
-            <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
+            <div className="mt-6 flex shrink-0 justify-end gap-3 border-t border-slate-100 pt-4">
               <button
                 type="button"
                 onClick={closeAssignModal}

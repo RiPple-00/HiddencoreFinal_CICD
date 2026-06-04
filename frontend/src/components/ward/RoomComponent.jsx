@@ -21,6 +21,7 @@ function RoomComponent({ room, isDimmed = false, building }) {
   const availableBeds = Math.max(0, room.roomCapacity - room.patientCount);
 
   const handleClick = () => {
+    if (isDimmed) return;
     const id = String(room.roomNumber ?? room.id ?? '').trim();
     if (!id) return;
     const b = building != null ? String(building).trim() : '';
@@ -36,7 +37,9 @@ function RoomComponent({ room, isDimmed = false, building }) {
     <button
       type="button"
       onClick={handleClick}
-      className={`flex aspect-square w-full flex-col overflow-hidden rounded-xl border border-gray-200 border-l-4 bg-white p-4 shadow-sm transition ${isDimmed ? 'grayscale opacity-45' : ''} ${statusStyle.line}`}
+      disabled={isDimmed}
+      aria-disabled={isDimmed}
+      className={`flex aspect-square w-full flex-col overflow-hidden rounded-xl border border-gray-200 border-l-4 bg-white p-4 shadow-sm transition ${isDimmed ? 'cursor-not-allowed grayscale opacity-45' : 'hover:shadow-md'} ${statusStyle.line}`}
     >
       <div className="mb-2 flex items-center justify-between">
         <p className="text-3xl font-extrabold leading-none text-gray-800 whitespace-nowrap">{room.roomNumber}호</p>

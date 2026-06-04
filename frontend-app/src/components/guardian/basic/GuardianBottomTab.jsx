@@ -20,8 +20,8 @@ export default function GuardianBottomTab({
     {
       label: "스캔",
       route: "MedicationQrScan",
-      activeIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/home-active.svg"),
-      inactiveIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/home.svg"),
+      activeIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/scan-active.svg"),
+      inactiveIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/scan.svg"),
     },
     {
       label: "수납",

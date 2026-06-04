@@ -25,6 +25,15 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     List<Patient> searchByNameContaining(@Param("keyword") String keyword);
 
     @Query("""
+        SELECT DISTINCT p
+        FROM Patient p
+        LEFT JOIN FETCH p.locationId
+        WHERE p.locationId IS NULL
+        ORDER BY p.patientId DESC
+    """)
+    List<Patient> findUnassignedForAssign();
+
+    @Query("""
         SELECT COUNT(p)
         FROM Patient p
         WHERE p.locationId.building = :building
