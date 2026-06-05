@@ -92,6 +92,15 @@ api.interceptors.request.use(async (config) => {
   } catch {
     /* ignore */
   }
+  // multipart 업로드 시 boundary가 포함된 Content-Type을 브라우저/RN이 설정하도록 둠
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    if (config.headers?.set) {
+      config.headers.delete("Content-Type");
+    } else if (config.headers) {
+      delete config.headers["Content-Type"];
+      delete config.headers["content-type"];
+    }
+  }
   return config;
 });
 

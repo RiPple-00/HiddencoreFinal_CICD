@@ -28,7 +28,9 @@ import GuardianMorePage from "./src/pages/guardian/activePhoto/GuardianMorePage"
 import CaregiverMainPage from "./src/pages/caregiver/CaregiverMainPage";
 import CaregiverPatientListPage from "./src/pages/caregiver/CaregiverPatientListPage";
 import CaregiverTaskCheckPage from "./src/pages/caregiver/CaregiverTaskCheckPage";
+import CaregiverPhotoUploadPage from "./src/pages/caregiver/CaregiverPhotoUploadPage";
 import ProgramPage from "./src/pages/guardian/ProgramPage";
+import MedicationQrScanPage from "./src/pages/guardian/MedicationQrScanPage";
 
 import StoragePage from "./src/pages/billing/StoragePage";
 import StorageList from "./src/components/billing/StorageList";
@@ -67,7 +69,7 @@ const navigationRef = createNavigationContainerRef();
 
 const MAIN_GUARDIAN_TABS = new Set([
   "GuardianMain",
-  "Calendar",
+  "MedicationQrScan",
   "Payment",
   "LiveCheck",
   "Chatbot",
@@ -80,6 +82,7 @@ const GUARDIAN_SCREENS = new Set([
   "VisitApply",
   "Notice",
   "Calendar",
+  "MedicationQrScan",
   "Payment",
   "Program",
   "StoragePage",
@@ -101,6 +104,7 @@ const CAREGIVER_SCREENS = new Set([
   "CaregiverMain",
   "CaregiverTaskCheck",
   "CaregiverPatientList",
+  "CaregiverPhotoUpload",
 ]);
 
 function CaregiverAppHeader({ navigationRef, currentRouteName, onOpenMenu }) {
@@ -224,7 +228,7 @@ function AppNavigation() {
             <Stack.Screen
               name="GuardianLogin"
               component={GuardianLoginPage}
-              options={{ title: "로그인" }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="GuardianMain"
@@ -244,6 +248,11 @@ function AppNavigation() {
             <Stack.Screen
               name="CaregiverPatientList"
               component={CaregiverPatientListPage}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="CaregiverPhotoUpload"
+              component={CaregiverPhotoUploadPage}
               options={{ headerShown: false }}
             />
             <Stack.Screen
@@ -269,6 +278,11 @@ function AppNavigation() {
             <Stack.Screen
               name="Calendar"
               component={CalendarPage}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="MedicationQrScan"
+              component={MedicationQrScanPage}
               options={{ headerShown: false }}
             />
             <Stack.Screen

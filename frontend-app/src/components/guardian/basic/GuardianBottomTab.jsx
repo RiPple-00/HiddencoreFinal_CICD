@@ -6,6 +6,19 @@ import {
   Image,
 } from "react-native";
 
+const ICONS = {
+  homeActive: require("../../../../assets/guardian/home-active.svg"),
+  home: require("../../../../assets/guardian/home.svg"),
+  scanActive: require("../../../../assets/guardian/scan-active.svg"),
+  scan: require("../../../../assets/guardian/scan.svg"),
+  cardActive: require("../../../../assets/guardian/card-active.svg"),
+  card: require("../../../../assets/guardian/card.svg"),
+  reportActive: require("../../../../assets/guardian/report-active.svg"),
+  report: require("../../../../assets/guardian/report.svg"),
+  chatbotActive: require("../../../../assets/guardian/chatbot-active.svg"),
+  chatbot: require("../../../../assets/guardian/chatbot.svg"),
+};
+
 export default function GuardianBottomTab({
   navigation,
   currentTab,
@@ -14,32 +27,32 @@ export default function GuardianBottomTab({
     {
       label: "홈",
       route: "GuardianMain",
-      activeIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/home-active.svg"),
-      inactiveIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/home.svg"),
+      activeIcon: ICONS.homeActive,
+      inactiveIcon: ICONS.home,
     },
     {
       label: "스캔",
       route: "MedicationQrScan",
-      activeIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/scan-active.svg"),
-      inactiveIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/scan.svg"),
+      activeIcon: ICONS.scanActive,
+      inactiveIcon: ICONS.scan,
     },
     {
       label: "수납",
       route: "Payment",
-      activeIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/card-active.svg"),
-      inactiveIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/card.svg"),
+      activeIcon: ICONS.cardActive,
+      inactiveIcon: ICONS.card,
     },
     {
       label: "실시간",
       route: "LiveCheck",
-      activeIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/report-active.svg"),
-      inactiveIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/report.svg"),
+      activeIcon: ICONS.reportActive,
+      inactiveIcon: ICONS.report,
     },
     {
       label: "챗봇",
       route: "Chatbot",
-      activeIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/chatbot-active.svg"),
-      inactiveIcon: require("C:/Gabia2026/FinalProject/HiddencoreFinal/frontend-app/assets/guardian/chatbot.svg"),
+      activeIcon: ICONS.chatbotActive,
+      inactiveIcon: ICONS.chatbot,
     },
   ];
 

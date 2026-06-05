@@ -1,0 +1,945 @@
+{
+  "schema_version": "1.0.0",
+  "entries": [
+    {
+      "index": 1,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/1.png",
+      "preprocessed_path": "1/1.png",
+      "image_id": "1/1.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/1.png"
+    },
+    {
+      "index": 2,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/2.png",
+      "preprocessed_path": "1/2.png",
+      "image_id": "1/2.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/2.png"
+    },
+    {
+      "index": 3,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/3.png",
+      "preprocessed_path": "1/3.png",
+      "image_id": "1/3.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/3.png"
+    },
+    {
+      "index": 4,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/4.png",
+      "preprocessed_path": "1/4.png",
+      "image_id": "1/4.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/4.png"
+    },
+    {
+      "index": 5,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/5.png",
+      "preprocessed_path": "1/5.png",
+      "image_id": "1/5.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/5.png"
+    },
+    {
+      "index": 6,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/6.png",
+      "preprocessed_path": "1/6.png",
+      "image_id": "1/6.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/6.png"
+    },
+    {
+      "index": 7,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/7.png",
+      "preprocessed_path": "1/7.png",
+      "image_id": "1/7.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/7.png"
+    },
+    {
+      "index": 8,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/8.png",
+      "preprocessed_path": "1/8.png",
+      "image_id": "1/8.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/8.png"
+    },
+    {
+      "index": 9,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/9.png",
+      "preprocessed_path": "1/9.png",
+      "image_id": "1/9.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/9.png"
+    },
+    {
+      "index": 10,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/10.png",
+      "preprocessed_path": "1/10.png",
+      "image_id": "1/10.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/10.png"
+    },
+    {
+      "index": 11,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/11.png",
+      "preprocessed_path": "1/11.png",
+      "image_id": "1/11.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/11.png"
+    },
+    {
+      "index": 12,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/12.png",
+      "preprocessed_path": "1/12.png",
+      "image_id": "1/12.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/12.png"
+    },
+    {
+      "index": 13,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/13.png",
+      "preprocessed_path": "1/13.png",
+      "image_id": "1/13.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/13.png"
+    },
+    {
+      "index": 14,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/14.png",
+      "preprocessed_path": "1/14.png",
+      "image_id": "1/14.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/14.png"
+    },
+    {
+      "index": 15,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/15.png",
+      "preprocessed_path": "1/15.png",
+      "image_id": "1/15.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/15.png"
+    },
+    {
+      "index": 16,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/16.png",
+      "preprocessed_path": "1/16.png",
+      "image_id": "1/16.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/16.png"
+    },
+    {
+      "index": 17,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/17.png",
+      "preprocessed_path": "1/17.png",
+      "image_id": "1/17.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/17.png"
+    },
+    {
+      "index": 18,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/18.png",
+      "preprocessed_path": "1/18.png",
+      "image_id": "1/18.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/18.png"
+    },
+    {
+      "index": 19,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/19.png",
+      "preprocessed_path": "1/19.png",
+      "image_id": "1/19.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/19.png"
+    },
+    {
+      "index": 20,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/20.png",
+      "preprocessed_path": "1/20.png",
+      "image_id": "1/20.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/20.png"
+    },
+    {
+      "index": 21,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/21.png",
+      "preprocessed_path": "1/21.png",
+      "image_id": "1/21.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/21.png"
+    },
+    {
+      "index": 22,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/22.png",
+      "preprocessed_path": "1/22.png",
+      "image_id": "1/22.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/22.png"
+    },
+    {
+      "index": 23,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/23.png",
+      "preprocessed_path": "1/23.png",
+      "image_id": "1/23.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/23.png"
+    },
+    {
+      "index": 24,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/24.png",
+      "preprocessed_path": "1/24.png",
+      "image_id": "1/24.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/24.png"
+    },
+    {
+      "index": 25,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/25.png",
+      "preprocessed_path": "1/25.png",
+      "image_id": "1/25.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/25.png"
+    },
+    {
+      "index": 26,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/26.png",
+      "preprocessed_path": "1/26.png",
+      "image_id": "1/26.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/26.png"
+    },
+    {
+      "index": 27,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/27.png",
+      "preprocessed_path": "1/27.png",
+      "image_id": "1/27.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/27.png"
+    },
+    {
+      "index": 28,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/28.png",
+      "preprocessed_path": "1/28.png",
+      "image_id": "1/28.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/28.png"
+    },
+    {
+      "index": 29,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/29.png",
+      "preprocessed_path": "1/29.png",
+      "image_id": "1/29.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/29.png"
+    },
+    {
+      "index": 30,
+      "program_id": "1",
+      "program_label": "origami",
+      "gallery_path": "1/30.png",
+      "preprocessed_path": "1/30.png",
+      "image_id": "1/30.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/1/30.png"
+    },
+    {
+      "index": 31,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/31.png",
+      "preprocessed_path": "2/31.png",
+      "image_id": "2/31.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/31.png"
+    },
+    {
+      "index": 32,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/32.png",
+      "preprocessed_path": "2/32.png",
+      "image_id": "2/32.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/32.png"
+    },
+    {
+      "index": 33,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/33.png",
+      "preprocessed_path": "2/33.png",
+      "image_id": "2/33.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/33.png"
+    },
+    {
+      "index": 34,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/34.png",
+      "preprocessed_path": "2/34.png",
+      "image_id": "2/34.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/34.png"
+    },
+    {
+      "index": 35,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/35.png",
+      "preprocessed_path": "2/35.png",
+      "image_id": "2/35.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/35.png"
+    },
+    {
+      "index": 36,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/36.png",
+      "preprocessed_path": "2/36.png",
+      "image_id": "2/36.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/36.png"
+    },
+    {
+      "index": 37,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/37.png",
+      "preprocessed_path": "2/37.png",
+      "image_id": "2/37.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/37.png"
+    },
+    {
+      "index": 38,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/38.png",
+      "preprocessed_path": "2/38.png",
+      "image_id": "2/38.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/38.png"
+    },
+    {
+      "index": 39,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/39.png",
+      "preprocessed_path": "2/39.png",
+      "image_id": "2/39.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/39.png"
+    },
+    {
+      "index": 40,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/40.png",
+      "preprocessed_path": "2/40.png",
+      "image_id": "2/40.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/40.png"
+    },
+    {
+      "index": 41,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/41.png",
+      "preprocessed_path": "2/41.png",
+      "image_id": "2/41.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/41.png"
+    },
+    {
+      "index": 42,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/42.png",
+      "preprocessed_path": "2/42.png",
+      "image_id": "2/42.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/42.png"
+    },
+    {
+      "index": 43,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/43.png",
+      "preprocessed_path": "2/43.png",
+      "image_id": "2/43.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/43.png"
+    },
+    {
+      "index": 44,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/44.png",
+      "preprocessed_path": "2/44.png",
+      "image_id": "2/44.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/44.png"
+    },
+    {
+      "index": 45,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/45.png",
+      "preprocessed_path": "2/45.png",
+      "image_id": "2/45.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/45.png"
+    },
+    {
+      "index": 46,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/46.png",
+      "preprocessed_path": "2/46.png",
+      "image_id": "2/46.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/46.png"
+    },
+    {
+      "index": 47,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/47.png",
+      "preprocessed_path": "2/47.png",
+      "image_id": "2/47.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/47.png"
+    },
+    {
+      "index": 48,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/48.png",
+      "preprocessed_path": "2/48.png",
+      "image_id": "2/48.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/48.png"
+    },
+    {
+      "index": 49,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/49.png",
+      "preprocessed_path": "2/49.png",
+      "image_id": "2/49.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/49.png"
+    },
+    {
+      "index": 50,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/50.png",
+      "preprocessed_path": "2/50.png",
+      "image_id": "2/50.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/50.png"
+    },
+    {
+      "index": 51,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/51.png",
+      "preprocessed_path": "2/51.png",
+      "image_id": "2/51.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/51.png"
+    },
+    {
+      "index": 52,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/52.png",
+      "preprocessed_path": "2/52.png",
+      "image_id": "2/52.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/52.png"
+    },
+    {
+      "index": 53,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/53.png",
+      "preprocessed_path": "2/53.png",
+      "image_id": "2/53.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/53.png"
+    },
+    {
+      "index": 54,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/54.png",
+      "preprocessed_path": "2/54.png",
+      "image_id": "2/54.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/54.png"
+    },
+    {
+      "index": 55,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/55.png",
+      "preprocessed_path": "2/55.png",
+      "image_id": "2/55.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/55.png"
+    },
+    {
+      "index": 56,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/56.png",
+      "preprocessed_path": "2/56.png",
+      "image_id": "2/56.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/56.png"
+    },
+    {
+      "index": 57,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/57.png",
+      "preprocessed_path": "2/57.png",
+      "image_id": "2/57.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/57.png"
+    },
+    {
+      "index": 58,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/58.png",
+      "preprocessed_path": "2/58.png",
+      "image_id": "2/58.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/58.png"
+    },
+    {
+      "index": 59,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/59.png",
+      "preprocessed_path": "2/59.png",
+      "image_id": "2/59.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/59.png"
+    },
+    {
+      "index": 60,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/60.png",
+      "preprocessed_path": "2/60.png",
+      "image_id": "2/60.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/60.png"
+    },
+    {
+      "index": 61,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/61.png",
+      "preprocessed_path": "2/61.png",
+      "image_id": "2/61.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/61.png"
+    },
+    {
+      "index": 62,
+      "program_id": "2",
+      "program_label": "drawing",
+      "gallery_path": "2/62.png",
+      "preprocessed_path": "2/62.png",
+      "image_id": "2/62.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/2/62.png"
+    },
+    {
+      "index": 63,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/63.png",
+      "preprocessed_path": "3/63.png",
+      "image_id": "3/63.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/63.png"
+    },
+    {
+      "index": 64,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/64.png",
+      "preprocessed_path": "3/64.png",
+      "image_id": "3/64.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/64.png"
+    },
+    {
+      "index": 65,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/65.png",
+      "preprocessed_path": "3/65.png",
+      "image_id": "3/65.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/65.png"
+    },
+    {
+      "index": 66,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/66.png",
+      "preprocessed_path": "3/66.png",
+      "image_id": "3/66.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/66.png"
+    },
+    {
+      "index": 67,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/67.png",
+      "preprocessed_path": "3/67.png",
+      "image_id": "3/67.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/67.png"
+    },
+    {
+      "index": 68,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/68.png",
+      "preprocessed_path": "3/68.png",
+      "image_id": "3/68.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/68.png"
+    },
+    {
+      "index": 69,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/69.png",
+      "preprocessed_path": "3/69.png",
+      "image_id": "3/69.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/69.png"
+    },
+    {
+      "index": 70,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/70.png",
+      "preprocessed_path": "3/70.png",
+      "image_id": "3/70.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/70.png"
+    },
+    {
+      "index": 71,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/71.png",
+      "preprocessed_path": "3/71.png",
+      "image_id": "3/71.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/71.png"
+    },
+    {
+      "index": 72,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/72.png",
+      "preprocessed_path": "3/72.png",
+      "image_id": "3/72.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/72.png"
+    },
+    {
+      "index": 73,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/73.png",
+      "preprocessed_path": "3/73.png",
+      "image_id": "3/73.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/73.png"
+    },
+    {
+      "index": 74,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/74.png",
+      "preprocessed_path": "3/74.png",
+      "image_id": "3/74.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/74.png"
+    },
+    {
+      "index": 75,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/75.png",
+      "preprocessed_path": "3/75.png",
+      "image_id": "3/75.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/75.png"
+    },
+    {
+      "index": 76,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/76.png",
+      "preprocessed_path": "3/76.png",
+      "image_id": "3/76.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/76.png"
+    },
+    {
+      "index": 77,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/77.png",
+      "preprocessed_path": "3/77.png",
+      "image_id": "3/77.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/77.png"
+    },
+    {
+      "index": 78,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/78.png",
+      "preprocessed_path": "3/78.png",
+      "image_id": "3/78.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/78.png"
+    },
+    {
+      "index": 79,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/79.png",
+      "preprocessed_path": "3/79.png",
+      "image_id": "3/79.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/79.png"
+    },
+    {
+      "index": 80,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/80.png",
+      "preprocessed_path": "3/80.png",
+      "image_id": "3/80.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/80.png"
+    },
+    {
+      "index": 81,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/81.png",
+      "preprocessed_path": "3/81.png",
+      "image_id": "3/81.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/81.png"
+    },
+    {
+      "index": 82,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/82.png",
+      "preprocessed_path": "3/82.png",
+      "image_id": "3/82.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/82.png"
+    },
+    {
+      "index": 83,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/83.png",
+      "preprocessed_path": "3/83.png",
+      "image_id": "3/83.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/83.png"
+    },
+    {
+      "index": 84,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/84.png",
+      "preprocessed_path": "3/84.png",
+      "image_id": "3/84.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/84.png"
+    },
+    {
+      "index": 85,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/85.png",
+      "preprocessed_path": "3/85.png",
+      "image_id": "3/85.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/85.png"
+    },
+    {
+      "index": 86,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/86.png",
+      "preprocessed_path": "3/86.png",
+      "image_id": "3/86.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/86.png"
+    },
+    {
+      "index": 87,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/87.png",
+      "preprocessed_path": "3/87.png",
+      "image_id": "3/87.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/87.png"
+    },
+    {
+      "index": 88,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/88.png",
+      "preprocessed_path": "3/88.png",
+      "image_id": "3/88.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/88.png"
+    },
+    {
+      "index": 89,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/89.png",
+      "preprocessed_path": "3/89.png",
+      "image_id": "3/89.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/89.png"
+    },
+    {
+      "index": 90,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/90.png",
+      "preprocessed_path": "3/90.png",
+      "image_id": "3/90.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/90.png"
+    },
+    {
+      "index": 91,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/91.png",
+      "preprocessed_path": "3/91.png",
+      "image_id": "3/91.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/91.png"
+    },
+    {
+      "index": 92,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/92.png",
+      "preprocessed_path": "3/92.png",
+      "image_id": "3/92.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/92.png"
+    },
+    {
+      "index": 93,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/93.png",
+      "preprocessed_path": "3/93.png",
+      "image_id": "3/93.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/93.png"
+    },
+    {
+      "index": 94,
+      "program_id": "3",
+      "program_label": "dance",
+      "gallery_path": "3/94.png",
+      "preprocessed_path": "3/94.png",
+      "image_id": "3/94.png",
+      "legacy_image_id": null,
+      "gallery_source": "data/gallery/3/94.png"
+    }
+  ]
+}

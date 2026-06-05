@@ -85,4 +85,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                         @Param("searchType") String searchType,
                         @Param("keyword") String keyword,
                         Pageable pageable);
+
+        @Query(
+                        "SELECT p FROM Post p WHERE p.facilityId.facilityId = :facilityId "
+                                        + "AND p.status = hiddencore.ddasum.backend.domain.Post.PostStatus.ACTIVE "
+                                        + "AND p.type = hiddencore.ddasum.backend.domain.Post.PostType.APPLY "
+                                        + "AND p.startAt IS NOT NULL AND p.endAt IS NOT NULL "
+                                        + "ORDER BY p.startAt DESC")
+        List<Post> findActiveApplyProgramsWithSchedule(@Param("facilityId") Long facilityId);
 }

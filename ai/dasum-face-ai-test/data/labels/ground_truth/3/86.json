@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "image_id": "3/86.png",
+  "is_background": false,
+  "label_status": "done",
+  "labeled_at": "2026-06-02T17:55:31+09:00",
+  "labeled_by": null,
+  "notes": null,
+  "persons": [
+    {
+      "person_index": 1,
+      "person_bbox": [
+        157.4,
+        128.3,
+        1304.3,
+        1084.5
+      ],
+      "person_confidence": 0.839,
+      "patient_id_gt": "patient_5",
+      "notes": null
+    }
+  ]
+}

@@ -28,7 +28,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "프로그램 활동 사진 업로드를 위해 사진 보관함 접근이 필요합니다."
+        }
+      ]
     ]
   }
 }

@@ -29,4 +29,10 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
             Long documentId,
             Long requesterUserId,
             DocumentType type);
+
+    List<Document> findByPatientId_PatientIdAndTypeOrderByCreatedAtDesc(
+            Long patientId, DocumentType type);
+
+    List<Document> findByPatientId_PatientIdAndTypeOrderByCreatedAtAsc(
+            Long patientId, DocumentType type);
 }

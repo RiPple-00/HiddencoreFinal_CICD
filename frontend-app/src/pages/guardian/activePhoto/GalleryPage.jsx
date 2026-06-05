@@ -1,50 +1,72 @@
-import { Image, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import Text from "@/components/Text";
+import { fetchGuardianLinkedPatients } from '../../../api/careChecklistApi';
+import { fetchGuardianActivityGallery } from '../../../api/activityGalleryApi';
+import { mapGalleryPhotos } from '../../../utils/galleryPhotoUtils';
 import ActivePhotoMobileShell from '../../../components/guardian/activePhoto/ActivePhotoMobileShell';
 import ActivePhotoTopBar from '../../../components/guardian/activePhoto/ActivePhotoTopBar';
 import ActivePhotoInfoText from '../../../components/guardian/activePhoto/ActivePhotoInfoText';
-import ActivePhotoSectionHeader from '../../../components/guardian/activePhoto/ActivePhotoSectionHeader';
-import ActivePhotoGrid from '../../../components/guardian/activePhoto/ActivePhotoGrid';
+import GallerySlotGrid from '../../../components/guardian/activePhoto/GallerySlotGrid';
 import ActivePhotoBottomActions from '../../../components/guardian/activePhoto/ActivePhotoBottomActions';
 
-const todayPhotos = [
-  {
-    id: 1,
-    title: '미술 치료 프로그램',
-    time: '오전 10:30',
-    desc: '색을 활용한 미술 활동으로 정서적 안정에 도움을 드렸어요.',
-    image: 'https://images.unsplash.com/photo-1604881991720-f91add269bed?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    id: 2,
-    title: '인지 활동 프로그램',
-    time: '오후 2:00',
-    desc: '재미있는 인지 활동으로 집중력 향상을 도왔어요.',
-    image: 'https://images.unsplash.com/photo-1633613286848-e6f43bbafb8d?auto=format&fit=crop&w=600&q=80',
-  },
-];
-
-const weekPhotos = [
-  {
-    id: 3,
-    title: '영양 식사 프로그램',
-    time: '4월 20일 (일) 오후 12:10',
-    desc: '균형 잡힌 식사로 건강한 하루를 시작했어요.',
-    image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    id: 4,
-    title: '회상 활동 프로그램',
-    time: '4월 18일 (금) 오후 1:40',
-    desc: '옛 기억을 떠올리며 즐거운 시간을 보냈어요.',
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80',
-  },
-];
-
 function GuardianGalleryPage({ navigation }) {
-  const handleOpenMore = (range) => {
-    navigation.navigate('GalleryMore', { range });
+  const [patientId, setPatientId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filledCount, setFilledCount] = useState(0);
+  const [galleryPhotos, setGalleryPhotos] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      (async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          const linkedRes = await fetchGuardianLinkedPatients();
+          const list = linkedRes.data ?? [];
+          const primary = list.find((p) => p.primary) ?? list[0];
+          const pid = primary?.patientId ?? null;
+          if (!pid) {
+            if (!cancelled) {
+              setPatientId(null);
+              setGalleryPhotos([]);
+              setFilledCount(0);
+            }
+            return;
+          }
+          if (!cancelled) setPatientId(pid);
+
+          const galleryRes = await fetchGuardianActivityGallery(pid);
+          if (cancelled) return;
+          const data = galleryRes.data ?? {};
+          const mapped = mapGalleryPhotos(data.slots ?? []);
+          setGalleryPhotos(mapped);
+          setFilledCount(data.filledCount ?? mapped.length);
+        } catch (e) {
+          if (!cancelled) {
+            setError(e?.response?.data?.message ?? '활동 사진을 불러오지 못했습니다.');
+          }
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }, [])
+  );
+
+  const latestPhoto = useMemo(
+    () => galleryPhotos[galleryPhotos.length - 1] ?? null,
+    [galleryPhotos]
+  );
+
+  const handleOpenMore = () => {
+    navigation.navigate('GalleryMore', { range: 'slots', patientId, slots: galleryPhotos });
   };
 
   return (
@@ -60,49 +82,31 @@ function GuardianGalleryPage({ navigation }) {
           />
           <ActivePhotoInfoText />
 
-          {/* 히어로 카드 */}
-          <View className="mb-5 rounded-2xl overflow-hidden bg-background-neutral">
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1516302752625-fcc3c50ae61f?auto=format&fit=crop&w=900&q=80' }}
-              className="w-full h-40"
-            />
-            <View className="p-4 gap-2">
-              <View className="flex-row justify-between items-center">
-                <Text className="text-base font-bold text-guardian-text-primary">
-                  오전 미술 치료
-                </Text>
-                {/* 뱃지: 보호자 보조색 배경 + 브랜드 갈색 텍스트 */}
-                <Text className="text-xs text-guardian-text-primary bg-guardian-button-secondary px-2 py-[2px] rounded-full overflow-hidden">
-                  활동
-                </Text>
-              </View>
-              {/* 시간: 노란 포인트 */}
-              <Text className="text-sm text-guardian-text-secondary">오전 10:30</Text>
-              <Text className="text-sm leading-[22px] text-guardian-text-neutral">
-                색칠 활동을 통해 집중력을 높이고 즐거운 시간을 보냈습니다. 오늘은 밝은 색을 많이 사용했어요.
-              </Text>
+          {loading ? (
+            <View className="py-12 items-center">
+              <ActivityIndicator />
             </View>
-          </View>
+          ) : null}
 
-          {/* 오늘 섹션 */}
-          <View className="mb-5">
-            <ActivePhotoSectionHeader
-              title="오늘"
-              moreLabel="더보기 +"
-              onMore={() => handleOpenMore('today')}
-            />
-            <ActivePhotoGrid photos={todayPhotos} />
-          </View>
+          {error ? (
+            <Text className="text-sm text-red-600 mb-4">{error}</Text>
+          ) : null}
 
-          {/* 일주일 섹션 */}
-          <View>
-            <ActivePhotoSectionHeader
-              title="일주일"
-              moreLabel="더보기 +"
-              onMore={() => handleOpenMore('week')}
-            />
-            <ActivePhotoGrid photos={weekPhotos} />
-          </View>
+          {!loading && filledCount === 0 && !error ? (
+            <Text className="text-sm text-guardian-text-neutral mb-5">
+              아직 등록된 사진이 없습니다. 
+            </Text>
+          ) : null}
+
+          {!loading ? (
+            <GallerySlotGrid photos={galleryPhotos} filledCount={filledCount} />
+          ) : null}
+
+          {!loading && filledCount > 0 ? (
+            <View className="mt-5 items-end">
+              
+            </View>
+          ) : null}
 
           <ActivePhotoBottomActions />
         </ActivePhotoMobileShell>

@@ -147,4 +147,15 @@ public class Document {
         ABNORMAL
     }
 
+    /** 프로그램 갤러리 사진 AI 분석 상태 (GALLERYCARD) */
+    public enum AiStatus {
+        PENDING,
+        AI_ANALYZED,
+        FAILED
+    }
+
+    public boolean isGalleryCard() {
+        return type == DocumentType.GALLERYCARD;
+    }
+
 }

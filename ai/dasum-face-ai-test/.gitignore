@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+yolov8n.pt
+
+# Regenerated outputs
+data/gallery_preprocessed/
+data/patients_preprocessed/
+data/activity_faces/
+data/face_db/
+data/augmented/
+output/

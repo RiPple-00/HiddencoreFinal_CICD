@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "face_similarity_v1",
+  "title": "Per-face similarity result",
+  "type": "object",
+  "required": ["image_id", "face_index", "status"],
+  "properties": {
+    "image_id": { "type": "string" },
+    "source_image": { "type": "string" },
+    "program_id": { "type": "string" },
+    "program_label": { "type": "string" },
+    "face_index": { "type": "integer", "minimum": 0 },
+    "aligned_face_path": { "type": ["string", "null"] },
+    "predicted_patient": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["MATCHED", "UNKNOWN", "NO_FACE", "UNCERTAIN", "LOW_CONFIDENCE", "FAILED", "DETECTED"]
+    },
+    "top1_patient": { "type": ["string", "null"] },
+    "top1_similarity": { "type": ["number", "null"] },
+    "top2_patient": { "type": ["string", "null"] },
+    "top2_similarity": { "type": ["number", "null"] },
+    "similarity_gap": { "type": ["number", "null"] },
+    "patient_similarities": {
+      "type": ["object", "string", "null"],
+      "description": "JSON object patient_id -> score"
+    },
+    "review_flag": { "type": "boolean" },
+    "manual_label": {
+      "type": ["string", "null"],
+      "description": "patient_1..6 | unknown | ignore"
+    },
+    "memo": { "type": ["string", "null"] }
+  }
+}

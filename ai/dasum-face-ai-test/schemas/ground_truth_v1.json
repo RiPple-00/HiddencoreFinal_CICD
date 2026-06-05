@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ground_truth_v1",
+  "title": "Ddasum Identity Ground Truth (Phase 2)",
+  "type": "object",
+  "required": ["schema_version", "image_id", "label_status", "persons"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "image_id": {
+      "type": "string",
+      "description": "Relative path under data/gallery, e.g. 2/program_drawing_5.png"
+    },
+    "is_background": {
+      "type": "boolean",
+      "description": "true if the image has no person (background only)"
+    },
+    "label_status": {
+      "type": "string",
+      "enum": ["pending", "done"]
+    },
+    "labeled_at": { "type": ["string", "null"], "format": "date-time" },
+    "labeled_by": { "type": ["string", "null"] },
+    "notes": { "type": ["string", "null"] },
+    "persons": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/person_label" }
+    }
+  },
+  "$defs": {
+    "bbox": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "type": "number" }
+    },
+    "gt_label": {
+      "type": "string",
+      "enum": [
+        "patient_1",
+        "patient_2",
+        "patient_3",
+        "patient_4",
+        "patient_5",
+        "patient_6",
+        "unknown",
+        "no_face"
+      ],
+      "description": "Human-verified identity label for this person box"
+    },
+    "person_label": {
+      "type": "object",
+      "required": ["person_index", "patient_id_gt"],
+      "properties": {
+        "person_index": { "type": "integer", "minimum": 1 },
+        "person_bbox": { "$ref": "#/$defs/bbox" },
+        "person_confidence": { "type": ["number", "null"] },
+        "patient_id_gt": {
+          "oneOf": [{ "$ref": "#/$defs/gt_label" }, { "type": "null" }],
+          "description": "null = not labeled yet"
+        },
+        "notes": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

@@ -16,11 +16,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 import hiddencore.ddasum.backend.security.AuthenticatedUser;
 import hiddencore.ddasum.backend.security.SecurityContextHelper;
+import hiddencore.ddasum.backend.service.ActivityGalleryService;
 import hiddencore.ddasum.backend.service.CareChecklistService;
 import hiddencore.ddasum.backend.service.caregiver.CaregiverCareCheckService;
 import hiddencore.ddasum.backend.web.dto.care.CareChecklistLatestResponse;
 import hiddencore.ddasum.backend.web.dto.care.GuardianLinkedPatientResponse;
 import hiddencore.ddasum.backend.web.dto.caregiver.CaregiverCareCheckDto;
+import hiddencore.ddasum.backend.web.dto.guardian.activephoto.ActivityGalleryListResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -31,6 +33,7 @@ public class GuardianCareChecklistController {
     private final SecurityContextHelper securityContextHelper;
     private final CareChecklistService careChecklistService;
     private final CaregiverCareCheckService caregiverCareCheckService;
+    private final ActivityGalleryService activityGalleryService;
 
     @GetMapping("/linked-patients")
     public List<GuardianLinkedPatientResponse> linkedPatients() {
@@ -54,6 +57,13 @@ public class GuardianCareChecklistController {
      * 요양사가 작성 중인 일일 업무 체크리스트(CARE_CHECK, 자동 저장/제출)를 보호자가 조회한다.
      * 기록 일자를 생략하면 서버 기준 오늘 날짜로 조회한다.
      */
+    @GetMapping("/patients/{patientId}/activity-gallery")
+    public ActivityGalleryListResponse activityGallery(@PathVariable Long patientId) {
+        AuthenticatedUser u = securityContextHelper.requireAuthenticatedUser();
+        requireGuardian(u);
+        return activityGalleryService.listForGuardian(u.userId(), patientId);
+    }
+
     @GetMapping("/patients/{patientId}/care-check")
     public CaregiverCareCheckDto.Response latestCareCheck(
             @PathVariable Long patientId,

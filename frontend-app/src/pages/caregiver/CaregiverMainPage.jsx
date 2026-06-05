@@ -91,7 +91,7 @@ export default function CaregiverMainPage({ navigation }) {
             onPressPatientList={() =>
               navigation.navigate("CaregiverPatientList")
             }
-            onPressPhoto={null}
+            onPressPhoto={() => navigation.navigate("CaregiverPhotoUpload")}
           />
 
           <CaregiverMeal />

@@ -30,6 +30,10 @@ spring:
           auth: false
           starttls:
             enable: false
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
 
 springdoc:
   api-docs:
@@ -60,3 +64,10 @@ app:
   mail:
     # true면 SMTP 대신 로그만 출력 (로컬 개발)
     log-only: ${APP_MAIL_LOG_ONLY:true}
+  gallery:
+    demo-patient-id: ${GALLERY_DEMO_PATIENT_ID:260401008}
+    ai-server-base-url: ${AI_SERVER_URL:http://127.0.0.1:8000}
+    upload-dir: ${UPLOAD_DIR:uploads}
+    ai-server-home: ${AI_SERVER_HOME:../ai/ai-server}
+    face-ai-home: ${FACE_AI_HOME:../ai/dasum-face-ai-test}
+    python-executable: ${PYTHON_EXECUTABLE:python}
