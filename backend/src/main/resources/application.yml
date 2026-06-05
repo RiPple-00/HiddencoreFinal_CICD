@@ -5,10 +5,10 @@ spring:
   application:
     name: ddasum
   datasource:
-    # 로컬 MySQL 비밀번호가 다르면 환경 변수로 지정: MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_URL
+    # 실제 비밀번호는 application-local.yml 또는 환경 변수 MYSQL_PASSWORD 로 설정
     url: ${MYSQL_URL:jdbc:mysql://localhost:3306/ddasum?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
-    username: root
-    password: 12345
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -59,7 +59,7 @@ server:
 # JWT: 운영에서는 JWT_SECRET 환경변수로 32바이트 이상(권장 64자+) 설정
 app:
   jwt:
-    secret: ${JWT_SECRET:ddasum-dev-secret-change-me-please-use-64chars-minimum-00000000000001}
+    secret: ${JWT_SECRET:}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000}
   mail:
     # true면 SMTP 대신 로그만 출력 (로컬 개발)

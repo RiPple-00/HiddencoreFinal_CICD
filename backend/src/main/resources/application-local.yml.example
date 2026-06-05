@@ -1,0 +1,14 @@
+# 로컬 전용 설정 템플릿
+# 1) 이 파일을 application-local.yml 로 복사
+# 2) 아래 값을 본인 환경에 맞게 수정
+# 3) application-local.yml 은 Git에 올라가지 않음 (.gitignore)
+
+spring:
+  datasource:
+    username: root
+    password: your-mysql-password-here
+
+app:
+  jwt:
+    # 로컬 개발용 (운영에서는 반드시 64자 이상 랜덤 값 사용)
+    secret: ddasum-dev-secret-change-me-please-use-64chars-minimum-00000000000001

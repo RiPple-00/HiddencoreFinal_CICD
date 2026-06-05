@@ -1,1 +1,37 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Environment & secrets (never commit real values)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local Spring overrides (real DB/JWT/mail values)
+**/application-local.yml
+**/application-local.properties
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Expo (repo root)
+.expo/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Build / generated artifacts
+dist/
+build/
+*.log

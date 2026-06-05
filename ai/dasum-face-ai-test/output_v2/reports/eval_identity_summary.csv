@@ -1,2 +1,0 @@
-﻿labeled_persons,correct,accuracy,uncertain_rate,unknown_rate,error_breakdown,pred_status_counts
-65,44,0.6769,0.0,0.4364,{'missed_match': 21},"{'MATCHED': 39, 'LOW_CONFIDENCE': 13, 'UNKNOWN': 13}"

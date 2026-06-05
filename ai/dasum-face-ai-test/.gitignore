@@ -12,3 +12,10 @@ data/activity_faces/
 data/face_db/
 data/augmented/
 output/
+output_v2/
+output_*/
+
+# Environment
+.env
+.env.*
+!.env.example
