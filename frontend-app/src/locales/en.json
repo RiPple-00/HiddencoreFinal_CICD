@@ -331,6 +331,14 @@
     "error_cancel_msg": "Failed to cancel application.",
     "info": "Notice",
     "info_guardian_only": "Program applications are only available when logged in as a guardian. Please go back to the login screen and log in with the guardian tab.",
-    "token_warning": "You are logged in with a staff (caregiver, etc.) account. To apply for programs, please return to the login screen, select the Guardian tab, and log in with a guardian ID."
+    "token_warning": "You are logged in with a staff (caregiver, etc.) account. To apply for programs, please return to the login screen, select the Guardian tab, and log in with a guardian ID.",
+    "status": {
+      "PENDING_APPROVAL": "Pending Approval",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "CANCELLED": "Cancelled",
+      "REQUESTED": "Received",
+      "DRAFT": "Draft"
+    }
   }
 }

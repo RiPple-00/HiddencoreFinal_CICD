@@ -1246,22 +1246,31 @@ public class CaregiverCareCheckService {
 
         switch (riskLevel) {
             case "위험" -> {
-                title = "저강도 컨디션 안정 활동";
-                description = "호흡과 통증 부담을 낮추는 저강도 활동을 중심으로 구성했습니다.";
-                effects.add("활동 중 피로 누적을 줄이고 안정적인 참여를 돕습니다.");
-                effects.add("컨디션 변화를 빠르게 파악해 돌봄 대응을 용이하게 합니다.");
+                title = ls(language, "저강도 컨디션 안정 활동", "Low-Intensity Stabilization Activity", "低強度コンディション安定活動");
+                description = ls(language,
+                        "호흡과 통증 부담을 낮추는 저강도 활동을 중심으로 구성했습니다.",
+                        "Composed of low-intensity activities to reduce breathing difficulty and pain burden.",
+                        "呼吸や痛みの負担を軽減する低強度活動を中心に構成しました。");
+                effects.add(ls(language, "활동 중 피로 누적을 줄이고 안정적인 참여를 돕습니다.", "Reduces fatigue buildup and supports stable participation.", "活動中の疲労蓄積を減らし、安定した参加をサポートします。"));
+                effects.add(ls(language, "컨디션 변화를 빠르게 파악해 돌봄 대응을 용이하게 합니다.", "Enables quick detection of condition changes for better care response.", "状態変化を素早く把握し、ケア対応を容易にします。"));
             }
             case "주의" -> {
-                title = "회복 중심 균형 활동";
-                description = "신체 부담을 조절하면서 기능 유지와 회복을 함께 목표로 구성했습니다.";
-                effects.add("일상 기능 유지와 집중력 저하 방지에 도움이 됩니다.");
-                effects.add("활동 참여 리듬을 안정화해 주간 편차를 줄일 수 있습니다.");
+                title = ls(language, "회복 중심 균형 활동", "Recovery-Focused Balanced Activity", "回復中心バランス活動");
+                description = ls(language,
+                        "신체 부담을 조절하면서 기능 유지와 회복을 함께 목표로 구성했습니다.",
+                        "Designed to maintain function and promote recovery while managing physical burden.",
+                        "身体負担を調整しながら、機能維持と回復を目標に構成しました。");
+                effects.add(ls(language, "일상 기능 유지와 집중력 저하 방지에 도움이 됩니다.", "Helps maintain daily function and prevent decline in concentration.", "日常機能の維持と集中力低下防止に役立ちます。"));
+                effects.add(ls(language, "활동 참여 리듬을 안정화해 주간 편차를 줄일 수 있습니다.", "Stabilizes activity participation rhythm and reduces weekly variation.", "活動参加のリズムを安定させ、週間のばらつきを減らします。"));
             }
             default -> {
-                title = "유지·증진 복합 활동";
-                description = "현재 안정 상태를 유지하면서 신체·인지 기능 증진을 목표로 구성했습니다.";
-                effects.add("소근육 및 인지 자극을 균형 있게 제공할 수 있습니다.");
-                effects.add("정서 안정과 사회적 상호작용 유지에 도움이 됩니다.");
+                title = ls(language, "유지·증진 복합 활동", "Maintenance & Enhancement Activity", "維持・増進複合活動");
+                description = ls(language,
+                        "현재 안정 상태를 유지하면서 신체·인지 기능 증진을 목표로 구성했습니다.",
+                        "Aimed at enhancing physical and cognitive function while maintaining current stability.",
+                        "現在の安定状態を維持しながら、身体・認知機能の向上を目指して構成しました。");
+                effects.add(ls(language, "소근육 및 인지 자극을 균형 있게 제공할 수 있습니다.", "Provides balanced fine motor and cognitive stimulation.", "微細運動と認知刺激をバランスよく提供できます。"));
+                effects.add(ls(language, "정서 안정과 사회적 상호작용 유지에 도움이 됩니다.", "Supports emotional stability and maintains social interaction.", "感情の安定と社会的交流の維持に役立ちます。"));
             }
         }
 

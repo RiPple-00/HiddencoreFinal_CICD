@@ -36,7 +36,7 @@ export default function GuardianProgramApplicationsTab({
 
           <View style={styles.historyBottomRow}>
             <Text style={styles.historyStatus}>
-              {t("program.detail_status_label")}: {application.statusLabel || application.status || "-"}
+              {t("program.detail_status_label")}: {application.status ? t(`program.status.${application.status}`, application.statusLabel || application.status) : "-"}
             </Text>
 
             <Text style={styles.historyDate}>

@@ -75,6 +75,7 @@ export default function CaregiverNotice({ notices = null, loading = false }) {
         loading={detailLoading}
         post={selectedPost}
         onClose={() => { setDetailVisible(false); setSelectedPost(null); }}
+        variant="caregiver"
       />
     </View>
   );
