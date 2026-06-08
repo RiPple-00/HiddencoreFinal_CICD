@@ -31,6 +31,8 @@ import CaregiverTaskCheckPage from "./src/pages/caregiver/CaregiverTaskCheckPage
 import CaregiverPhotoUploadPage from "./src/pages/caregiver/CaregiverPhotoUploadPage";
 import ProgramPage from "./src/pages/guardian/ProgramPage";
 import MedicationQrScanPage from "./src/pages/guardian/MedicationQrScanPage";
+import MedicationHistoryPage from "./src/pages/guardian/MedicationHistoryPage";
+import MedicationHistoryDetailPage from "./src/pages/guardian/MedicationHistoryDetailPage";
 
 import StoragePage from "./src/pages/billing/StoragePage";
 import StorageList from "./src/components/billing/StorageList";
@@ -96,6 +98,8 @@ const GUARDIAN_SCREENS = new Set([
   "Gallery",
   "ActivePhotoGallery",
   "GalleryMore",
+  "MedicationHistory",
+  "MedicationHistoryDetail",
 ]);
 
 const BOTTOM_TAB_HEIGHT = 72;
@@ -286,6 +290,16 @@ function AppNavigation() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="MedicationHistory"
+              component={MedicationHistoryPage}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="MedicationHistoryDetail"
+              component={MedicationHistoryDetailPage}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="Payment"
               component={PaymentPage}
               options={{ headerShown: false }}
@@ -407,11 +421,8 @@ function AppNavigation() {
           <View style={styles.bottomTabContainer}>
             <CaregiverBottomNav
               active={caregiverActiveTab}
-              qrDisabled
               onPressHome={() => navigationRef.navigate("CaregiverMain")}
-              onPressQr={() =>
-                Alert.alert("QR 체크", "QR 체크 기능은 준비 중입니다.\n업무 체크는 홈 화면에서 이용해 주세요.")
-              }
+              onPressQr={() => navigationRef.navigate("MedicationQrScan")}
               onPressEmergency={() =>
                 Alert.alert("긴급 호출", "담당실 연동은 준비 중입니다.")
               }

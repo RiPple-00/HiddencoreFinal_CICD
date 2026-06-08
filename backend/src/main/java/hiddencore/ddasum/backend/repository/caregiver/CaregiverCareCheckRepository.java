@@ -47,4 +47,16 @@ public interface CaregiverCareCheckRepository extends JpaRepository<Document, Lo
         ORDER BY d.recordDate DESC, d.updatedAt DESC
     """)
     List<Document> findAllByPatient(@Param("patientId") Long patientId);
+
+    @Query("""
+        SELECT d
+        FROM Document d
+        WHERE d.type = hiddencore.ddasum.backend.domain.Document.DocumentType.CARE_CHECK
+          AND d.patientId.patientId = :patientId
+          AND d.recordDate BETWEEN :startDate AND :endDate
+        ORDER BY d.recordDate DESC, d.updatedAt DESC
+    """)
+    List<Document> findAllByPatientAndDateRange(@Param("patientId") Long patientId,
+                                                @Param("startDate") LocalDate startDate,
+                                                @Param("endDate") LocalDate endDate);
 }

@@ -28,17 +28,10 @@ function parseHostFromScriptURL() {
   }
 }
 
-export function resolveApiBaseUrl() {
-  const fromEnv = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
-  if (fromEnv) {
-    return fromEnv.replace(/\/$/, "");
-  }
-
-  const port = process.env.EXPO_PUBLIC_API_PORT?.trim() || "8080";
-
+function resolveMetroDevHost() {
   const hostFromScript = parseHostFromScriptURL();
   if (hostFromScript) {
-    return `http://${hostFromScript}:${port}`;
+    return hostFromScript;
   }
 
   const dh =
@@ -46,7 +39,27 @@ export function resolveApiBaseUrl() {
     Constants.manifest?.debuggerHost ||
     Constants.manifest2?.extra?.expoGo?.debuggerHost;
   if (typeof dh === "string" && dh.includes(":")) {
-    return `http://${dh.split(":")[0]}:${port}`;
+    return dh.split(":")[0];
+  }
+  return null;
+}
+
+export function resolveApiBaseUrl() {
+  const port = process.env.EXPO_PUBLIC_API_PORT?.trim() || "8080";
+  const fromEnv = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+  const devHost = resolveMetroDevHost();
+
+  // 폰(Expo Go): QR의 IP(핫스팟·Wi-Fi)를 그대로 API에 사용 — .env 고정 IP보다 우선
+  if (Platform.OS !== "web" && devHost) {
+    return `http://${devHost}:${port}`;
+  }
+
+  if (fromEnv) {
+    return fromEnv.replace(/\/$/, "");
+  }
+
+  if (devHost) {
+    return `http://${devHost}:${port}`;
   }
 
   if (Platform.OS === "android") {
@@ -62,15 +75,53 @@ export function resolveApiBaseUrl() {
       const pagePort =
         window.location.port ||
         (window.location.protocol === "https:" ? "443" : "80");
-      if (String(pagePort) === String(port) && !process.env.EXPO_PUBLIC_API_BASE_URL?.trim()) {
+      if (String(pagePort) === String(port) && !fromEnv) {
         const fallback =
           process.env.EXPO_PUBLIC_API_FALLBACK_PORT?.trim() || "8080";
         return `http://${h}:${fallback}`;
       }
       return `http://${h}:${port}`;
     }
+    return `http://${h}:${port}`;
   }
   return `http://127.0.0.1:${port}`;
+}
+
+/** 챗봇 FastAPI(ai/chatbot) — Metro/PC IP + 포트 8001 (활동 AI 8000과 분리) */
+export function resolveChatbotUrl() {
+  const chatbotPort =
+    process.env.EXPO_PUBLIC_CHATBOT_PORT?.trim() || "8001";
+  const fromEnv = process.env.EXPO_PUBLIC_CHATBOT_URL?.trim();
+  const devHost = resolveMetroDevHost();
+
+  if (Platform.OS !== "web" && devHost) {
+    return `http://${devHost}:${chatbotPort}`;
+  }
+
+  if (fromEnv) {
+    return fromEnv.replace(/\/$/, "");
+  }
+
+  const apiBase = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+  if (apiBase) {
+    try {
+      const { hostname } = new URL(apiBase);
+      if (hostname) {
+        return `http://${hostname}:${chatbotPort}`;
+      }
+    } catch {
+      /* fall through */
+    }
+  }
+
+  if (devHost) {
+    return `http://${devHost}:${chatbotPort}`;
+  }
+
+  if (Platform.OS === "android") {
+    return `http://10.0.2.2:${chatbotPort}`;
+  }
+  return `http://127.0.0.1:${chatbotPort}`;
 }
 
 const baseURL = resolveApiBaseUrl();

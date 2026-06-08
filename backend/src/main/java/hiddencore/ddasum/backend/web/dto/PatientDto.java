@@ -80,6 +80,7 @@ public class PatientDto {
         private LocalDate dischargeDate;
         private Patient.BloodType bloodType;
         private String dietType;
+        private String admissionStatus;
         private String memo;
         private String building;
         private String room;
@@ -100,6 +101,7 @@ public class PatientDto {
                     .dischargeDate(patient.getDischargeDate())
                     .bloodType(patient.getType())
                     .dietType(patient.getDietType())
+                    .admissionStatus(patient.getAdmissionStatus())
                     .memo(patient.getMemo())
                     .building(patient.getLocationId() != null ? patient.getLocationId().getBuilding() : null)
                     .room(patient.getLocationId() != null ? patient.getLocationId().getRoom() : null)

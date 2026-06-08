@@ -1,5 +1,6 @@
 package hiddencore.ddasum.backend.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +13,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import hiddencore.ddasum.backend.config.GalleryDemoProperties;
+import hiddencore.ddasum.backend.domain.GuardianPatient;
 import hiddencore.ddasum.backend.domain.Patient;
 import hiddencore.ddasum.backend.domain.PatientNote;
 import hiddencore.ddasum.backend.domain.PatientNote.NoteType;
@@ -39,6 +42,7 @@ public class CareChecklistService {
     private final PatientRepository patientRepository;
     private final MemberRepository memberRepository;
     private final ObjectMapper objectMapper;
+    private final GalleryDemoProperties galleryDemoProperties;
 
     public boolean isGuardianOfPatient(long guardianUserId, long patientId) {
         return guardianPatientRepository
@@ -47,7 +51,9 @@ public class CareChecklistService {
     }
 
     public List<GuardianLinkedPatientResponse> listGuardianPatients(long guardianUserId) {
+        Long galleryDemoPatientId = galleryDemoProperties.getDemoPatientId();
         return guardianPatientRepository.findByGuardianUserId_UserId(guardianUserId).stream()
+                .sorted(guardianPatientOrder(galleryDemoPatientId))
                 .map(
                         gp -> {
                             Patient p = gp.getPatientId();
@@ -59,6 +65,20 @@ public class CareChecklistService {
                                     .build();
                         })
                 .toList();
+    }
+
+    /** 갤러리 시연 환자(기만경) → 주 보호자 → patient_id 내림차순 */
+    private static Comparator<GuardianPatient> guardianPatientOrder(Long galleryDemoPatientId) {
+        return Comparator
+                .comparing(
+                        (GuardianPatient gp) ->
+                                galleryDemoPatientId != null
+                                        && galleryDemoPatientId.equals(
+                                                gp.getPatientId().getPatientId()),
+                        Comparator.reverseOrder())
+                .thenComparing(GuardianPatient::getIsPrimary, Comparator.reverseOrder())
+                .thenComparing(
+                        gp -> gp.getPatientId().getPatientId(), Comparator.reverseOrder());
     }
 
     public Optional<CareChecklistLatestResponse> findLatestChecklist(long patientId) {

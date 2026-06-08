@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 
+import hiddencore.ddasum.backend.config.GuardianProgramDemoGuard;
 import hiddencore.ddasum.backend.domain.Document;
 import hiddencore.ddasum.backend.domain.Document.DocumentStatus;
 import hiddencore.ddasum.backend.domain.Document.DocumentType;
@@ -160,6 +161,12 @@ public class ProgramApplicationSeeder {
         while (have + added < target) {
             Patient patient = patients.get(idx % patients.size());
             idx++;
+            if (GuardianProgramDemoGuard.isDemoGuardianPatient(patient.getPatientId())) {
+                if (idx - patientStartIdx > patients.size() * 2) {
+                    break;
+                }
+                continue;
+            }
             if (!usedPatientIds.add(patient.getPatientId())) {
                 if (idx - patientStartIdx > patients.size() * 2) {
                     break;
@@ -168,6 +175,12 @@ public class ProgramApplicationSeeder {
             }
 
             Users guardian = resolveGuardian(guardianPatientRepository, patient, fallbackRequester);
+            if (GuardianProgramDemoGuard.isDemoGuardian(guardian)) {
+                if (idx - patientStartIdx > patients.size() * 2) {
+                    break;
+                }
+                continue;
+            }
             Users requester = guardian != null ? guardian : fallbackRequester;
             if (requester == null) {
                 break;

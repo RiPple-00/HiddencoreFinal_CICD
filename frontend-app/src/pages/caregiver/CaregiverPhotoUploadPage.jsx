@@ -5,13 +5,16 @@ import {
   Image,
   Pressable,
   ScrollView,
+  TextInput,
   View,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/Text";
-import { resolveApiBaseUrl } from "../../api";
-import { uploadCaregiverActivityPhoto } from "../../api/activityGalleryApi";
+import {
+  updateCaregiverActivityPhoto,
+  uploadCaregiverActivityPhoto,
+} from "../../api/activityGalleryApi";
 import { formatGalleryTime, resolveGalleryImageUrl } from "../../utils/galleryPhotoUtils";
 import { appendImageFile, formatUploadError } from "../../utils/uploadFormData";
 
@@ -22,6 +25,11 @@ export default function CaregiverPhotoUploadPage({ navigation }) {
   const [statusText, setStatusText] = useState("");
   const [errorText, setErrorText] = useState("");
   const [result, setResult] = useState(null);
+
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const pickImage = async () => {
     setErrorText("");
@@ -42,6 +50,7 @@ export default function CaregiverPhotoUploadPage({ navigation }) {
       setPreviewUri(asset.uri);
       setPreviewMime(asset.mimeType || "image/jpeg");
       setResult(null);
+      setEditing(false);
       setStatusText("사진이 선택되었습니다. 아래 버튼을 눌러 등록하세요.");
     } catch (e) {
       const msg = e?.message ?? "사진 선택에 실패했습니다.";
@@ -60,6 +69,7 @@ export default function CaregiverPhotoUploadPage({ navigation }) {
     setUploading(true);
     setErrorText("");
     setResult(null);
+    setEditing(false);
     setStatusText("사진을 서버로 전송하는 중…");
 
     try {
@@ -72,6 +82,8 @@ export default function CaregiverPhotoUploadPage({ navigation }) {
       setStatusText("얼굴 인식·활동 분석 중… (최대 1~2분)");
       const res = await uploadCaregiverActivityPhoto(formData);
       setResult(res.data);
+      setEditTitle(res.data?.card?.title ?? "");
+      setEditContent(res.data?.card?.content ?? "");
       setStatusText("등록이 완료되었습니다. 보호자 갤러리에서 확인할 수 있어요.");
 
       const detectedLine = res.data?.detectedPatientNames?.length
@@ -99,6 +111,45 @@ export default function CaregiverPhotoUploadPage({ navigation }) {
     } finally {
       setUploading(false);
     }
+  };
+
+  const startEdit = () => {
+    const card = result?.card;
+    if (!card) return;
+    setEditTitle(card.title ?? "");
+    setEditContent(card.content ?? "");
+    setEditing(true);
+  };
+
+  const saveEdit = async () => {
+    const documentId = result?.documentId ?? result?.card?.documentId;
+    if (!documentId) {
+      Alert.alert("안내", "수정할 게시물을 찾을 수 없습니다.");
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      const res = await updateCaregiverActivityPhoto(documentId, {
+        title: editTitle.trim(),
+        content: editContent.trim(),
+      });
+      setResult((prev) => ({ ...prev, ...res.data, card: res.data?.card ?? prev?.card }));
+      setEditing(false);
+      setStatusText("게시물이 수정되었습니다.");
+      Alert.alert("수정 완료", res.data?.message ?? "게시물이 수정되었습니다.");
+    } catch (e) {
+      Alert.alert("수정 실패", formatUploadError(e));
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const finishAndGoBack = () => {
+    if (editing) {
+      Alert.alert("안내", "수정 중입니다. 저장하거나 취소한 뒤 완료를 눌러 주세요.");
+      return;
+    }
+    navigation.goBack();
   };
 
   const card = result?.card;
@@ -178,27 +229,79 @@ export default function CaregiverPhotoUploadPage({ navigation }) {
                 AI 분석 없이 기본 정보로 저장되었습니다.
               </Text>
             )}
-            <Text className="text-sm font-bold text-caregiver-text-primary mt-2">
-              제목: {card.title}
-            </Text>
-            <Text className="text-sm text-caregiver-text-neutral">
-              시간: {formatGalleryTime(card.uploadedAt)}
-            </Text>
-            <Text className="text-sm text-caregiver-text-neutral leading-5">
-              내용: {card.content}
-            </Text>
-            {card.imageUrl ? (
-              <Image
-                source={{ uri: resolveGalleryImageUrl(card.imageUrl) }}
-                className="w-full h-40 rounded-xl mt-2"
-              />
-            ) : null}
-            <Pressable
-              className="mt-2 self-end rounded-lg bg-caregiver-button-primary px-4 py-2"
-              onPress={() => navigation.goBack()}
-            >
-              <Text className="text-sm font-bold text-white">완료</Text>
-            </Pressable>
+
+            {editing ? (
+              <View className="gap-2 mt-2">
+                <Text className="text-sm font-bold text-caregiver-text-primary">제목</Text>
+                <TextInput
+                  className="rounded-lg border border-caregiver-button-secondary px-3 py-2 text-caregiver-text-primary"
+                  value={editTitle}
+                  onChangeText={setEditTitle}
+                  placeholder="제목"
+                />
+                <Text className="text-sm font-bold text-caregiver-text-primary">내용</Text>
+                <TextInput
+                  className="rounded-lg border border-caregiver-button-secondary px-3 py-2 text-caregiver-text-primary min-h-[88px]"
+                  value={editContent}
+                  onChangeText={setEditContent}
+                  placeholder="내용"
+                  multiline
+                  textAlignVertical="top"
+                />
+                <View className="flex-row justify-end gap-2 mt-1">
+                  <Pressable
+                    className="rounded-lg border border-caregiver-button-secondary px-4 py-2"
+                    onPress={() => setEditing(false)}
+                    disabled={savingEdit}
+                  >
+                    <Text className="text-sm font-bold text-caregiver-text-primary">취소</Text>
+                  </Pressable>
+                  <Pressable
+                    className="rounded-lg bg-caregiver-button-primary px-4 py-2"
+                    onPress={saveEdit}
+                    disabled={savingEdit}
+                  >
+                    {savingEdit ? (
+                      <ActivityIndicator color="#fff" size="small" />
+                    ) : (
+                      <Text className="text-sm font-bold text-white">저장</Text>
+                    )}
+                  </Pressable>
+                </View>
+              </View>
+            ) : (
+              <>
+                <Text className="text-sm font-bold text-caregiver-text-primary mt-2">
+                  제목: {card.title}
+                </Text>
+                <Text className="text-sm text-caregiver-text-neutral">
+                  시간: {formatGalleryTime(card.uploadedAt)}
+                </Text>
+                <Text className="text-sm text-caregiver-text-neutral leading-5">
+                  내용: {card.content}
+                </Text>
+                {card.imageUrl ? (
+                  <Image
+                    source={{ uri: resolveGalleryImageUrl(card.imageUrl) }}
+                    className="w-full h-40 rounded-xl mt-2"
+                  />
+                ) : null}
+                <View className="flex-row justify-end gap-2 mt-2">
+                  <Pressable
+                    className="rounded-lg border border-caregiver-button-secondary px-4 py-2"
+                    onPress={startEdit}
+                  >
+                    <Text className="text-sm font-bold text-caregiver-text-primary">수정</Text>
+                  </Pressable>
+                  <Pressable
+                    className="rounded-lg bg-caregiver-button-primary px-4 py-2"
+                    onPress={finishAndGoBack}
+                  >
+                    <Text className="text-sm font-bold text-white">완료</Text>
+                  </Pressable>
+                </View>
+              </>
+            )}
           </View>
         ) : null}
       </ScrollView>

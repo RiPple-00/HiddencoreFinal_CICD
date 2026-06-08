@@ -1,4 +1,10 @@
-import { bloodTypeLabel, displayPatientRef, formatBirthDot, genderLabelKo } from '../../utils/adminPatientUtils';
+import {
+  bloodTypeLabel,
+  displayPatientRef,
+  formatBirthDot,
+  genderLabelKo,
+  resolvePatientAvatarUrl,
+} from '../../utils/adminPatientUtils';
 
 export default function PatientProfileCard({ patient }) {
   if (!patient) return null;
@@ -10,8 +16,8 @@ export default function PatientProfileCard({ patient }) {
         <div className="flex min-w-0 gap-5">
           <div className="h-[100px] w-[100px] shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-[#dbe4ff] to-[#c7d7ff]">
             <img
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(patient.name || 'patient')}`}
-              alt=""
+              src={resolvePatientAvatarUrl(patient)}
+              alt={`${patient.name || '환자'} 프로필`}
               className="h-full w-full object-cover"
             />
           </div>

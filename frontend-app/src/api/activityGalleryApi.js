@@ -6,6 +6,10 @@ export function uploadCaregiverActivityPhoto(formData) {
   });
 }
 
+export function updateCaregiverActivityPhoto(documentId, body) {
+  return api.patch(`/api/caregiver/activity-photos/${documentId}`, body);
+}
+
 export function fetchGuardianActivityGallery(patientId) {
   return api.get(`/api/guardian/me/patients/${patientId}/activity-gallery`);
 }

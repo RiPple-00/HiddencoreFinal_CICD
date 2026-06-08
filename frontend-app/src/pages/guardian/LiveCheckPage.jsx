@@ -13,6 +13,10 @@ import { useFocusEffect } from "@react-navigation/native";
 import Text from "@/components/Text";
 
 import { fetchGuardianCareCheck, fetchGuardianLinkedPatients } from "../../api/careChecklistApi";
+import {
+  resolveGuardianPatientDisplayName,
+  resolveGuardianPrimaryPatientId,
+} from "../../utils/guardianPatientId";
 import { applyResponseToState, initialState, todayStr } from "../../utils/careCheckState";
 import CaregiverConditionRow from "../../components/caregiver/CaregiverConditionRow";
 import CaregiverEliminationCard from "../../components/caregiver/CaregiverEliminationCard";
@@ -49,8 +53,7 @@ export default function LiveCheckPage() {
           setLinked(list);
           setPatientId((prev) => {
             if (prev != null) return prev;
-            const primary = list.find((p) => p.primary) ?? list[0];
-            return primary ? primary.patientId : null;
+            return resolveGuardianPrimaryPatientId(list);
           });
         } catch (e) {
           if (!cancelled) {
@@ -137,7 +140,7 @@ export default function LiveCheckPage() {
                   style={[pageStyles.tab, patientId === p.patientId && pageStyles.tabActive]}
                 >
                   <Text style={[pageStyles.tabText, patientId === p.patientId && pageStyles.tabTextActive]}>
-                    {p.patientName}
+                    {resolveGuardianPatientDisplayName(p.patientId, p.patientName)}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -145,7 +148,12 @@ export default function LiveCheckPage() {
           ) : null}
 
           <View style={pageStyles.patientStrip}>
-            <Text style={pageStyles.patientName}>{activePatient?.patientName ?? careMeta?.patientName ?? "환자"}</Text>
+            <Text style={pageStyles.patientName}>
+              {resolveGuardianPatientDisplayName(
+                patientId,
+                activePatient?.patientName ?? careMeta?.patientName
+              )}
+            </Text>
             <Text style={pageStyles.muted}>{metaLine}</Text>
           </View>
 

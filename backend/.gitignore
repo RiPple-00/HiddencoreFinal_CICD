@@ -41,7 +41,30 @@ out/
 .env.*
 !.env.example
 src/main/resources/application-local.yml
+src/main/resources/application-local.yaml
 src/main/resources/application-local.properties
+src/main/resources/application-cloud.yml
+src/main/resources/application-cloud.yaml
+src/main/resources/application-cloud.properties
+src/main/resources/application-*.local.yml
+src/main/resources/application-dev-local.yml
+src/main/resources/application-prod-local.yml
+src/main/resources/bootstrap-local.yml
+scripts/local_db.env
+scripts/local_db.env.*
+!scripts/local_db.env.example
+scripts/.env
 
 ### User uploads (runtime data) ###
 uploads/
+
+### Logs ###
+*.log
+logs/
+hs_err_pid*
+*.hprof
+
+### Local DB dumps ###
+*.sql.gz
+*.sql.bak
+*.dump

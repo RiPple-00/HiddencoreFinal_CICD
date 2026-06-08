@@ -65,7 +65,16 @@ export default function GuardianLoginPage({ navigation }) {
         navigation.replace("CaregiverMain");
       }
     } catch (e) {
-      const message = e?.response?.data?.message || "로그인에 실패했습니다.";
+      const serverMessage = e?.response?.data?.message;
+      const isNetworkError = !e?.response;
+      const message = serverMessage
+        || (isNetworkError
+          ? `서버에 연결하지 못했습니다.\n\n· PC에서 Spring Boot(8080)가 실행 중인지 확인\n· 폰과 PC가 같은 Wi-Fi인지 확인\n· 폰 브라우저에서 http://192.168.0.73:8080 접속 테스트`
+          : "로그인에 실패했습니다.");
+      if (__DEV__) {
+        // eslint-disable-next-line no-console
+        console.warn("[login] failed", e?.message, e?.response?.status, e?.response?.data);
+      }
       Alert.alert("로그인 실패", message);
     } finally {
       setLoading(false);

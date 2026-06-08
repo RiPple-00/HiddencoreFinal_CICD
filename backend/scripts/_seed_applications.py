@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 
 import pymysql
 
-conn = pymysql.connect(
-    host="localhost", user="root", password="12345", database="ddasum", charset="utf8mb4"
-)
+from _db_local import mysql_connect_kwargs
+
+conn = pymysql.connect(**mysql_connect_kwargs())
 cur = conn.cursor()
 
 cur.execute("SELECT facility_id FROM FACILITY ORDER BY facility_id")

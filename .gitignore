@@ -1,37 +1,203 @@
-# Dependencies
-node_modules/
+# ═══════════════════════════════════════════════════════════════
+# 따숨(HiddencoreFinal) — Git 제외 목록 (민감정보·로컬·산출물)
+# commit/push 전: git status 로 아래 항목이 안 올라가는지 확인
+#   .env, application-local.yml, uploads/, chroma_db/, face_db/
+# ═══════════════════════════════════════════════════════════════
 
-# Environment & secrets (never commit real values)
+# ── 환경 변수 / API 키 / 시크릿 ──────────────────────────────
 .env
 .env.*
 !.env.example
 !.env.*.example
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+*.env.local
+**/.env.local
+**/.env.backup
+**/.env.bak
+**/.env.*.local
+.envrc
+.env.production
+.env.development
+secrets/
+credentials/
+**/secrets.json
+**/credentials.json
+**/service-account*.json
+**/serviceAccountKey.json
+firebase-adminsdk*.json
+**/*-secrets.yml
+**/*-secrets.yaml
+**/*-secrets.properties
+*.secret
+*.secrets
+google-services.json
+GoogleService-Info.plist
+docker-compose.override.yml
+.npmrc
+.pypirc
 
-# Local Spring overrides (real DB/JWT/mail values)
+# 인증서·키스토어 (Android/iOS 서명, TLS, SSH)
+*.pem
+*.key
+*.p12
+*.p8
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
+*.ppk
+id_rsa
+id_ed25519
+id_ecdsa
+*.csr
+*.vault
+
+# ── Spring Boot 로컬/클라우드 설정 (DB 비번, JWT, API 키) ─
 **/application-local.yml
+**/application-local.yaml
 **/application-local.properties
+**/application-cloud.yml
+**/application-cloud.yaml
+**/application-cloud.properties
+**/application-*.local.yml
+**/application-*.local.yaml
+**/application-*.local.properties
+**/application-dev-local.yml
+**/application-prod-local.yml
+**/bootstrap-local.yml
+**/bootstrap-local.properties
+local.properties
+**/gradle-local.properties
 
-# OS / editor
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
+# 로컬 DB 스크립트 (비번 — *.example 만 커밋)
+**/local_db.env
+**/local_db.env.*
+!**/local_db.env.example
+backend/scripts/.env
 
-# IDE
-.idea/
-.vscode/
-*.iml
+# ── 의존성 ───────────────────────────────────────────────────
+node_modules/
 
-# Expo (repo root)
-.expo/
-
-# Python cache
+# ── Python ───────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
+*$py.class
+.Python
 .venv/
 venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.eggs/
+notebooks/runs/
 
-# Build / generated artifacts
+# ── IDE / 에디터 / Cursor ────────────────────────────────────
+.idea/
+.vscode/
+!.vscode/extensions.json
+*.iml
+*.iws
+*.ipr
+.cursor/
+agent-transcripts/
+terminals/
+
+# ── OS ───────────────────────────────────────────────────────
+.DS_Store
+**/__MACOSX/
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+*.swp
+*.swo
+*~
+
+# ── 로그 (요청 본문·토큰 섞일 수 있음) ───────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+hs_err_pid*
+*.hprof
+
+# ── 빌드 / 캐시 ─────────────────────────────────────────────
 dist/
 build/
-*.log
+out/
+target/
+.gradle/
+**/build/
+!**/gradle/wrapper/gradle-wrapper.jar
+*.class
+*.tsbuildinfo
+.kotlin/
+coverage/
+.nyc_output/
+.turbo/
+.cache/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# 모바일 빌드 산출물
+*.apk
+*.aab
+*.ipa
+
+# Expo
+.expo/
+.expo-shared/
+.expo-tmp-export/
+.expo-web-test/
+web-build/
+.metro-health-check*
+expo-env.d.ts
+
+# 프론트 생성 네이티브 폴더 (prebuild 시)
+frontend-app/ios/
+frontend-app/android/
+Pods/
+**/DerivedData/
+
+# ── 런타임 업로드 (사용자 사진·갤러리) ───────────────────────
+**/uploads/
+backend/uploads/
+
+# ── AI / ML 산출물 (용량·재생성 가능) ───────────────────────
+*.pt
+*.pth
+*.onnx
+*.weights
+**/runs/
+**/output/
+**/output_*/
+**/output_v2/
+**/chroma_db/
+**/.chroma/
+**/wandb/
+**/checkpoints/
+*.sqlite3
+!**/src/test/**/*.sqlite3
+
+# 얼굴인식 전처리·DB (로컬 재생성)
+ai/dasum-face-ai-test/data/gallery_preprocessed/
+ai/dasum-face-ai-test/data/patients_preprocessed/
+ai/dasum-face-ai-test/data/activity_faces/
+ai/dasum-face-ai-test/data/face_db/
+ai/dasum-face-ai-test/data/augmented/
+**/aligned_patients/
+
+# ── DB 덤프 / 백업 (실데이터 유출 방지) ───────────────────────
+# 주의: backend/scripts/seed_*.sql, reset_demo.sql 은 커밋 대상 (여기에 *.sql 넣지 말 것)
+*.sql.gz
+*.sql.bak
+*.dump
+**/dumps/
+**/backup/

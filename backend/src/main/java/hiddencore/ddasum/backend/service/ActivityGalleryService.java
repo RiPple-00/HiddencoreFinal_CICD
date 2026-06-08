@@ -34,6 +34,7 @@ import hiddencore.ddasum.backend.service.ai.LocalPythonFaceVerifier.FaceVerifyRe
 import hiddencore.ddasum.backend.service.storage.LocalFileStorageService;
 import hiddencore.ddasum.backend.service.storage.LocalFileStorageService.StoredFile;
 import hiddencore.ddasum.backend.web.dto.guardian.activephoto.ActivityGalleryListResponse;
+import hiddencore.ddasum.backend.web.dto.guardian.activephoto.ActivityGalleryUpdateRequest;
 import hiddencore.ddasum.backend.web.dto.guardian.activephoto.ActivityGalleryUploadResponse;
 import hiddencore.ddasum.backend.web.dto.guardian.activephoto.GalleryModalDto;
 import lombok.RequiredArgsConstructor;
@@ -162,6 +163,32 @@ public class ActivityGalleryService {
                 .build();
     }
 
+    @Transactional
+    public ActivityGalleryUploadResponse updateForCaregiver(
+            AuthenticatedUser caregiver, Long documentId, ActivityGalleryUpdateRequest body) {
+        requireCaregiverWithFacility(caregiver);
+        Document document = requireCaregiverGalleryDocument(caregiver, documentId);
+
+        if (body.title() != null && !body.title().isBlank()) {
+            document.setTitle(body.title().trim());
+        }
+        if (body.content() != null) {
+            document.setContent(body.content().trim());
+        }
+
+        Document saved = documentRepository.save(document);
+        GalleryModalDto card = GalleryModalDto.from(saved);
+        Patient patient = saved.getPatientId();
+
+        return ActivityGalleryUploadResponse.builder()
+                .documentId(saved.getDocumentId())
+                .patientId(patient != null ? patient.getPatientId() : null)
+                .patientName(patient != null ? patient.getName() : null)
+                .card(card)
+                .message("갤러리 게시물이 수정되었습니다.")
+                .build();
+    }
+
     @Transactional(readOnly = true)
     public ActivityGalleryListResponse listForGuardian(Long guardianUserId, Long patientId) {
         if (!careChecklistService.isGuardianOfPatient(guardianUserId, patientId)) {
@@ -287,6 +314,29 @@ public class ActivityGalleryService {
             return "dancing";
         }
         return null;
+    }
+
+    private Document requireCaregiverGalleryDocument(AuthenticatedUser caregiver, Long documentId) {
+        Document document =
+                documentRepository
+                        .findById(documentId)
+                        .orElseThrow(
+                                () ->
+                                        new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND, "게시물을 찾을 수 없습니다."));
+
+        if (document.getType() != DocumentType.GALLERYCARD) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "갤러리 게시물만 수정할 수 있습니다.");
+        }
+
+        Patient patient = document.getPatientId();
+        if (patient == null || patient.getFacilityId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "환자 정보가 없는 게시물입니다.");
+        }
+        if (!patient.getFacilityId().getFacilityId().equals(caregiver.facilityId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 시설의 게시물만 수정할 수 있습니다.");
+        }
+        return document;
     }
 
     private Patient resolveDemoPatient(Long facilityId) {

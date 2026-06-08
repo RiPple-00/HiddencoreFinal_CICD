@@ -21,6 +21,7 @@ import hiddencore.ddasum.backend.service.CareChecklistService;
 import hiddencore.ddasum.backend.service.caregiver.CaregiverCareCheckService;
 import hiddencore.ddasum.backend.web.dto.care.CareChecklistLatestResponse;
 import hiddencore.ddasum.backend.web.dto.care.GuardianLinkedPatientResponse;
+import hiddencore.ddasum.backend.web.dto.care.GuardianWeeklyCareReportResponse;
 import hiddencore.ddasum.backend.web.dto.caregiver.CaregiverCareCheckDto;
 import hiddencore.ddasum.backend.web.dto.guardian.activephoto.ActivityGalleryListResponse;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +75,19 @@ public class GuardianCareChecklistController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "연결된 환자만 조회할 수 있습니다.");
         }
         return caregiverCareCheckService.getOne(patientId, date);
+    }
+
+    @GetMapping("/patients/{patientId}/weekly-report")
+    public GuardianWeeklyCareReportResponse weeklyReport(
+            @PathVariable Long patientId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        AuthenticatedUser u = securityContextHelper.requireAuthenticatedUser();
+        requireGuardian(u);
+        if (!careChecklistService.isGuardianOfPatient(u.userId(), patientId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "연결된 환자만 조회할 수 있습니다.");
+        }
+        return caregiverCareCheckService.getWeeklyReport(u.userId(), patientId, startDate, endDate);
     }
 
     private static void requireGuardian(AuthenticatedUser u) {

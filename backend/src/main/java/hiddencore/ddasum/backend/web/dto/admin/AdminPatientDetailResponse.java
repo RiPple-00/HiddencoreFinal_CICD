@@ -25,6 +25,7 @@ public class AdminPatientDetailResponse {
     private LocalDate dischargeDate;
     private Patient.BloodType bloodType;
     private String dietType;
+    private String admissionStatus;
     private String memo;
     private String building;
     private String room;
@@ -43,6 +44,7 @@ public class AdminPatientDetailResponse {
                 .dischargeDate(d.getDischargeDate())
                 .bloodType(d.getBloodType())
                 .dietType(d.getDietType())
+                .admissionStatus(d.getAdmissionStatus())
                 .memo(d.getMemo())
                 .building(d.getBuilding())
                 .room(d.getRoom())

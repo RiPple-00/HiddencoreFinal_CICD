@@ -70,3 +70,10 @@ tasks.register('freePort8080') {
 tasks.named('bootRun') {
 	dependsOn tasks.named('freePort8080')
 }
+
+tasks.register('fixKimEncoding', JavaExec) {
+	group = 'application'
+	description = 'Fix UTF-8 encoding for demo patient 기만경 (260401008)'
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = 'hiddencore.ddasum.backend.tools.FixKimMankyungEncoding'
+}

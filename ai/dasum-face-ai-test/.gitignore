@@ -4,6 +4,8 @@ __pycache__/
 venv/
 
 yolov8n.pt
+*.pt
+*.pth
 
 # Regenerated outputs
 data/gallery_preprocessed/
@@ -11,6 +13,7 @@ data/patients_preprocessed/
 data/activity_faces/
 data/face_db/
 data/augmented/
+**/aligned_patients/
 output/
 output_v2/
 output_*/

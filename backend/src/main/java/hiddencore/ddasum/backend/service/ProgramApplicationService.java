@@ -65,12 +65,19 @@ public class ProgramApplicationService {
             throw new IllegalArgumentException("마감된 프로그램입니다.");
         }
 
-        boolean alreadyApplied = documentRepository.existsByRequesterUserId_UserIdAndPostId_PostIdAndTypeAndStatusIn(
-                guardianUserId,
-                postId,
-                DocumentType.PROGRAM_APPLICATION,
-                List.of(DocumentStatus.PENDING_APPROVAL, DocumentStatus.APPROVED));
+        boolean alreadyApplied =
+                documentRepository
+                        .findByRequesterUserId_UserIdAndTypeOrderByRequestedAtDesc(
+                                guardianUserId, DocumentType.PROGRAM_APPLICATION)
+                        .stream()
+                        .filter(d -> d.getPostId() != null && postId.equals(d.getPostId().getPostId()))
+                        .filter(d -> !isDemoSeededApplication(d))
+                        .anyMatch(
+                                d ->
+                                        d.getStatus() == DocumentStatus.PENDING_APPROVAL
+                                                || d.getStatus() == DocumentStatus.APPROVED);
 
+                                                
         if (alreadyApplied) {
             throw new IllegalArgumentException("이미 신청한 프로그램입니다.");
         }
@@ -147,8 +154,20 @@ public class ProgramApplicationService {
                 .toList();
     }
 
+    private static boolean isDemoSeededApplication(Document document) {
+        return document != null
+                && document.getContent() != null
+                && document.getContent().contains("데모 데이터");
+    }
+
     /** 동일 post 중 화면에 남길 한 건 고르기 */
     private static boolean isBetterProgramApplicationRow(Document candidate, Document current) {
+        boolean cDemo = isDemoSeededApplication(candidate);
+        boolean pDemo = isDemoSeededApplication(current);
+        if (cDemo != pDemo) {
+            return !cDemo;
+        }
+
         int c = programApplicationStatusRank(candidate.getStatus());
         int p = programApplicationStatusRank(current.getStatus());
         if (c != p) {

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import Text from "@/components/Text";
@@ -63,17 +63,12 @@ function GuardianMorePage({ route, navigation }) {
       className="flex-1 bg-guardian-bg-primary"
       edges={["bottom", "left", "right"]}
     >
-      <View className="flex-1">
-        <ActivePhotoMobileShell scrollable={false}>
+      <ActivePhotoMobileShell>
           <ActivePhotoTopBar
             title="활동 기록 상세"
             onBack={() => navigation.goBack()}
           />
-          <ScrollView
-            className="flex-1"
-            contentContainerStyle={{ paddingBottom: 8 }}
-            showsVerticalScrollIndicator={false}
-          >
+          <View>
             <ActivePhotoInfoText />
 
             {loading ? (
@@ -102,7 +97,7 @@ function GuardianMorePage({ route, navigation }) {
                 </View>
               ))}
             </View>
-          </ScrollView>
+          </View>
 
           <ActivityPhotoDetailModal
             photo={selectedPhoto}
@@ -110,7 +105,6 @@ function GuardianMorePage({ route, navigation }) {
             onSave={() => setSelectedPhoto(null)}
           />
         </ActivePhotoMobileShell>
-      </View>
     </SafeAreaView>
   );
 }

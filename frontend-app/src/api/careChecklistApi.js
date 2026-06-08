@@ -11,6 +11,15 @@ export function fetchGuardianCareCheck(patientId, date) {
   });
 }
 
+export function fetchGuardianWeeklyReport(patientId, startDate, endDate) {
+  return api.get(`/api/guardian/me/patients/${patientId}/weekly-report`, {
+    params: {
+      ...(startDate ? { startDate } : {}),
+      ...(endDate ? { endDate } : {}),
+    },
+  });
+}
+
 export function fetchCaregiverPatients() {
   return api.get("/api/caregiver/patients");
 }

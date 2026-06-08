@@ -1,0 +1,23 @@
+# 클라우드(MySQL 서버) 연결 템플릿
+# 1) application-cloud.yml 로 복사 (Git 제외됨)
+# 2) 아래 host/비밀번호를 ddasum-mysql 서버 값으로 수정
+# 3) 실행: SPRING_PROFILES_ACTIVE=local,cloud 또는 cloud 만 활성화
+
+spring:
+  datasource:
+    url: jdbc:mysql://1.201.125.108:3306/ddasum?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: ddasum
+    password: your-cloud-mysql-password-here
+
+server:
+  address: 0.0.0.0
+  port: 8080
+
+app:
+  jwt:
+    secret: change-me-use-64chars-minimum-random-string-for-production-0001
+  gallery:
+    upload-dir: /data/ddasum/uploads
+
+public-data:
+  service-key: your-public-data-service-key

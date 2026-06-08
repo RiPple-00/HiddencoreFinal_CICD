@@ -34,3 +34,18 @@ export function formatBirthDot(birthDate) {
   if (s.length >= 10) return `${s.slice(0, 4)}.${s.slice(5, 7)}.${s.slice(8, 10)}`;
   return s;
 }
+
+/** 시연 환자 기만경(patient_6) — AI 얼굴 DB 정렬 사진 */
+export const DEMO_PATIENT_ID = 260401008;
+
+export function resolvePatientAvatarUrl(patient) {
+  const patientId = patient?.patientId;
+  const name = patient?.name?.trim();
+
+  if (patientId === DEMO_PATIENT_ID || name === '기만경') {
+    return '/patients/kim-mankyung.jpg';
+  }
+
+  const seed = encodeURIComponent(name || String(patientId ?? 'patient'));
+  return `https://api.dicebear.com/7.x/personas/svg?seed=${seed}`;
+}

@@ -1,11 +1,22 @@
-const BADGE_URGENT = { label: '긴급', className: 'bg-[#fee2e2] text-[#dc2626]' };
-const BADGE_POSTOP = { label: '수술 후 모니터링', className: 'bg-[#f1f5f9] text-[#64748b]' };
+const BADGE_MONITORING = { label: '집중관찰', className: 'bg-[#fef3c7] text-[#b45309]' };
+const BADGE_DEMENTIA = { label: '인지 저하', className: 'bg-[#ede9fe] text-[#6d28d9]' };
 
 export default function DiagnosisCard({ patient }) {
   const diagnosis =
-    patient?.memo && patient.memo.length < 80 && !patient.memo.includes('\n')
-      ? patient.memo
-      : '급성 충수염 (Acute Appendicitis)';
+    patient?.admissionStatus?.trim()
+    || (patient?.memo && patient.memo.length < 80 && !patient.memo.includes('\n')
+      ? patient.memo.trim()
+      : null)
+    || '진단 정보 없음';
+
+  const comment = patient?.memo?.includes('\n') || (patient?.admissionStatus && patient?.memo)
+    ? patient?.memo?.trim()
+    : null;
+
+  const badges =
+    patient?.patientStatus === 'MONITORING'
+      ? [BADGE_MONITORING, BADGE_DEMENTIA]
+      : [BADGE_MONITORING];
 
   return (
     <section className="rounded-2xl border border-[#e8eaef] bg-white p-5 shadow-sm">
@@ -15,14 +26,22 @@ export default function DiagnosisCard({ patient }) {
         </div>
         <h2 className="text-lg font-bold text-[#1a1f2e]">진단명</h2>
       </div>
-      <p className="text-base font-bold text-[#e53e3e]">{diagnosis}</p>
+      <p className="whitespace-pre-line text-base font-bold leading-snug text-[#e53e3e]">{diagnosis}</p>
+      {comment ? (
+        <div className="mt-4 rounded-xl bg-[#f8fafc] p-4">
+          <p className="mb-2 text-xs font-bold text-slate-500">진단 코멘트</p>
+          <p className="text-sm leading-relaxed text-slate-700">{comment}</p>
+        </div>
+      ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
-        <span className={`rounded-full px-3 py-1 text-xs font-bold ${BADGE_URGENT.className}`}>
-          {BADGE_URGENT.label}
-        </span>
-        <span className={`rounded-full px-3 py-1 text-xs font-bold ${BADGE_POSTOP.className}`}>
-          {BADGE_POSTOP.label}
-        </span>
+        {badges.map((badge) => (
+          <span
+            key={badge.label}
+            className={`rounded-full px-3 py-1 text-xs font-bold ${badge.className}`}
+          >
+            {badge.label}
+          </span>
+        ))}
       </div>
     </section>
   );

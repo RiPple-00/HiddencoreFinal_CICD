@@ -1,7 +1,8 @@
 import pymysql
 
-c = pymysql.connect(host="localhost", user="root", password="12345", database="ddasum")
-cur = c.cursor()
+from _db_local import mysql_connect_kwargs
+
+c = pymysql.connect(**mysql_connect_kwargs())cur = c.cursor()
 cur.execute(
     """SELECT pa.post_id, pa.application_id, pa.postapplication_status, p.facility_id
        FROM POST_APPLICATION pa

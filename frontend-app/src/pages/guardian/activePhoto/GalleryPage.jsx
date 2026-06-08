@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -6,6 +6,7 @@ import Text from "@/components/Text";
 import { fetchGuardianLinkedPatients } from '../../../api/careChecklistApi';
 import { fetchGuardianActivityGallery } from '../../../api/activityGalleryApi';
 import { mapGalleryPhotos } from '../../../utils/galleryPhotoUtils';
+import { resolveGuardianGalleryPatientId } from '../../../utils/guardianPatientId';
 import ActivePhotoMobileShell from '../../../components/guardian/activePhoto/ActivePhotoMobileShell';
 import ActivePhotoTopBar from '../../../components/guardian/activePhoto/ActivePhotoTopBar';
 import ActivePhotoInfoText from '../../../components/guardian/activePhoto/ActivePhotoInfoText';
@@ -28,8 +29,7 @@ function GuardianGalleryPage({ navigation }) {
           setError(null);
           const linkedRes = await fetchGuardianLinkedPatients();
           const list = linkedRes.data ?? [];
-          const primary = list.find((p) => p.primary) ?? list[0];
-          const pid = primary?.patientId ?? null;
+          const pid = resolveGuardianGalleryPatientId(list);
           if (!pid) {
             if (!cancelled) {
               setPatientId(null);
@@ -60,22 +60,12 @@ function GuardianGalleryPage({ navigation }) {
     }, [])
   );
 
-  const latestPhoto = useMemo(
-    () => galleryPhotos[galleryPhotos.length - 1] ?? null,
-    [galleryPhotos]
-  );
-
-  const handleOpenMore = () => {
-    navigation.navigate('GalleryMore', { range: 'slots', patientId, slots: galleryPhotos });
-  };
-
   return (
     <SafeAreaView
       className="flex-1 bg-guardian-bg-primary"
       edges={["bottom", "left", "right"]}
     >
-      <View className="flex-1">
-        <ActivePhotoMobileShell>
+      <ActivePhotoMobileShell>
           <ActivePhotoTopBar
             title="프로그램 사진 기록"
             onBack={() => navigation.goBack()}
@@ -110,7 +100,6 @@ function GuardianGalleryPage({ navigation }) {
 
           <ActivePhotoBottomActions />
         </ActivePhotoMobileShell>
-      </View>
     </SafeAreaView>
   );
 }

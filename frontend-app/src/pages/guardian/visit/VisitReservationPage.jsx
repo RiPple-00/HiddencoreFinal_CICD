@@ -18,6 +18,10 @@ import VisitTimeSelector from "../../../components/visit/VisitTimeSelector";
 import visitApi from "@/api/visitApi";
 import { resolveApiBaseUrl } from "@/api/index";
 import { G, GMutedLight } from "@/styles/guardianTheme";
+import {
+  DEMO_GUARDIAN_PATIENT_ID,
+  DEMO_GUARDIAN_PATIENT_NAME,
+} from "@/utils/guardianPatientId";
 
 const TIME_SLOTS = [
   "09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00",
@@ -30,11 +34,11 @@ const DEMO_VISIT_APPLICANT_NAME = "김보호";
 const DEMO_VISIT_CONTACT = "010-1234-5678";
 const DEMO_VISIT_RELATIONSHIP = "자녀";
 
-const DEFAULT_PATIENT_ID = Number(process.env.EXPO_PUBLIC_PATIENT_ID) || 260401001;
+const DEFAULT_PATIENT_ID = DEMO_GUARDIAN_PATIENT_ID;
 
 /** API 응답 이름이 인코딩 문제로 깨질 때(Expo QR 등) UI에 쓸 더미 표기 — DB 시드와 동일 */
 const KNOWN_PATIENT_DISPLAY = {
-  260401001: { name: "김영희" },
+  [DEMO_GUARDIAN_PATIENT_ID]: { name: DEMO_GUARDIAN_PATIENT_NAME },
 };
 
 function buildPatientLineForUi(patientId, apiName, apiRoom) {
@@ -85,8 +89,6 @@ const VISIT_TYPES = [
 
 /** 있으면 DOCUMENT.requester_user_id 로 전달. 없으면 서버가 GUARDIAN_PATIENT에서 주보호자 연결 */
 const REQUESTER_USER_ID = process.env.EXPO_PUBLIC_REQUESTER_USER_ID;
-/** seed-expo-visit-minimal.sql 의 보호자 USERS.user_id — 로컬에서 시드 없을 때 400(보호자 없음) 완화 */
-const DEV_DEFAULT_REQUESTER_USER_ID = 6;
 
 function formatLocalDate(d) {
   const y = d.getFullYear();
@@ -201,8 +203,6 @@ export default function VisitReservationPage({ onBack, onComplete }) {
     };
     if (REQUESTER_USER_ID != null && String(REQUESTER_USER_ID).trim() !== "") {
       body.requesterUserId = Number(REQUESTER_USER_ID);
-    } else if (typeof __DEV__ !== "undefined" && __DEV__) {
-      body.requesterUserId = DEV_DEFAULT_REQUESTER_USER_ID;
     }
     setSubmitting(true);
     try {

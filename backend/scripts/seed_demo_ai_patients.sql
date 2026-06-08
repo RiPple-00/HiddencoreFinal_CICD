@@ -103,10 +103,15 @@ INSERT INTO `PATIENT` (
 (260401007, @demo_facility_id, NULL, NULL,
  '장원준', 'MALE', '1965-10-20', '서울', '2026-05-02', NULL,
  'AB_POSITIVE', NULL, 'STABLE', 'AI patient_5', @now, @now),
--- patient_6 기만경 (보호자 갤러리 시연 환자)
+-- patient_6 기만경 (보호자 갤러리·원무 시연 환자)
 (260401008, @demo_facility_id, @loc_107_bed1, NULL,
- '기만경', 'MALE', '1942-05-12', '서울', '2026-04-10', NULL,
- 'A_POSITIVE', NULL, 'MONITORING', 'AI patient_6', @now, @now)
+ '기만경', 'MALE', '1942-05-12', '서울특별시 종로구', '2026-04-10', NULL,
+ 'A_POSITIVE',
+ '알츠하이머형 치매, 경도 단계
+Mild Alzheimer''s Dementia',
+ 'MONITORING',
+ '최근 기억력 저하가 주된 양상으로 관찰되며, 특히 최근 대화 내용이나 식사 여부, 약 복용 여부에 대한 회상이 불안정합니다. 과거 기억과 기본적인 의사소통 능력은 비교적 유지되고 있으나, 시간 지남력 저하와 반복 질문이 동반됩니다. 현재 상태에서는 일상생활 전반의 독립성은 일부 유지되나, 복약 관리 및 일정 확인에는 보호자 또는 요양 인력의 보조가 필요합니다.',
+ @now, @now)
 ON DUPLICATE KEY UPDATE
   `facility_id` = VALUES(`facility_id`),
   `name` = VALUES(`name`),
@@ -115,6 +120,7 @@ ON DUPLICATE KEY UPDATE
   `admission_date` = VALUES(`admission_date`),
   `blood_type` = VALUES(`blood_type`),
   `status` = VALUES(`status`),
+  `admission_status` = VALUES(`admission_status`),
   `memo` = VALUES(`memo`),
   `location_id` = IF(VALUES(`patient_id`) = 260401008, VALUES(`location_id`), `location_id`),
   `updated_at` = @now;
@@ -169,6 +175,13 @@ WHERE @guardian_id IS NOT NULL
     WHERE `guardian_user_id` = @guardian_id
       AND `patient_id` = 260401008
   );
+
+-- 기만경만 주 보호자 (DataSeeder 데모 환자 등 기존 primary 해제)
+UPDATE `GUARDIAN_PATIENT`
+SET `is_primary` = 0
+WHERE `guardian_user_id` = @guardian_id
+  AND `patient_id` <> 260401008
+  AND @guardian_id IS NOT NULL;
 
 UPDATE `GUARDIAN_PATIENT`
 SET `is_primary` = 1,

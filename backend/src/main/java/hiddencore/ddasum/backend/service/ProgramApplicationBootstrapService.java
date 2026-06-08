@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import hiddencore.ddasum.backend.domain.Document;
 import hiddencore.ddasum.backend.domain.Document.DocumentStatus;
 import hiddencore.ddasum.backend.domain.Document.DocumentType;
+import hiddencore.ddasum.backend.config.GuardianProgramDemoGuard;
 import hiddencore.ddasum.backend.domain.Facility;
 import hiddencore.ddasum.backend.domain.GuardianPatient;
 import hiddencore.ddasum.backend.domain.Patient;
@@ -143,11 +144,17 @@ public class ProgramApplicationBootstrapService {
             }
             Patient patient = patients.get(idx % patients.size());
             idx++;
+            if (GuardianProgramDemoGuard.isDemoGuardianPatient(patient.getPatientId())) {
+                continue;
+            }
             if (!usedPatientIds.add(patient.getPatientId())) {
                 continue;
             }
 
             Users guardian = resolveGuardian(patient, fallbackGuardian);
+            if (GuardianProgramDemoGuard.isDemoGuardian(guardian)) {
+                continue;
+            }
             Users requester = guardian != null ? guardian : fallbackGuardian;
             if (requester == null) {
                 break;

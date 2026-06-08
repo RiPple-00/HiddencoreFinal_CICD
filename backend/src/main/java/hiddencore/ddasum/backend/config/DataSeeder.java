@@ -3,6 +3,7 @@ package hiddencore.ddasum.backend.config;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -56,6 +57,7 @@ import hiddencore.ddasum.backend.security.StaffLoginIdCodec;
  *  [보호자]
  *  로그인ID : guardian001
  *  비밀번호 : 1234
+ *  연결환자 : 기만경 (patient_id 260401008)
  * ════════════════════════════════════════
  */
 
@@ -245,10 +247,47 @@ public class DataSeeder {
                                 }
                         }
 
-                        /* ── 데모: 보호자 ↔ 환자 연결 (요양사 체크리스트 조회용) ── */
-                        if (guardianPatientRepository.findByGuardianUserId_UserId(guardian.getUserId()).isEmpty()) {
+                        /* ── 데모: 보호자 guardian001 ↔ 기만경(260401008) 단일 연결 ── */
+                        final long demoKimPatientId = 260401008L;
+                        Patient kimPatient =
+                                        patientRepository.findById(demoKimPatientId).orElse(null);
+                        if (kimPatient == null) {
+                                kimPatient =
+                                                patientRepository
+                                                                .findByFacilityId_FacilityId(facility.getFacilityId())
+                                                                .stream()
+                                                                .filter(p -> "기만경".equals(p.getName()))
+                                                                .findFirst()
+                                                                .orElse(null);
+                        }
+                        if (kimPatient != null) {
+                                for (GuardianPatient gp :
+                                                guardianPatientRepository.findByGuardianUserId_UserId(
+                                                                guardian.getUserId())) {
+                                        if (!Objects.equals(
+                                                        gp.getPatientId().getPatientId(), demoKimPatientId)) {
+                                                guardianPatientRepository.delete(gp);
+                                        }
+                                }
+                                GuardianPatient link =
+                                                guardianPatientRepository
+                                                                .findByGuardianUserId_UserIdAndPatientId_PatientId(
+                                                                                guardian.getUserId(),
+                                                                                kimPatient.getPatientId())
+                                                                .orElse(
+                                                                                GuardianPatient.builder()
+                                                                                                .guardianUserId(guardian)
+                                                                                                .patientId(kimPatient)
+                                                                                                .build());
+                                link.setRelationship("가족");
+                                link.setIsPrimary(true);
+                                guardianPatientRepository.save(link);
+                        } else if (guardianPatientRepository
+                                        .findByGuardianUserId_UserId(guardian.getUserId())
+                                        .isEmpty()) {
                                 List<Patient> inFacility =
-                                                patientRepository.findByFacilityId_FacilityId(facility.getFacilityId());
+                                                patientRepository.findByFacilityId_FacilityId(
+                                                                facility.getFacilityId());
                                 Patient demoPatient;
                                 if (inFacility.isEmpty()) {
                                         Location freeBed =
@@ -267,13 +306,19 @@ public class DataSeeder {
                                                                                         .primaryCaregiver(caregiver)
                                                                                         .name("데모 환자(보호자연결)")
                                                                                         .gender(Patient.Gender.MALE)
-                                                                                        .birthDate(LocalDate.of(1942, 5, 12))
+                                                                                        .birthDate(
+                                                                                                        LocalDate.of(
+                                                                                                                        1942,
+                                                                                                                        5,
+                                                                                                                        12))
                                                                                         .admissionDate(
                                                                                                         LocalDate.now()
                                                                                                                         .minusMonths(
                                                                                                                                         1))
                                                                                         .type(Patient.BloodType.A_POSITIVE)
-                                                                                        .status(Patient.PatientStatus.STABLE)
+                                                                                        .status(
+                                                                                                        Patient.PatientStatus
+                                                                                                                        .STABLE)
                                                                                         .build());
                                         if (freeBed != null) {
                                                 freeBed.setPatientId(demoPatient);

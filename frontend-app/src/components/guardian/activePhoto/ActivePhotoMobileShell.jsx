@@ -1,23 +1,20 @@
-import { SafeAreaView, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 function ActivePhotoMobileShell({ children, scrollable = true }) {
-  const content = (
-    <View className="flex-1 w-full">{children}</View>
-  );
+  if (!scrollable) {
+    return <View className="flex-1 w-full bg-guardian-bg-secondary">{children}</View>;
+  }
 
   return (
-    <SafeAreaView className="flex-1 bg-guardian-bg-secondary">
-      {scrollable ? (
-        <ScrollView
-          contentContainerStyle={{ padding: 16 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {content}
-        </ScrollView>
-      ) : (
-        content
-      )}
-    </SafeAreaView>
+    <ScrollView
+      className="flex-1 bg-guardian-bg-secondary"
+      contentContainerStyle={{ padding: 16, paddingBottom: 32, flexGrow: 1 }}
+      showsVerticalScrollIndicator
+      nestedScrollEnabled
+      keyboardShouldPersistTaps="handled"
+    >
+      <View className="w-full">{children}</View>
+    </ScrollView>
   );
 }
 

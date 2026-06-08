@@ -1,0 +1,14 @@
+# OpenAI API 키
+.env
+.env.*
+!.env.example
+
+# RAG 벡터 DB (PDF 색인 후 재생성 가능)
+chroma_db/
+.chroma/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/

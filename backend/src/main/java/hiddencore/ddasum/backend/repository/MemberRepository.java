@@ -35,6 +35,8 @@ public interface MemberRepository extends JpaRepository<Users, Long> {
 
     Optional<Users> findByLoginIdAndRole(String loginId, UsersRole role);
 
+    Optional<Users> findFirstByFacilityId_FacilityIdAndRole(Long facilityId, UsersRole role);
+
     @Query(
             "select coalesce(max(cast(substring(u.employeeLoginId, 9, 2) as integer)), 0) from Users u "
                     + "where u.facilityId.facilityId = :facilityId and substring(u.employeeLoginId, 1, 8) = :prefix "
