@@ -6,10 +6,12 @@ import CalendarGrid from "../components/page/CalendarGrid";
 import mealApi from "../api/mealApi";
 import { useAuth } from "../contexts/AutoContext.jsx";
 import { MEAL_TYPE_ORDER, normalizeMealListResponse, resolveFacilityId } from "../utils/mealViewUtils";
+import { useI18n } from "../hooks/useI18n.jsx";
 
 function CalendarPage({ embed = false }) {
   const today = new Date();
   const { user } = useAuth();
+  const { t } = useI18n();
   const facilityId = useMemo(() => {
     const fromAuth = resolveFacilityId(user);
     if (fromAuth != null) return fromAuth;
@@ -65,16 +67,16 @@ function CalendarPage({ embed = false }) {
           const mt = String(meal.mealType ?? meal.meal_type ?? "").toUpperCase();
           const typeLabel =
             mt === "BREAKFAST"
-              ? "아침"
+              ? t('meal.breakfast', '아침')
               : mt === "LUNCH"
-                ? "점심"
+                ? t('meal.lunch', '점심')
                 : mt === "DINNER"
-                  ? "저녁"
-                  : mt || "식단";
+                  ? t('meal.dinner', '저녁')
+                  : mt || t('meal.dateLabel', '식단');
 
           const menuPreview = meal.menu
             ? String(meal.menu).split(",")[0].trim().substring(0, 15)
-            : "식단";
+            : t('meal.dateLabel', '식단');
 
           const title = `${typeLabel} ${menuPreview}`;
 
@@ -111,16 +113,16 @@ function CalendarPage({ embed = false }) {
       <div className="mb-6">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">식단 캘린더</h1>
+            <h1 className="text-2xl font-bold text-slate-900">{t('meal.calendar.title', '식단 캘린더')}</h1>
             <p className="mt-2 text-sm text-slate-600">
-              식단 계획을 확인하거나 날짜를 선택해보세요.
+              {t('meal.calendar.subtitle', '식단 계획을 확인하거나 날짜를 선택해보세요.')}
             </p>
           </div>
           <Link
             to="/meal-upload"
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
-            식단 등록
+            {t('meal.calendar.register', '식단 등록')}
           </Link>
         </div>
       </div>

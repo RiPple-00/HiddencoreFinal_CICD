@@ -45,6 +45,7 @@ public class GuardianWeeklyReportLlmService {
         public final int eliminationPercent;
         public final String diagnosisTitle;
         public final String diagnosisComment;
+        public final String language;
 
         public WeeklyNarrativeInput(
                 String periodStart,
@@ -60,7 +61,8 @@ public class GuardianWeeklyReportLlmService {
                 int conditionPercent,
                 int eliminationPercent,
                 String diagnosisTitle,
-                String diagnosisComment
+                String diagnosisComment,
+                String language
         ) {
             this.periodStart = periodStart;
             this.periodEnd = periodEnd;
@@ -76,6 +78,7 @@ public class GuardianWeeklyReportLlmService {
             this.eliminationPercent = eliminationPercent;
             this.diagnosisTitle = diagnosisTitle;
             this.diagnosisComment = diagnosisComment;
+            this.language = language;
         }
     }
 

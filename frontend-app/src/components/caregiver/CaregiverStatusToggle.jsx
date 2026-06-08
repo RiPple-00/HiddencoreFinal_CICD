@@ -1,6 +1,7 @@
 import React from "react";
 import { Pressable, View } from "react-native";
 import Text from "../Text";
+import { useI18n } from "@/hooks/useI18n";
 
 /**
  * 정상 / 이상 두 개 버튼 한 쌍.
@@ -25,6 +26,7 @@ export default function CaregiverStatusToggle({
   readOnly = false,
   theme = "caregiver",
 }) {
+  const { t } = useI18n();
   const isNormal   = value === "normal";
   const isAbnormal = value === "abnormal";
   const hasValue   = value !== null;
@@ -79,7 +81,7 @@ export default function CaregiverStatusToggle({
         className={`${base} ${normalBg}`}
         style={{ borderWidth: 1.2, opacity: normalOpacity }}
       >
-        <Text className={`${txtSize} ${normalTxt}`}>정상</Text>
+        <Text className={`${txtSize} ${normalTxt}`}>{isSm ? t('live.normal_short') : t('live.normal')}</Text>
       </Btn>
 
       {/* 이상 */}
@@ -88,7 +90,7 @@ export default function CaregiverStatusToggle({
         className={`${base} ${abnormalBg}`}
         style={{ borderWidth: 1.2, opacity: abnormalOpacity }}
       >
-        <Text className={`${txtSize} ${abnormalTxt}`}>이상</Text>
+        <Text className={`${txtSize} ${abnormalTxt}`}>{isSm ? t('live.abnormal_short') : t('live.abnormal')}</Text>
       </Btn>
     </View>
   );

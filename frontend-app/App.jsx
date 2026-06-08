@@ -190,7 +190,7 @@ function AppNavigation() {
 
   const caregiverTopInset = insets.top + CAREGIVER_HEADER_INNER_HEIGHT;
 
-  const showLanguageToggle = true;
+  const showLanguageToggle = !showGuardianChrome && !showCaregiverChrome;
 
   const handleCaregiverLogout = async () => {
     try {

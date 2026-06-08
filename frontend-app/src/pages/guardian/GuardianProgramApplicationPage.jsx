@@ -3,9 +3,10 @@ import {
   ActivityIndicator,
   RefreshControl,
   ScrollView,
-  Text,
   View,
 } from "react-native";
+import Text from "@/components/Text";
+import { useI18n } from "@/hooks/useI18n";
 import { decodeJwtPayload, getAccessToken } from "@/api";
 import { getGuardianProgramList } from "@/api/guardian/programListApi";
 import {
@@ -25,6 +26,7 @@ import { G } from "@/styles/guardianTheme";
 import { userFacingAlert } from "@/utils/guardianProgramUtils";
 
 export default function GuardianProgramApplicationPage() {
+  const { t } = useI18n();
   const [tab, setTab] = useState("programs");
   const [programs, setPrograms] = useState([]);
   const [programFilter, setProgramFilter] = useState("전체");
@@ -86,9 +88,8 @@ export default function GuardianProgramApplicationPage() {
       } catch (error) {
         console.error("프로그램 목록 조회 실패", error);
         userFacingAlert(
-          "조회 실패",
-          error?.response?.data?.message ||
-            "프로그램 목록을 불러오지 못했습니다.",
+          t("program.error_fetch"),
+          error?.response?.data?.message || t("program.error_fetch_msg"),
         );
       }
       await fetchApplications();
@@ -109,9 +110,8 @@ export default function GuardianProgramApplicationPage() {
       } catch (error) {
         console.error("프로그램 목록 조회 실패", error);
         userFacingAlert(
-          "조회 실패",
-          error?.response?.data?.message ||
-            "프로그램 목록을 불러오지 못했습니다.",
+          t("program.error_fetch"),
+          error?.response?.data?.message || t("program.error_fetch_msg"),
         );
       }
       await fetchApplications();
@@ -122,10 +122,7 @@ export default function GuardianProgramApplicationPage() {
 
   const onPressApply = (program) => {
     if (isNonGuardianToken) {
-      userFacingAlert(
-        "안내",
-        "프로그램 신청은 보호자 로그인에서만 할 수 있습니다. 로그인 화면으로 돌아가 보호자 탭으로 로그인해 주세요.",
-      );
+      userFacingAlert(t("program.info"), t("program.info_guardian_only"));
       return;
     }
     setSelectedProgram(program);
@@ -142,10 +139,7 @@ export default function GuardianProgramApplicationPage() {
     if (!selectedProgram) return;
 
     if (isNonGuardianToken) {
-      userFacingAlert(
-        "안내",
-        "프로그램 신청은 보호자 로그인에서만 할 수 있습니다. 로그인 화면으로 돌아가 보호자 탭으로 로그인해 주세요.",
-      );
+      userFacingAlert(t("program.info"), t("program.info_guardian_only"));
       return;
     }
 
@@ -153,7 +147,7 @@ export default function GuardianProgramApplicationPage() {
       const rawId = selectedProgram.id ?? selectedProgram.postId;
       const postId = Number(rawId);
       if (rawId == null || !Number.isFinite(postId)) {
-        userFacingAlert("신청 실패", "게시글 정보가 올바르지 않습니다.");
+        userFacingAlert(t("program.error_apply"), t("program.error_apply_invalid"));
         return;
       }
       setApplyingId(postId);
@@ -182,8 +176,8 @@ export default function GuardianProgramApplicationPage() {
     } catch (error) {
       console.error("프로그램 신청 실패", error);
       userFacingAlert(
-        "신청 실패",
-        error?.response?.data?.message || "프로그램 신청에 실패했습니다.",
+        t("program.error_apply"),
+        error?.response?.data?.message || t("program.error_apply_msg"),
       );
     } finally {
       setApplyingId(null);
@@ -225,8 +219,8 @@ export default function GuardianProgramApplicationPage() {
     } catch (error) {
       console.error("프로그램 신청 취소 실패", error);
       userFacingAlert(
-        "취소 실패",
-        error?.response?.data?.message || "프로그램 신청 취소에 실패했습니다.",
+        t("program.error_cancel"),
+        error?.response?.data?.message || t("program.error_cancel_msg"),
       );
     } finally {
       setCancelingId(null);
@@ -244,7 +238,7 @@ export default function GuardianProgramApplicationPage() {
       {loading ? (
         <View style={styles.loadingBox}>
             <ActivityIndicator size="large" color={G.textSecondary} />
-          <Text style={styles.loadingText}>불러오는 중...</Text>
+          <Text style={styles.loadingText}>{t("program.loading")}</Text>
         </View>
       ) : (
         <ScrollView

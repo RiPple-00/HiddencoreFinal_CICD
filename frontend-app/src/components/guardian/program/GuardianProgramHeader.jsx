@@ -1,16 +1,15 @@
-// 컴포넌트 설명: 보호자 프로그램 신청 섹션 헤더
-
 import React from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import Text from "@/components/Text";
+import { useI18n } from "@/hooks/useI18n";
 import { styles } from "@/styles/guardianProgram.styles";
 
 export default function GuardianProgramHeader() {
+  const { t } = useI18n();
   return (
     <View style={styles.programSectionHeader}>
-      <Text style={styles.programSectionTitle}>프로그램 신청</Text>
-      <Text style={styles.programSectionSubtitle}>
-        보호자님이 환자 대신 프로그램을 신청할 수 있어요.
-      </Text>
+      <Text style={styles.programSectionTitle}>{t("program.title")}</Text>
+      <Text style={styles.programSectionSubtitle}>{t("program.subtitle")}</Text>
     </View>
   );
 }

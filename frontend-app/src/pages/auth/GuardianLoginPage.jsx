@@ -3,8 +3,10 @@ import { Alert, TextInput, TouchableOpacity, View } from "react-native";
 import api, { persistAccessToken } from "../../api";
 import { applyFacilityIdFromLogin } from "../../utils/facilityId";
 import Text from "@/components/Text";
+import { useI18n } from "@/hooks/useI18n";
 
 export default function GuardianLoginPage({ navigation }) {
+  const { t } = useI18n();
   const [mode, setMode] = useState("guardian");
   const [loginId, setLoginId] = useState("guardian001");
   const [password, setPassword] = useState("1234");
@@ -43,7 +45,7 @@ export default function GuardianLoginPage({ navigation }) {
       setLoading(true);
       if (isGuardian) {
         if (!loginId || !password) {
-          Alert.alert("안내", "아이디와 비밀번호를 입력해 주세요.");
+          Alert.alert(t('login.alert_title'), t('login.fill_guardian'));
           return;
         }
         const g = await api.post("/api/auth/guardian/login", { loginId, password });
@@ -52,7 +54,7 @@ export default function GuardianLoginPage({ navigation }) {
         navigation.replace("GuardianMain");
       } else {
         if (!facilityCode || !employeeLoginId || !employeePassword) {
-          Alert.alert("안내", "시설코드, 직원 ID, 비밀번호를 모두 입력해 주세요.");
+          Alert.alert(t('login.alert_title'), t('login.fill_caregiver'));
           return;
         }
         const e = await api.post("/api/auth/employee/login", {
@@ -67,15 +69,12 @@ export default function GuardianLoginPage({ navigation }) {
     } catch (e) {
       const serverMessage = e?.response?.data?.message;
       const isNetworkError = !e?.response;
-      const message = serverMessage
-        || (isNetworkError
-          ? `서버에 연결하지 못했습니다.\n\n· PC에서 Spring Boot(8080)가 실행 중인지 확인\n· 폰과 PC가 같은 Wi-Fi인지 확인\n· 폰 브라우저에서 http://192.168.0.73:8080 접속 테스트`
-          : "로그인에 실패했습니다.");
+      const message = serverMessage || (isNetworkError ? t('login.network_error') : t('login.failed'));
       if (__DEV__) {
         // eslint-disable-next-line no-console
         console.warn("[login] failed", e?.message, e?.response?.status, e?.response?.data);
       }
-      Alert.alert("로그인 실패", message);
+      Alert.alert(t('login.error_title'), message);
     } finally {
       setLoading(false);
     }
@@ -83,12 +82,12 @@ export default function GuardianLoginPage({ navigation }) {
 
   return (
     <View className={`flex-1 justify-center p-6 ${colors.bg}`}>
-      <Text className={`text-2xl font-bold text-center mb-[18px] ${colors.title}`}>따숨 로그인</Text>
+      <Text className={`text-2xl font-bold text-center mb-[18px] ${colors.title}`}>{t('login.title')}</Text>
 
       <View className="flex-row gap-2 mb-3">
         {[
-          { key: "guardian", label: "보호자" },
-          { key: "caregiver", label: "요양사" },
+          { key: "guardian", label: t('login.tab_guardian') },
+          { key: "caregiver", label: t('login.tab_caregiver') },
         ].map(({ key, label }) => {
           const isActive = mode === key;
           const activeClass =
@@ -121,7 +120,7 @@ export default function GuardianLoginPage({ navigation }) {
         <>
           <TextInput
             className={`border rounded-lg px-3 py-[10px] mb-[10px] ${colors.inputBorder} ${colors.inputText}`}
-            placeholder="아이디"
+            placeholder={t('login.id_placeholder')}
             placeholderTextColor="#949BA0"
             autoCapitalize="none"
             value={loginId}
@@ -129,7 +128,7 @@ export default function GuardianLoginPage({ navigation }) {
           />
           <TextInput
             className={`border rounded-lg px-3 py-[10px] mb-[10px] ${colors.inputBorder} ${colors.inputText}`}
-            placeholder="비밀번호"
+            placeholder={t('login.password_placeholder')}
             placeholderTextColor="#949BA0"
             secureTextEntry
             value={password}
@@ -140,7 +139,7 @@ export default function GuardianLoginPage({ navigation }) {
         <>
           <TextInput
             className={`border rounded-lg px-3 py-[10px] mb-[10px] ${colors.inputBorder} ${colors.inputText}`}
-            placeholder="시설코드 (8자리)"
+            placeholder={t('login.facility_code_placeholder')}
             placeholderTextColor="#949BA0"
             autoCapitalize="none"
             value={facilityCode}
@@ -149,7 +148,7 @@ export default function GuardianLoginPage({ navigation }) {
           />
           <TextInput
             className={`border rounded-lg px-3 py-[10px] mb-[10px] ${colors.inputBorder} ${colors.inputText}`}
-            placeholder="직원 ID (10자리)"
+            placeholder={t('login.employee_id_placeholder')}
             placeholderTextColor="#949BA0"
             autoCapitalize="none"
             value={employeeLoginId}
@@ -158,7 +157,7 @@ export default function GuardianLoginPage({ navigation }) {
           />
           <TextInput
             className={`border rounded-lg px-3 py-[10px] mb-[10px] ${colors.inputBorder} ${colors.inputText}`}
-            placeholder="비밀번호 (데모 직원: office123!)"
+            placeholder={t('login.password_demo_placeholder')}
             placeholderTextColor="#949BA0"
             secureTextEntry
             value={employeePassword}
@@ -172,7 +171,7 @@ export default function GuardianLoginPage({ navigation }) {
         onPress={onSubmit}
         disabled={loading}
       >
-        <Text className={`font-bold ${colors.btnText}`}>{loading ? "로그인 중..." : "로그인"}</Text>
+        <Text className={`font-bold ${colors.btnText}`}>{loading ? t('login.submitting') : t('login.submit')}</Text>
       </TouchableOpacity>
     </View>
   );

@@ -1,6 +1,8 @@
-import React from "react";
-import { ActivityIndicator, View } from "react-native";
+import React, { useState } from "react";
+import { ActivityIndicator, Alert, TouchableOpacity, View } from "react-native";
 import Text from "../../Text";
+import { getCaregiverNoticeDetail } from "../../../api/noticeApi";
+import BoardDetailModal from "../../guardian/board/BoardDetailModal";
 
 function formatNoticeDate(iso) {
   if (!iso) return "";
@@ -9,12 +11,28 @@ function formatNoticeDate(iso) {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
 }
 
-/**
- * 공지사항 리스트.
- * - notices: API PostListResponse[] | null(로딩 중) | [](빈 결과)
- * - loading: boolean
- */
 export default function CaregiverNotice({ notices = null, loading = false }) {
+  const [detailVisible, setDetailVisible] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
+
+  const openDetail = async (notice) => {
+    const postId = notice.id ?? notice.postId;
+    if (!postId) return;
+    setDetailVisible(true);
+    setDetailLoading(true);
+    setSelectedPost(null);
+    try {
+      const res = await getCaregiverNoticeDetail(postId);
+      setSelectedPost(res.data);
+    } catch (e) {
+      Alert.alert("조회 실패", e?.response?.data?.message ?? "게시글을 불러오지 못했습니다.");
+      setDetailVisible(false);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
   return (
     <View className="mx-4 mt-4 mb-4">
       <Text className="font-bold text-caregiver-text-primary mb-2">
@@ -33,8 +51,10 @@ export default function CaregiverNotice({ notices = null, loading = false }) {
         </View>
       ) : (
         notices.map((notice) => (
-          <View
+          <TouchableOpacity
             key={notice.id ?? notice.postId}
+            activeOpacity={0.7}
+            onPress={() => openDetail(notice)}
             className="flex-row justify-between items-center bg-background-neutral rounded-xl px-4 py-3 mb-2 border border-caregiver-bg-secondary"
           >
             <Text
@@ -46,9 +66,16 @@ export default function CaregiverNotice({ notices = null, loading = false }) {
             <Text className="text-xs text-caregiver-text-secondary shrink-0">
               {formatNoticeDate(notice.updatedAt ?? notice.createdAt)}
             </Text>
-          </View>
+          </TouchableOpacity>
         ))
       )}
+
+      <BoardDetailModal
+        visible={detailVisible}
+        loading={detailLoading}
+        post={selectedPost}
+        onClose={() => { setDetailVisible(false); setSelectedPost(null); }}
+      />
     </View>
   );
 }

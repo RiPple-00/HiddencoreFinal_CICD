@@ -1,7 +1,7 @@
-// 컴포넌트 설명: 보호자 프로그램 신청 내역 탭
-
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
+import Text from "@/components/Text";
+import { useI18n } from "@/hooks/useI18n";
 import { styles } from "@/styles/guardianProgram.styles";
 import { formatDate, formatDateTime } from "../../../utils/guardianProgramUtils";
 
@@ -10,10 +10,12 @@ export default function GuardianProgramApplicationsTab({
   cancelingId,
   onPressCancelApplication,
 }) {
+  const { t } = useI18n();
+
   if (applications.length === 0) {
     return (
       <View style={styles.emptyBox}>
-        <Text style={styles.emptyText}>신청한 프로그램이 없습니다.</Text>
+        <Text style={styles.emptyText}>{t("program.empty_applications")}</Text>
       </View>
     );
   }
@@ -25,20 +27,20 @@ export default function GuardianProgramApplicationsTab({
           <Text style={styles.historyTitle}>{application.programTitle}</Text>
 
           <Text style={styles.historyInfo}>
-            프로그램 날짜: {formatDateTime(application.programStartAt)}
+            {t("program.detail_program_date_label")}: {formatDateTime(application.programStartAt, t)}
           </Text>
 
           <Text style={styles.historyInfo}>
-            대상 환자: {application.patientName || "-"}
+            {t("program.detail_target_patient")}: {application.patientName || "-"}
           </Text>
 
           <View style={styles.historyBottomRow}>
             <Text style={styles.historyStatus}>
-              상태: {application.statusLabel || application.status || "-"}
+              {t("program.detail_status_label")}: {application.statusLabel || application.status || "-"}
             </Text>
 
             <Text style={styles.historyDate}>
-              신청일 {formatDate(application.requestedAt)}
+              {t("program.detail_applied_date")} {formatDate(application.requestedAt, t)}
             </Text>
           </View>
 
@@ -46,8 +48,7 @@ export default function GuardianProgramApplicationsTab({
             <TouchableOpacity
               style={[
                 styles.cancelButton,
-                cancelingId === application.documentId &&
-                  styles.cancelButtonDisabled,
+                cancelingId === application.documentId && styles.cancelButtonDisabled,
               ]}
               disabled={cancelingId === application.documentId}
               onPress={() => onPressCancelApplication(application)}
@@ -55,13 +56,12 @@ export default function GuardianProgramApplicationsTab({
               <Text
                 style={[
                   styles.cancelButtonText,
-                  cancelingId === application.documentId &&
-                    styles.cancelButtonTextDisabled,
+                  cancelingId === application.documentId && styles.cancelButtonTextDisabled,
                 ]}
               >
                 {cancelingId === application.documentId
-                  ? "취소 중..."
-                  : "신청 취소"}
+                  ? t("program.cancel_applying")
+                  : t("program.cancel_button")}
               </Text>
             </TouchableOpacity>
           )}

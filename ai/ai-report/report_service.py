@@ -71,6 +71,7 @@ class WeeklyNarrativeRequest(BaseModel):
     elimination_percent: int = 0
     diagnosis_title: str = ""
     diagnosis_comment: str = ""
+    language: str = "ko"
 
 
 class WeeklyNarrativeResponse(BaseModel):
@@ -103,6 +104,7 @@ class PrescriptionSummaryRequest(BaseModel):
     diagnosis_title: str = ""
     diagnosis_comment: str = ""
     medications: List[MedicationItem] = Field(default_factory=list)
+    language: str = "ko"
 
 
 class AvailableProgramItem(BaseModel):
@@ -133,6 +135,7 @@ class ProgramRecommendationRequest(BaseModel):
     diagnosis_comment: str = ""
     medication_summaries: List[MedicationSummaryItem] = Field(default_factory=list)
     available_programs: List[AvailableProgramItem] = Field(default_factory=list)
+    language: str = "ko"
 
 
 class CategoryRecommendationItem(BaseModel):
@@ -197,6 +200,15 @@ WEEKLY_SYSTEM = """
 출력은 반드시 JSON 하나만 반환한다. 마크다운·코드블록 금지.
 진단·처방 변경을 단정하지 말고 관찰 중심으로 공손한 존댓말을 사용한다.
 """.strip()
+
+_LANG_SUFFIX = {
+    "en": "\nRespond in English only. All text values in the JSON must be written in English.",
+    "ja": "\nRespond in Japanese only (日本語). All text values in the JSON must be written in Japanese.",
+}
+
+
+def _system(base: str, language: str) -> str:
+    return base + _LANG_SUFFIX.get(language, "")
 
 PRESCRIPTION_SYSTEM = """
 너는 요양시설 보호자에게 전달할 처방전·복약 상태 분석 도우미다.
@@ -276,7 +288,7 @@ def weekly_narrative(body: WeeklyNarrativeRequest):
 {body.diagnosis_comment or "없음"}
 """.strip()
 
-    data = _chat_json(WEEKLY_SYSTEM, user_prompt)
+    data = _chat_json(_system(WEEKLY_SYSTEM, body.language), user_prompt)
     return WeeklyNarrativeResponse(
         summary_text=str(data.get("summaryText", "")).strip(),
         checklist_insight=str(data.get("checklistInsight", "")).strip(),
@@ -346,7 +358,7 @@ def prescription_summary(body: PrescriptionSummaryRequest):
 {chr(10).join(med_lines)}
 """.strip()
 
-    data = _chat_json(PRESCRIPTION_SYSTEM, user_prompt, max_tokens=800)
+    data = _chat_json(_system(PRESCRIPTION_SYSTEM, body.language), user_prompt, max_tokens=800)
     return PrescriptionSummaryResponse(
         summary_text=str(data.get("summaryText", "")).strip(),
         medication_highlights=[
@@ -432,7 +444,7 @@ def program_recommendation(body: ProgramRecommendationRequest):
 {chr(10).join(program_lines)}
 """.strip()
 
-    data = _chat_json(PROGRAM_SYSTEM, user_prompt, max_tokens=900)
+    data = _chat_json(_system(PROGRAM_SYSTEM, body.language), user_prompt, max_tokens=900)
 
     raw_items = data.get("categoryRecommendations", [])
     allowed_ids = {p.post_id for p in body.available_programs}

@@ -81,13 +81,14 @@ public class GuardianCareChecklistController {
     public GuardianWeeklyCareReportResponse weeklyReport(
             @PathVariable Long patientId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false, defaultValue = "ko") String language) {
         AuthenticatedUser u = securityContextHelper.requireAuthenticatedUser();
         requireGuardian(u);
         if (!careChecklistService.isGuardianOfPatient(u.userId(), patientId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "연결된 환자만 조회할 수 있습니다.");
         }
-        return caregiverCareCheckService.getWeeklyReport(u.userId(), patientId, startDate, endDate);
+        return caregiverCareCheckService.getWeeklyReport(u.userId(), patientId, startDate, endDate, language);
     }
 
     private static void requireGuardian(AuthenticatedUser u) {

@@ -1,10 +1,12 @@
-// 컴포넌트 설명: 보호자 프로그램 목록 및 필터링 탭
-
 import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
+import Text from "@/components/Text";
+import { useI18n } from "@/hooks/useI18n";
 import { styles } from "@/styles/guardianProgram.styles";
 import {
   PROGRAM_FILTERS,
+  PROGRAM_FILTER_LABEL_KEYS,
+  PROGRAM_STATUS_LABEL_KEYS,
   formatDateTime,
   formatPeriod,
   getApplyButtonText,
@@ -21,6 +23,8 @@ export default function GuardianProgramListTab({
   applications,
   onPressApply,
 }) {
+  const { t } = useI18n();
+
   const filteredPrograms =
     programFilter === "전체"
       ? programs
@@ -61,7 +65,7 @@ export default function GuardianProgramListTab({
                 programFilter === filter && styles.filterButtonTextActive,
               ]}
             >
-              {filter}
+              {t(PROGRAM_FILTER_LABEL_KEYS[filter])}
             </Text>
           </TouchableOpacity>
         ))}
@@ -71,8 +75,8 @@ export default function GuardianProgramListTab({
         <View style={styles.emptyBox}>
           <Text style={styles.emptyText}>
             {programFilter === "전체"
-              ? "등록된 프로그램이 없습니다."
-              : `${programFilter} 프로그램이 없습니다.`}
+              ? t("program.empty_all")
+              : t("program.empty_all")}
           </Text>
         </View>
       ) : (
@@ -94,17 +98,19 @@ export default function GuardianProgramListTab({
             isFull ||
             applyingId === pidNum;
 
+          const statusLabelKey = PROGRAM_STATUS_LABEL_KEYS[program.recruitStatus];
+
           return (
             <View key={pid} style={styles.programCard}>
               <View style={styles.cardTopRow}>
                 <View style={getStatusBadgeStyle(program.recruitStatus)}>
                   <Text style={getStatusBadgeTextStyle(program.recruitStatus)}>
-                    {program.recruitStatus || "모집 정보 없음"}
+                    {statusLabelKey ? t(statusLabelKey) : t("program.no_program_info")}
                   </Text>
                 </View>
 
                 <Text style={styles.programDate}>
-                  {formatDateTime(program.startAt)}
+                  {formatDateTime(program.startAt, t)}
                 </Text>
               </View>
 
@@ -118,32 +124,29 @@ export default function GuardianProgramListTab({
 
               <View style={styles.detailBox}>
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>프로그램 일시</Text>
+                  <Text style={styles.detailLabel}>{t("program.detail_schedule")}</Text>
                   <Text style={styles.detailValue}>
-                    {formatPeriod(program.startAt, program.endAt)}
+                    {formatPeriod(program.startAt, program.endAt, t)}
                   </Text>
                 </View>
 
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>신청 조건</Text>
-                  <Text style={styles.detailValue}>
-                    모집 예정·모집 중인 프로그램만 신청 가능
-                  </Text>
+                  <Text style={styles.detailLabel}>{t("program.detail_condition")}</Text>
+                  <Text style={styles.detailValue}>{t("program.condition_text")}</Text>
                 </View>
               </View>
 
               <View style={styles.infoRow}>
                 <Text style={styles.infoText}>
-                  신청 {currentEnrolled}명
-                  {capacity ? ` / 정원 ${capacity}명` : ""}
+                  {t("program.enrolled_count_prefix")}
+                  {currentEnrolled}
+                  {t("program.enrolled_count_suffix")}
+                  {capacity ? `${t("program.capacity_prefix")}${capacity}${t("program.capacity_suffix")}` : ""}
                 </Text>
               </View>
 
               <TouchableOpacity
-                style={[
-                  styles.applyButton,
-                  disabled && styles.applyButtonDisabled,
-                ]}
+                style={[styles.applyButton, disabled && styles.applyButtonDisabled]}
                 disabled={disabled}
                 onPress={() => onPressApply(program)}
               >
@@ -153,13 +156,13 @@ export default function GuardianProgramListTab({
                     disabled && styles.applyButtonTextDisabled,
                   ]}
                 >
-                  {getApplyButtonText({
+                  {t(getApplyButtonText({
                     alreadyApplied,
                     isFull,
                     recruitStatus: program.recruitStatus,
                     applying: applyingId === pidNum,
                     canApply,
-                  })}
+                  }))}
                 </Text>
               </TouchableOpacity>
             </View>

@@ -2,12 +2,14 @@ import React from "react";
 import { TextInput, View } from "react-native";
 import Text from "../Text";
 import CaregiverStatusToggle from "./CaregiverStatusToggle";
+import { useI18n } from "@/hooks/useI18n";
 
 /**
  * 위생점검 항목 한 줄 - 좌측 라벨 + 우측 정상/이상 토글.
  * - theme: "caregiver" (기본, 초록) | "guardian" (노랑)
  */
 export default function CaregiverHygieneRow({ label, value, onChange, isLast = false, readOnly = false, showStatusError = false, theme = "caregiver" }) {
+  const { t } = useI18n();
   const safeValue  = value || {};
   const isAbnormal = safeValue.status === "abnormal";
 
@@ -44,7 +46,7 @@ export default function CaregiverHygieneRow({ label, value, onChange, isLast = f
           <TextInput
             value={safeValue.memo ?? ""}
             onChangeText={updateMemo}
-            placeholder="이상 사유를 간단히 입력하세요"
+            placeholder={t('live.hygiene_abnormal_placeholder')}
             placeholderTextColor="#949BA0"
             className={`mt-2 border border-error-primary ${bgPrimary} rounded-lg px-[10px] py-2 text-[13px] ${textPrimary}`}
             style={{ minHeight: 44 }}

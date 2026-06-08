@@ -40,7 +40,68 @@
   },
   "board": {
     "noPosts": "게시글이 없습니다.",
-    "table": {
+    "loading": "불러오는 중...",
+    "options": {
+      "ALL": "전체 게시판",
+      "NOTICE": "공지사항",
+      "PROGRAM": "프로그램",
+      "GENERAL": "자유 게시판"
+    },
+    "tabs": {
+      "notice": {
+        "all": "전체 공지",
+        "urgent": "긴급 공지",
+        "clinical": "임상 가이드라인",
+        "admin": "행정 소식",
+        "facility": "시설 공지"
+      },
+      "program": {
+        "all": "전체",
+        "apply": "참여 신청",
+        "review": "활동 후기"
+      }
+    },
+    "filter": {
+      "all": "전체",
+      "urgent": "긴급",
+      "clinical": "임상",
+      "admin": "행정",
+      "facility": "시설",
+      "apply": "참여 신청",
+      "review": "활동 후기",
+      "general": "일반"
+    },
+    "sort": {
+      "newest": "최신순",
+      "oldest": "오래된순",
+      "views": "조회수 많은순",
+      "alpha": "제목순"
+    },
+    "list": {
+      "createPost": "새 게시물 작성",
+      "recentPosts": "최근 게시물",
+      "count": "개",
+      "filter": "필터"
+    },
+    "userPosts": {
+      "history": "작성 이력",
+      "draft": "보관함 (임시 저장)",
+      "boardList": "게시판 목록",
+      "loginRequired": "로그인 후 이용할 수 있습니다.",
+      "loginLink": "로그인하기"
+    },
+    "create": {
+      "sidebar": {
+        "title": "새 게시글 작성",
+        "noticeType": "공지사항 작성",
+        "programType": "프로그램 작성",
+        "generalType": "게시글 작성",
+        "history": "작성 이력",
+        "draft": "보관함",
+        "previewTitle": "QUICK PREVIEW",
+        "previewInfo": "작성 중인 내용은 실시간으로 보존되며, 게시 전 미리보기를 통해 레이아웃을 확인할 수 있습니다."
+      },
+      "panel": {
       "programName": "프로그램명",
       "schedule": "일정",
       "capacity": "모집 현황",

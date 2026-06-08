@@ -5,13 +5,7 @@ import { useAuth } from '../../contexts/AutoContext.jsx';
 import Header from '../../components/common/Header';
 import PostList from '../../components/board/PostList';
 import CreateSidebar from '../../components/board/create/CreateSidebar';
-
-// 작성 이력과 보관함
-
-const HEADINGS = {
-  history: '작성 이력',
-  draft: '보관함 (임시 저장)',
-};
+import { useI18n } from '../../hooks/useI18n.jsx';
 
 /*
  * 작성 이력(/history) · 보관함(/draft)
@@ -22,6 +16,7 @@ const HEADINGS = {
 const BoardUserPostsPage = ({ variant }) => {
   const { facilityId } = useParams();
   const { user } = useAuth();
+  const { t } = useI18n();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -57,17 +52,20 @@ const BoardUserPostsPage = ({ variant }) => {
       <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
         <Header activeNav="notice" />
         <div className="mx-auto max-w-lg px-4 py-16 text-center">
-          <p className="mb-4 text-gray-600">로그인 후 이용할 수 있습니다.</p>
+          <p className="mb-4 text-gray-600">{t('board.userPosts.loginRequired', '로그인 후 이용할 수 있습니다.')}</p>
           <Link
             to="/login"
             className="inline-flex font-medium text-teal-600 hover:underline"
           >
-            로그인하기
+            {t('board.userPosts.loginLink', '로그인하기')}
           </Link>
         </div>
       </div>
     );
   }
+
+  const headingKey = variant === 'history' ? 'board.userPosts.history' : 'board.userPosts.draft';
+  const headingFallback = variant === 'history' ? '작성 이력' : '보관함 (임시 저장)';
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
@@ -81,13 +79,14 @@ const BoardUserPostsPage = ({ variant }) => {
           title=""
           content=""
           canWriteOfficial={true}
+          mode="browse"
         />
 
         <div className="flex-1">
 
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-slate-900">
-              {HEADINGS[variant] ?? '내 게시글'}
+              {t(headingKey, headingFallback)}
             </h1>
 
             <div className="flex gap-4 text-sm">
@@ -95,14 +94,14 @@ const BoardUserPostsPage = ({ variant }) => {
                 to={`/facilities/${facilityId}/board`}
                 className="text-slate-600 hover:underline"
               >
-                게시판 목록
+                {t('board.userPosts.boardList', '게시판 목록')}
               </Link>
             </div>
           </div>
 
           {loading ? (
             <p className="text-center py-16 text-sm text-slate-400">
-              불러오는 중...
+              {t('board.loading', '불러오는 중...')}
             </p>
           ) : (
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">

@@ -18,6 +18,7 @@ import {
   resolveGuardianPrimaryPatientId,
 } from "../../utils/guardianPatientId";
 import { applyResponseToState, initialState, todayStr } from "../../utils/careCheckState";
+import { useI18n } from "@/hooks/useI18n";
 import CaregiverConditionRow from "../../components/caregiver/CaregiverConditionRow";
 import CaregiverEliminationCard from "../../components/caregiver/CaregiverEliminationCard";
 import CaregiverHygieneRow from "../../components/caregiver/CaregiverHygieneRow";
@@ -25,12 +26,12 @@ import CaregiverMealCheckTable from "../../components/caregiver/CaregiverMealChe
 import CaregiverSectionCard from "../../components/caregiver/CaregiverSectionCard";
 import { G, GMuted, GMutedLight, GBorder, GInkSoft } from "../../styles/guardianTheme";
 
-function formatTodayDate() {
+function formatTodayDate(todayLabel) {
   const d = new Date();
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${y}.${m}.${day} (오늘)`;
+  return `${y}.${m}.${day} (${todayLabel})`;
 }
 
 function formatLastRecordTime(iso) {
@@ -41,6 +42,7 @@ function formatLastRecordTime(iso) {
 }
 
 export default function LiveCheckPage() {
+  const { t } = useI18n();
   const [linked, setLinked] = useState([]);
   const [patientId, setPatientId] = useState(null);
   const [state, setState] = useState(initialState);
@@ -66,7 +68,7 @@ export default function LiveCheckPage() {
           });
         } catch (e) {
           if (!cancelled) {
-            setError(e?.response?.data?.message ?? "연결된 환자 정보를 불러오지 못했습니다. 다시 로그인해 주세요.");
+            setError(e?.response?.data?.message ?? t('live.error_patients'));
           }
         } finally {
           if (!cancelled) setLoadingPatients(false);
@@ -91,7 +93,7 @@ export default function LiveCheckPage() {
           setState(applyResponseToState(res.data));
         } catch (e) {
           if (!cancelled) {
-            setError(e?.response?.data?.message ?? "체크리스트를 불러오지 못했습니다.");
+            setError(e?.response?.data?.message ?? t('live.error_checklist'));
           }
         } finally {
           if (!cancelled) setRefreshing(false);
@@ -114,21 +116,21 @@ export default function LiveCheckPage() {
     <SafeAreaView style={pageStyles.safe} edges={["bottom", "left", "right"]}>
       {/* 상단 타이틀 바 */}
       <View style={pageStyles.topBar}>
-        <Text style={pageStyles.title}>실시간 요양 체크</Text>
+        <Text style={pageStyles.title}>{t('live.title')}</Text>
         {refreshing ? <ActivityIndicator size="small" color={G.textSecondary} /> : null}
       </View>
 
       {loadingPatients ? (
         <View style={pageStyles.center}>
           <ActivityIndicator size="large" color={G.textSecondary} />
-          <Text style={pageStyles.muted}>연결 환자 확인 중…</Text>
+          <Text style={pageStyles.muted}>{t('live.loading_patients')}</Text>
         </View>
       ) : null}
 
       {!loadingPatients && !patientId ? (
         <View style={pageStyles.center}>
           <Text style={pageStyles.errorText}>
-            {error ?? "이 계정에 연결된 환자가 없습니다. 시설에서 보호자 연동을 확인해 주세요."}
+            {error ?? t('live.no_patient')}
           </Text>
         </View>
       ) : null}
@@ -169,18 +171,18 @@ export default function LiveCheckPage() {
                     activePatient?.patientName ?? careMeta?.patientName
                   )}
                 </Text>
-                <Text style={pageStyles.elderLabel}>어르신</Text>
+                <Text style={pageStyles.elderLabel}>{t('live.elder_label')}</Text>
               </View>
 
               {/* 날짜 뱃지 */}
               <View style={pageStyles.infoBadge}>
-                <Text style={pageStyles.infoBadgeText}>📅  {formatTodayDate()}</Text>
+                <Text style={pageStyles.infoBadgeText}>📅  {formatTodayDate(t('live.today_label'))}</Text>
               </View>
 
               {/* 마지막 기록 시간 뱃지 */}
               {lastRecordTime ? (
                 <View style={[pageStyles.infoBadge, pageStyles.infoBadgeGap]}>
-                  <Text style={pageStyles.infoBadgeText}>🕐  마지막 기록 {lastRecordTime}</Text>
+                  <Text style={pageStyles.infoBadgeText}>🕐  {t('live.last_record_prefix')}{lastRecordTime}</Text>
                 </View>
               ) : null}
             </View>
@@ -198,7 +200,7 @@ export default function LiveCheckPage() {
                     : isRecording ? G.successPrimary
                     : GMuted,
                 }]}>
-                  {isSubmitted ? "✓ 기록 완료" : isRecording ? "● 기록 중" : "● 대기 중"}
+                  {isSubmitted ? t('live.status_done') : isRecording ? t('live.status_recording') : t('live.status_idle')}
                 </Text>
               </View>
               <Text style={pageStyles.heartIcon}>🩶</Text>
@@ -212,35 +214,35 @@ export default function LiveCheckPage() {
             </View>
           ) : null}
 
-          <CaregiverSectionCard icon="🍴" title="식사 (Meal)" theme="guardian">
+          <CaregiverSectionCard icon="🍴" title={t('live.section_meal')} theme="guardian">
             <CaregiverMealCheckTable value={state.meal} onChange={noop} readOnly theme="guardian" />
           </CaregiverSectionCard>
 
-          <CaregiverSectionCard icon="🧼" title="위생점검 (Hygiene)" theme="guardian">
-            <CaregiverHygieneRow label="침구류 청결도" value={state.hygiene.bedding} onChange={noop} readOnly theme="guardian" />
-            <CaregiverHygieneRow label="환자 용품 청결" value={state.hygiene.patientItems} onChange={noop} readOnly theme="guardian" />
-            <CaregiverHygieneRow label="목욕 여부" value={state.hygiene.bathing} onChange={noop} readOnly theme="guardian" isLast />
+          <CaregiverSectionCard icon="🧼" title={t('live.section_hygiene')} theme="guardian">
+            <CaregiverHygieneRow label={t('live.hygiene_bedding')} value={state.hygiene.bedding} onChange={noop} readOnly theme="guardian" />
+            <CaregiverHygieneRow label={t('live.hygiene_patient_items')} value={state.hygiene.patientItems} onChange={noop} readOnly theme="guardian" />
+            <CaregiverHygieneRow label={t('live.hygiene_bathing')} value={state.hygiene.bathing} onChange={noop} readOnly theme="guardian" isLast />
           </CaregiverSectionCard>
 
-          <CaregiverSectionCard icon="🛡️" title="상태 안정화 (Condition)" theme="guardian">
+          <CaregiverSectionCard icon="🛡️" title={t('live.section_condition')} theme="guardian">
             <CaregiverConditionRow
-              label="호흡 양상"
+              label={t('live.condition_breathing')}
               value={state.condition.breathing}
               onChange={noop}
-              warnText={state.condition.breathing.status === "abnormal" ? "최근 확인 필요" : null}
+              warnText={state.condition.breathing.status === "abnormal" ? t('live.condition_warn') : null}
               readOnly
               theme="guardian"
             />
-            <CaregiverConditionRow label="통증 유무" value={state.condition.pain} onChange={noop} readOnly theme="guardian" />
-            <CaregiverConditionRow label="낙상 유무" value={state.condition.fall} onChange={noop} readOnly theme="guardian" isLast />
+            <CaregiverConditionRow label={t('live.condition_pain')} value={state.condition.pain} onChange={noop} readOnly theme="guardian" />
+            <CaregiverConditionRow label={t('live.condition_fall')} value={state.condition.fall} onChange={noop} readOnly theme="guardian" isLast />
           </CaregiverSectionCard>
 
-          <CaregiverSectionCard icon="👣" title="배뇨 및 배변" theme="guardian">
-            <CaregiverEliminationCard icon="💧" label="배뇨 (Urination)" value={state.elimination.urination} onChange={noop} readOnly theme="guardian" />
-            <CaregiverEliminationCard icon="🚻" label="배변 (Defecation)" value={state.elimination.defecation} onChange={noop} readOnly theme="guardian" isLast />
+          <CaregiverSectionCard icon="👣" title={t('live.section_elimination')} theme="guardian">
+            <CaregiverEliminationCard icon="💧" label={t('live.elimination_urination')} value={state.elimination.urination} onChange={noop} readOnly theme="guardian" />
+            <CaregiverEliminationCard icon="🚻" label={t('live.elimination_defecation')} value={state.elimination.defecation} onChange={noop} readOnly theme="guardian" isLast />
           </CaregiverSectionCard>
 
-          <CaregiverSectionCard icon="📝" title="특이사항" theme="guardian">
+          <CaregiverSectionCard icon="📝" title={t('live.section_notes')} theme="guardian">
             <View className="p-3">
               <Text className="text-[13px] text-caregiver-text-primary leading-5">
                 {state.specialNotes?.trim() ? state.specialNotes : "—"}
@@ -248,7 +250,7 @@ export default function LiveCheckPage() {
             </View>
           </CaregiverSectionCard>
 
-          <Text style={pageStyles.hint}>5초마다 자동 새로고침됩니다. (요양사 자동 저장 반영)</Text>
+          <Text style={pageStyles.hint}>{t('live.hint')}</Text>
         </ScrollView>
       ) : null}
     </SafeAreaView>

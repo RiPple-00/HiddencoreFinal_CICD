@@ -191,8 +191,8 @@ export default function StorageList({ route, navigation }) {
             )}
           </View>
           <Text className="text-xs text-guardian-text-neutral mt-[2px]">
-            {patient?.room ? `${patient.room}호` : ""}
-            {patient?.admissionDate ? ` · 입원일 ${patient.admissionDate}` : ""}
+            {patient?.room ? `${patient.room}${t("billing.room_suffix")}` : ""}
+            {patient?.admissionDate ? ` · ${t("billing.admission_date_prefix")} ${patient.admissionDate}` : ""}
           </Text>
         </View>
       </View>
@@ -226,7 +226,7 @@ export default function StorageList({ route, navigation }) {
                 <TouchableOpacity onPress={() => setPickerYear((y) => y - 1)} className="p-2">
                   <Text className="text-xl text-guardian-text-primary font-bold">‹</Text>
                 </TouchableOpacity>
-                <Text className="text-base font-bold text-guardian-text-primary">{pickerYear}년</Text>
+                <Text className="text-base font-bold text-guardian-text-primary">{pickerYear}{t("billing.year_suffix")}</Text>
                 <TouchableOpacity onPress={() => setPickerYear((y) => y + 1)} className="p-2">
                   <Text className="text-xl text-guardian-text-primary font-bold">›</Text>
                 </TouchableOpacity>
@@ -253,7 +253,7 @@ export default function StorageList({ route, navigation }) {
                           : hasInvoice  ? "text-guardian-text-primary"
                           : "text-guardian-text-neutral opacity-40"
                         }`}>
-                          {m}월
+                          {m}{t("billing.month_suffix")}
                         </Text>
                         {/* 청구서 있는 월 표시 도트 */}
                         {hasInvoice && !isSelected && (
@@ -326,9 +326,9 @@ export default function StorageList({ route, navigation }) {
 
       {/* 요약 행 */}
       <View className="flex-row justify-between items-center px-4 py-2 bg-guardian-bg-secondary">
-        <Text className="text-sm text-guardian-text-neutral">총 {filtered.length}건</Text>
+        <Text className="text-sm text-guardian-text-neutral">{t("billing.total_count_prefix")}{filtered.length}{t("billing.count_suffix")}</Text>
         <Text className="text-sm text-guardian-text-neutral">
-          총 청구금액{" "}
+          {t("billing.total_amount_label")}{" "}
           <Text className="font-bold text-guardian-text-primary">{totalAmount}</Text>
         </Text>
       </View>

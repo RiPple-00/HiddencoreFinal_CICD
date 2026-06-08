@@ -131,7 +131,7 @@ export default function StoragePage({ navigation }) {
 
           {/* 금액 카드 */}
           <View className="bg-guardian-bg-secondary rounded-2xl p-4">
-            <Text className="text-xs text-guardian-text-neutral mb-1">현재까지 정산된 금액</Text>
+            <Text className="text-xs text-guardian-text-neutral mb-1">{t("billing.current_settlement")}</Text>
             {loading ? (
               <ActivityIndicator size="small" color="#FCC101" style={{ marginVertical: 8 }} />
             ) : (

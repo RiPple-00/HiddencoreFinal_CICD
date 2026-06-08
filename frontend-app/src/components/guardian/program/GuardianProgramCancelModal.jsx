@@ -1,7 +1,7 @@
-// 컴포넌트 설명: 보호자 프로그램 신청 취소 확인 모달
-
 import React from "react";
-import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { Modal, TouchableOpacity, View } from "react-native";
+import Text from "@/components/Text";
+import { useI18n } from "@/hooks/useI18n";
 import { styles } from "@/styles/guardianProgram.styles";
 
 export default function GuardianProgramCancelModal({
@@ -12,6 +12,7 @@ export default function GuardianProgramCancelModal({
   onConfirm,
   onCancel,
 }) {
+  const { t } = useI18n();
   return (
     <Modal
       visible={visible}
@@ -25,14 +26,14 @@ export default function GuardianProgramCancelModal({
             <Text style={styles.modalIcon}>⚠️</Text>
           </View>
 
-          <Text style={styles.modalTitle}>신청 취소</Text>
+          <Text style={styles.modalTitle}>{t("program.modal_cancel_title")}</Text>
 
           <Text style={styles.modalProgramTitle}>
             {selectedApplication?.programTitle}
           </Text>
 
           <Text style={styles.modalDescription}>
-            해당 프로그램 신청을 취소하시겠습니까?
+            {t("program.modal_cancel_question")}
           </Text>
 
           <View style={styles.modalButtonRow}>
@@ -41,7 +42,7 @@ export default function GuardianProgramCancelModal({
               onPress={onCancel}
               disabled={!!cancelingId}
             >
-              <Text style={styles.modalCancelText}>아니오</Text>
+              <Text style={styles.modalCancelText}>{t("program.modal_no")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -50,7 +51,7 @@ export default function GuardianProgramCancelModal({
               disabled={!!cancelingId}
             >
               <Text style={styles.modalDangerText}>
-                {cancelingId ? "취소 중..." : "예"}
+                {cancelingId ? t("program.cancel_applying") : t("program.modal_yes")}
               </Text>
             </TouchableOpacity>
           </View>

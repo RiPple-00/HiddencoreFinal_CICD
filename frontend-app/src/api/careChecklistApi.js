@@ -11,11 +11,12 @@ export function fetchGuardianCareCheck(patientId, date) {
   });
 }
 
-export function fetchGuardianWeeklyReport(patientId, startDate, endDate) {
+export function fetchGuardianWeeklyReport(patientId, startDate, endDate, language) {
   return api.get(`/api/guardian/me/patients/${patientId}/weekly-report`, {
     params: {
       ...(startDate ? { startDate } : {}),
       ...(endDate ? { endDate } : {}),
+      ...(language ? { language } : {}),
     },
   });
 }

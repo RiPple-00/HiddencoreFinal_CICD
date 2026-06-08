@@ -1,5 +1,5 @@
 // frontend-app/src/pages/guardian/ChatbotPage.jsx
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -38,17 +38,17 @@ const I18N = {
     error: "일시적인 오류가 발생했습니다. 대표번호 02-6901-7098로 문의해 주세요.",
   },
   en: {
-    title: "Thasoom AI Assistant",
+    title: "Ddasum AI Assistant",
     online: "Online",
-    welcome: "Hello! I'm the AI assistant of Thasoom Nursing Home 😊\nSelect a menu or type your question.",
+    welcome: "Hello! I'm the AI assistant of Ddasum Nursing Home 😊\nSelect a menu or type your question.",
     reset: "Conversation reset. How can I help you? 😊",
     placeholder: "Type your question here...",
     error: "A temporary error occurred. Please contact 02-6901-7098.",
   },
   ja: {
-    title: "따숨 AIアシスタント",
+    title: "タスム AIアシスタント",
     online: "オンライン",
-    welcome: "こんにちは！따숨 療養院のAIアシスタントです 😊\nメニューを選択するか、ご質問を入力してください。",
+    welcome: "こんにちは！タスム 療養院のAIアシスタントです 😊\nメニューを選択するか、ご質問を入力してください。",
     reset: "会話がリセットされました。何かお手伝いできますか？😊",
     placeholder: "ご質問を入力してください...",
     error: "一時的なエラーが発生しました。代表番号 02-6901-7098 へお問い合わせください。",
@@ -229,10 +229,26 @@ export default function ChatbotPage() {
   const [selectedCat, setSelectedCat] = useState(null);   // 선택된 카테고리
   const flatListRef = useRef(null);
   const historyRef  = useRef([{ role: "assistant", content: lang.welcome }]);
-  const subAnim     = useRef(new Animated.Value(0)).current;
+  const subAnim        = useRef(new Animated.Value(0)).current;
+  const prevLanguageRef = useRef(language);
 
   const scrollToBottom = useCallback(() =>
     setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 80), []);
+
+  useEffect(() => {
+    if (prevLanguageRef.current === language) return;
+    prevLanguageRef.current = language;
+    const newLang = I18N[language] ?? I18N.ko;
+    const welcomeMsg = {
+      id: Date.now().toString(),
+      role: "assistant",
+      time: formatTime(),
+      content: newLang.welcome,
+    };
+    setMessages((prev) => [...prev, welcomeMsg]);
+    historyRef.current = [...historyRef.current, { role: "assistant", content: newLang.welcome }];
+    scrollToBottom();
+  }, [language, scrollToBottom]);
 
   // 카테고리 버튼 클릭
   const selectCategory = useCallback((cat) => {

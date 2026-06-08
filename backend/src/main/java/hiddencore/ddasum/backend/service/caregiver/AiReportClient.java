@@ -76,6 +76,7 @@ public class AiReportClient {
             body.put("elimination_percent", input.eliminationPercent);
             body.put("diagnosis_title", input.diagnosisTitle != null ? input.diagnosisTitle : "");
             body.put("diagnosis_comment", input.diagnosisComment != null ? input.diagnosisComment : "");
+            body.put("language", input.language != null ? input.language : "ko");
 
             JsonNode response = post("/api/weekly-narrative", body);
             if (response == null) {
@@ -134,6 +135,7 @@ public class AiReportClient {
             body.put("diagnosis_title", input.diagnosisTitle() != null ? input.diagnosisTitle() : "");
             body.put("diagnosis_comment", input.diagnosisComment() != null ? input.diagnosisComment() : "");
             body.put("medications", meds);
+            body.put("language", input.language() != null ? input.language() : "ko");
 
             JsonNode response = post("/api/prescription-summary", body);
             if (response == null) {
@@ -234,6 +236,7 @@ public class AiReportClient {
             body.put("diagnosis_comment", input.diagnosisComment() != null ? input.diagnosisComment() : "");
             body.put("medication_summaries", meds);
             body.put("available_programs", programs);
+            body.put("language", input.language() != null ? input.language() : "ko");
 
             JsonNode response = post("/api/program-recommendation", body);
             if (response == null) {
@@ -316,7 +319,8 @@ public class AiReportClient {
             List<String> riskFlags,
             String diagnosisTitle,
             String diagnosisComment,
-            List<PrescriptionMedicationItem> medications) {
+            List<PrescriptionMedicationItem> medications,
+            String language) {
     }
 
     public record PrescriptionSummaryResult(
@@ -345,7 +349,8 @@ public class AiReportClient {
             String diagnosisTitle,
             String diagnosisComment,
             List<String> medicationSummaries,
-            List<AvailableProgramItem> availablePrograms) {
+            List<AvailableProgramItem> availablePrograms,
+            String language) {
     }
 
     public record CategoryRecommendationItem(

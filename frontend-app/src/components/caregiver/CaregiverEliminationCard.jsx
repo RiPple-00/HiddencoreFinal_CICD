@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
 import Text from "../Text";
+import { useI18n } from "@/hooks/useI18n";
 
 /**
  * 배뇨 / 배변 한 줄.
  * - theme: "caregiver" (기본, 초록) | "guardian" (노랑)
  */
 export default function CaregiverEliminationCard({ icon, label, value, onChange, isLast = false, readOnly = false, theme = "caregiver" }) {
+  const { t } = useI18n();
   const safeValue = value || {};
   const logs = Array.isArray(safeValue.logs) ? safeValue.logs : [];
 
@@ -35,25 +37,25 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
           </View>
           {hasAbnormal ? (
             <View className="px-3 py-[3px] rounded-full bg-error-secondary border border-error-primary">
-              <Text className="text-[11px] font-extrabold text-error-primary">이상 있음</Text>
+              <Text className="text-[11px] font-extrabold text-error-primary">{t('live.has_abnormal')}</Text>
             </View>
           ) : (
             <View className="px-3 py-[3px] rounded-full bg-success-secondary border border-success-primary">
-              <Text className="text-[11px] font-extrabold text-success-primary">정상</Text>
+              <Text className="text-[11px] font-extrabold text-success-primary">{t('live.normal')}</Text>
             </View>
           )}
         </View>
 
         {hasAbnormal && (
           <View className="mt-[10px] p-[10px] rounded-[10px] bg-error-secondary border border-error-primary">
-            <Text className="text-xs font-bold text-error-primary mb-[6px]">이상 사유</Text>
+            <Text className="text-xs font-bold text-error-primary mb-[6px]">{t('live.abnormal_reason_title')}</Text>
             {abnormalLogs.map((log, i) => (
               <View
                 key={log.id}
                 className={i > 0 ? "pt-2 mt-2 border-t border-error-primary border-opacity-30" : ""}
               >
                 <Text className="text-xs text-error-primary leading-[18px]" numberOfLines={5}>
-                  {log.memo ? log.memo : "사유 미입력"}
+                  {log.memo ? log.memo : t('live.no_reason')}
                 </Text>
               </View>
             ))}
@@ -72,7 +74,7 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
             <Text className={`text-sm font-bold ${textPrimary}`}>{label}</Text>
           </View>
           <View className="flex-row items-center gap-2">
-            <Text className={`text-xs ${textSecondary} font-bold`}>횟수</Text>
+            <Text className={`text-xs ${textSecondary} font-bold`}>{t('live.count_label')}</Text>
             <View className={`px-[10px] py-1 rounded-lg ${bgSecondary} border ${borderSecondary} items-center`} style={{ minWidth: 36 }}>
               <Text className={`text-sm font-extrabold ${textPrimary}`}>{count}</Text>
             </View>
@@ -80,10 +82,10 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
         </View>
         <View className={`mt-[10px] p-[10px] rounded-[10px] ${bgSecondary} border ${borderSecondary}`}>
           <Text className={`text-xs font-bold ${textPrimary} mb-[6px]`}>
-            입력 로그 ({logs.length})
+            {t('live.log_count_prefix')}{logs.length}{t('live.log_count_suffix')}
           </Text>
           {logs.length === 0 ? (
-            <Text className={`text-xs ${textSecondary}`}>아직 입력된 로그가 없습니다.</Text>
+            <Text className={`text-xs ${textSecondary}`}>{t('live.no_logs')}</Text>
           ) : (
             logs.map((log) => (
               <View key={log.id} className={`flex-row items-start py-2 border-t ${borderDivider}`}>
@@ -97,7 +99,7 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
                       <Text className={`text-[11px] font-extrabold ${
                         log.status === "abnormal" ? "text-error-primary" : "text-success-primary"
                       }`}>
-                        {log.status === "abnormal" ? "이상" : "정상"}
+                        {log.status === "abnormal" ? t('live.abnormal') : t('live.normal')}
                       </Text>
                     </View>
                     <Text className={`text-[11px] ${textSecondary}`}>
@@ -158,7 +160,7 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
           <Text className="text-sm font-bold text-caregiver-text-primary">{label}</Text>
         </View>
         <View className="flex-row items-center gap-2">
-          <Text className="text-xs text-caregiver-text-secondary font-bold">횟수</Text>
+          <Text className="text-xs text-caregiver-text-secondary font-bold">{t('live.count_label')}</Text>
           <View className="px-[10px] py-1 rounded-lg bg-caregiver-bg-secondary border border-caregiver-button-secondary items-center" style={{ minWidth: 36 }}>
             <Text className="text-sm font-extrabold text-caregiver-text-primary">{count}</Text>
           </View>
@@ -169,7 +171,7 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
       </View>
 
       <View className="mt-[10px] flex-row items-center justify-between pr-1">
-        <Text className="text-xs text-caregiver-text-secondary font-bold">기록</Text>
+        <Text className="text-xs text-caregiver-text-secondary font-bold">{t('live.record_label')}</Text>
         <View className="flex-row gap-[6px]">
           <Pressable
             onPress={handlePressNormal}
@@ -177,7 +179,7 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
             style={{ borderWidth: 1.2 }}
             hitSlop={6}
           >
-            <Text className="text-[13px] font-bold text-caregiver-text-primary">정상</Text>
+            <Text className="text-[13px] font-bold text-caregiver-text-primary">{t('live.normal')}</Text>
           </Pressable>
           <Pressable
             onPress={handlePressAbnormal}
@@ -190,7 +192,7 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
             hitSlop={6}
           >
             <Text className={`text-[13px] font-bold ${abnormalFormOpen ? "text-white" : "text-caregiver-text-secondary"}`}>
-              이상
+              {t('live.abnormal')}
             </Text>
           </Pressable>
         </View>
@@ -201,7 +203,7 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
           <TextInput
             value={pendingMemo}
             onChangeText={setPendingMemo}
-            placeholder={`${label} 이상 사유를 입력하세요`}
+            placeholder={`${label} ${t('live.abnormal_reason_placeholder')}`}
             placeholderTextColor="#949BA0"
             className="border border-error-primary bg-background-neutral rounded-lg px-[10px] py-2 text-[13px] text-caregiver-text-primary"
             style={{ minHeight: 56 }}
@@ -214,7 +216,7 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
             className="mt-2 bg-error-primary rounded-lg py-[10px] items-center"
             hitSlop={6}
           >
-            <Text className="text-white text-[13px] font-extrabold">제출</Text>
+            <Text className="text-white text-[13px] font-extrabold">{t('live.submit')}</Text>
           </Pressable>
         </View>
       )}
@@ -222,10 +224,10 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
       {expanded && (
         <View className="mt-[10px] p-[10px] rounded-[10px] bg-caregiver-bg-secondary border border-caregiver-button-secondary">
           <Text className="text-xs font-bold text-caregiver-text-primary mb-[6px]">
-            입력 로그 ({logs.length})
+            {t('live.log_count_prefix')}{logs.length}{t('live.log_count_suffix')}
           </Text>
           {logs.length === 0 ? (
-            <Text className="text-xs text-caregiver-text-secondary">아직 입력된 로그가 없습니다.</Text>
+            <Text className="text-xs text-caregiver-text-secondary">{t('live.no_logs')}</Text>
           ) : (
             logs.map((log) => (
               <View key={log.id} className="flex-row items-start py-2 border-t border-caregiver-bg-secondary">
@@ -239,7 +241,7 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
                       <Text className={`text-[11px] font-extrabold ${
                         log.status === "abnormal" ? "text-error-primary" : "text-success-primary"
                       }`}>
-                        {log.status === "abnormal" ? "이상" : "정상"}
+                        {log.status === "abnormal" ? t('live.abnormal') : t('live.normal')}
                       </Text>
                     </View>
                     <Text className="text-[11px] text-caregiver-text-secondary">
@@ -257,7 +259,7 @@ export default function CaregiverEliminationCard({ icon, label, value, onChange,
                   hitSlop={8}
                   className="ml-2 px-[10px] py-1 rounded-[6px] bg-background-neutral border border-caregiver-button-secondary"
                 >
-                  <Text className="text-[11px] font-bold text-error-primary">삭제</Text>
+                  <Text className="text-[11px] font-bold text-error-primary">{t('live.delete')}</Text>
                 </Pressable>
               </View>
             ))

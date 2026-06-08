@@ -12,3 +12,8 @@ export async function getCaregiverNotices(facilityId, size = 5) {
     params: { page: 0, size },
   });
 }
+
+export async function getCaregiverNoticeDetail(postId, facilityId) {
+  const fid = facilityId ?? (await resolveFacilityId());
+  return api.get(`/api/facilities/${fid}/posts/${postId}`);
+}

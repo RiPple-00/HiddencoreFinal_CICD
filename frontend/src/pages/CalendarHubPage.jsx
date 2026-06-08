@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/common/Header";
 import ScheduleCalendarPage from "./ScheduleCalendarPage";
 import MealCalendarPage from "./MealCalendarPage";
+import { useI18n } from "../hooks/useI18n.jsx";
 
 const shellFont = { fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' };
 
@@ -13,6 +14,7 @@ const shellFont = { fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-ser
 export default function CalendarHubPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useI18n();
   const tab = location.pathname === "/calendar" ? "meal" : "schedule";
 
   const tabBtn =
@@ -39,7 +41,7 @@ export default function CalendarHubPage() {
             }`}
             onClick={() => navigate("/schedule")}
           >
-            일정
+            {t('calendar.tab.schedule', '일정')}
           </button>
           <button
             type="button"
@@ -53,7 +55,7 @@ export default function CalendarHubPage() {
             }`}
             onClick={() => navigate("/calendar")}
           >
-            식단
+            {t('calendar.tab.meal', '식단')}
           </button>
         </div>
 

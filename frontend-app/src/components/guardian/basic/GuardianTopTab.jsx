@@ -4,6 +4,8 @@ import { CommonActions } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Text from "@/components/Text";
 import AppSideMenu from "@/components/common/AppSideMenu";
+import LanguageToggle from "@/components/common/LanguageToggle";
+import { useI18n } from "@/hooks/useI18n";
 import { clearAccessToken } from "@/api";
 
 /** 상단 안전 영역 아래 콘텐츠 줄 높이(px) — App.jsx `paddingTop`과 동기화 */
@@ -18,6 +20,7 @@ function navigateGuardian(navigation, routeName, params) {
 
 export default function GuardianTopTab({ navigation }) {
   const insets = useSafeAreaInsets();
+  const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -30,7 +33,7 @@ export default function GuardianTopTab({ navigation }) {
         }),
       );
     } catch (error) {
-      Alert.alert("로그아웃 실패", "다시 시도해주세요.");
+      Alert.alert(t('menu.logout'), "다시 시도해주세요.");
     } finally {
       setMenuOpen(false);
     }
@@ -50,7 +53,8 @@ export default function GuardianTopTab({ navigation }) {
               따숨
             </Text>
           </View>
-          <View className="flex-row items-center gap-4">
+          <View className="flex-row items-center gap-3">
+            <LanguageToggle />
             <TouchableOpacity onPress={() => alert("알림 클릭")}>
               <Text className="text-xl">🔔</Text>
             </TouchableOpacity>
@@ -67,21 +71,21 @@ export default function GuardianTopTab({ navigation }) {
         onClose={() => setMenuOpen(false)}
         items={[
           {
-            label: "마이페이지",
+            label: t('menu.my_page'),
             onPress: () => {
               setMenuOpen(false);
               navigateGuardian(navigation, "MyPage");
             },
           },
           {
-            label: "설정",
+            label: t('menu.settings'),
             onPress: () => {
               setMenuOpen(false);
               navigateGuardian(navigation, "Settings");
             },
           },
           {
-            label: "로그아웃",
+            label: t('menu.logout'),
             onPress: handleLogout,
           },
         ]}

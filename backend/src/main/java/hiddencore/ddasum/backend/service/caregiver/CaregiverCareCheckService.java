@@ -152,7 +152,7 @@ public class CaregiverCareCheckService {
     }
 
     public GuardianWeeklyCareReportResponse getWeeklyReport(
-            Long guardianUserId, Long patientId, LocalDate startDate, LocalDate endDate) {
+            Long guardianUserId, Long patientId, LocalDate startDate, LocalDate endDate, String language) {
         Long safePatientId = Objects.requireNonNull(patientId, "patientId");
 
         LocalDate today = today();
@@ -217,7 +217,7 @@ public class CaregiverCareCheckService {
             Document dayDoc = latestByDate.get(cursor);
             CaregiverCareCheckDto.Content c = parseContent(dayDoc);
 
-            DayComputation dayComp = computeDay(c);
+            DayComputation dayComp = computeDay(c, language);
 
             overallTotal += dayComp.overallTotal;
             overallAbnormal += dayComp.overallAbnormal;
@@ -264,26 +264,31 @@ public class CaregiverCareCheckService {
         String riskLevel = overallRate >= 90 ? "안정" : overallRate >= 75 ? "주의" : "위험";
 
         List<String> aiComments = buildAiComments(
-            riskFlags,
-            lowHydrationDays,
-            breathingAbnormalDays,
-            painAbnormalDays,
-            fallCount,
-            mealIncidentDays
+            riskFlags, lowHydrationDays, breathingAbnormalDays,
+            painAbnormalDays, fallCount, mealIncidentDays, language
         );
-        List<String> nextWeekTips = buildNextWeekTips(riskFlags);
-        String checklistInsight = buildChecklistInsight(overallRate, riskFlags);
+        List<String> nextWeekTips = buildNextWeekTips(riskFlags, language);
+        String checklistInsight = buildChecklistInsight(overallRate, riskFlags, language);
         String summaryText = switch (riskLevel) {
-            case "위험" -> "이번 주 기록에서 즉시 관찰이 필요한 징후가 확인되었습니다. 보호자와 시설이 함께 모니터링을 강화해 주세요.";
-            case "주의" -> "이번 주 기록에서 추적 관찰이 필요한 변화가 확인되었습니다. 수분, 식사, 통증 관련 관리를 권장드립니다.";
-            default -> "이번 주 기록 기준으로 전반적인 상태는 안정적으로 유지되고 있습니다.";
+            case "위험" -> ls(language,
+                "이번 주 기록에서 즉시 관찰이 필요한 징후가 확인되었습니다. 보호자와 시설이 함께 모니터링을 강화해 주세요.",
+                "Signs requiring immediate observation were detected this week. Increased monitoring by the guardian and facility is recommended.",
+                "今週の記録に即座の観察が必要な兆候が確認されました。保護者と施設が連携してモニタリングを強化してください。");
+            case "주의" -> ls(language,
+                "이번 주 기록에서 추적 관찰이 필요한 변화가 확인되었습니다. 수분, 식사, 통증 관련 관리를 권장드립니다.",
+                "Changes requiring follow-up observation were detected this week. Managing hydration, meals, and pain is recommended.",
+                "今週の記録に経過観察が必要な変化が確認されました。水分・食事・痛みの管理を推奨します。");
+            default -> ls(language,
+                "이번 주 기록 기준으로 전반적인 상태는 안정적으로 유지되고 있습니다.",
+                "Based on this week's records, the overall condition is being maintained stably.",
+                "今週の記録を基準として、全体的な状態は安定して維持されています。");
         };
 
         List<GuardianWeeklyCareReportResponse.ChecklistRow> rows = List.of(
-                checklistRow("식사 도움", mealTotal, mealAbnormal, mealComments),
-                checklistRow("개인 위생 관리", hygieneTotal, hygieneAbnormal, hygieneComments),
-                checklistRow("상태 안정화", conditionTotal, conditionAbnormal, conditionComments),
-                checklistRow("배변 관리", eliminationTotal, eliminationAbnormal, eliminationComments)
+                checklistRow(ls(language, "식사 도움", "Meal Assistance", "食事介助"), mealTotal, mealAbnormal, mealComments),
+                checklistRow(ls(language, "개인 위생 관리", "Personal Hygiene", "個人衛生管理"), hygieneTotal, hygieneAbnormal, hygieneComments),
+                checklistRow(ls(language, "상태 안정화", "Condition", "状態安定化"), conditionTotal, conditionAbnormal, conditionComments),
+                checklistRow(ls(language, "배변 관리", "Elimination", "排泄管理"), eliminationTotal, eliminationAbnormal, eliminationComments)
         );
 
         String patientDisplayName = resolvePatientDisplayName(patient);
@@ -311,7 +316,8 @@ public class CaregiverCareCheckService {
                         diagnosisTitle,
                         diagnosisComment,
                         patient,
-                        eligiblePrograms);
+                        eligiblePrograms,
+                        language);
 
         GuardianWeeklyReportLlmService.WeeklyNarrativeInput narrativeInput =
                 new GuardianWeeklyReportLlmService.WeeklyNarrativeInput(
@@ -328,7 +334,8 @@ public class CaregiverCareCheckService {
                         rate(conditionTotal, conditionAbnormal),
                         rate(eliminationTotal, eliminationAbnormal),
                         diagnosisTitle,
-                        diagnosisComment);
+                        diagnosisComment,
+                        language);
         GuardianWeeklyReportLlmService.GeneratedNarrative generatedNarrative =
                 weeklyReportLlmService.generateWeeklyNarrative(narrativeInput, patientDisplayName);
 
@@ -357,7 +364,8 @@ public class CaregiverCareCheckService {
                         riskLevel,
                         riskFlags,
                         diagnosisTitle,
-                        diagnosisComment);
+                        diagnosisComment,
+                        language);
 
         GuardianWeeklyCareReportResponse.DiagnosisSection diagnosisSection = null;
         if (hasText(diagnosisTitle) || hasText(diagnosisComment)) {
@@ -421,7 +429,8 @@ public class CaregiverCareCheckService {
             String diagnosisTitle,
             String diagnosisComment,
             Patient patient,
-            List<GuardianWeeklyCareReportResponse.ApplyEligibleProgram> eligiblePrograms) {
+            List<GuardianWeeklyCareReportResponse.ApplyEligibleProgram> eligiblePrograms,
+            String language) {
         List<String> medicationSummaries =
                 medicationRepository
                         .findByPatientId_PatientIdOrderByPrescriptionDateDesc(patient.getPatientId())
@@ -462,7 +471,8 @@ public class CaregiverCareCheckService {
                                 diagnosisTitle,
                                 diagnosisComment,
                                 medicationSummaries,
-                                llmPrograms));
+                                llmPrograms,
+                                language));
 
         GuardianWeeklyCareReportResponse.ProgramSection section;
         if (generated != null) {
@@ -741,7 +751,8 @@ public class CaregiverCareCheckService {
             String riskLevel,
             List<String> riskFlags,
             String diagnosisTitle,
-            String diagnosisComment) {
+            String diagnosisComment,
+            String language) {
         List<Medication> medications =
                 medicationRepository.findByPatientId_PatientIdOrderByPrescriptionDateDesc(patient.getPatientId());
 
@@ -801,7 +812,8 @@ public class CaregiverCareCheckService {
                         riskFlags,
                         diagnosisTitle,
                         diagnosisComment,
-                        llmItems));
+                        llmItems,
+                        language));
 
         if (generated != null && hasText(generated.summaryText())) {
             return GuardianWeeklyCareReportResponse.PrescriptionSection.builder()
@@ -1082,42 +1094,47 @@ public class CaregiverCareCheckService {
                                          int breathingAbnormalDays,
                                          int painAbnormalDays,
                                          int fallCount,
-                                         int mealIncidentDays) {
+                                         int mealIncidentDays,
+                                         String language) {
         List<String> comments = new ArrayList<>();
-        List<String> conditionSignals = new ArrayList<>();
-        if (breathingAbnormalDays > 0) conditionSignals.add("호흡 이상");
-        if (painAbnormalDays > 0) conditionSignals.add("통증 호소");
-        if (fallCount > 0) conditionSignals.add("낙상 징후");
-        if (!conditionSignals.isEmpty()) {
-            comments.add(formatObservedSentence("컨디션 관찰 결과", conditionSignals));
-        }
-
-        List<String> mealSignals = new ArrayList<>();
-        if (lowHydrationDays > 0) mealSignals.add("수분섭취 저하");
-        if (mealIncidentDays > 0) mealSignals.add("사례 기록");
-        if (!mealSignals.isEmpty()) {
-            comments.add(formatObservedSentence("식사 관찰 결과", mealSignals));
-        }
 
         if (riskFlags == null || riskFlags.isEmpty()) {
-            comments.add("이번 주 기록에서는 급격한 악화 징후가 확인되지 않았습니다. 현재 돌봄 루틴을 유지해 주세요.");
+            comments.add(ls(language,
+                "이번 주 기록에서는 급격한 악화 징후가 확인되지 않았습니다. 현재 돌봄 루틴을 유지해 주세요.",
+                "No signs of sudden deterioration were found this week. Please maintain the current care routine.",
+                "今週の記録では急激な悪化の兆候は確認されませんでした。現在のケアルーティンを維持してください。"));
             return comments;
         }
 
         if (riskFlags.contains("LOW_HYDRATION")) {
-            comments.add("수분 섭취 저하 패턴이 반복되어 식사 사이 수분 보충 루틴 점검이 필요합니다.");
+            comments.add(ls(language,
+                "수분 섭취 저하 패턴이 반복되어 식사 사이 수분 보충 루틴 점검이 필요합니다.",
+                "A recurring pattern of low hydration was observed. Checking the hydration routine between meals is recommended.",
+                "水分摂取低下のパターンが繰り返されています。食事の間の水分補給ルーティンの確認が必要です。"));
         }
         if (riskFlags.contains("APPETITE_DECLINE")) {
-            comments.add("식사량 감소일이 확인되어 선호 식단 중심의 섭취 유도가 권장됩니다.");
+            comments.add(ls(language,
+                "식사량 감소일이 확인되어 선호 식단 중심의 섭취 유도가 권장됩니다.",
+                "Days with reduced meal intake were observed. Encouraging preferred food choices is recommended.",
+                "食事量が減少した日が確認されました。好みの食事を中心とした摂取誘導が推奨されます。"));
         }
         if (riskFlags.contains("FALL_ALERT")) {
-            comments.add("낙상 관련 이상이 기록되어 이동 보조 및 환경 안전 확인을 강화해 주세요.");
+            comments.add(ls(language,
+                "낙상 관련 이상이 기록되어 이동 보조 및 환경 안전 확인을 강화해 주세요.",
+                "Fall-related incidents were recorded. Please reinforce mobility assistance and environmental safety checks.",
+                "転倒関連の異常が記録されました。移動補助と環境安全の確認を強化してください。"));
         }
         if (riskFlags.contains("BREATHING_ALERT")) {
-            comments.add("호흡 이상이 관찰되어 컨디션 변화를 우선 모니터링해 주세요.");
+            comments.add(ls(language,
+                "호흡 이상이 관찰되어 컨디션 변화를 우선 모니터링해 주세요.",
+                "Breathing abnormalities were observed. Please prioritize monitoring for condition changes.",
+                "呼吸異常が観察されました。状態変化のモニタリングを優先してください。"));
         }
         if (riskFlags.contains("PAIN_PERSISTENCE")) {
-            comments.add("통증 호소가 반복되어 통증 변화 추이를 의료진과 공유하는 것이 좋습니다.");
+            comments.add(ls(language,
+                "통증 호소가 반복되어 통증 변화 추이를 의료진과 공유하는 것이 좋습니다.",
+                "Repeated pain complaints were noted. Sharing pain trends with medical staff is advisable.",
+                "痛みの訴えが繰り返されています。痛みの変化の推移を医療スタッフと共有することをお勧めします。"));
         }
         return comments;
     }
@@ -1147,26 +1164,47 @@ public class CaregiverCareCheckService {
         return word + (jongseong == 0 ? "가" : "이");
     }
 
-    private List<String> buildNextWeekTips(List<String> riskFlags) {
+    private List<String> buildNextWeekTips(List<String> riskFlags, String language) {
         List<String> tips = new ArrayList<>();
         if (riskFlags.contains("LOW_HYDRATION")) {
-            tips.add("활동 전후 수분 섭취 체크 루틴을 고정해 주세요.");
+            tips.add(ls(language,
+                "활동 전후 수분 섭취 체크 루틴을 고정해 주세요.",
+                "Please establish a fixed hydration check routine before and after activities.",
+                "活動の前後に水分摂取チェックルーティンを固定してください。"));
         }
         if (riskFlags.contains("APPETITE_DECLINE")) {
-            tips.add("소량 다회 식사와 가벼운 스트레칭을 함께 적용해 주세요.");
+            tips.add(ls(language,
+                "소량 다회 식사와 가벼운 스트레칭을 함께 적용해 주세요.",
+                "Please apply small, frequent meals along with light stretching.",
+                "少量多回食と軽いストレッチを併用してください。"));
         }
         if (riskFlags.contains("FALL_ALERT")) {
-            tips.add("이동 동선 안전 점검과 보행 보조를 우선 적용해 주세요.");
+            tips.add(ls(language,
+                "이동 동선 안전 점검과 보행 보조를 우선 적용해 주세요.",
+                "Please prioritize safety checks of movement paths and walking assistance.",
+                "移動経路の安全確認と歩行補助を優先的に実施してください。"));
         }
         if (riskFlags.contains("BREATHING_ALERT")) {
-            tips.add("호흡 부담이 적은 저강도 활동으로 시간을 짧게 운영해 주세요.");
+            tips.add(ls(language,
+                "호흡 부담이 적은 저강도 활동으로 시간을 짧게 운영해 주세요.",
+                "Please conduct low-intensity activities with less breathing burden in shorter sessions.",
+                "呼吸負担の少ない低強度活動を短い時間で実施してください。"));
         }
         if (riskFlags.contains("PAIN_PERSISTENCE")) {
-            tips.add("통증 관찰 시간을 고정하고 강도 변화를 기록해 주세요.");
+            tips.add(ls(language,
+                "통증 관찰 시간을 고정하고 강도 변화를 기록해 주세요.",
+                "Please fix a pain observation schedule and record intensity changes.",
+                "痛みの観察時間を固定し、強度の変化を記録してください。"));
         }
         if (tips.isEmpty()) {
-            tips.add("현재 활동 루틴을 유지하며 주 2회 인지 자극 활동을 병행해 주세요.");
-            tips.add("활동 전후 컨디션 변화를 짧게 기록해 다음 주 비교에 활용해 주세요.");
+            tips.add(ls(language,
+                "현재 활동 루틴을 유지하며 주 2회 인지 자극 활동을 병행해 주세요.",
+                "Please maintain the current activity routine and add cognitive stimulation twice a week.",
+                "現在の活動ルーティンを維持しながら、週2回の認知刺激活動を行ってください。"));
+            tips.add(ls(language,
+                "활동 전후 컨디션 변화를 짧게 기록해 다음 주 비교에 활용해 주세요.",
+                "Please briefly record condition changes before and after activities for next week's comparison.",
+                "活動前後の状態変化を簡単に記録し、来週の比較に活用してください。"));
         }
         if (tips.size() > 3) {
             return new ArrayList<>(tips.subList(0, 3));
@@ -1174,17 +1212,29 @@ public class CaregiverCareCheckService {
         return tips;
     }
 
-    private String buildChecklistInsight(int overallRate, List<String> riskFlags) {
+    private String buildChecklistInsight(int overallRate, List<String> riskFlags, String language) {
         if (overallRate >= 90 && (riskFlags == null || riskFlags.isEmpty())) {
-            return "이번 주 체크리스트는 전반적으로 안정적으로 이행되었습니다.";
+            return ls(language,
+                "이번 주 체크리스트는 전반적으로 안정적으로 이행되었습니다.",
+                "This week's checklist was overall completed stably.",
+                "今週のチェックリストは全体的に安定して実施されました。");
         }
         if (riskFlags != null && riskFlags.contains("FALL_ALERT")) {
-            return "낙상 관련 관찰 항목의 변동이 있어 이동 보조 루틴을 우선 점검할 필요가 있습니다.";
+            return ls(language,
+                "낙상 관련 관찰 항목의 변동이 있어 이동 보조 루틴을 우선 점검할 필요가 있습니다.",
+                "Variations in fall-related items were found. Checking mobility assistance routines should be prioritized.",
+                "転倒関連の観察項目に変動があり、移動補助ルーティンの優先確認が必要です。");
         }
         if (riskFlags != null && riskFlags.contains("LOW_HYDRATION")) {
-            return "수분 섭취 관련 항목의 변동이 있어 식사 간 수분 보충 관리가 필요합니다.";
+            return ls(language,
+                "수분 섭취 관련 항목의 변동이 있어 식사 간 수분 보충 관리가 필요합니다.",
+                "Variations in hydration-related items were found. Managing hydration between meals is necessary.",
+                "水分摂取関連項目に変動があり、食事間の水分補給管理が必要です。");
         }
-        return "일부 항목에서 변동이 확인되어 다음 주에는 주요 리스크 항목 중심의 관찰이 권장됩니다.";
+        return ls(language,
+            "일부 항목에서 변동이 확인되어 다음 주에는 주요 리스크 항목 중심의 관찰이 권장됩니다.",
+            "Variations were detected in some items. Observation focusing on key risk items is recommended for next week.",
+            "一部の項目で変動が確認されました。来週は主要リスク項目を中心とした観察が推奨されます。");
     }
 
     private GuardianWeeklyCareReportResponse.ProgramSection buildProgramSectionFallback(String riskLevel, List<String> riskFlags) {
@@ -1225,13 +1275,13 @@ public class CaregiverCareCheckService {
         return value != null && !value.isBlank();
     }
 
-    private DayComputation computeDay(CaregiverCareCheckDto.Content c) {
+    private DayComputation computeDay(CaregiverCareCheckDto.Content c, String language) {
         DayComputation d = new DayComputation();
         if (c == null) {
             d.mealMorningMissing = true;
             d.mealLunchMissing = true;
             d.mealDinnerMissing = true;
-            d.mealComment = "아침/점심/저녁 미기입";
+            d.mealComment = ls(language, "아침/점심/저녁 미기입", "Morning/Lunch/Dinner not recorded", "朝食/昼食/夕食 未記入");
             d.hygieneComment = "-";
             d.conditionComment = "-";
             d.eliminationComment = "-";
@@ -1248,9 +1298,9 @@ public class CaregiverCareCheckService {
         d.mealDinnerMissing = !slotFullyChecked(dinnerSlot);
 
         List<String> uncheckedSlots = new ArrayList<>();
-        if (d.mealMorningMissing) uncheckedSlots.add("아침");
-        if (d.mealLunchMissing) uncheckedSlots.add("점심");
-        if (d.mealDinnerMissing) uncheckedSlots.add("저녁");
+        if (d.mealMorningMissing) uncheckedSlots.add(ls(language, "아침", "Morning", "朝食"));
+        if (d.mealLunchMissing) uncheckedSlots.add(ls(language, "점심", "Lunch", "昼食"));
+        if (d.mealDinnerMissing) uncheckedSlots.add(ls(language, "저녁", "Dinner", "夕食"));
 
         List<CaregiverCareCheckDto.MealItem> mealItems = Arrays.asList(
             morningSlot != null ? morningSlot.getIntake() : null,
@@ -1278,9 +1328,13 @@ public class CaregiverCareCheckService {
             || isAbnormal(dinnerSlot != null ? dinnerSlot.getIncident() : null);
 
         if (!uncheckedSlots.isEmpty()) {
-            d.mealComment = String.join("/", uncheckedSlots) + " 미기입";
+            d.mealComment = String.join("/", uncheckedSlots) + ls(language, " 미기입", " not recorded", " 未記入");
         } else {
-            d.mealComment = d.lowHydration ? "수분 섭취 저하" : d.appetiteDecline ? "식사량 감소" : "정상";
+            d.mealComment = d.lowHydration
+                ? ls(language, "수분 섭취 저하", "Low hydration", "水分摂取低下")
+                : d.appetiteDecline
+                    ? ls(language, "식사량 감소", "Reduced appetite", "食事量減少")
+                    : ls(language, "정상", "Normal", "正常");
         }
 
         CaregiverCareCheckDto.HygieneSection hygiene = c.getHygiene();
@@ -1291,7 +1345,9 @@ public class CaregiverCareCheckService {
         );
         d.hygieneTotal = 3;
         d.hygieneAbnormal = (int) hygieneItems.stream().filter(this::isAbnormal).count();
-        d.hygieneComment = d.hygieneAbnormal > 0 ? "위생 항목 점검 필요" : "정상";
+        d.hygieneComment = d.hygieneAbnormal > 0
+            ? ls(language, "위생 항목 점검 필요", "Hygiene check needed", "衛生項目確認必要")
+            : ls(language, "정상", "Normal", "正常");
 
         CaregiverCareCheckDto.ConditionSection condition = c.getCondition();
         d.breathingAbnormal = isAbnormal(condition != null ? condition.getBreathing() : null);
@@ -1304,18 +1360,31 @@ public class CaregiverCareCheckService {
         if (d.painAbnormal) conditionAbnormal += 1;
         if (d.fallAlert) conditionAbnormal += 1;
         d.conditionAbnormal = conditionAbnormal;
-        d.conditionComment = conditionAbnormal > 0 ? "컨디션 이상 징후 " : "정상";
+        d.conditionComment = conditionAbnormal > 0
+            ? ls(language, "컨디션 이상 징후", "Condition abnormal", "状態異常の兆候")
+            : ls(language, "정상", "Normal", "正常");
 
         d.eliminationTotal = 2;
         CaregiverCareCheckDto.EliminationSection elimination = c.getElimination();
         boolean urinationAbnormal = hasAbnormalLog(elimination != null ? elimination.getUrination() : null);
         boolean defecationAbnormal = hasAbnormalLog(elimination != null ? elimination.getDefecation() : null);
         d.eliminationAbnormal = (urinationAbnormal ? 1 : 0) + (defecationAbnormal ? 1 : 0);
-        d.eliminationComment = defecationAbnormal ? "배변 이상 기록" : urinationAbnormal ? "배뇨 이상 기록" : "정상";
+        d.eliminationComment = defecationAbnormal
+            ? ls(language, "배변 이상 기록", "Abnormal defecation", "排便異常記録")
+            : urinationAbnormal
+                ? ls(language, "배뇨 이상 기록", "Abnormal urination", "排尿異常記録")
+                : ls(language, "정상", "Normal", "正常");
 
         d.overallTotal = d.mealTotal + d.hygieneTotal + 3 + d.eliminationTotal;
         d.overallAbnormal = d.mealAbnormal + d.hygieneAbnormal + conditionAbnormal + d.eliminationAbnormal;
         return d;
+    }
+
+    /** Returns the string for the given language (ko/en/ja). Falls back to ko. */
+    private static String ls(String lang, String ko, String en, String ja) {
+        if ("en".equals(lang)) return en;
+        if ("ja".equals(lang)) return ja;
+        return ko;
     }
 
     private static class DayComputation {

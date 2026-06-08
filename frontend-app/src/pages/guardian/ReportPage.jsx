@@ -16,8 +16,9 @@ import {
   resolveGuardianPatientDisplayName,
   resolveGuardianPrimaryPatientId,
 } from "../../utils/guardianPatientId";
- 
-const FALLBACK_DAILY_RATES = [
+import { useI18n } from "@/hooks/useI18n";
+
+const FALLBACK_DAILY_RATES_KO = [
   { day: "월", rate: 0 },
   { day: "화", rate: 0 },
   { day: "수", rate: 0 },
@@ -27,15 +28,8 @@ const FALLBACK_DAILY_RATES = [
   { day: "일", rate: 0 },
 ];
 
-const DAYS = ["월", "화", "수", "목", "금", "토", "일"];
-const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
-
-const FALLBACK_CHECKLIST_ROWS = [
-  { label: "식사 도움", percent: 0, percentStyle: "warn", dailyComments: ["-", "-", "-", "-", "-", "-", "-"] },
-  { label: "개인 위생 관리", percent: 0, percentStyle: "warn", dailyComments: ["-", "-", "-", "-", "-", "-", "-"] },
-  { label: "상태 안정화", percent: 0, percentStyle: "warn", dailyComments: ["-", "-", "-", "-", "-", "-", "-"] },
-  { label: "배변 관리", percent: 0, percentStyle: "warn", dailyComments: ["-", "-", "-", "-", "-", "-", "-"] },
-];
+const DAYS_KO = ["월", "화", "수", "목", "금", "토", "일"];
+const DAY_LABELS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 
 function todayStr() {
   const d = new Date();
@@ -55,8 +49,7 @@ function dateToStr(d) {
 function addDays(base, delta) {
   const d = new Date(base);
   d.setDate(d.getDate() + delta);
-  return d; 
-  
+  return d;
 }
 
 function prettyDate(v) {
@@ -85,7 +78,7 @@ function parseDateLike(value) {
 function dayLabelFromDate(value) {
   const d = parseDateLike(value);
   if (!d) return null;
-  return DAY_LABELS[d.getDay()];
+  return DAY_LABELS_KO[d.getDay()];
 }
 
 function startOfWeekMonday(dateValue) {
@@ -104,7 +97,7 @@ function latestReportableWeekMonday(dateValue) {
 }
 
 function keepPleaseTogether(text) {
-  return String(text ?? "").replace(/주세요/g, "주\u2060세\u2060요");
+  return String(text ?? "").replace(/주세요/g, "주⁠세⁠요");
 }
 
 function formatEffectTwoLines(text, maxLineLen = 24) {
@@ -134,6 +127,7 @@ function formatEffectTwoLines(text, maxLineLen = 24) {
 }
 
 export default function ReportPage({ navigation }) {
+  const { t, language } = useI18n();
   const [expandedRows, setExpandedRows] = useState({});
   const [sectionOpen, setSectionOpen] = useState({
     checklist: false,
@@ -150,6 +144,23 @@ export default function ReportPage({ navigation }) {
     setExpandedRows((prev) => ({ ...prev, [index]: !prev[index] }));
   const toggleSection = (key) =>
     setSectionOpen((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  // Korean day label → translated label
+  const translateDay = useCallback((korDay) => {
+    const map = {
+      '월': t('report.days_mon'), '화': t('report.days_tue'), '수': t('report.days_wed'),
+      '목': t('report.days_thu'), '금': t('report.days_fri'), '토': t('report.days_sat'),
+      '일': t('report.days_sun'),
+    };
+    return map[korDay] ?? korDay;
+  }, [language]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const FALLBACK_CHECKLIST_ROWS = useMemo(() => [
+    { label: t('report.fallback_checklist_0'), percent: 0, percentStyle: "warn", dailyComments: ["-", "-", "-", "-", "-", "-", "-"] },
+    { label: t('report.fallback_checklist_1'), percent: 0, percentStyle: "warn", dailyComments: ["-", "-", "-", "-", "-", "-", "-"] },
+    { label: t('report.fallback_checklist_2'), percent: 0, percentStyle: "warn", dailyComments: ["-", "-", "-", "-", "-", "-", "-"] },
+    { label: t('report.fallback_checklist_3'), percent: 0, percentStyle: "warn", dailyComments: ["-", "-", "-", "-", "-", "-", "-"] },
+  ], [language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const latestWeekStart = useMemo(() => latestReportableWeekMonday(new Date()), []);
 
@@ -189,14 +200,14 @@ export default function ReportPage({ navigation }) {
         const linked = res.data ?? [];
         const pid = resolveGuardianPrimaryPatientId(linked);
         if (!pid) {
-          setError("연결된 환자가 없습니다.");
+          setError(t('report.error_no_patient'));
           setLoading(false);
           return;
         }
         setPatientId(pid);
       } catch {
         if (!cancelled) {
-          setError("환자 정보를 불러오지 못했습니다.");
+          setError(t('report.error_patient_fail'));
           setLoading(false);
         }
       }
@@ -204,7 +215,7 @@ export default function ReportPage({ navigation }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const refreshWeeklyReport = useCallback(async () => {
     if (patientId == null) return;
@@ -216,18 +227,18 @@ export default function ReportPage({ navigation }) {
       setLoading(true);
       setError(null);
       setReport(null);
-      const res = await fetchGuardianWeeklyReport(patientId, weekStartStr, weekEndStr);
+      const res = await fetchGuardianWeeklyReport(patientId, weekStartStr, weekEndStr, language);
       if (requestId !== latestReportRequestIdRef.current) return;
       setReport(res.data ?? null);
     } catch {
       if (requestId !== latestReportRequestIdRef.current) return;
-      setError("주간 보고서를 불러오지 못했습니다.");
+      setError(t('report.error_report_fail'));
     } finally {
       if (requestId === latestReportRequestIdRef.current) {
         setLoading(false);
       }
     }
-  }, [patientId, weekStartStr, weekEndStr]);
+  }, [patientId, weekStartStr, weekEndStr, language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (patientId == null) return;
@@ -237,17 +248,22 @@ export default function ReportPage({ navigation }) {
   // LLM 보고서는 생성 비용·시간이 크므로 3초 폴링 대신 주간 변경 시에만 재조회
 
   const dailyRates = useMemo(() => {
-    if (!report?.dailyRates?.length) return FALLBACK_DAILY_RATES;
+    if (!report?.dailyRates?.length) {
+      return FALLBACK_DAILY_RATES_KO.map(d => ({ ...d, day: translateDay(d.day) }));
+    }
     return report.dailyRates.map((d) => ({
-      day: dayLabelFromDate(d.date) ?? d.day,
+      day: translateDay(dayLabelFromDate(d.date) ?? d.day ?? ''),
       rate: d.rate ?? 0,
     }));
-  }, [report]);
+  }, [report, translateDay]);
 
   const weekDayLabels = useMemo(() => {
     const start = parseDateLike(report?.periodStart) ?? selectedStartDate;
-    return Array.from({ length: 7 }, (_, i) => dayLabelFromDate(addDays(start, i)) ?? DAYS[i]);
-  }, [report?.periodStart, selectedStartDate]);
+    return Array.from({ length: 7 }, (_, i) => {
+      const koLabel = dayLabelFromDate(addDays(start, i)) ?? DAYS_KO[i];
+      return translateDay(koLabel);
+    });
+  }, [report?.periodStart, selectedStartDate, translateDay]);
 
   const checklistData = useMemo(() => {
     if (!report?.checklistRows?.length) return FALLBACK_CHECKLIST_ROWS;
@@ -260,7 +276,7 @@ export default function ReportPage({ navigation }) {
         (_, i) => (Array.isArray(r.dailyComments) ? r.dailyComments[i] : null) ?? "-"
       ),
     }));
-  }, [report]);
+  }, [report, FALLBACK_CHECKLIST_ROWS]);
 
   const mealMissingCount = useMemo(() => ({
     morning: report?.mealMissingCount?.morning ?? 0,
@@ -270,20 +286,21 @@ export default function ReportPage({ navigation }) {
   }), [report]);
 
   const overallRate = report?.overallRate ?? 0;
-  const riskLevel = overallRate >= 90 ? "안정" : overallRate >= 75 ? "주의" : "위험";
-  const riskClass = riskLevel === "위험"
+  const riskKey = overallRate >= 90 ? "stable" : overallRate >= 75 ? "warning" : "danger";
+  const riskLabel = t(`report.risk_${riskKey}`);
+  const riskClass = riskKey === "danger"
     ? "w-[90px] h-[90px] rounded-2xl border border-error-primary justify-center items-center bg-error-secondary"
-    : riskLevel === "주의"
+    : riskKey === "warning"
       ? "w-[90px] h-[90px] rounded-2xl border border-guardian-text-secondary justify-center items-center bg-[#FFF7D6]"
       : "w-[90px] h-[90px] rounded-2xl border border-success-primary justify-center items-center bg-success-secondary";
-  const riskIconColor = riskLevel === "위험" ? "#ED584C" : riskLevel === "주의" ? "#FCC101" : "#34A853";
-  const riskTextClass = riskLevel === "위험" ? "mt-[6px] text-error-primary font-bold text-base"
-    : riskLevel === "주의" ? "mt-[6px] text-guardian-text-secondary font-bold text-base"
+  const riskIconColor = riskKey === "danger" ? "#ED584C" : riskKey === "warning" ? "#FCC101" : "#34A853";
+  const riskTextClass = riskKey === "danger" ? "mt-[6px] text-error-primary font-bold text-base"
+    : riskKey === "warning" ? "mt-[6px] text-guardian-text-secondary font-bold text-base"
       : "mt-[6px] text-success-primary font-bold text-base";
   const reportStart = prettyDate(report?.periodStart);
   const reportEnd = prettyDate(report?.periodEnd);
-  const aiComments = report?.aiComments?.length ? report.aiComments : ["데이터가 충분하지 않아 기본 안내를 표시합니다."];
-  const checklistInsight = report?.checklistInsight ?? "이번 주 체크리스트 관찰 기반으로 요약을 제공합니다.";
+  const aiComments = report?.aiComments?.length ? report.aiComments : [t('report.fallback_ai')];
+  const checklistInsight = report?.checklistInsight ?? t('report.fallback_insight');
   const patientDisplayName = resolveGuardianPatientDisplayName(
     patientId,
     report?.patientName
@@ -316,7 +333,7 @@ export default function ReportPage({ navigation }) {
             >
               <Ionicons name="chevron-back" size={20} color="#503115" />
             </TouchableOpacity>
-            <Text className="text-xl font-bold text-guardian-text-primary">정기 보고서</Text>
+            <Text className="text-xl font-bold text-guardian-text-primary">{t('report.title')}</Text>
           </View>
           <View className="w-[34px]" />
         </View>
@@ -324,7 +341,7 @@ export default function ReportPage({ navigation }) {
         <View className="bg-background-neutral rounded-[14px] px-[12px] py-[10px] mb-[12px]">
           <View className="flex-row items-center justify-between">
             <TouchableOpacity onPress={goPrevWeek} activeOpacity={0.7}>
-              <Text className="text-[13px] font-bold text-guardian-text-primary">이전 주</Text>
+              <Text className="text-[13px] font-bold text-guardian-text-primary">{t('report.prev_week')}</Text>
             </TouchableOpacity>
 
             <Text className="text-[13px] font-bold text-guardian-text-neutral">
@@ -333,7 +350,7 @@ export default function ReportPage({ navigation }) {
 
             <TouchableOpacity onPress={goNextWeek} disabled={!canGoNextWeek} activeOpacity={0.7}>
               <Text className={`text-[13px] font-bold ${canGoNextWeek ? "text-guardian-text-primary" : "text-guardian-text-neutral opacity-40"}`}>
-                다음 주
+                {t('report.next_week')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -343,7 +360,7 @@ export default function ReportPage({ navigation }) {
         {loading ? (
           <View className="bg-background-neutral rounded-[20px] p-[18px] mb-[18px] items-center">
             <ActivityIndicator color="#503115" />
-            <Text className="mt-2 text-guardian-text-neutral">주간 보고서 불러오는 중...</Text>
+            <Text className="mt-2 text-guardian-text-neutral">{t('report.loading')}</Text>
           </View>
         ) : (
           <>
@@ -362,7 +379,7 @@ export default function ReportPage({ navigation }) {
 
             <View className="flex-1 ml-[14px]">
               <Text className="text-xl font-bold text-guardian-text-primary mb-[6px]">
-                {patientDisplayName} 어르신
+                {patientDisplayName}{t('report.senior_suffix')}
               </Text>
               <View className="flex-row items-center gap-1">
                 <Ionicons name="document-text-outline" size={14} color="#503115" />
@@ -372,13 +389,13 @@ export default function ReportPage({ navigation }) {
                 {reportEnd}
               </Text>
               <View className="mt-[10px] bg-guardian-button-secondary self-start rounded-full px-[10px] py-[5px]">
-                <Text className="text-xs text-guardian-text-primary font-bold">주간 보고서</Text>
+                <Text className="text-xs text-guardian-text-primary font-bold">{t('report.weekly_badge')}</Text>
               </View>
             </View>
 
             <View className={riskClass}>
-              <MaterialCommunityIcons name={riskLevel === "안정" ? "shield-check-outline" : "alert-outline"} size={28} color={riskIconColor} />
-              <Text className={riskTextClass}>{riskLevel}</Text>
+              <MaterialCommunityIcons name={riskKey === "stable" ? "shield-check-outline" : "alert-outline"} size={28} color={riskIconColor} />
+              <Text className={riskTextClass}>{riskLabel}</Text>
             </View>
           </View>
         </View>
@@ -386,21 +403,21 @@ export default function ReportPage({ navigation }) {
         {/* AI 분석 요약 */}
         <View className="bg-background-neutral rounded-[20px] p-[18px] mb-[18px]">
           <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-lg font-bold text-guardian-text-primary">✨ AI 분석 요약</Text>
+            <Text className="text-lg font-bold text-guardian-text-primary">{t('report.ai_summary_title')}</Text>
           </View>
 
           <Text className="text-[14px] leading-[22px] text-guardian-text-neutral mb-[18px]">
-            {report?.summaryText ?? "이번 주 동안 수집된 체크리스트 기반 보고서입니다."}
+            {report?.summaryText ?? t('report.fallback_summary')}
           </Text>
 
           <View className="bg-guardian-bg-secondary rounded-[14px] p-[12px] mb-[14px]">
-            <Text className="text-[13px] text-guardian-text-primary font-bold mb-[4px]">체크리스트 인사이트</Text>
+            <Text className="text-[13px] text-guardian-text-primary font-bold mb-[4px]">{t('report.checklist_insight_label')}</Text>
             <Text className="text-[13px] leading-5 text-guardian-text-neutral">{checklistInsight}</Text>
           </View>
 
           {diagnosisSection ? (
             <View className="bg-guardian-bg-secondary rounded-[14px] p-[12px] mb-[14px]">
-              <Text className="text-[13px] text-guardian-text-primary font-bold mb-[4px]">등록 진단 정보</Text>
+              <Text className="text-[13px] text-guardian-text-primary font-bold mb-[4px]">{t('report.diagnosis_info_label')}</Text>
               {diagnosisSection.diagnosisTitle ? (
                 <Text className="text-[13px] font-semibold text-guardian-text-primary leading-5 mb-[6px]">
                   {diagnosisSection.diagnosisTitle}
@@ -416,10 +433,10 @@ export default function ReportPage({ navigation }) {
 
           <View className="flex-row flex-wrap justify-between">
             {[
-              { emoji: "🍽️", title: "식사", desc: `${checklistData[0]?.percent ?? "0%"} 달성` },
-              { emoji: "🪥", title: "위생", desc: `${checklistData[1]?.percent ?? "0%"} 관리` },
-              { emoji: "🚻", title: "배변", desc: `${checklistData[2]?.percent ?? "0%"} 관리` },
-              { emoji: "🟩", title: "환자 상태", desc: riskLevel },
+              { emoji: "🍽️", title: t('report.card_meal'), desc: `${checklistData[0]?.percent ?? "0%"} ${t('report.card_achieved')}` },
+              { emoji: "🪥", title: t('report.card_hygiene'), desc: `${checklistData[1]?.percent ?? "0%"} ${t('report.card_managed')}` },
+              { emoji: "🚻", title: t('report.card_bathroom'), desc: `${checklistData[2]?.percent ?? "0%"} ${t('report.card_managed')}` },
+              { emoji: "🟩", title: t('report.card_status'), desc: riskLabel },
             ].map(({ emoji, title, desc }) => (
               <View key={title} className="w-[48%] bg-guardian-bg-secondary rounded-2xl py-[18px] items-center mb-3">
                 <Text className="text-[22px]">{emoji}</Text>
@@ -431,7 +448,7 @@ export default function ReportPage({ navigation }) {
 
           {/* AI 코멘트 */}
           <View className="bg-guardian-button-secondary rounded-[14px] p-[14px] mt-[6px]">
-            <Text className="text-guardian-text-primary font-bold mb-[10px]">💡 AI 분석 코멘트</Text>
+            <Text className="text-guardian-text-primary font-bold mb-[10px]">{t('report.ai_comment_title')}</Text>
 
             {aiComments.map((line, i) => (
               <View key={i} className="flex-row gap-2 mb-[10px]">
@@ -452,7 +469,7 @@ export default function ReportPage({ navigation }) {
             onPress={() => toggleSection("checklist")}
           >
             <Text className="text-lg font-bold text-guardian-text-primary">
-              1. 요양사 체크리스트 요약
+              {t('report.section1')}
             </Text>
             <Ionicons
               name={sectionOpen.checklist ? "chevron-up" : "chevron-down"}
@@ -466,13 +483,13 @@ export default function ReportPage({ navigation }) {
               {/* 수행률 원 */}
               <View className="w-[130px] h-[130px] rounded-full border-[10px] border-guardian-button-primary justify-center items-center self-center my-5">
                 <Text className="text-[28px] font-extrabold text-guardian-text-primary">{overallRate}%</Text>
-                <Text className="text-guardian-text-neutral">수행률</Text>
+                <Text className="text-guardian-text-neutral">{t('report.performance_label')}</Text>
               </View>
 
               {/* 일별 수행률 */}
               <View className="mb-4">
                 <Text className="text-[14px] font-bold text-guardian-text-primary mb-3">
-                    일별 수행률 추이
+                    {t('report.daily_trend_label')}
                 </Text>
                 <View className="flex-row justify-between items-end h-[100px] bg-guardian-bg-secondary rounded-[14px] px-[10px] pt-[10px]">
                   {dailyRates.map((item) => {
@@ -496,30 +513,30 @@ export default function ReportPage({ navigation }) {
                   })}
                 </View>
                 <View className="flex-row gap-3 mt-[10px]">
-                  <Text className="text-[11px] text-guardian-text-neutral">🟢 90% 이상</Text>
-                  <Text className="text-[11px] text-guardian-text-neutral">🟡 75~89%</Text>
-                  <Text className="text-[11px] text-guardian-text-neutral">🔴 75% 미만</Text>
+                  <Text className="text-[11px] text-guardian-text-neutral">{t('report.legend_high')}</Text>
+                  <Text className="text-[11px] text-guardian-text-neutral">{t('report.legend_mid')}</Text>
+                  <Text className="text-[11px] text-guardian-text-neutral">{t('report.legend_low')}</Text>
                 </View>
               </View>
 
               <View className="bg-guardian-bg-secondary rounded-[14px] px-[12px] py-[10px] mb-2">
                 <View className="flex-row items-center justify-between mb-[8px]">
                   <Text className="text-[13px] font-bold text-guardian-text-primary">
-                    식사 미기입 횟수
+                    {t('report.meal_missing_label')}
                   </Text>
                   <Text className="text-[12px] text-guardian-text-neutral">
-                    총 {mealMissingCount.total}회
+                    {t('report.meal_total_prefix')}{mealMissingCount.total}{t('report.meal_total_suffix')}
                   </Text>
                 </View>
                 <View className="flex-row gap-2">
                   {[
-                    { label: "아침", value: mealMissingCount.morning },
-                    { label: "점심", value: mealMissingCount.lunch },
-                    { label: "저녁", value: mealMissingCount.dinner },
+                    { label: t('report.slot_morning'), value: mealMissingCount.morning },
+                    { label: t('report.slot_lunch'), value: mealMissingCount.lunch },
+                    { label: t('report.slot_dinner'), value: mealMissingCount.dinner },
                   ].map((slot) => (
                     <View key={slot.label} className="flex-1 bg-background-neutral rounded-xl py-[10px] items-center">
                       <Text className="text-[12px] text-guardian-text-neutral">{slot.label}</Text>
-                      <Text className="mt-[4px] text-[16px] font-bold text-guardian-text-primary">{slot.value}회</Text>
+                      <Text className="mt-[4px] text-[16px] font-bold text-guardian-text-primary">{slot.value}{t('report.slot_count_suffix')}</Text>
                     </View>
                   ))}
                 </View>
@@ -535,12 +552,12 @@ export default function ReportPage({ navigation }) {
                     missingComments.length > 0
                       ? (missingComments.length === 1
                           ? missingComments[0]
-                          : `${missingComments[0]} 외 ${missingComments.length - 1}건`)
+                          : `${missingComments[0]} ${t('report.comments_more_prefix')}${missingComments.length - 1}${t('report.comments_more_suffix')}`)
                       : uniqueComments.length === 0
                         ? "-"
                         : uniqueComments.length === 1
                           ? uniqueComments[0]
-                          : `${uniqueComments[0]} 외 ${uniqueComments.length - 1}건`;
+                          : `${uniqueComments[0]} ${t('report.comments_more_prefix')}${uniqueComments.length - 1}${t('report.comments_more_suffix')}`;
                   const hasMultiple =
                     uniqueComments.length > 1 ||
                     (uniqueComments.length === 1 && item.dailyComments.some((c) => c === "-"));
@@ -581,7 +598,7 @@ export default function ReportPage({ navigation }) {
                               <Text
                                 className={`text-[13px] flex-1 ${item.dailyComments[di] === "-"
                                   ? "text-guardian-button-primary opacity-40"
-                                  : item.label === "상태 안정화" && String(item.dailyComments[di]).includes("컨디션 이상 징후")
+                                  : index === 2 && item.dailyComments[di] !== "Normal" && item.dailyComments[di] !== "正常" && item.dailyComments[di] !== "정상" && item.dailyComments[di] !== "-"
                                     ? "text-error-primary font-bold"
                                     : "text-guardian-text-neutral"}`}
                               >
@@ -607,7 +624,7 @@ export default function ReportPage({ navigation }) {
             onPress={() => toggleSection("program")}
           >
             <Text className="text-lg font-bold text-guardian-text-primary">
-              2. 프로그램 활동 및 증진 효과
+              {t('report.section2')}
             </Text>
             <Ionicons
               name={sectionOpen.program ? "chevron-up" : "chevron-down"}
@@ -622,16 +639,16 @@ export default function ReportPage({ navigation }) {
                 <>
                   <View className="bg-guardian-bg-secondary rounded-2xl p-4 mt-4">
                     <Text className="font-bold text-guardian-text-primary mb-2">
-                      {programSection.activityTitle || "주간 활동 요약"}
+                      {programSection.activityTitle || t('report.program_activity_fallback')}
                     </Text>
                     <Text className="text-guardian-text-neutral leading-5">
-                      {programSection.activityDescription || "이번 주 돌봄 기록을 바탕으로 활동 요약을 제공합니다."}
+                      {programSection.activityDescription || t('report.program_desc_fallback')}
                     </Text>
                   </View>
 
                   {(programSection.effects ?? []).map((effect, idx) => (
                     <View key={`${effect}-${idx}`} className="bg-guardian-bg-secondary rounded-[14px] p-[14px] mt-[14px]">
-                      <Text className="font-bold text-guardian-text-primary mb-[6px]">효과 {idx + 1}</Text>
+                      <Text className="font-bold text-guardian-text-primary mb-[6px]">{t('report.program_effect_prefix')}{idx + 1}</Text>
                       <Text className="text-guardian-text-neutral leading-5" numberOfLines={2} ellipsizeMode="tail">
                         {formatEffectTwoLines(effect)}
                       </Text>
@@ -641,7 +658,7 @@ export default function ReportPage({ navigation }) {
               ) : (
                 <View className="bg-guardian-bg-secondary rounded-2xl p-4 mt-4">
                   <Text className="text-guardian-text-neutral leading-5">
-                    프로그램 활동 요약 데이터를 불러오지 못했습니다.
+                    {t('report.program_no_section')}
                   </Text>
                 </View>
               )}
@@ -650,17 +667,17 @@ export default function ReportPage({ navigation }) {
                 style={{ borderLeftWidth: 3, borderLeftColor: "#34A853" }}
               >
                 <Text className="text-success-primary font-bold text-[14px] mb-1">
-                  AI 프로그램 추천
+                  {t('report.ai_program_rec_title')}
                 </Text>
                 <Text className="text-[12px] text-guardian-text-neutral mb-3">
                   {nextWeekStartLabel !== "-"
-                    ? `${nextWeekStartLabel}부터 신청 가능한 모집 중 프로그램 기준`
-                    : "모집 중·신청 가능 프로그램 기준"}
+                    ? `${nextWeekStartLabel}${t('report.rec_date_suffix')}`
+                    : t('report.rec_applying_now')}
                 </Text>
 
                 {categoryRecommendations.length === 0 ? (
                   <Text className="text-[13px] text-guardian-text-neutral leading-5">
-                    현재 환자 상태를 분석한 결과, 추가로 추천할 프로그램 분야가 없거나 모집 중인 해당 분야 프로그램이 없습니다.
+                    {t('report.no_rec_message')}
                   </Text>
                 ) : (
                   categoryRecommendations.map((rec, i, arr) => (
@@ -684,16 +701,16 @@ export default function ReportPage({ navigation }) {
                           </Text>
                           {rec.programStartAt ? (
                             <Text className="text-[11px] text-guardian-text-neutral mt-[4px]">
-                              프로그램 시작: {prettyDate(String(rec.programStartAt).slice(0, 10))}
+                              {t('report.program_start_prefix')}{prettyDate(String(rec.programStartAt).slice(0, 10))}
                             </Text>
                           ) : null}
                           <Text className="text-[11px] text-success-primary font-bold mt-[6px]">
-                            프로그램 신청 화면에서 신청하기 →
+                            {t('report.program_apply_link')}
                           </Text>
                         </TouchableOpacity>
                       ) : (
                         <Text className="text-[13px] text-guardian-text-neutral leading-5">
-                          {rec.noProgramMessage || "현재 모집 중인 해당 분야 프로그램이 없습니다."}
+                          {rec.noProgramMessage || t('report.no_rec_message')}
                         </Text>
                       )}
                     </View>
@@ -712,7 +729,7 @@ export default function ReportPage({ navigation }) {
             onPress={() => toggleSection("prescription")}
           >
             <Text className="text-lg font-bold text-guardian-text-primary">
-              3. 처방전 요약
+              {t('report.section3')}
             </Text>
             <Ionicons
               name={sectionOpen.prescription ? "chevron-up" : "chevron-down"}
@@ -726,7 +743,7 @@ export default function ReportPage({ navigation }) {
               {diagnosisSection ? (
                 <View className="bg-guardian-bg-secondary rounded-[14px] p-[14px] mt-4">
                   <Text className="text-[13px] font-bold text-guardian-text-primary mb-[6px]">
-                    등록 진단 (원무)
+                    {t('report.registered_diagnosis')}
                   </Text>
                   {diagnosisSection.diagnosisTitle ? (
                     <Text className="text-[13px] font-semibold text-guardian-text-primary leading-5 mb-[4px]">
@@ -743,17 +760,16 @@ export default function ReportPage({ navigation }) {
 
               <View className="bg-guardian-bg-secondary rounded-[14px] p-[14px] mt-4">
                 <Text className="text-[13px] font-bold text-guardian-text-primary mb-[6px]">
-                  AI 복약·상태 분석
+                  {t('report.ai_medication_title')}
                 </Text>
                 <Text className="text-guardian-text-neutral leading-5">
-                  {prescriptionSection?.summaryText
-                    ?? "등록된 처방전 요약 데이터가 없습니다."}
+                  {prescriptionSection?.summaryText ?? t('report.no_prescription_fallback')}
                 </Text>
               </View>
 
               {(prescriptionSection?.medicationHighlights ?? []).length > 0 ? (
                 <View className="bg-guardian-bg-secondary rounded-[14px] p-[14px] mt-[14px]">
-                  <Text className="font-bold text-guardian-text-primary mb-[8px]">등록 약 요약</Text>
+                  <Text className="font-bold text-guardian-text-primary mb-[8px]">{t('report.medication_summary_title')}</Text>
                   {prescriptionSection.medicationHighlights.map((line, i) => (
                     <View key={`med-${i}`} className="flex-row gap-2 mb-[8px]">
                       <Text className="text-guardian-text-secondary">•</Text>
@@ -768,7 +784,7 @@ export default function ReportPage({ navigation }) {
                   className="bg-error-secondary rounded-[14px] p-[14px] mt-[14px]"
                   style={{ borderLeftWidth: 3, borderLeftColor: "#ED584C" }}
                 >
-                  <Text className="text-error-primary font-bold text-[14px] mb-[8px]">주의 사항</Text>
+                  <Text className="text-error-primary font-bold text-[14px] mb-[8px]">{t('report.cautions_title')}</Text>
                   {prescriptionSection.cautions.map((line, i) => (
                     <Text key={`caution-${i}`} className="text-[13px] text-guardian-text-neutral leading-5 mb-[6px]">
                       • {line}
@@ -782,7 +798,7 @@ export default function ReportPage({ navigation }) {
                   className="bg-success-secondary rounded-[14px] p-[14px] mt-[14px]"
                   style={{ borderLeftWidth: 3, borderLeftColor: "#34A853" }}
                 >
-                  <Text className="text-success-primary font-bold text-[14px] mb-[8px]">돌봄·복약 팁</Text>
+                  <Text className="text-success-primary font-bold text-[14px] mb-[8px]">{t('report.care_tips_title')}</Text>
                   {prescriptionSection.careTips.map((line, i) => (
                     <Text key={`tip-${i}`} className="text-[13px] text-guardian-text-neutral leading-5 mb-[6px]">
                       • {line}
@@ -794,7 +810,7 @@ export default function ReportPage({ navigation }) {
               {(prescriptionSection?.medications ?? []).length > 0 ? (
                 <View className="mt-[14px]">
                   <Text className="text-[13px] font-bold text-guardian-text-primary mb-[8px]">
-                    스캔 등록 처방전 ({prescriptionSection.medications.length}건)
+                    {t('report.scanned_prefix')}{prescriptionSection.medications.length}{t('report.scanned_suffix')}
                   </Text>
                   {prescriptionSection.medications.map((m) => (
                     <View
@@ -802,7 +818,7 @@ export default function ReportPage({ navigation }) {
                       className="bg-guardian-bg-secondary rounded-xl px-[12px] py-[10px] mb-[8px]"
                     >
                       <Text className="text-[13px] text-guardian-text-neutral">
-                        {prettyDate(m.prescriptionDate)} · {m.medicineSummary ?? "처방전"}
+                        {prettyDate(m.prescriptionDate)} · {m.medicineSummary ?? t('report.prescription_label')}
                       </Text>
                     </View>
                   ))}
