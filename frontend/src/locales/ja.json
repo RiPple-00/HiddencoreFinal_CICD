@@ -40,6 +40,60 @@
   },
   "board": {
     "noPosts": "投稿がありません。",
+    "loading": "読み込み中...",
+    "error": {
+      "loadFailed": "データの読み込みに失敗しました。"
+    },
+    "options": {
+      "ALL": "全掲示板",
+      "NOTICE": "お知らせ",
+      "PROGRAM": "プログラム",
+      "GENERAL": "自由掲示板"
+    },
+    "tabs": {
+      "notice": {
+        "all": "全てのお知らせ",
+        "urgent": "緊急",
+        "clinical": "臨床",
+        "admin": "行政",
+        "facility": "施設"
+      },
+      "program": {
+        "all": "全て",
+        "apply": "参加申請",
+        "review": "活動レビュー"
+      }
+    },
+    "filter": {
+      "all": "全て",
+      "urgent": "緊急",
+      "clinical": "臨床",
+      "admin": "行政",
+      "facility": "施設",
+      "apply": "参加申請",
+      "review": "活動レビュー",
+      "general": "一般"
+    },
+    "sort": {
+      "newest": "新しい順",
+      "oldest": "古い順",
+      "views": "閲覧数順",
+      "alpha": "タイトル順"
+    },
+    "list": {
+      "createPost": "新規投稿",
+      "recentPosts": "最近の投稿",
+      "count": "件",
+      "filter": "フィルター",
+      "noFacility": "施設情報が確認できません。再ログインしてください。"
+    },
+    "userPosts": {
+      "history": "投稿履歴",
+      "draft": "下書き",
+      "boardList": "掲示板一覧",
+      "loginRequired": "ご利用にはログインが必要です。",
+      "loginLink": "ログイン"
+    },
     "table": {
       "programName": "プログラム名",
       "schedule": "スケジュール",
@@ -61,8 +115,28 @@
       "manageApplication": "申請管理",
       "viewDetail": "詳細表示"
     },
+    "targetRoles": {
+      "OFFICE": "事務局",
+      "CAREGIVER": "介護士"
+    },
     "create": {
+      "sidebar": {
+        "title": "新規投稿",
+        "noticeType": "お知らせ作成",
+        "programType": "プログラム作成",
+        "generalType": "投稿作成",
+        "history": "投稿履歴",
+        "draft": "下書き",
+        "previewTitle": "QUICK PREVIEW",
+        "previewInfo": "作成中の内容はリアルタイムで保存されます。公開前にプレビューでレイアウトを確認できます。"
+      },
       "panel": {
+        "pin": "上部固定",
+        "publish": "公開状態",
+        "immediate": "即時公開",
+        "immediateDesc": "保存後すぐにシステムに表示されます。",
+        "scheduled": "予約公開",
+        "scheduledDesc": "指定した日時に自動的に公開されます。",
         "author": "作成者",
         "lastUpdated": "最終更新",
         "saveDraft": "下書き保存",
@@ -331,6 +405,10 @@
     "allStatus": "全ステータス"
   },
   "calendar": {
+    "tab": {
+      "schedule": "日程",
+      "meal": "食事"
+    },
     "addSchedule": "スケジュール追加",
     "editSchedule": "スケジュール編集",
     "viewSchedule": "スケジュール詳細",

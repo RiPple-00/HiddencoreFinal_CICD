@@ -126,7 +126,7 @@ const BoardListContent = () => {
           type="button"
           variant="primary"
           size="md"
-          onClick={() => navigate(`/facilities/${facilityId}/board/create`)}
+          onClick={() => navigate(`/facilities/${facilityId}/board/create${selectedBoard.value !== 'ALL' ? `?type=${selectedBoard.value}` : ''}`)}
         >
           + {t('board.list.createPost', '새 게시물 작성')}
         </Button>

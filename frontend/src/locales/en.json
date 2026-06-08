@@ -40,6 +40,60 @@
   },
   "board": {
     "noPosts": "No posts available.",
+    "loading": "Loading...",
+    "error": {
+      "loadFailed": "Failed to load data."
+    },
+    "options": {
+      "ALL": "All Boards",
+      "NOTICE": "Notice",
+      "PROGRAM": "Program",
+      "GENERAL": "General"
+    },
+    "tabs": {
+      "notice": {
+        "all": "All Notices",
+        "urgent": "Urgent",
+        "clinical": "Clinical",
+        "admin": "Administrative",
+        "facility": "Facility"
+      },
+      "program": {
+        "all": "All",
+        "apply": "Apply",
+        "review": "Review"
+      }
+    },
+    "filter": {
+      "all": "All",
+      "urgent": "Urgent",
+      "clinical": "Clinical",
+      "admin": "Admin",
+      "facility": "Facility",
+      "apply": "Apply",
+      "review": "Review",
+      "general": "General"
+    },
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "views": "Most Viewed",
+      "alpha": "Alphabetical"
+    },
+    "list": {
+      "createPost": "New Post",
+      "recentPosts": "Recent Posts",
+      "count": "",
+      "filter": "Filter",
+      "noFacility": "Cannot find facility info. Please log in again."
+    },
+    "userPosts": {
+      "history": "Post History",
+      "draft": "Drafts",
+      "boardList": "Board List",
+      "loginRequired": "Please log in to access this feature.",
+      "loginLink": "Log In"
+    },
     "table": {
       "programName": "Program Name",
       "schedule": "Schedule",
@@ -61,8 +115,28 @@
       "manageApplication": "Manage",
       "viewDetail": "View Details"
     },
+    "targetRoles": {
+      "OFFICE": "Admin Office",
+      "CAREGIVER": "Caregiver"
+    },
     "create": {
+      "sidebar": {
+        "title": "New Post",
+        "noticeType": "Write Notice",
+        "programType": "Write Program",
+        "generalType": "Write Post",
+        "history": "Post History",
+        "draft": "Drafts",
+        "previewTitle": "QUICK PREVIEW",
+        "previewInfo": "Your content is preserved in real time. Use preview to check the layout before publishing."
+      },
       "panel": {
+        "pin": "Pin to Top",
+        "publish": "Publish Status",
+        "immediate": "Publish Now",
+        "immediateDesc": "Will be visible immediately after saving.",
+        "scheduled": "Schedule",
+        "scheduledDesc": "Will be published automatically at the specified time.",
         "author": "Author",
         "lastUpdated": "Last Updated",
         "saveDraft": "Save Draft",
@@ -331,6 +405,10 @@
     "allStatus": "All Status"
   },
   "calendar": {
+    "tab": {
+      "schedule": "Schedule",
+      "meal": "Meal Plan"
+    },
     "addSchedule": "Add Schedule",
     "editSchedule": "Edit Schedule",
     "viewSchedule": "Schedule Details",

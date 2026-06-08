@@ -41,6 +41,9 @@
   "board": {
     "noPosts": "게시글이 없습니다.",
     "loading": "불러오는 중...",
+    "error": {
+      "loadFailed": "데이터를 불러오지 못했습니다."
+    },
     "options": {
       "ALL": "전체 게시판",
       "NOTICE": "공지사항",
@@ -81,7 +84,8 @@
       "createPost": "새 게시물 작성",
       "recentPosts": "최근 게시물",
       "count": "개",
-      "filter": "필터"
+      "filter": "필터",
+      "noFacility": "시설 정보를 확인할 수 없습니다. 다시 로그인해 주세요."
     },
     "userPosts": {
       "history": "작성 이력",
@@ -90,18 +94,7 @@
       "loginRequired": "로그인 후 이용할 수 있습니다.",
       "loginLink": "로그인하기"
     },
-    "create": {
-      "sidebar": {
-        "title": "새 게시글 작성",
-        "noticeType": "공지사항 작성",
-        "programType": "프로그램 작성",
-        "generalType": "게시글 작성",
-        "history": "작성 이력",
-        "draft": "보관함",
-        "previewTitle": "QUICK PREVIEW",
-        "previewInfo": "작성 중인 내용은 실시간으로 보존되며, 게시 전 미리보기를 통해 레이아웃을 확인할 수 있습니다."
-      },
-      "panel": {
+    "table": {
       "programName": "프로그램명",
       "schedule": "일정",
       "capacity": "모집 현황",
@@ -122,8 +115,28 @@
       "manageApplication": "신청 관리",
       "viewDetail": "상세 보기"
     },
+    "targetRoles": {
+      "OFFICE": "원무과",
+      "CAREGIVER": "요양사"
+    },
     "create": {
+      "sidebar": {
+        "title": "새 게시글 작성",
+        "noticeType": "공지사항 작성",
+        "programType": "프로그램 작성",
+        "generalType": "게시글 작성",
+        "history": "작성 이력",
+        "draft": "보관함",
+        "previewTitle": "QUICK PREVIEW",
+        "previewInfo": "작성 중인 내용은 실시간으로 보존되며, 게시 전 미리보기를 통해 레이아웃을 확인할 수 있습니다."
+      },
       "panel": {
+        "pin": "상단 고정",
+        "publish": "게시 상태",
+        "immediate": "즉시 게시",
+        "immediateDesc": "저장 후 바로 시스템에 노출됩니다.",
+        "scheduled": "예약 게시",
+        "scheduledDesc": "지정한 일시에 자동으로 게시됩니다.",
         "author": "작성자",
         "lastUpdated": "마지막 수정",
         "saveDraft": "임시 저장",
@@ -392,6 +405,10 @@
     "allStatus": "전체 상태"
   },
   "calendar": {
+    "tab": {
+      "schedule": "일정",
+      "meal": "식단"
+    },
     "addSchedule": "일정 추가",
     "editSchedule": "일정 수정",
     "viewSchedule": "일정 상세",

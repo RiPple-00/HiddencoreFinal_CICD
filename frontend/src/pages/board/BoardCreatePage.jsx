@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import postApi from '../../api/postApi';
 import {
@@ -74,14 +74,22 @@ const BoardCreatePage = () => {
   const jwtPayload = token ? JSON.parse(atob(token.split('.')[1])) : {};
   const userRole = jwtPayload.role ?? null;
   const canWriteOfficial = userRole === 'ADMIN' || userRole === 'OFFICE';
-  const [postType, setPostType] = useState(canWriteOfficial ? 'NOTICE' : 'GENERAL');
+  const [searchParams] = useSearchParams();
+  const urlType = searchParams.get('type')?.toUpperCase();
+  const VALID_POST_TYPES = ['NOTICE', 'PROGRAM', 'GENERAL'];
+  const defaultType = canWriteOfficial ? 'NOTICE' : 'GENERAL';
+  const resolvedInitialType =
+    urlType && VALID_POST_TYPES.includes(urlType) && (canWriteOfficial || urlType === 'GENERAL')
+      ? urlType
+      : defaultType;
+  const [postType, setPostType] = useState(resolvedInitialType);
 
   const buildInitialPanel = (type) => ({
     ...INITIAL_PANEL[type],
     authorName: user?.username ?? null,
   });
 
-  const [panelState, setPanelState] = useState(() => buildInitialPanel(canWriteOfficial ? 'NOTICE' : 'GENERAL'));
+  const [panelState, setPanelState] = useState(() => buildInitialPanel(resolvedInitialType));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleTypeChange = (type) => {

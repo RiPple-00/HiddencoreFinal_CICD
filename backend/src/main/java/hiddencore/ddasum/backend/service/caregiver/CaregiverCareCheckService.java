@@ -492,12 +492,12 @@ public class CaregiverCareCheckService {
                             .build();
         } else {
             section = buildProgramRecommendationFallback(
-                    riskLevel, riskFlags, diagnosisTitle, diagnosisComment, eligiblePrograms, nextWeekStart);
+                    riskLevel, riskFlags, diagnosisTitle, diagnosisComment, eligiblePrograms, nextWeekStart, language);
         }
 
         if (!hasText(section.getActivityTitle()) || !hasText(section.getActivityDescription())) {
             GuardianWeeklyCareReportResponse.ProgramSection fallback =
-                    buildProgramSectionFallback(riskLevel, riskFlags);
+                    buildProgramSectionFallback(riskLevel, riskFlags, language);
             section.setActivityTitle(fallback.getActivityTitle());
             section.setActivityDescription(fallback.getActivityDescription());
             if (section.getEffects() == null || section.getEffects().isEmpty()) {
@@ -512,7 +512,8 @@ public class CaregiverCareCheckService {
                                     diagnosisTitle,
                                     diagnosisComment,
                                     eligiblePrograms,
-                                    nextWeekStart)
+                                    nextWeekStart,
+                                    language)
                             .getCategoryRecommendations());
             section.setRecommendations(toLegacyRecommendationTexts(section.getCategoryRecommendations()));
         }
@@ -618,8 +619,9 @@ public class CaregiverCareCheckService {
             String diagnosisTitle,
             String diagnosisComment,
             List<GuardianWeeklyCareReportResponse.ApplyEligibleProgram> eligiblePrograms,
-            LocalDate nextWeekStart) {
-        GuardianWeeklyCareReportResponse.ProgramSection base = buildProgramSectionFallback(riskLevel, riskFlags);
+            LocalDate nextWeekStart,
+            String language) {
+        GuardianWeeklyCareReportResponse.ProgramSection base = buildProgramSectionFallback(riskLevel, riskFlags, language);
         List<String> targetCategories = inferTargetCategories(diagnosisTitle, diagnosisComment, riskFlags);
         if (targetCategories.isEmpty()) {
             return GuardianWeeklyCareReportResponse.ProgramSection.builder()
@@ -1237,7 +1239,7 @@ public class CaregiverCareCheckService {
             "一部の項目で変動が確認されました。来週は主要リスク項目を中心とした観察が推奨されます。");
     }
 
-    private GuardianWeeklyCareReportResponse.ProgramSection buildProgramSectionFallback(String riskLevel, List<String> riskFlags) {
+    private GuardianWeeklyCareReportResponse.ProgramSection buildProgramSectionFallback(String riskLevel, List<String> riskFlags, String language) {
         String title;
         String description;
         List<String> effects = new ArrayList<>();
@@ -1267,7 +1269,7 @@ public class CaregiverCareCheckService {
                 .activityTitle(title)
                 .activityDescription(description)
                 .effects(effects)
-                .recommendations(buildNextWeekTips(riskFlags))
+                .recommendations(buildNextWeekTips(riskFlags, language))
                 .build();
     }
 

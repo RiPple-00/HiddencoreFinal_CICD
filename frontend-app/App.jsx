@@ -5,7 +5,7 @@ import {
   createNavigationContainerRef,
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Alert, Platform, StyleSheet, View } from "react-native";
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -126,6 +126,22 @@ function CaregiverAppHeader({ navigationRef, currentRouteName, onOpenMenu }) {
       ? () => navigationRef.goBack()
       : undefined;
 
+  const rightContent = (
+    <View style={{ flexDirection: "row", alignItems: "center" }}>
+      <LanguageToggle />
+      <Pressable
+        onPress={() => Alert.alert("알림", "알림 목록은 준비 중입니다.")}
+        hitSlop={8}
+        style={{ marginLeft: 14 }}
+      >
+        <Text style={{ fontSize: 18 }}>🔔</Text>
+      </Pressable>
+      <Pressable onPress={onOpenMenu} hitSlop={8} style={{ marginLeft: 14 }}>
+        <Text style={{ fontSize: 18 }}>☰</Text>
+      </Pressable>
+    </View>
+  );
+
   return (
     <View
       className="bg-background-neutral"
@@ -142,10 +158,7 @@ function CaregiverAppHeader({ navigationRef, currentRouteName, onOpenMenu }) {
     >
       <CaregiverHeader
         onBack={onBack}
-        onPressNotification={() =>
-          Alert.alert("알림", "알림 목록은 준비 중입니다.")
-        }
-        onPressMenu={onOpenMenu}
+        rightSlot={rightContent}
       />
     </View>
   );
