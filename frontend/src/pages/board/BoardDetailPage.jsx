@@ -9,18 +9,19 @@ import DetailActionBar from '../../components/board/detail/DetailActionBar';
 import AttachmentList from '../../components/board/detail/AttachmentList';
 import { useAuth } from '../../contexts/AutoContext.jsx';
 import Header from '../../components/common/Header';
+import { useI18n } from '../../hooks/useI18n.jsx';
 
 /**
  * post.type과 BOARD_TABS_MAP을 역참조해서 브레드크럼 라벨 반환
  * ex) 'CLINICAL' → '임상 가이드라인'
  */
-const getBreadcrumbLabel = (type) => {
+const getBreadcrumbLabel = (type, t) => {
   for (const tabs of Object.values(BOARD_TABS_MAP)) {
     if (!tabs) continue;
     const found = tabs.find((t) => t.type === type);
-    if (found) return found.label;
+    if (found) return t(found.labelKey ?? found.label, found.label);
   }
-  return type ?? '게시판';
+  return t('board.detail.breadcrumb', type ?? '게시판');
 };
 
 /**
@@ -31,6 +32,7 @@ const BoardDetailPage = () => {
   const navigate = useNavigate();
   const { facilityId, postId } = useParams();
   const { user } = useAuth();
+  const { t } = useI18n();
   const [post, setPost] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -47,7 +49,7 @@ const BoardDetailPage = () => {
         // CHECK!!! 백엔드 응답 구조 확인 필요 - res.data가 PostResponse 객체인지
         setPost(res.data);
       } catch {
-        setError('게시글을 불러오지 못했습니다.');
+        setError(t('board.detail.cannotLoadPost', '게시글을 불러오지 못했습니다.'));
       } finally {
         setIsLoading(false);
       }
@@ -57,10 +59,10 @@ const BoardDetailPage = () => {
 
   // 삭제 처리
   const handleDelete = async () => {
-    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+    if (!window.confirm(t('board.detail.deleteConfirm', '정말 삭제하시겠습니까?'))) return;
     try {
       if (!user) {
-        toast.error('삭제하려면 로그인해 주세요.');
+        toast.error(t('board.detail.deleteNeedLogin', '삭제하려면 로그인해 주세요.'));
         return;
       }
       await postApi.deletePost(facilityId, postId);
@@ -75,7 +77,7 @@ const BoardDetailPage = () => {
       <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
         <Header activeNav="notice" />
         <div className="flex items-center justify-center py-32 text-sm text-gray-400">
-          불러오는 중...
+          {t('board.loading', '불러오는 중...')}
         </div>
       </div>
     );
@@ -86,14 +88,21 @@ const BoardDetailPage = () => {
       <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
         <Header activeNav="notice" />
         <div className="flex items-center justify-center py-32 text-sm text-red-400">
-          {error ?? '게시글을 찾을 수 없습니다.'}
+          {error ?? t('board.detail.postNotFound', '게시글을 찾을 수 없습니다.')}
         </div>
       </div>
     );
   }
 
-  const breadcrumbLabel = getBreadcrumbLabel(post.type);
+  const breadcrumbLabel = getBreadcrumbLabel(post.type, t);
   const isProgram = ['APPLY', 'REVIEW'].includes(post.type);
+
+  const getRecruitStatusLabel = (status) => {
+    if (status === '모집 중') return t('board.recruitStatus.open', '모집 중');
+    if (status === '모집 예정') return t('board.recruitStatus.scheduled', '모집 예정');
+    if (status === '마감') return t('board.recruitStatus.closed', '마감');
+    return status;
+  };
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
@@ -111,7 +120,7 @@ const BoardDetailPage = () => {
 
         {/* 브레드크럼 */}
         <p className="text-sm text-gray-400 mb-3">
-          게시판 &gt; 공지사항 &gt;{' '}
+          {t('board.detail.breadcrumbPrefix', '게시판')} &gt; {t('board.detail.noticeSection', '공지사항')} &gt;{' '}
           <span className="text-teal-600">{breadcrumbLabel}</span>
         </p>
 
@@ -125,7 +134,9 @@ const BoardDetailPage = () => {
               ${post.recruitStatus === '모집 예정' ? 'bg-gray-100 text-gray-600'  : ''}
               ${post.recruitStatus === '마감'      ? 'bg-red-100 text-red-600'    : ''}
             `}>
-              {post.recruitStatus === '마감' ? '모집 완료' : post.recruitStatus}
+              {post.recruitStatus === '마감'
+                ? t('board.recruitStatus.closed', '모집 완료')
+                : getRecruitStatusLabel(post.recruitStatus)}
             </span>
           )}
           <h1 className="text-2xl font-semibold text-gray-900 leading-tight">
@@ -154,14 +165,14 @@ const BoardDetailPage = () => {
               <div className="w-5 h-5 rounded-full bg-teal-600 flex items-center justify-center">
                 <span className="text-white text-xs font-bold">A</span>
               </div>
-              AI 요약
+              {t('board.detail.aiSummary', 'AI 요약')}
             </div>
             <span className="text-gray-400">{aiOpen ? '∧' : '∨'}</span>
           </button>
 
           {aiOpen && (
             <div className="px-4 py-3 text-sm text-gray-400 border-t border-gray-200">
-              아직 준비되지 않았습니다.
+              {t('board.detail.aiNotReady', '아직 준비되지 않았습니다.')}
             </div>
           )}
         </div>

@@ -7,8 +7,10 @@ import ScheduleFieldSection, {
   toolbarBtn,
   toolbarBtnPrimary,
 } from "./ScheduleFieldSection";
+import { useI18n } from "../../hooks/useI18n";
 
 const ScheduleFormModal = ({ isOpen, onClose, onSubmit, selectedDate, loading = false }) => {
+  const { t } = useI18n();
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -26,13 +28,13 @@ const ScheduleFormModal = ({ isOpen, onClose, onSubmit, selectedDate, loading = 
 
   const validate = () => {
     const newErrors = {};
-    if (!title.trim()) newErrors.title = "제목을 입력해주세요.";
-    if (!startDate) newErrors.startDate = "시작일을 입력해주세요.";
-    if (!endDate) newErrors.endDate = "종료일을 입력해주세요.";
+    if (!title.trim()) newErrors.title = t('calendar.validate.title');
+    if (!startDate) newErrors.startDate = t('calendar.validate.startDate');
+    if (!endDate) newErrors.endDate = t('calendar.validate.endDate');
     if (startDate && endDate && startDate > endDate)
-      newErrors.dateRange = "시작일은 종료일보다 빠를 수 없습니다.";
+      newErrors.dateRange = t('calendar.validate.dateRange');
     if (startDate === endDate && startTime && endTime && startTime > endTime)
-      newErrors.timeRange = "시작시간은 종료시간보다 빠를 수 없습니다.";
+      newErrors.timeRange = t('calendar.validate.timeRange');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -45,8 +47,7 @@ const ScheduleFormModal = ({ isOpen, onClose, onSubmit, selectedDate, loading = 
 
   if (!isOpen) return null;
 
-  const dateErr =
-    errors.startDate || errors.endDate || errors.dateRange || null;
+  const dateErr = errors.startDate || errors.endDate || errors.dateRange || null;
 
   return (
     <div
@@ -73,7 +74,7 @@ const ScheduleFormModal = ({ isOpen, onClose, onSubmit, selectedDate, loading = 
             borderBottom: "2px solid #e2e8f0",
           }}
         >
-          <h2 style={{ margin: 0, fontSize: 20, color: "#0f172a" }}>일정 추가</h2>
+          <h2 style={{ margin: 0, fontSize: 20, color: "#0f172a" }}>{t('calendar.addSchedule')}</h2>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button
               type="button"
@@ -81,7 +82,7 @@ const ScheduleFormModal = ({ isOpen, onClose, onSubmit, selectedDate, loading = 
               disabled={loading}
               style={{ ...toolbarBtn, opacity: loading ? 0.6 : 1 }}
             >
-              취소
+              {t('calendar.cancel')}
             </button>
             <button
               type="button"
@@ -89,23 +90,23 @@ const ScheduleFormModal = ({ isOpen, onClose, onSubmit, selectedDate, loading = 
               disabled={loading}
               style={{ ...toolbarBtnPrimary, opacity: loading ? 0.7 : 1 }}
             >
-              {loading ? "저장 중..." : "저장"}
+              {loading ? t('calendar.saving') : t('calendar.save')}
             </button>
           </div>
         </div>
 
         <div style={{ display: "grid", gap: 14 }}>
-          <ScheduleFieldSection title="제목" footerError={errors.title}>
+          <ScheduleFieldSection title={t('calendar.field.title')} footerError={errors.title}>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="제목을 입력하세요."
+              placeholder={t('calendar.field.titlePlaceholder')}
               style={fieldInputStyle}
             />
           </ScheduleFieldSection>
 
-          <ScheduleFieldSection title="기간" footerError={dateErr}>
+          <ScheduleFieldSection title={t('calendar.field.period')} footerError={dateErr}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "start" }}>
               <ButtonCalendarDatePicker value={startDate} onChange={setStartDate} disabled={loading} />
               <div style={{ textAlign: "center", color: "#64748b", paddingTop: 10, fontWeight: 600 }}>~</div>
@@ -113,7 +114,7 @@ const ScheduleFormModal = ({ isOpen, onClose, onSubmit, selectedDate, loading = 
             </div>
           </ScheduleFieldSection>
 
-          <ScheduleFieldSection title="시간" footerError={errors.timeRange}>
+          <ScheduleFieldSection title={t('calendar.field.time')} footerError={errors.timeRange}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 14, alignItems: "center" }}>
               <TwelveHourTimeSelect value={startTime} onChange={setStartTime} disabled={loading} />
               <div style={{ textAlign: "center", color: "#64748b", fontWeight: 600 }}>~</div>
@@ -121,11 +122,11 @@ const ScheduleFormModal = ({ isOpen, onClose, onSubmit, selectedDate, loading = 
             </div>
           </ScheduleFieldSection>
 
-          <ScheduleFieldSection title="내용">
+          <ScheduleFieldSection title={t('calendar.field.content')}>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="내용을 작성하세요."
+              placeholder={t('calendar.field.contentPlaceholder')}
               style={fieldTextareaStyle}
             />
           </ScheduleFieldSection>

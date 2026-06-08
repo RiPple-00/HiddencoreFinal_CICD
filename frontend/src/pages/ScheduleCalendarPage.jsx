@@ -13,6 +13,7 @@ import TodayScheduleList from "../components/calendarschedule/TodayScheduleList"
 import Header from "../components/common/Header";
 import { formatDate, toDate } from "../utils/dateUtils";
 import { useAuth } from '../contexts/AutoContext.jsx';
+import { useI18n } from "../hooks/useI18n";
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -36,6 +37,7 @@ function formatDisplayDate(dateKey) {
 
 function SchedulePage({ embed = false }) {
   const today = new Date();
+  const { t } = useI18n();
   const { user } = useAuth();
   const token = user?.accessToken ?? user?.token;
   const jwtPayload = token ? JSON.parse(atob(token.split('.')[1])) : {};
@@ -160,7 +162,7 @@ function SchedulePage({ embed = false }) {
 
   const handleDeleteDetail = async () => {
     if (!viewingSchedule?.scheduleId) return;
-    const ok = window.confirm("이 일정을 삭제할까요?");
+    const ok = window.confirm(t('calendar.deleteConfirm'));
     if (!ok) return;
     try {
       setLoading(true);
@@ -190,9 +192,9 @@ function SchedulePage({ embed = false }) {
     <>
       <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-900">일정 캘린더</h1>
+          <h1 className="text-2xl font-bold text-slate-900">{t('calendar.title')}</h1>
           <p className="mt-2 text-sm text-slate-600">
-            날짜를 선택하면 해당 일의 일정을 확인하거나 등록할 수 있습니다.
+            {t('calendar.subtitle')}
           </p>
         </div>
 

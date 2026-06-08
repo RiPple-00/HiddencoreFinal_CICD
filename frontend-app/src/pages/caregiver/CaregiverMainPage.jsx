@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Alert, View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchCaregiverPatients } from "../../api/careChecklistApi";
+import { getTodaySchedules } from "../../api/scheduleApi";
+import { getCaregiverNotices } from "../../api/noticeApi";
+import { resolveFacilityId } from "../../utils/facilityId";
 import { caregiverPatientToTaskCheckRouteParams } from "../../utils/careCheckState";
 import CaregiverPatientSelect from "@/components/caregiver/basic/CaregiverPatientSelect";
 import CaregiverCalendar from "@/components/caregiver/basic/CaregiverCalendar";
@@ -10,12 +13,27 @@ import CaregiverWorkButton from "@/components/caregiver/basic/CaregiverWorkButto
 import CaregiverMeal from "@/components/caregiver/basic/CaregiverMeal";
 import CaregiverNotice from "@/components/caregiver/basic/CaregiverNotice";
 
+/** API 응답이 페이지네이션 객체({ content:[] })이거나 배열 직접일 경우 모두 처리 */
+function extractList(data) {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.content)) return data.content;
+  return [];
+}
+
 export default function CaregiverMainPage({ navigation }) {
   const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [loadingPatients, setLoadingPatients] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
 
+  const [todaySchedules, setTodaySchedules] = useState(null);
+  const [loadingSchedules, setLoadingSchedules] = useState(true);
+
+  const [notices, setNotices] = useState(null);
+  const [loadingNotices, setLoadingNotices] = useState(true);
+
+  // 환자 목록 fetch
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -35,9 +53,46 @@ export default function CaregiverMainPage({ navigation }) {
         if (mounted) setLoadingPatients(false);
       }
     })();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
+  }, []);
+
+  // 오늘 일정 + 공지사항 fetch (병렬)
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const facilityId = await resolveFacilityId();
+        const [scheduleRes, noticeRes] = await Promise.allSettled([
+          getTodaySchedules(facilityId),
+          getCaregiverNotices(facilityId, 5),
+        ]);
+
+        if (!mounted) return;
+
+        if (scheduleRes.status === "fulfilled") {
+          setTodaySchedules(extractList(scheduleRes.value?.data));
+        } else {
+          setTodaySchedules([]);
+        }
+
+        if (noticeRes.status === "fulfilled") {
+          setNotices(extractList(noticeRes.value?.data));
+        } else {
+          setNotices([]);
+        }
+      } catch {
+        if (mounted) {
+          setTodaySchedules([]);
+          setNotices([]);
+        }
+      } finally {
+        if (mounted) {
+          setLoadingSchedules(false);
+          setLoadingNotices(false);
+        }
+      }
+    })();
+    return () => { mounted = false; };
   }, []);
 
   const selectedPatient = patients.find((p) => p.patientId === selectedPatientId);
@@ -59,6 +114,13 @@ export default function CaregiverMainPage({ navigation }) {
     }
     navigation.navigate("CaregiverTaskCheck", params);
   };
+
+  // 달력용 일정: scheduledAt → date 로 변환
+  const calendarSchedules = (todaySchedules ?? []).map((s) => ({
+    id: s.scheduleId ?? s.id,
+    date: s.scheduledAt ? new Date(s.scheduledAt) : new Date(),
+    title: s.title,
+  }));
 
   return (
     <SafeAreaView
@@ -82,9 +144,12 @@ export default function CaregiverMainPage({ navigation }) {
             selectedLine={selectedLine}
           />
 
-          <CaregiverCalendar />
+          <CaregiverCalendar schedules={calendarSchedules.length > 0 ? calendarSchedules : undefined} />
 
-          <CaregiverTodaySchedule />
+          <CaregiverTodaySchedule
+            items={todaySchedules}
+            loading={loadingSchedules}
+          />
 
           <CaregiverWorkButton
             onPressWorkCheck={goWorkCheck}
@@ -96,7 +161,10 @@ export default function CaregiverMainPage({ navigation }) {
 
           <CaregiverMeal />
 
-          <CaregiverNotice />
+          <CaregiverNotice
+            notices={notices}
+            loading={loadingNotices}
+          />
         </ScrollView>
       </View>
     </SafeAreaView>

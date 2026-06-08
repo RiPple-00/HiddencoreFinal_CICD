@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '../../hooks/useI18n.jsx';
 import postApi from '../../api/postApi';
 import PostList from './PostList';
 import { WIDGET_SIZE, BOARD_TYPE_MAP } from '../../utils/boardUtils';
@@ -16,6 +17,7 @@ import { WIDGET_SIZE, BOARD_TYPE_MAP } from '../../utils/boardUtils';
  * @param {string|number} facilityId - API 호출용
  */
 const BoardWidget = ({ title, boardType = null, facilityId }) => {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,15 +58,15 @@ const BoardWidget = ({ title, boardType = null, facilityId }) => {
           onClick={() => navigate(`/facilities/${facilityId}/board`)}
           className="text-xs text-teal-600 hover:underline"
         >
-          전체보기
+          {t('widget.viewAll')}
         </button>
       </div>
 
       {/* 게시글 목록 */}
       {isLoading ? (
-        <p className="text-xs text-gray-400 py-4 text-center">불러오는 중...</p>
+        <p className="text-xs text-gray-400 py-4 text-center">{t('widget.loading')}</p>
       ) : posts.length === 0 ? (
-        <p className="text-xs text-gray-400 py-4 text-center">게시글이 없습니다.</p>
+        <p className="text-xs text-gray-400 py-4 text-center">{t('widget.noPosts')}</p>
       ) : (
         <PostList posts={posts} mode="widget" facilityId={facilityId} />
       )}

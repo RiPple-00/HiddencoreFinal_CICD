@@ -1,0 +1,131 @@
+{
+  "menu": {
+    "my_page": "マイページ",
+    "settings": "設定",
+    "logout": "ログアウト"
+  },
+  "label": {
+    "language": "言語"
+  },
+  "settings": {
+    "title": "設定",
+    "description": "アプリの表示言語を選択してください。",
+    "language": "言語設定",
+    "back": "戻る",
+    "current": "選択中",
+    "languageOptions": {
+      "ko": "한국어",
+      "en": "English",
+      "ja": "日本語"
+    }
+  },
+  "billing": {
+    "storage_title": "請求",
+    "estimated_amount": "請求予定金額",
+    "current_settlement": "これまでの精算額",
+    "view_recent_payments": "最近の支払いを見る →",
+    "view_invoice_list": "請求書一覧を見る →",
+    "pending_items": "未払い・部分支払い項目",
+    "view_all": "すべて表示 →",
+    "total_count_prefix": "合計 ",
+    "total_amount_label": "請求合計金額",
+    "all_period": "全期間",
+    "date_filter_1m": "過去1ヶ月",
+    "date_filter_3m": "過去3ヶ月",
+    "date_filter_6m": "過去6ヶ月",
+    "date_filter_2023": "2023年",
+    "status_filter": "状態",
+    "all_statuses": "全ての状態",
+    "all_items": "全てのカテゴリ",
+    "invoice_list_title": "請求書一覧",
+    "payment_history_title": "支払い履歴",
+    "no_invoices": "請求書が見つかりません。",
+    "no_payments": "支払い履歴が見つかりません。",
+    "load_error": "支払い履歴を読み込めませんでした。",
+    "recent_30_days": "合計支払い額（過去30日）",
+    "payment_amount": "支払い金額",
+    "receipt_title": "領収書",
+    "selected_payment_item": "選択された支払い項目",
+    "period": "期間",
+    "department": "診療科",
+    "covered_items": "保険適用項目",
+    "non_covered_items": "保険適用外項目",
+    "total": "合計",
+    "details_not_available": "詳細項目が提供されていません。"
+  },
+  "storage": {
+    "payment_action": "支払い",
+    "invoice_action": "請求",
+    "patient": {
+      "status": {
+        "admitted": "入院中"
+      }
+    },
+    "status": {
+      "PAID": "支払い済み",
+      "PARTIAL": "一部支払い",
+      "UNPAID": "未払い",
+      "OVERDUE": "未払い",
+      "COMPLETED": "完了",
+      "완납": "支払い済み",
+      "부분납": "一部支払い",
+      "미납": "未払い",
+      "완료": "完了"
+    },
+    "category": {
+      "ROOM": "入院料",
+      "ROOM_FEE": "入院料",
+      "ADMISSION": "入院費",
+      "TREATMENT": "治療費",
+      "MEAL": "食費",
+      "MEDICATION": "薬剤費",
+      "DRUG": "薬剤費",
+      "입원료": "入院料",
+      "입원비": "入院費",
+      "진료비": "治療費",
+      "식대": "食費",
+      "약제비": "薬剤費"
+    }
+  },
+  "common": {
+    "back": "戻る",
+    "no_data": "データがありません。",
+    "today": "今日",
+    "yesterday": "昨日"
+  },
+  "guardian": {
+    "actions": {
+      "report": "報告書確認",
+      "consent": "同意書確認",
+      "visit": "面会申請",
+      "program": "プログラム申請"
+    },
+    "tabs": {
+      "home": "ホーム",
+      "scan": "スキャン",
+      "payment": "支払",
+      "live": "リアルタイム",
+      "chatbot": "チャットボット"
+    },
+    "gallery": "活動ギャラリー",
+    "meal": {
+      "title": "今日の食事",
+      "breakfast": "朝食",
+      "lunch": "昼食",
+      "dinner": "夕食"
+    },
+    "board": {
+      "title": "お知らせ",
+      "viewAll": "全て見る",
+      "empty": "登録されたお知らせはありません。",
+      "dateUnknown": "日付未定"
+    }
+  },
+  "caregiver": {
+    "tabs": {
+      "home": "ホーム",
+      "qr": "QRチェック",
+      "emergency": "緊急呼出"
+    }
+  }
+}

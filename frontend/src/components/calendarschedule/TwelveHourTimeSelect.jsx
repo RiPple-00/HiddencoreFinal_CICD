@@ -1,6 +1,5 @@
 import React from "react";
-
-// 시간 선택 로직
+import { useI18n } from "../../hooks/useI18n";
 
 const HOURS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const MINUTES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
@@ -50,6 +49,15 @@ export function dateToSnappedTime24(d) {
   return partsToTime24(hour12, minute, ampm);
 }
 
+/** 현지화된 시간 표시 — t 함수를 받아 언어별 오전/오후 반환 */
+export function formatTime24Localized(hhmm, t) {
+  const p = parseTime24ToParts(hhmm);
+  if (!p) return "—";
+  const ap = p.ampm === "AM" ? t("calendar.am") : t("calendar.pm");
+  return `${ap} ${p.hour12}:${String(p.minute).padStart(2, "0")}`;
+}
+
+/** @deprecated formatTime24Localized(hhmm, t) 사용 권장 */
 export function formatTime24Korean(hhmm) {
   const p = parseTime24ToParts(hhmm);
   if (!p) return "—";
@@ -57,10 +65,8 @@ export function formatTime24Korean(hhmm) {
   return `${ap} ${p.hour12}:${String(p.minute).padStart(2, "0")}`;
 }
 
-/**
- * 시 1–12, 분 0–55(5분 단위), 오전/오후 — select만 사용해 범위 밖으로 스크롤되지 않음
- */
 const TwelveHourTimeSelect = ({ value, onChange, disabled = false }) => {
+  const { t } = useI18n();
   const display = parseTime24ToParts(value) ?? { hour12: 9, minute: 0, ampm: "AM" };
 
   const update = (patch) => {
@@ -69,20 +75,23 @@ const TwelveHourTimeSelect = ({ value, onChange, disabled = false }) => {
     onChange?.(partsToTime24(next.hour12, minute, next.ampm));
   };
 
+  const hourUnit = t("calendar.hourUnit");
+  const minuteUnit = t("calendar.minuteUnit");
+
   return (
     <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
       <select
-        aria-label="오전/오후"
+        aria-label="AM/PM"
         value={display.ampm}
         onChange={(e) => update({ ampm: e.target.value })}
         disabled={disabled}
         style={{ minWidth: 72, padding: "6px 8px" }}
       >
-        <option value="AM">오전</option>
-        <option value="PM">오후</option>
+        <option value="AM">{t("calendar.am")}</option>
+        <option value="PM">{t("calendar.pm")}</option>
       </select>
       <select
-        aria-label="시 (12시간)"
+        aria-label="hour"
         value={display.hour12}
         onChange={(e) => update({ hour12: Number(e.target.value) })}
         disabled={disabled}
@@ -90,12 +99,12 @@ const TwelveHourTimeSelect = ({ value, onChange, disabled = false }) => {
       >
         {HOURS.map((h) => (
           <option key={h} value={h}>
-            {h}시
+            {h}{hourUnit}
           </option>
         ))}
       </select>
       <select
-        aria-label="분 (5분 단위)"
+        aria-label="minute"
         value={display.minute}
         onChange={(e) => update({ minute: Number(e.target.value) })}
         disabled={disabled}
@@ -103,7 +112,7 @@ const TwelveHourTimeSelect = ({ value, onChange, disabled = false }) => {
       >
         {MINUTES.map((m) => (
           <option key={m} value={m}>
-            {String(m).padStart(2, "0")}분
+            {String(m).padStart(2, "0")}{minuteUnit}
           </option>
         ))}
       </select>

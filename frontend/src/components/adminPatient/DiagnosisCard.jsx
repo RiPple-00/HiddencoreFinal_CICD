@@ -1,22 +1,27 @@
-const BADGE_MONITORING = { label: '집중관찰', className: 'bg-[#fef3c7] text-[#b45309]' };
-const BADGE_DEMENTIA = { label: '인지 저하', className: 'bg-[#ede9fe] text-[#6d28d9]' };
+import { useI18n } from '../../hooks/useI18n';
 
 export default function DiagnosisCard({ patient }) {
+  const { t } = useI18n();
+
   const diagnosis =
     patient?.admissionStatus?.trim()
     || (patient?.memo && patient.memo.length < 80 && !patient.memo.includes('\n')
       ? patient.memo.trim()
       : null)
-    || '진단 정보 없음';
+    || t('diagnosis.noInfo');
 
   const comment = patient?.memo?.includes('\n') || (patient?.admissionStatus && patient?.memo)
     ? patient?.memo?.trim()
     : null;
 
-  const badges =
-    patient?.patientStatus === 'MONITORING'
-      ? [BADGE_MONITORING, BADGE_DEMENTIA]
-      : [BADGE_MONITORING];
+  const badges = patient?.patientStatus === 'MONITORING'
+    ? [
+        { label: t('diagnosis.monitoring'), className: 'bg-[#fef3c7] text-[#b45309]' },
+        { label: t('diagnosis.dementia'), className: 'bg-[#ede9fe] text-[#6d28d9]' },
+      ]
+    : [
+        { label: t('diagnosis.monitoring'), className: 'bg-[#fef3c7] text-[#b45309]' },
+      ];
 
   return (
     <section className="rounded-2xl border border-[#e8eaef] bg-white p-5 shadow-sm">
@@ -24,12 +29,12 @@ export default function DiagnosisCard({ patient }) {
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#fff0f0] text-[#e53e3e]">
           <span className="text-base leading-none">🧾</span>
         </div>
-        <h2 className="text-lg font-bold text-[#1a1f2e]">진단명</h2>
+        <h2 className="text-lg font-bold text-[#1a1f2e]">{t('diagnosis.title')}</h2>
       </div>
       <p className="whitespace-pre-line text-base font-bold leading-snug text-[#e53e3e]">{diagnosis}</p>
       {comment ? (
         <div className="mt-4 rounded-xl bg-[#f8fafc] p-4">
-          <p className="mb-2 text-xs font-bold text-slate-500">진단 코멘트</p>
+          <p className="mb-2 text-xs font-bold text-slate-500">{t('diagnosis.comment')}</p>
           <p className="text-sm leading-relaxed text-slate-700">{comment}</p>
         </div>
       ) : null}

@@ -5,11 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 import hiddencore.ddasum.backend.config.GalleryDemoProperties;
+import hiddencore.ddasum.backend.config.TranslationProperties;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 
 @SpringBootApplication
-@EnableConfigurationProperties(GalleryDemoProperties.class)
+@EnableConfigurationProperties({GalleryDemoProperties.class, TranslationProperties.class})
 @OpenAPIDefinition(
 		info = @Info(
 				title = "Ddasum API",

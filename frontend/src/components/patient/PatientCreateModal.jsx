@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import patientApi from "../../api/patientApi";
+import { useI18n } from "../../hooks/useI18n";
 
 function createEmptyFormData() {
   return {
@@ -38,25 +39,25 @@ function ChevronDown({ className = "" }) {
   );
 }
 
-export default function PatientCreateModal({ //create 페이지에서 모달로 변경 - simple 방식 재형꺼 합친 후 수정 예정
+export default function PatientCreateModal({
   open,
   onClose,
   onSuccess,
   beds = [],
 }) {
+  const { t } = useI18n();
 
   const today = useMemo(() => new Date(), []);
   const todayY = today.getFullYear();
   const pad2 = (n) => String(n).padStart(2, "0");
   const toIsoDate = (y, m, d) => `${y}-${pad2(m)}-${pad2(d)}`;
-  const daysInMonth = (y, m) => new Date(y, m, 0).getDate(); // m: 1~12
+  const daysInMonth = (y, m) => new Date(y, m, 0).getDate();
 
   const [formData, setFormData] = useState(createEmptyFormData);
   const [birthY, setBirthY] = useState(null);
   const [birthM, setBirthM] = useState(null);
   const [birthD, setBirthD] = useState(null);
-
-  const [openBirthPicker, setOpenBirthPicker] = useState(null); // 'y' | 'm' | 'd' | null
+  const [openBirthPicker, setOpenBirthPicker] = useState(null);
 
   const yearOptions = useMemo(() => {
     const minY = 1900;
@@ -91,7 +92,6 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
 
   const onPickMonth = (m) => {
     setBirthM(m);
-    // 월이 바뀌면 일은 초기화(요구사항: 그 월 일수만큼 활성화)
     setBirthD(null);
     setOpenBirthPicker(null);
     syncBirthDate(null, null, null);
@@ -123,72 +123,37 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => {
-      if (name === "building") {
-        return {
-          ...prev,
-          building: value,
-          floor: "",
-          room: "",
-          bed: "",
-        };
-      }
-
-      if (name === "floor") {
-        return {
-          ...prev,
-          floor: value,
-          room: "",
-          bed: "",
-        };
-      }
-
-      if (name === "roomType") {
-        return {
-          ...prev,
-          roomType: value,
-          room: "",
-          bed: "",
-        };
-      }
-
-      if (name === "room") {
-        return {
-          ...prev,
-          room: value,
-          bed: "",
-        };
-      }
-
-      return {
-        ...prev,
-        [name]: value,
-      };
+      if (name === "building") return { ...prev, building: value, floor: "", room: "", bed: "" };
+      if (name === "floor") return { ...prev, floor: value, room: "", bed: "" };
+      if (name === "roomType") return { ...prev, roomType: value, room: "", bed: "" };
+      if (name === "room") return { ...prev, room: value, bed: "" };
+      return { ...prev, [name]: value };
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const payload = { ...formData };
-
     try {
-      await patientApi.createPatient(payload);
-      alert("환자 등록 완료");
+      await patientApi.createPatient({ ...formData });
+      alert(t('patient.register.success'));
       handleClose();
       onSuccess?.();
     } catch (error) {
-      console.error("환자 등록 실패", error);
-      alert("환자 등록 실패");
+      console.error(t('patient.register.error'), error);
+      alert(t('patient.register.error'));
     }
   };
+
+  const yearSuffix = t('patient.register.yearSuffix');
+  const monthSuffix = t('patient.register.monthSuffix');
+  const daySuffix = t('patient.register.daySuffix');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 px-4 py-6">
       <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-slate-900">환자 등록</h2>
+          <h2 className="text-3xl font-bold text-slate-900">{t('patient.register.title')}</h2>
           <button
             type="button"
             onClick={handleClose}
@@ -198,12 +163,9 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
           </button>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2"
-        >
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block font-medium">이름</label>
+            <label className="mb-1 block font-medium">{t('patient.register.name')}</label>
             <input
               type="text"
               name="name"
@@ -214,22 +176,22 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
           </div>
 
           <div>
-            <label className="mb-1 block font-medium">성별</label>
+            <label className="mb-1 block font-medium">{t('patient.register.gender')}</label>
             <select
               name="gender"
               value={formData.gender}
               onChange={handleChange}
               className="w-full rounded-lg border px-3 py-2"
             >
-              <option value="">선택</option>
-              <option value="MALE">남성</option>
-              <option value="FEMALE">여성</option>
-              <option value="OTHER">기타</option>
+              <option value="">{t('patient.register.select')}</option>
+              <option value="MALE">{t('patient.gender.maleFull')}</option>
+              <option value="FEMALE">{t('patient.gender.femaleFull')}</option>
+              <option value="OTHER">{t('patient.gender.other')}</option>
             </select>
           </div>
 
           <div>
-            <label className="mb-1 block font-medium">생년월일</label>
+            <label className="mb-1 block font-medium">{t('patient.register.birthDate')}</label>
             <div className="grid grid-cols-3 gap-2">
               {/* Year */}
               <div className="relative">
@@ -239,7 +201,7 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
                   className="flex w-full items-center justify-between rounded-lg border bg-white px-3 py-2 text-left"
                 >
                   <span className={birthY ? "text-slate-900" : "text-slate-400"}>
-                    {birthY ? `${birthY}년` : "년"}
+                    {birthY ? `${birthY}${yearSuffix}` : t('patient.register.yearPlaceholder')}
                   </span>
                   <ChevronDown className="text-slate-500" />
                 </button>
@@ -255,7 +217,7 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
                             birthY === y ? "bg-slate-100 font-semibold" : ""
                           }`}
                         >
-                          {y}년
+                          {y}{yearSuffix}
                         </button>
                       ))}
                     </div>
@@ -274,7 +236,7 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
                   }`}
                 >
                   <span className={birthM ? "text-slate-900" : "text-slate-400"}>
-                    {birthM ? `${birthM}월` : "월"}
+                    {birthM ? `${birthM}${monthSuffix}` : t('patient.register.monthPlaceholder')}
                   </span>
                   <ChevronDown className={monthEnabled ? "text-slate-500" : "text-slate-300"} />
                 </button>
@@ -290,7 +252,7 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
                             birthM === m ? "bg-slate-100 font-semibold" : ""
                           }`}
                         >
-                          {m}월
+                          {m}{monthSuffix}
                         </button>
                       ))}
                     </div>
@@ -309,7 +271,7 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
                   }`}
                 >
                   <span className={birthD ? "text-slate-900" : "text-slate-400"}>
-                    {birthD ? `${birthD}일` : "일"}
+                    {birthD ? `${birthD}${daySuffix}` : t('patient.register.dayPlaceholder')}
                   </span>
                   <ChevronDown className={dayEnabled ? "text-slate-500" : "text-slate-300"} />
                 </button>
@@ -325,7 +287,7 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
                             birthD === d ? "bg-slate-100 font-semibold" : ""
                           }`}
                         >
-                          {d}일
+                          {d}{daySuffix}
                         </button>
                       ))}
                     </div>
@@ -333,18 +295,17 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
                 )}
               </div>
             </div>
-          
           </div>
 
           <div>
-            <label className="mb-1 block font-medium">혈액형</label>
+            <label className="mb-1 block font-medium">{t('patient.register.bloodType')}</label>
             <select
               name="bloodType"
               value={formData.bloodType}
               onChange={handleChange}
               className="w-full rounded-lg border px-3 py-2"
             >
-              <option value="">선택</option>
+              <option value="">{t('patient.register.select')}</option>
               <option value="A_POSITIVE">A+</option>
               <option value="A_NEGATIVE">A-</option>
               <option value="B_POSITIVE">B+</option>
@@ -357,7 +318,7 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-1 block font-medium">주소</label>
+            <label className="mb-1 block font-medium">{t('patient.register.address')}</label>
             <input
               type="text"
               name="address"
@@ -368,7 +329,7 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
           </div>
 
           <div>
-            <label className="mb-1 block font-medium">입원일</label>
+            <label className="mb-1 block font-medium">{t('patient.register.admissionDate')}</label>
             <input
               type="date"
               name="admissionDate"
@@ -379,13 +340,13 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-1 block font-medium">기타 정보</label>
+            <label className="mb-1 block font-medium">{t('patient.register.memo')}</label>
             <textarea
               name="memo"
               value={formData.memo}
               onChange={handleChange}
               className="w-full rounded-lg border px-3 py-2"
-              placeholder="알레르기, 특이사항 등"
+              placeholder={t('patient.register.memoPlaceholder')}
             />
           </div>
 
@@ -395,13 +356,13 @@ export default function PatientCreateModal({ //create 페이지에서 모달로 
               onClick={handleClose}
               className="rounded-lg border px-4 py-2"
             >
-              취소
+              {t('patient.register.cancel')}
             </button>
             <button
               type="submit"
               className="rounded-lg bg-blue-600 px-4 py-2 text-white"
             >
-              등록
+              {t('patient.register.submit')}
             </button>
           </div>
         </form>

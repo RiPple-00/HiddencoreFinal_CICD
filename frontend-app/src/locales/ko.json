@@ -1,0 +1,131 @@
+{
+  "menu": {
+    "my_page": "마이페이지",
+    "settings": "설정",
+    "logout": "로그아웃"
+  },
+  "label": {
+    "language": "언어"
+  },
+  "settings": {
+    "title": "설정",
+    "description": "앱 표시 언어를 선택하세요.",
+    "language": "언어 설정",
+    "back": "뒤로",
+    "current": "현재 선택됨",
+    "languageOptions": {
+      "ko": "한국어",
+      "en": "English",
+      "ja": "日本語"
+    }
+  },
+  "billing": {
+    "storage_title": "청구 내역",
+    "estimated_amount": "예상 수납 금액",
+    "current_settlement": "현재까지 정산된 금액",
+    "view_recent_payments": "최근 결제 내역 보기 →",
+    "view_invoice_list": "청구서 내역 보기 →",
+    "pending_items": "미납·부분납 항목",
+    "view_all": "전체보기 →",
+    "total_count_prefix": "총 ",
+    "total_amount_label": "총 청구금액",
+    "all_period": "전체 기간",
+    "date_filter_1m": "최근 1개월",
+    "date_filter_3m": "최근 3개월",
+    "date_filter_6m": "최근 6개월",
+    "date_filter_2023": "2023년",
+    "status_filter": "상태",
+    "all_statuses": "전체 상태",
+    "all_items": "전체 항목",
+    "invoice_list_title": "청구서 목록",
+    "payment_history_title": "결제 내역",
+    "no_invoices": "해당하는 청구서가 없습니다.",
+    "no_payments": "해당하는 결제 내역이 없습니다.",
+    "load_error": "결제 내역을 불러오지 못했습니다.",
+    "recent_30_days": "총 결제 금액 (최근 30일)",
+    "payment_amount": "결제 금액",
+    "receipt_title": "영수증",
+    "selected_payment_item": "선택한 결제 항목",
+    "period": "입원기간",
+    "department": "진료과",
+    "covered_items": "급여 항목",
+    "non_covered_items": "비급여 항목",
+    "total": "합계",
+    "details_not_available": "상세 항목이 제공되지 않았습니다."
+  },
+  "storage": {
+    "payment_action": "결제",
+    "invoice_action": "청구서",
+    "patient": {
+      "status": {
+        "admitted": "입원중"
+      }
+    },
+    "status": {
+      "PAID": "완납",
+      "PARTIAL": "부분납",
+      "UNPAID": "미납",
+      "OVERDUE": "미납",
+      "COMPLETED": "완료",
+      "완납": "완납",
+      "부분납": "부분납",
+      "미납": "미납",
+      "완료": "완료"
+    },
+    "category": {
+      "ROOM": "입원료",
+      "ROOM_FEE": "입원료",
+      "ADMISSION": "입원비",
+      "TREATMENT": "진료비",
+      "MEAL": "식대",
+      "MEDICATION": "약제비",
+      "DRUG": "약제비",
+      "입원료": "입원료",
+      "입원비": "입원비",
+      "진료비": "진료비",
+      "식대": "식대",
+      "약제비": "약제비"
+    }
+  },
+  "common": {
+    "back": "뒤로",
+    "no_data": "데이터가 없습니다.",
+    "today": "오늘",
+    "yesterday": "어제"
+  },
+  "guardian": {
+    "actions": {
+      "report": "보고서 확인",
+      "consent": "동의서 확인",
+      "visit": "면회 신청",
+      "program": "프로그램 신청"
+    },
+    "tabs": {
+      "home": "홈",
+      "scan": "스캔",
+      "payment": "수납",
+      "live": "실시간",
+      "chatbot": "챗봇"
+    },
+    "gallery": "활동 갤러리",
+    "meal": {
+      "title": "오늘의 식단",
+      "breakfast": "아침",
+      "lunch": "점심",
+      "dinner": "저녁"
+    },
+    "board": {
+      "title": "공지사항",
+      "viewAll": "전체보기",
+      "empty": "등록된 공지사항이 없습니다.",
+      "dateUnknown": "날짜 미정"
+    }
+  },
+  "caregiver": {
+    "tabs": {
+      "home": "홈",
+      "qr": "QR 체크",
+      "emergency": "긴급 호출"
+    }
+  }
+}

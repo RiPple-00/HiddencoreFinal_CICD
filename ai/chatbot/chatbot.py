@@ -94,7 +94,9 @@ def is_general_health_query(text: str) -> bool:
     return any(kw in t for kw in GENERAL_HEALTH_KEYWORDS)
 
 
-def build_system_content(user_message: str, context: str) -> str:
+def build_system_content(user_message: str, context: str, language: str = "ko") -> str:
+    lang_instr = LANGUAGE_INSTRUCTION.get(language, "")
+
     if is_general_health_query(user_message) and not is_facility_query(user_message):
         return (
             SYSTEM_PROMPT
@@ -102,10 +104,12 @@ def build_system_content(user_message: str, context: str) -> str:
             + " 참고 문서와 관계없이 이해하기 쉬운 말로 5~8문장 정도 설명하세요."
             + " 진단·처방·약 변경·응급 여부 판단은 하지 말고,"
             + " 마지막에 필요 시 요양원 담당자(02-6901-7098) 또는 의료진 상담을 권하세요."
+            + lang_instr
         )
     system_content = SYSTEM_PROMPT
     if context:
         system_content += f"\n\n[참고 문서]\n{context}"
+    system_content += lang_instr
     return system_content
 
 
@@ -210,10 +214,17 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[Message]
+    language: str = "ko"  # "ko" | "en" | "ja"
 
 class ChatResponse(BaseModel):
     reply: str
     sources: List[str] = []
+
+
+LANGUAGE_INSTRUCTION = {
+    "en": "\n\n[IMPORTANT] You MUST respond in English only, regardless of the language of the question or documents.",
+    "ja": "\n\n【重要】質問や資料の言語に関わらず、必ず日本語のみで回答してください。",
+}
 
 
 @app.get("/health")
@@ -229,12 +240,13 @@ async def chat(req: ChatRequest):
     last_user_msg = next(
         (m.content for m in reversed(req.messages) if m.role == "user"), ""
     )
+    language = req.language if req.language in ("ko", "en", "ja") else "ko"
 
     use_rag = is_facility_query(last_user_msg) or not is_general_health_query(
         last_user_msg
     )
     context = retrieve_context(last_user_msg) if use_rag else ""
-    system_content = build_system_content(last_user_msg, context)
+    system_content = build_system_content(last_user_msg, context, language)
 
     history = [{"role": m.role, "content": m.content} for m in req.messages[-10:]]
 

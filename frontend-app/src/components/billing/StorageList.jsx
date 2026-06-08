@@ -21,10 +21,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "../Text";
+import useI18n from "@/hooks/useI18n";
 import storageApi from "../../api/storageApi";
 import { normalizeInvoice, normalizePatient, formatWon } from "../../utils/Storageformat";
 
-const STATUS_OPTIONS = ["전체", "완납", "부분납", "미납"];
+const STATUS_OPTIONS = ["all", "PAID", "PARTIAL", "UNPAID"];
 const PATIENT_ID = 1; // TODO: 인증/세션에서
 
 // 상태 뱃지 색상 토큰
@@ -32,27 +33,33 @@ const STATUS_STYLE = {
   완납:   { bg: "bg-success-secondary",         border: "border-success-primary",         text: "text-success-primary" },
   부분납: { bg: "bg-guardian-button-secondary",  border: "border-guardian-button-primary",  text: "text-guardian-text-primary" },
   미납:   { bg: "bg-error-secondary",            border: "border-error-primary",            text: "text-error-primary" },
+  PAID:    { bg: "bg-success-secondary",         border: "border-success-primary",         text: "text-success-primary" },
+  PARTIAL: { bg: "bg-guardian-button-secondary",  border: "border-guardian-button-primary",  text: "text-guardian-text-primary" },
+  UNPAID:  { bg: "bg-error-secondary",            border: "border-error-primary",            text: "text-error-primary" },
 };
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, label }) {
   const s = STATUS_STYLE[status] ?? {
     bg: "bg-guardian-bg-secondary", border: "border-guardian-button-secondary", text: "text-guardian-text-neutral",
   };
   return (
     <View className={`px-2 py-[3px] rounded-full border ${s.bg} ${s.border}`}>
-      <Text className={`text-[11px] font-bold ${s.text}`}>{status}</Text>
+      <Text className={`text-[11px] font-bold ${s.text}`}>{label ?? status}</Text>
     </View>
   );
 }
 
 export default function StorageList({ route, navigation }) {
+  const { t, language } = useI18n();
   const category  = route.params?.category || "all";
-  const pageTitle = category === "all" ? "청구서 목록" : `${category} 청구서`;
+  const pageTitle = category === "all"
+    ? t("billing.invoice_list_title", "청구서 목록")
+    : `${t(`storage.category.${category}`, category)} ${t("billing.invoice_list_title", "청구서 목록")}`;
 
   // null = 전체 기간, { year, month } = 특정 월
   const [selectedYearMonth, setSelectedYearMonth] = useState(null);
   const [pickerYear,        setPickerYear]        = useState(new Date().getFullYear());
-  const [selectedStatus,    setSelectedStatus]    = useState("전체");
+  const [selectedStatus,    setSelectedStatus]    = useState("all");
   const [openDropdown,      setOpenDropdown]      = useState(null);
   const [patient,           setPatient]           = useState(null);
   const [invoices,          setInvoices]          = useState([]);
@@ -61,7 +68,7 @@ export default function StorageList({ route, navigation }) {
 
   const dateLabel = selectedYearMonth
     ? `${selectedYearMonth.year}년 ${selectedYearMonth.month}월`
-    : "전체 기간";
+    : t("billing.all_period", "전체 기간");
 
   // 환자 정보 (mount 1회)
   useEffect(() => {
@@ -72,12 +79,12 @@ export default function StorageList({ route, navigation }) {
         if (cancelled) return;
         const data = res.data?.data ?? res.data ?? [];
         setPatient(
-          Array.isArray(data) ? normalizePatient(data[0] ?? {}) : normalizePatient(data)
+          Array.isArray(data) ? normalizePatient(data[0] ?? {}, t) : normalizePatient(data, t)
         );
       } catch {/* 환자 실패는 무시 */}
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [t]);
 
   // 청구서 (필터 변경 시마다)
   useEffect(() => {
@@ -88,7 +95,7 @@ export default function StorageList({ route, navigation }) {
         setError(null);
         const params = { patientId: PATIENT_ID };
         if (category !== "all")        params.category = category;
-        if (selectedStatus !== "전체") params.status   = selectedStatus;
+        if (selectedStatus !== "all") params.status   = selectedStatus;
         if (selectedYearMonth) {
           params.year  = selectedYearMonth.year;
           params.month = selectedYearMonth.month;
@@ -96,7 +103,7 @@ export default function StorageList({ route, navigation }) {
         const res  = await storageApi.getInvoices(params);
         const data = res.data?.data ?? res.data ?? [];
         if (cancelled) return;
-        setInvoices((Array.isArray(data) ? data : []).map(normalizeInvoice));
+        setInvoices((Array.isArray(data) ? data : []).map((raw) => normalizeInvoice(raw, t, language)));
       } catch (e) {
         if (!cancelled) setError(e?.message ?? "청구서를 불러오지 못했습니다.");
       } finally {
@@ -110,7 +117,7 @@ export default function StorageList({ route, navigation }) {
   const filtered = useMemo(() => {
     return invoices.filter((inv) => {
       const categoryMatch = category === "all" || inv.tags.includes(category);
-      const statusMatch   = selectedStatus === "전체" || inv.status === selectedStatus;
+      const statusMatch   = selectedStatus === "all" || inv.status === t(`storage.status.${selectedStatus}`, selectedStatus);
       let dateMatch = true;
       if (selectedYearMonth) {
         const [y, m] = inv.month.split(".");
@@ -150,7 +157,7 @@ export default function StorageList({ route, navigation }) {
   };
 
   const isDateActive   = openDropdown === "date"   || !!selectedYearMonth;
-  const isStatusActive = openDropdown === "status" || selectedStatus !== "전체";
+  const isStatusActive = openDropdown === "status" || selectedStatus !== "all";
 
   return (
     <SafeAreaView
@@ -265,7 +272,9 @@ export default function StorageList({ route, navigation }) {
                   !selectedYearMonth ? "bg-guardian-bg-secondary rounded-lg" : ""
                 }`}
               >
-                <Text className="text-sm text-guardian-text-neutral font-bold">전체 기간 보기</Text>
+                <Text className="text-sm text-guardian-text-neutral font-bold">
+                {t("billing.view_full_period", "전체 기간 보기")}
+              </Text>
               </Pressable>
             </View>
           )}
@@ -284,7 +293,9 @@ export default function StorageList({ route, navigation }) {
             <Text className={`text-sm font-bold ${
               isStatusActive ? "text-guardian-text-primary" : "text-guardian-text-neutral"
             }`}>
-              {selectedStatus === "전체" ? "전체 상태" : selectedStatus} ▾
+              {selectedStatus === "all"
+                ? t("billing.all_statuses", "전체 상태")
+                : t(`storage.status.${selectedStatus}`, selectedStatus)} ▾
             </Text>
           </TouchableOpacity>
           {openDropdown === "status" && (
@@ -302,7 +313,9 @@ export default function StorageList({ route, navigation }) {
                       ? "text-guardian-text-primary font-bold"
                       : "text-guardian-text-neutral"
                   }`}>
-                    {opt === "전체" ? "전체 상태" : opt}
+                    {opt === "all"
+                      ? t("billing.all_statuses", "전체 상태")
+                      : t(`storage.status.${opt}`, opt)}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -332,10 +345,14 @@ export default function StorageList({ route, navigation }) {
           </View>
         ) : filtered.length === 0 ? (
           <View className="py-10 items-center">
-            <Text className="text-guardian-text-neutral text-sm">해당하는 청구서가 없습니다.</Text>
+            <Text className="text-guardian-text-neutral text-sm">
+              {t("billing.no_invoices", "해당하는 청구서가 없습니다.")}
+            </Text>
             {selectedYearMonth && (
               <TouchableOpacity onPress={clearDateFilter}>
-                <Text className="text-guardian-text-secondary font-bold mt-2">전체 기간 보기</Text>
+                <Text className="text-guardian-text-secondary font-bold mt-2">
+              {t("billing.view_full_period", "전체 기간 보기")}
+            </Text>
               </TouchableOpacity>
             )}
           </View>
@@ -354,15 +371,15 @@ export default function StorageList({ route, navigation }) {
                 <Text className="text-base font-bold text-guardian-text-primary flex-1 mr-2" numberOfLines={1}>
                   {inv.title}
                 </Text>
-                <StatusBadge status={inv.status} />
+                <StatusBadge status={inv.statusCode ?? inv.status} label={inv.status} />
               </View>
 
               {/* 발행일 / 납부기한 */}
               <View className="flex-row justify-between mb-2">
-                <Text className="text-xs text-guardian-text-neutral">발행일 {inv.issued}</Text>
+                <Text className="text-xs text-guardian-text-neutral">{t("billing.issued_date", "발행일")} {inv.issued}</Text>
                 <Text className="text-xs text-guardian-text-neutral">
-                  납부기한{" "}
-                  <Text className={inv.status === "미납" ? "text-error-primary font-bold" : ""}>
+                  {t("billing.due_date", "납부기한")}{" "}
+                  <Text className={inv.status === t("storage.status.UNPAID", "미납") ? "text-error-primary font-bold" : ""}>
                     {inv.due}
                   </Text>
                 </Text>

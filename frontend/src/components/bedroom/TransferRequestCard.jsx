@@ -1,4 +1,8 @@
+import { useI18n } from "../../hooks/useI18n";
+
 function TransferRequestCard({ item }) {
+  const { t } = useI18n();
+
   return (
     <div
       className={`flex items-center justify-between rounded-2xl border p-4 ${
@@ -9,7 +13,7 @@ function TransferRequestCard({ item }) {
     >
       <div>
         <p className="text-lg font-bold text-slate-900">
-          {item.name} ({item.age}세)
+          {item.name} ({item.age}{t('transfer.ageUnit')})
         </p>
         <p className="mt-1 text-sm text-slate-500">{item.desc}</p>
       </div>
@@ -21,10 +25,10 @@ function TransferRequestCard({ item }) {
       ) : (
         <div className="flex gap-2">
           <button className="rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
-            승인
+            {t('transfer.approve')}
           </button>
           <button className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200">
-            보류
+            {t('transfer.hold')}
           </button>
         </div>
       )}

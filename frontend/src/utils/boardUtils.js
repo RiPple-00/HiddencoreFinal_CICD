@@ -15,10 +15,10 @@ export const WIDGET_SIZE = 2;
 // value: BOARD_TABS_MAP의 키와 반드시 일치해야 함
 // CHECK!!! 게시판 종류 세분화 시 항목 및 BOARD_TABS_MAP 동시 추가
 export const BOARD_OPTIONS = [
-  { label: '전체 게시판', value: 'ALL' },
-  { label: '공지사항', value: 'NOTICE' },
-  { label: '프로그램', value: 'PROGRAM' },
-  { label: '자유 게시판', value: 'GENERAL' }
+  { labelKey: 'board.options.ALL', label: '전체 게시판', value: 'ALL' },
+  { labelKey: 'board.options.NOTICE', label: '공지사항', value: 'NOTICE' },
+  { labelKey: 'board.options.PROGRAM', label: '프로그램', value: 'PROGRAM' },
+  { labelKey: 'board.options.GENERAL', label: '자유 게시판', value: 'GENERAL' }
 ];
 
 export const BOARD_TYPE_MAP = {
@@ -29,29 +29,48 @@ export const BOARD_TYPE_MAP = {
 
 /* 게시판별 탭 목록 */
 // key: BOARD_OPTIONS의 value와 일치
-// type: Post 도메인의 PostType enum과 반드시 일치해야 함 // CHECK!!! 아직 추가 안함!!! 회의 후 정해보기~~
-// CHECK!!! PostType 세분화 시 해당 게시판 탭에 항목 추가
+// type: Post 도메인의 PostType enum과 반드시 일치해야 함
 export const BOARD_TABS_MAP = {
   NOTICE: [
-    { label: '전체 공지', type: null },
-    { label: '긴급 공지', type: 'URGENT' },
-    { label: '임상 가이드라인', type: 'CLINICAL' },
-    { label: '행정 소식', type: 'ADMIN' },
-    { label: '시설 공지', type: 'FACILITY' },
+    { labelKey: 'board.tabs.notice.all', label: '전체 공지', type: null },
+    { labelKey: 'board.tabs.notice.urgent', label: '긴급 공지', type: 'URGENT' },
+    { labelKey: 'board.tabs.notice.clinical', label: '임상 가이드라인', type: 'CLINICAL' },
+    { labelKey: 'board.tabs.notice.admin', label: '행정 소식', type: 'ADMIN' },
+    { labelKey: 'board.tabs.notice.facility', label: '시설 공지', type: 'FACILITY' },
   ],
   PROGRAM: [
-    { label: '전체', type: null },
-    { label: '참여 신청', type: 'APPLY' },
-    { label: '활동 후기', type: 'REVIEW' },
+    { labelKey: 'board.tabs.program.all', label: '전체', type: null },
+    { labelKey: 'board.tabs.program.apply', label: '참여 신청', type: 'APPLY' },
+    { labelKey: 'board.tabs.program.review', label: '활동 후기', type: 'REVIEW' },
   ],
   GENERAL: null,
 };
 
+/* 필터 옵션 (게시글 type 기준) */
+export const FILTER_OPTIONS = [
+  { labelKey: 'board.filter.all',    label: '전체',      value: null },
+  { labelKey: 'board.filter.urgent', label: '긴급',      value: 'URGENT' },
+  { labelKey: 'board.filter.clinical',label: '임상',     value: 'CLINICAL' },
+  { labelKey: 'board.filter.admin',  label: '행정',      value: 'ADMIN' },
+  { labelKey: 'board.filter.facility',label: '시설',     value: 'FACILITY' },
+  { labelKey: 'board.filter.apply',  label: '참여 신청', value: 'APPLY' },
+  { labelKey: 'board.filter.review', label: '활동 후기', value: 'REVIEW' },
+  { labelKey: 'board.filter.general',label: '일반',      value: 'GENERAL' },
+];
+
+/* 정렬 옵션 */
+export const SORT_OPTIONS = [
+  { labelKey: 'board.sort.newest', label: '최신순',       value: 'newest' },
+  { labelKey: 'board.sort.oldest', label: '오래된순',     value: 'oldest' },
+  { labelKey: 'board.sort.views',  label: '조회수 많은순', value: 'views' },
+  { labelKey: 'board.sort.alpha',  label: '제목순',       value: 'alpha' },
+];
+
 // 검색 타입 목록
 export const SEARCH_TYPES = [
-  { label: '제목+내용', value: 'all' },
-  { label: '제목', value: 'title' },
-  { label: '내용', value: 'content' },
+  { labelKey: 'search.type.all', label: '제목+내용', value: 'all' },
+  { labelKey: 'search.type.title', label: '제목', value: 'title' },
+  { labelKey: 'search.type.content', label: '내용', value: 'content' },
 ];
 
 // StatusBadge type별 스타일 정의
@@ -103,8 +122,8 @@ export const POST_STATUS = {
 
 /** 공지 작성 시 공개 대상 체크박스 */
 export const TARGET_ROLES = [
-  { value: 'OFFICE', label: '원무과' },
-  { value: 'CAREGIVER', label: '요양사' },
+  { value: 'OFFICE', labelKey: 'board.targetRoles.OFFICE', label: '원무과' },
+  { value: 'CAREGIVER', labelKey: 'board.targetRoles.CAREGIVER', label: '요양사' },
 ];
 
 /**

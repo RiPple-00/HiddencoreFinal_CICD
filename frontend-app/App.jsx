@@ -22,6 +22,7 @@ import PaymentPage from "./src/pages/guardian/PaymentPage";
 import LiveCheckPage from "./src/pages/guardian/LiveCheckPage";
 import ChatbotPage from "./src/pages/guardian/ChatbotPage";
 import MyPage from "./src/pages/guardian/MyPage";
+import SettingsPage from "./src/pages/guardian/SettingsPage";
 import GalleryPage from "./src/pages/guardian/GalleryPage";
 import ActivePhotoGalleryPage from "./src/pages/guardian/activePhoto/GalleryPage";
 import GuardianMorePage from "./src/pages/guardian/activePhoto/GuardianMorePage";
@@ -65,6 +66,9 @@ import CaregiverHeader, {
 import { G } from "./src/styles/guardianTheme";
 import { clearAccessToken } from "./src/api";
 import AppSideMenu from "./src/components/common/AppSideMenu";
+import LanguageToggle from "./src/components/common/LanguageToggle";
+import { LanguageProvider } from "./src/contexts/LanguageContext";
+import { useI18n } from "./src/hooks/useI18n";
 
 const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
@@ -186,6 +190,8 @@ function AppNavigation() {
 
   const caregiverTopInset = insets.top + CAREGIVER_HEADER_INNER_HEIGHT;
 
+  const showLanguageToggle = true;
+
   const handleCaregiverLogout = async () => {
     try {
       await clearAccessToken();
@@ -201,6 +207,8 @@ function AppNavigation() {
     }
   };
 
+  const { t } = useI18n();
+
   const content = (
     <NavigationContainer
       ref={navigationRef}
@@ -214,6 +222,11 @@ function AppNavigation() {
       }}
     >
       <View style={styles.appRoot}>
+        {showLanguageToggle && (
+          <View style={[styles.languageToggleContainer, { top: insets.top + 12 }]}> 
+            <LanguageToggle />
+          </View>
+        )}
         <View
           style={[
             styles.navigatorFrame,
@@ -351,6 +364,11 @@ function AppNavigation() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="Settings"
+              component={SettingsPage}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="Gallery"
               component={GalleryPage}
               options={{ headerShown: false }}
@@ -396,21 +414,21 @@ function AppNavigation() {
             onClose={() => setCaregiverMenuOpen(false)}
             items={[
               {
-                label: "마이페이지",
+                label: t('menu.my_page'),
                 onPress: () => {
                   setCaregiverMenuOpen(false);
-                  Alert.alert("마이페이지", "요양사 마이페이지는 준비 중입니다.");
+                  Alert.alert(t('menu.my_page'), "요양사 마이페이지는 준비 중입니다.");
                 },
               },
               {
-                label: "설정",
+                label: t('menu.settings'),
                 onPress: () => {
                   setCaregiverMenuOpen(false);
-                  Alert.alert("설정", "설정 기능은 준비 중입니다.");
+                  Alert.alert(t('menu.settings'), "설정 기능은 준비 중입니다.");
                 },
               },
               {
-                label: "로그아웃",
+                label: t('menu.logout'),
                 onPress: handleCaregiverLogout,
               },
             ]}
@@ -422,7 +440,6 @@ function AppNavigation() {
             <CaregiverBottomNav
               active={caregiverActiveTab}
               onPressHome={() => navigationRef.navigate("CaregiverMain")}
-              onPressQr={() => navigationRef.navigate("MedicationQrScan")}
               onPressEmergency={() =>
                 Alert.alert("긴급 호출", "담당실 연동은 준비 중입니다.")
               }
@@ -445,7 +462,9 @@ function AppNavigation() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AppNavigation />
+      <LanguageProvider>
+        <AppNavigation />
+      </LanguageProvider>
     </SafeAreaProvider>
   );
 }
@@ -453,6 +472,11 @@ export default function App() {
 const styles = StyleSheet.create({
   appRoot: {
     flex: 1,
+  },
+  languageToggleContainer: {
+    position: 'absolute',
+    right: 16,
+    zIndex: 2000,
   },
   navigatorFrame: {
     flex: 1,

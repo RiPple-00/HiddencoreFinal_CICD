@@ -7,14 +7,14 @@ export function genderLabelKo(g) {
 }
 
 const BLOOD_LABELS = {
-  A_POSITIVE: 'A+ 형',
-  A_NEGATIVE: 'A- 형',
-  B_POSITIVE: 'B+ 형',
-  B_NEGATIVE: 'B- 형',
-  O_POSITIVE: 'O+ 형',
-  O_NEGATIVE: 'O- 형',
-  AB_POSITIVE: 'AB+ 형',
-  AB_NEGATIVE: 'AB- 형',
+  A_POSITIVE: 'A+',
+  A_NEGATIVE: 'A-',
+  B_POSITIVE: 'B+',
+  B_NEGATIVE: 'B-',
+  O_POSITIVE: 'O+',
+  O_NEGATIVE: 'O-',
+  AB_POSITIVE: 'AB+',
+  AB_NEGATIVE: 'AB-',
 };
 
 export function bloodTypeLabel(bt) {

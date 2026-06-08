@@ -1,0 +1,131 @@
+{
+  "menu": {
+    "my_page": "My Page",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "label": {
+    "language": "Language"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Select the app display language.",
+    "language": "Language Settings",
+    "back": "Back",
+    "current": "Selected",
+    "languageOptions": {
+      "ko": "한국어",
+      "en": "English",
+      "ja": "日本語"
+    }
+  },
+  "billing": {
+    "storage_title": "Billing",
+    "estimated_amount": "Estimated amount due",
+    "current_settlement": "Settled amount so far",
+    "view_recent_payments": "View recent payments →",
+    "view_invoice_list": "View invoices →",
+    "pending_items": "Unpaid / partial payments",
+    "view_all": "View all →",
+    "total_count_prefix": "Total ",
+    "total_amount_label": "Total billing amount",
+    "all_period": "All periods",
+    "date_filter_1m": "Last 1 month",
+    "date_filter_3m": "Last 3 months",
+    "date_filter_6m": "Last 6 months",
+    "date_filter_2023": "2023",
+    "status_filter": "Status",
+    "all_statuses": "All statuses",
+    "all_items": "All categories",
+    "invoice_list_title": "Invoice list",
+    "payment_history_title": "Payment history",
+    "no_invoices": "No invoices found.",
+    "no_payments": "No payment history found.",
+    "load_error": "Unable to load payment history.",
+    "recent_30_days": "Total payments (last 30 days)",
+    "payment_amount": "Payment amount",
+    "receipt_title": "Receipt",
+    "selected_payment_item": "Selected payment item",
+    "period": "Period",
+    "department": "Department",
+    "covered_items": "Covered items",
+    "non_covered_items": "Non-covered items",
+    "total": "Total",
+    "details_not_available": "Detail items are not available."
+  },
+  "storage": {
+    "payment_action": "Payment",
+    "invoice_action": "Invoice",
+    "patient": {
+      "status": {
+        "admitted": "Admitted"
+      }
+    },
+    "status": {
+      "PAID": "Paid",
+      "PARTIAL": "Partial",
+      "UNPAID": "Unpaid",
+      "OVERDUE": "Unpaid",
+      "COMPLETED": "Completed",
+      "완납": "Paid",
+      "부분납": "Partial",
+      "미납": "Unpaid",
+      "완료": "Completed"
+    },
+    "category": {
+      "ROOM": "Admission fee",
+      "ROOM_FEE": "Admission fee",
+      "ADMISSION": "Admission fee",
+      "TREATMENT": "Treatment",
+      "MEAL": "Meal",
+      "MEDICATION": "Medication",
+      "DRUG": "Medication",
+      "입원료": "Admission fee",
+      "입원비": "Admission fee",
+      "진료비": "Treatment",
+      "식대": "Meal",
+      "약제비": "Medication"
+    }
+  },
+  "common": {
+    "back": "Back",
+    "no_data": "No data available.",
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "guardian": {
+    "actions": {
+      "report": "Check Report",
+      "consent": "Check Consent",
+      "visit": "Apply for Visit",
+      "program": "Apply for Program"
+    },
+    "tabs": {
+      "home": "Home",
+      "scan": "Scan",
+      "payment": "Payment",
+      "live": "Live",
+      "chatbot": "Chatbot"
+    },
+    "gallery": "Activity Gallery",
+    "meal": {
+      "title": "Today's Meal",
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner"
+    },
+    "board": {
+      "title": "Notice",
+      "viewAll": "View All",
+      "empty": "No notices registered.",
+      "dateUnknown": "Date TBD"
+    }
+  },
+  "caregiver": {
+    "tabs": {
+      "home": "Home",
+      "qr": "QR Check",
+      "emergency": "Emergency"
+    }
+  }
+}

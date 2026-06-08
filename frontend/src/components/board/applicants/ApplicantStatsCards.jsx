@@ -1,30 +1,33 @@
-// 모집 정원, 확정 인원, 대기 인원, 남은 기간을 카드 형태로 보여주는 컴포넌트
+import { useI18n } from '../../../hooks/useI18n';
 
-const formatRemainingDays = (remainingDays) => {
+const formatRemainingDays = (remainingDays, closedLabel) => {
   if (remainingDays == null) return '-';
-  if (remainingDays < 0) return '마감';
+  if (remainingDays < 0) return closedLabel;
   if (remainingDays === 0) return 'D-Day';
   return `D-${remainingDays}`;
 };
 
-const formatRecruitmentStatus = (programInfo) => {
+const formatRecruitmentStatus = (programInfo, unit) => {
   const capacity = programInfo?.totalQuota;
   const enrolled = programInfo?.currentEnrolled;
   if (capacity == null && enrolled == null) return '-';
-  if (capacity == null) return `${enrolled ?? 0}명`;
+  if (capacity == null) return `${enrolled ?? 0}${unit}`;
   return `${enrolled ?? 0} / ${capacity}`;
 };
 
 const ApplicantStatsCards = ({ programInfo }) => {
+  const { t } = useI18n();
+  const unit = t('applicant.unit');
+
   const cards = [
     {
-      label: '모집 현황',
-      value: formatRecruitmentStatus(programInfo),
+      label: t('applicant.recruitStatus'),
+      value: formatRecruitmentStatus(programInfo, unit),
       tone: 'text-slate-900',
     },
-    { label: '확정 인원', value: `${programInfo?.confirmedCount ?? 0}명`, tone: 'text-blue-700' },
-    { label: '대기 인원', value: `${programInfo?.waitingCount ?? 0}명`, tone: 'text-teal-700' },
-    { label: '남은 기간', value: formatRemainingDays(programInfo?.remainingDays), tone: 'text-red-600' },
+    { label: t('applicant.confirmed'), value: `${programInfo?.confirmedCount ?? 0}${unit}`, tone: 'text-blue-700' },
+    { label: t('applicant.waiting'), value: `${programInfo?.waitingCount ?? 0}${unit}`, tone: 'text-teal-700' },
+    { label: t('applicant.remaining'), value: formatRemainingDays(programInfo?.remainingDays, t('applicant.closed')), tone: 'text-red-600' },
   ];
 
   return (

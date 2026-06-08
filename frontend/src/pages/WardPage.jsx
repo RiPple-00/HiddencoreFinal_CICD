@@ -5,6 +5,7 @@ import AdminMenuPanel from "../components/bedroom/AdminMenuPanel";
 // import VisitorsPanel from "../components/bedroom/VisitorsPanel";
 import MealCarePage from "./MealCarePage";
 import { useAuth } from '../contexts/AutoContext.jsx';
+import { useI18n } from '../hooks/useI18n.jsx';
 import PostList from '../components/board/PostList';
 import postApi from '../api/postApi';
 import { resolveStaffFacilityId } from '../utils/jwtUtils';
@@ -14,6 +15,7 @@ function HomePage() {
   const { user } = useAuth();
   const facilityId = resolveStaffFacilityId(user);
 
+  const { t } = useI18n();
   const [noticePosts, setNoticePosts] = useState([]);
   const [schedulePosts, setSchedulePosts] = useState([]);
 
@@ -39,9 +41,9 @@ function HomePage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-2xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-800">프로그램 일정</h3>
+                  <h3 className="font-semibold text-gray-800">{t('widget.programSchedule')}</h3>
                   <a href={`/facilities/${facilityId}/board?board=PROGRAM`} className="text-xs text-teal-600 hover:underline">
-                    전체보기
+                    {t('widget.viewAll')}
                   </a>
                 </div>
                 <PostList posts={schedulePosts.slice(0, 5)} mode="widget" facilityId={facilityId} />
@@ -49,9 +51,9 @@ function HomePage() {
 
               <div className="rounded-2xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-800">공지사항</h3>
+                  <h3 className="font-semibold text-gray-800">{t('widget.notice')}</h3>
                   <a href={`/facilities/${facilityId}/board?board=NOTICE`} className="text-xs text-teal-600 hover:underline">
-                    전체보기
+                    {t('widget.viewAll')}
                   </a>
                 </div>
                 <PostList posts={noticePosts.slice(0, 5)} mode="widget" facilityId={facilityId} />

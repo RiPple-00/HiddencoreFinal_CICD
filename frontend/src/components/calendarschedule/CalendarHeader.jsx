@@ -1,4 +1,5 @@
-// 이전/다음 달 이동 + 필터 버튼
+import { useI18n } from "../../hooks/useI18n";
+
 const CalendarHeader = ({
   year,
   month,
@@ -7,12 +8,20 @@ const CalendarHeader = ({
   onNextMonth,
   onFilterChange,
 }) => {
+  const { t, language } = useI18n();
+
   const buttonStyle = (active) => ({
     padding: "6px 10px",
     borderRadius: 8,
     border: "1px solid #ddd",
     background: active ? "#ffedd5" : "#fff",
     fontWeight: active ? 700 : 400,
+  });
+
+  const locale = language === "ko" ? "ko-KR" : language === "ja" ? "ja-JP" : "en-US";
+  const monthDisplay = new Date(year, month - 1).toLocaleString(locale, {
+    year: "numeric",
+    month: "long",
   });
 
   return (
@@ -27,13 +36,13 @@ const CalendarHeader = ({
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <button type="button" onClick={onPrevMonth} style={buttonStyle(false)}>
-          이전
+          {t('calendar.prev')}
         </button>
         <h2 style={{ margin: 0, minWidth: 140, textAlign: "center" }}>
-          {year}년 {month}월
+          {monthDisplay}
         </h2>
         <button type="button" onClick={onNextMonth} style={buttonStyle(false)}>
-          다음
+          {t('calendar.next')}
         </button>
       </div>
 
@@ -43,21 +52,21 @@ const CalendarHeader = ({
           onClick={() => onFilterChange?.("ALL")}
           style={buttonStyle(filter === "ALL")}
         >
-          전체
+          {t('calendar.filter.all')}
         </button>
         <button
           type="button"
           onClick={() => onFilterChange?.("PROGRAM")}
           style={buttonStyle(filter === "PROGRAM")}
         >
-          프로그램
+          {t('calendar.filter.program')}
         </button>
         <button
           type="button"
           onClick={() => onFilterChange?.("PERSONAL")}
           style={buttonStyle(filter === "PERSONAL")}
         >
-          개인
+          {t('calendar.filter.personal')}
         </button>
       </div>
     </div>

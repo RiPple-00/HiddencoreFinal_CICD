@@ -1,33 +1,41 @@
 import React from "react";
 import { View, TouchableOpacity, Image } from "react-native";
 import Text from "@/components/Text";
+import { useI18n } from "@/hooks/useI18n";
+
+const MEAL_TABS = [
+  { key: "breakfast", labelKey: "guardian.meal.breakfast" },
+  { key: "lunch", labelKey: "guardian.meal.lunch" },
+  { key: "dinner", labelKey: "guardian.meal.dinner" },
+];
 
 export default function GuardianMeal() {
+  const { t } = useI18n();
   return (
     <View className="mx-5 mt-5">
       <View className="bg-background-neutral rounded-2xl p-4">
         <View className="flex-row justify-between items-center mb-3">
           <Text className="text-base font-extrabold text-guardian-text-primary">
-            오늘의 식단
+            {t('guardian.meal.title')}
           </Text>
           <View className="flex-row gap-2">
-            {["아침", "점심", "저녁"].map((tab) => (
+            {MEAL_TABS.map(({ key, labelKey }) => (
               <TouchableOpacity
-                key={tab}
+                key={key}
                 className={`px-3 py-1 rounded-full ${
-                  tab === "점심"
+                  key === "lunch"
                     ? "bg-guardian-button-primary"
                     : "bg-guardian-bg-secondary"
                 }`}
               >
                 <Text
                   className={`text-xs font-bold ${
-                    tab === "점심"
+                    key === "lunch"
                       ? "text-guardian-text-primary"
                       : "text-guardian-text-neutral"
                   }`}
                 >
-                  {tab}
+                  {t(labelKey)}
                 </Text>
               </TouchableOpacity>
             ))}

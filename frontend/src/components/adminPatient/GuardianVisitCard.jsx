@@ -1,3 +1,5 @@
+import { useI18n } from '../../hooks/useI18n';
+
 function Avatar({ initials }) {
   return (
     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2d5bff] text-xs font-bold text-white">
@@ -7,6 +9,7 @@ function Avatar({ initials }) {
 }
 
 export default function GuardianVisitCard({ guardians = [], visitRequests = [] }) {
+  const { t } = useI18n();
   const primary =
     guardians.find((g) => g?.isPrimary) ?? guardians[0] ?? null;
   const recent = Array.isArray(visitRequests) ? visitRequests : [];
@@ -17,22 +20,22 @@ export default function GuardianVisitCard({ guardians = [], visitRequests = [] }
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f5f3ff] text-[#6d28d9]">
           <span className="text-base leading-none">👥</span>
         </div>
-        <h2 className="text-lg font-bold text-[#1a1f2e]">보호자 및 방문객</h2>
+        <h2 className="text-lg font-bold text-[#1a1f2e]">{t('guardian.title')}</h2>
       </div>
 
       <div className="mb-5 rounded-xl bg-[#e8f0ff] px-4 py-3">
-        <p className="text-xs font-medium text-[#2d5bff]">주 보호자</p>
+        <p className="text-xs font-medium text-[#2d5bff]">{t('guardian.primary')}</p>
         <p className="mt-1 text-sm font-bold text-slate-900">
           {primary ? `${primary.guardianName} (${primary.relationship || '-'})` : '-'}
         </p>
         <p className="mt-0.5 text-sm text-slate-600">{primary?.guardianPhone || '-'}</p>
       </div>
 
-      <p className="mb-2 text-xs font-semibold text-slate-400">최근 방문</p>
+      <p className="mb-2 text-xs font-semibold text-slate-400">{t('guardian.recentVisit')}</p>
       <ul className="space-y-3">
         {recent.length === 0 ? (
           <li className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-            방문 기록이 없습니다.
+            {t('guardian.noVisit')}
           </li>
         ) : (
           recent.slice(0, 2).map((d) => {

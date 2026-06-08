@@ -21,16 +21,20 @@ const Button = ( {
 
 } ) => {
 
- // 기본 스타일
-  const baseStyles = 'font-medium rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-md';
+  // 기본 스타일
+  const baseStyles ='font-medium rounded-xl transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-sm';
 
   // variant별 스타일
   const variantStyles = {
-    primary: 'bg-gradient-to-r from-emerald-400 to-teal-500 text-white hover:from-emerald-500 hover:to-teal-600 focus:ring-emerald-400 disabled:from-gray-300 disabled:to-gray-400',
-    secondary: 'bg-orange-100 text-orange-700 hover:bg-orange-200 focus:ring-orange-400 disabled:bg-orange-50',
-    outline: 'border-2 border-emerald-400 text-emerald-600 hover:bg-emerald-50 focus:ring-emerald-400 disabled:border-gray-300 disabled:text-gray-300',
-    danger: 'bg-red-400 text-white hover:bg-red-500 focus:ring-red-400 disabled:bg-red-200',
-  };
+  primary:
+    'bg-[#356AE6] text-white hover:bg-blue-600 focus:ring-blue-400 disabled:bg-slate-300',
+  secondary:
+    'bg-orange-100 text-orange-700 hover:bg-orange-200 focus:ring-orange-400 disabled:bg-orange-50',
+  outline:
+    'border-2 border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-400 disabled:border-slate-300 disabled:text-slate-300',
+  danger:
+    'bg-red-500 text-white hover:bg-red-600 focus:ring-red-400 disabled:bg-red-200',
+};
 
   // size별 스타일
   const sizeStyles = {

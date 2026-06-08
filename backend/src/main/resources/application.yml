@@ -78,6 +78,18 @@ app:
   llm:
     weekly-report:
       enabled: ${APP_LLM_WEEKLY_REPORT_ENABLED:true}
+  translation:
+    enabled: true
+    cache-type: caffeine
+    cache-ttl-seconds: 3600
+    cache-maximum-size: 5000
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      model: ${OPENAI_MODEL:gpt-3.5-turbo}
+      api-url: ${OPENAI_API_URL:https://api.openai.com/v1/chat/completions}
+      temperature: 0.0
+      connect-timeout-ms: 5000
+      read-timeout-ms: 30000
   gallery:
     demo-patient-id: ${GALLERY_DEMO_PATIENT_ID:260401008}
     ai-server-base-url: ${AI_SERVER_URL:http://127.0.0.1:8000}

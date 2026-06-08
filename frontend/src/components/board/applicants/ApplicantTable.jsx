@@ -1,6 +1,5 @@
-// 신청자 목록을 테이블 형태로 보여주는 컴포넌트
-
 import { formatDate, toDate } from '../../../utils/dateUtils';
+import { useI18n } from '../../../hooks/useI18n';
 
 const formatDateTime = (value) => {
   const date = toDate(value);
@@ -18,22 +17,22 @@ const getStatusTone = (status) => {
   return 'bg-slate-100 text-slate-600';
 };
 
-/**
- * @param {'waiting' | 'confirmed' | 'rejected'} mode
- */
 const ApplicantTable = ({
   mode = 'waiting',
   applicants = [],
   onApprove,
   onReject,
   onMoveToWaiting,
-  emptyMessage = '신청자가 없습니다.',
+  emptyMessage,
   isUpdating = false,
 }) => {
+  const { t } = useI18n();
+  const empty = emptyMessage ?? t('applicant.noApplicants');
+
   if (applicants.length === 0) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-dashed border-slate-200 py-12 text-sm text-slate-400">
-        {emptyMessage}
+        {empty}
       </div>
     );
   }
@@ -46,12 +45,12 @@ const ApplicantTable = ({
         <thead>
           <tr className="border-b border-slate-200 text-left text-xs font-medium text-slate-500">
             <th className="py-3 pr-4">No.</th>
-            <th className="py-3 pr-4">이름</th>
-            <th className="py-3 pr-4">성별 / 연령</th>
-            <th className="py-3 pr-4">연락처</th>
-            <th className="py-3 pr-4">신청일시</th>
-            <th className="py-3 pr-4">상태</th>
-            {showActions ? <th className="py-3 text-right">관리</th> : null}
+            <th className="py-3 pr-4">{t('applicant.name')}</th>
+            <th className="py-3 pr-4">{t('applicant.genderAge')}</th>
+            <th className="py-3 pr-4">{t('applicant.contact')}</th>
+            <th className="py-3 pr-4">{t('applicant.appliedAt')}</th>
+            <th className="py-3 pr-4">{t('applicant.status')}</th>
+            {showActions ? <th className="py-3 text-right">{t('applicant.manage')}</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -77,7 +76,7 @@ const ApplicantTable = ({
                         onClick={() => onApprove?.(applicant.applicationId)}
                         className="rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-teal-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                       >
-                        승인 완료
+                        {t('applicant.approve')}
                       </button>
                       <button
                         type="button"
@@ -85,7 +84,7 @@ const ApplicantTable = ({
                         onClick={() => onReject?.(applicant.applicationId)}
                         className="rounded-lg bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       >
-                        반려
+                        {t('applicant.reject')}
                       </button>
                     </div>
                   ) : (
@@ -96,7 +95,7 @@ const ApplicantTable = ({
                         onClick={() => onMoveToWaiting?.(applicant.applicationId)}
                         className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100"
                       >
-                        대기(승인 대기)로 변경
+                        {t('applicant.moveToWaiting')}
                       </button>
                     </div>
                   )}

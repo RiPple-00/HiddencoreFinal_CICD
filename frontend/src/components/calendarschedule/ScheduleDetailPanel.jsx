@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toDate } from "../../utils/dateUtils";
-import TwelveHourTimeSelect, { dateToSnappedTime24, formatTime24Korean } from "./TwelveHourTimeSelect";
+import TwelveHourTimeSelect, { dateToSnappedTime24, formatTime24Localized } from "./TwelveHourTimeSelect";
 import ButtonCalendarDatePicker from "./ButtonCalendarDatePicker";
 import ScheduleFieldSection, {
   fieldInputStyle,
@@ -10,6 +10,7 @@ import ScheduleFieldSection, {
   toolbarBtnPrimary,
   toolbarBtnDanger,
 } from "./ScheduleFieldSection";
+import { useI18n } from "../../hooks/useI18n";
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -23,6 +24,7 @@ const formatYmdSlash = (ymd) => {
 };
 
 const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = false }) => {
+  const { t } = useI18n();
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -53,12 +55,12 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
 
   const validate = () => {
     const newErrors = {};
-    if (!title.trim()) newErrors.title = "제목을 입력해주세요.";
-    if (!startDate) newErrors.startDate = "시작일을 입력해주세요.";
-    if (!endDate) newErrors.endDate = "종료일을 입력해주세요.";
-    if (startDate && endDate && startDate > endDate) newErrors.dateRange = "시작일은 종료일보다 빠를 수 없습니다.";
+    if (!title.trim()) newErrors.title = t('calendar.validate.title');
+    if (!startDate) newErrors.startDate = t('calendar.validate.startDate');
+    if (!endDate) newErrors.endDate = t('calendar.validate.endDate');
+    if (startDate && endDate && startDate > endDate) newErrors.dateRange = t('calendar.validate.dateRange');
     if (startDate === endDate && startTime && endTime && startTime > endTime)
-      newErrors.timeRange = "시작시간은 종료시간보다 빠를 수 없습니다.";
+      newErrors.timeRange = t('calendar.validate.timeRange');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -76,8 +78,7 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
 
   if (!schedule) return null;
 
-  const dateErr =
-    errors.startDate || errors.endDate || errors.dateRange || null;
+  const dateErr = errors.startDate || errors.endDate || errors.dateRange || null;
 
   return (
     <div
@@ -105,7 +106,7 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
           }}
         >
           <h2 style={{ margin: 0, fontSize: 20, color: "#0f172a" }}>
-            {isEditing ? "일정 수정" : "일정 상세"}
+            {isEditing ? t('calendar.editSchedule') : t('calendar.viewSchedule')}
           </h2>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {isEditing ? (
@@ -116,7 +117,7 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
                   disabled={loading}
                   style={{ ...toolbarBtn, opacity: loading ? 0.6 : 1 }}
                 >
-                  닫기
+                  {t('calendar.close')}
                 </button>
                 <button
                   type="button"
@@ -124,7 +125,7 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
                   disabled={loading}
                   style={{ ...toolbarBtnPrimary, opacity: loading ? 0.7 : 1 }}
                 >
-                  {loading ? "저장 중..." : "저장"}
+                  {loading ? t('calendar.saving') : t('calendar.save')}
                 </button>
               </>
             ) : (
@@ -135,7 +136,7 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
                   disabled={loading}
                   style={{ ...toolbarBtn, opacity: loading ? 0.6 : 1 }}
                 >
-                  닫기
+                  {t('calendar.close')}
                 </button>
                 <button
                   type="button"
@@ -143,7 +144,7 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
                   disabled={loading}
                   style={{ ...toolbarBtnDanger, opacity: loading ? 0.6 : 1 }}
                 >
-                  {loading ? "처리 중..." : "삭제"}
+                  {loading ? t('calendar.processing') : t('calendar.delete')}
                 </button>
                 <button
                   type="button"
@@ -151,7 +152,7 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
                   disabled={loading}
                   style={{ ...toolbarBtnPrimary, opacity: loading ? 0.6 : 1 }}
                 >
-                  수정
+                  {t('calendar.edit')}
                 </button>
               </>
             )}
@@ -159,13 +160,13 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
         </div>
 
         <div style={{ display: "grid", gap: 14 }}>
-          <ScheduleFieldSection title="제목" footerError={isEditing ? errors.title : undefined}>
+          <ScheduleFieldSection title={t('calendar.field.title')} footerError={isEditing ? errors.title : undefined}>
             {isEditing ? (
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="제목을 입력하세요."
+                placeholder={t('calendar.field.titlePlaceholder')}
                 style={fieldInputStyle}
               />
             ) : (
@@ -173,7 +174,7 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
             )}
           </ScheduleFieldSection>
 
-          <ScheduleFieldSection title="기간" footerError={isEditing ? dateErr : undefined}>
+          <ScheduleFieldSection title={t('calendar.field.period')} footerError={isEditing ? dateErr : undefined}>
             {isEditing ? (
               <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "start" }}>
                 <ButtonCalendarDatePicker value={startDate} onChange={setStartDate} disabled={loading} />
@@ -187,7 +188,7 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
             )}
           </ScheduleFieldSection>
 
-          <ScheduleFieldSection title="시간" footerError={isEditing ? errors.timeRange : undefined}>
+          <ScheduleFieldSection title={t('calendar.field.time')} footerError={isEditing ? errors.timeRange : undefined}>
             {isEditing ? (
               <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 14, alignItems: "center" }}>
                 <TwelveHourTimeSelect value={startTime} onChange={setStartTime} disabled={loading} />
@@ -197,22 +198,22 @@ const ScheduleDetailPanel = ({ schedule, onClose, onSave, onDelete, loading = fa
             ) : (
               <p style={{ ...valueReadBox, margin: 0 }}>
                 {startTime || endTime
-                  ? `${formatTime24Korean(startTime)} ~ ${formatTime24Korean(endTime)}`
+                  ? `${formatTime24Localized(startTime, t)} ~ ${formatTime24Localized(endTime, t)}`
                   : "—"}
               </p>
             )}
           </ScheduleFieldSection>
 
-          <ScheduleFieldSection title="내용">
+          <ScheduleFieldSection title={t('calendar.field.content')}>
             {isEditing ? (
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="내용을 작성하세요."
+                placeholder={t('calendar.field.contentPlaceholder')}
                 style={fieldTextareaStyle}
               />
             ) : (
-              <p style={{ ...valueReadBox, minHeight: 100 }}>{content?.trim() ? content : "내용 없음"}</p>
+              <p style={{ ...valueReadBox, minHeight: 100 }}>{content?.trim() ? content : t('calendar.noContent')}</p>
             )}
           </ScheduleFieldSection>
         </div>

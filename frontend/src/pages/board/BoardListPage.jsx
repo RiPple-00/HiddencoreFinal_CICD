@@ -3,13 +3,15 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AutoContext.jsx';
 import { resolveStaffFacilityId } from '../../utils/jwtUtils';
 import { BoardProvider, useBoardContext } from '../../contexts/BoardContext';
-import { BOARD_OPTIONS, BOARD_TABS_MAP } from '../../utils/boardUtils';
+import { BOARD_OPTIONS, BOARD_TABS_MAP, FILTER_OPTIONS, SORT_OPTIONS } from '../../utils/boardUtils';
 import FilterTab from '../../components/common/FilterTab';
 import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
 import PostList from '../../components/board/PostList';
 import Button from '../../components/Button';
 import Header from '../../components/common/Header';
+import { useI18n } from '../../hooks/useI18n.jsx';
+import filterIcon from '../../assets/filter.svg';
 
 /**
  * 게시판 내부 콘텐츠
@@ -25,9 +27,12 @@ const BoardListContent = () => {
     currentPage,
     searchKeyword,
     searchType,
+    filterType,
+    sortOrder,
     isLoading,
     error,
     totalPages,
+    filteredPosts,
     paginatedPosts,
     fetchAllPosts,
     changeBoard,
@@ -35,26 +40,38 @@ const BoardListContent = () => {
     changePage,
     search,
     resetSearch,
+    changeFilter,
+    changeSort,
   } = useBoardContext();
+  const { t } = useI18n();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const filterRef = useRef(null);
+  const sortRef = useRef(null);
 
   // 마운트 시 전체 데이터 1회 로드
   useEffect(() => {
     fetchAllPosts();
   }, [fetchAllPosts]);
 
-  // 드롭다운 외부 클릭 시 닫기
+  // 드롭다운/필터/정렬 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setIsDropdownOpen(false);
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsDropdownOpen(false);
+      if (filterRef.current && !filterRef.current.contains(e.target)) setIsFilterOpen(false);
+      if (sortRef.current && !sortRef.current.contains(e.target)) setIsSortOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const activeSortLabel = t(
+    SORT_OPTIONS.find((s) => s.value === sortOrder)?.labelKey ?? '',
+    SORT_OPTIONS.find((s) => s.value === sortOrder)?.label ?? '최신순'
+  );
 
   // 현재 선택된 게시판의 탭 목록
   // null이면 탭 없음 (전체 게시판, 자유 게시판)
@@ -76,14 +93,14 @@ const BoardListContent = () => {
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2 text-xl font-semibold text-gray-800 hover:text-gray-600 transition-colors"
+            className="flex items-center gap-2 text-xl font-semibold text-slate-900 hover:text-slate-700 transition-colors"
           >
-            {selectedBoard.label}
-            <span className="text-sm text-gray-400">{isDropdownOpen ? '▲' : '▽'}</span>
+            {t(selectedBoard.labelKey ?? selectedBoard.label, selectedBoard.label)}
+            <span className="text-sm text-slate-400">{isDropdownOpen ? '▲' : '▽'}</span>
           </button>
 
           {isDropdownOpen && (
-            <ul className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+            <ul className="absolute top-full left-0 mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-10">
               {BOARD_OPTIONS.map((option) => (
                 <li key={option.value}>
                   <button
@@ -91,12 +108,12 @@ const BoardListContent = () => {
                     className={`
                       w-full text-left px-4 py-2.5 text-sm transition-colors
                       ${selectedBoard.value === option.value
-                        ? 'text-teal-600 font-medium bg-teal-50'
-                        : 'text-gray-700 hover:bg-gray-50'
+                        ? 'text-blue-700 font-semibold bg-blue-50'
+                        : 'text-slate-700 hover:bg-slate-50'
                       }
                     `}
                   >
-                    {option.label}
+                    {t(option.labelKey ?? option.label, option.label)}
                   </button>
                 </li>
               ))}
@@ -111,9 +128,10 @@ const BoardListContent = () => {
           size="md"
           onClick={() => navigate(`/facilities/${facilityId}/board/create`)}
         >
-          + 새 게시물 작성
+          + {t('board.list.createPost', '새 게시물 작성')}
         </Button>
       </div>
+
       {/* 검색바 */}
       <SearchBar
         searchType={searchType}
@@ -121,7 +139,6 @@ const BoardListContent = () => {
         onSearch={search}
         onReset={resetSearch}
       />
-
 
       {/* 탭: 전체 게시판(ALL)과 자유 게시판(GENERAL)은 탭 없음 */}
       {currentTabs && (
@@ -133,30 +150,117 @@ const BoardListContent = () => {
       )}
 
       {/* 게시글 목록 카드 */}
-      <div className="bg-white border border-gray-200 rounded-lg mt-4">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm mt-4">
 
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <span className="text-sm font-medium text-gray-700">최근 게시물</span>
-          <div className="flex items-center gap-2 text-gray-400">
-            {/* CHECK!!! 필터 기능 추후 추가 시 onClick 연결 */}
-            <button className="hover:text-gray-600 transition-colors" title="필터">
-              <img src="/icons/filter.svg" alt="필터" className="w-4 h-4" />
-            </button>
-            {/* CHECK!!! 검색 아이콘 클릭 시 하단 SearchBar 포커스 연결 필요 */}
-            <button className="hover:text-gray-600 transition-colors" title="검색">
-              <img src="/icons/search.svg" alt="검색" className="w-4 h-4" />
-            </button>
+        <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+          {/* 좌측: 제목 + 건수 */}
+          <span className="text-sm font-semibold text-slate-900">
+            {t('board.list.recentPosts', '최근 게시물')}
+            <span className="ml-2 text-xs font-normal text-slate-400">
+              {filteredPosts.length}{t('board.list.count', '개')}
+            </span>
+          </span>
+
+          {/* 우측: 필터 + 정렬 */}
+          <div className="flex items-center gap-2">
+
+            {/* 필터 드롭다운 */}
+            <div className="relative" ref={filterRef}>
+              <button
+                onClick={() => { setIsFilterOpen((p) => !p); setIsSortOpen(false); }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors
+                  ${filterType
+                    ? 'bg-blue-50 border-blue-300 text-blue-700'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600'
+                  }`}
+              >
+                <img
+                  src={filterIcon}
+                  alt=""
+                  className={`w-3.5 h-3.5 ${filterType ? 'opacity-100' : 'opacity-60'}`}
+                  style={{
+                    filter: filterType
+                      ? 'invert(38%) sepia(94%) saturate(1352%) hue-rotate(203deg) brightness(97%) contrast(95%)'
+                      : undefined
+                  }}
+                />
+
+                {t('board.list.filter', '필터')}
+
+                {filterType && (
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500" />
+                )}
+
+                <span className="text-slate-400">{isFilterOpen ? '▲' : '▾'}</span>
+              </button>
+
+              {isFilterOpen && (
+                <ul className="absolute right-0 top-full mt-1 w-36 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1">
+                  {FILTER_OPTIONS.map((opt) => (
+                    <li key={opt.value ?? 'all'}>
+                      <button
+                        onClick={() => { changeFilter(opt.value); setIsFilterOpen(false); }}
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors
+                          ${filterType === opt.value
+                            ? 'text-blue-700 font-semibold bg-blue-50'
+                            : 'text-slate-700 hover:bg-slate-50'
+                          }
+                        `}
+                      >
+                        {t(opt.labelKey, opt.label)}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* 정렬 드롭다운 */}
+            <div className="relative" ref={sortRef}>
+              <button
+                onClick={() => { setIsSortOpen((p) => !p); setIsFilterOpen(false); }}
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors
+                  ${sortOrder !== 'newest'
+                    ? 'bg-blue-50 border-blue-300 text-blue-700'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600'
+                  }`}
+              >
+                {activeSortLabel}
+                <span className="text-slate-400">{isSortOpen ? '▲' : '▾'}</span>
+              </button>
+
+              {isSortOpen && (
+                <ul className="absolute right-0 top-full mt-1 w-36 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1">
+                  {SORT_OPTIONS.map((opt) => (
+                    <li key={opt.value}>
+                      <button
+                        onClick={() => { changeSort(opt.value); setIsSortOpen(false); }}
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors
+                          ${sortOrder === opt.value
+                            ? 'text-blue-700 font-semibold bg-blue-50'
+                            : 'text-slate-700 hover:bg-slate-50'
+                          }
+                        `}
+                      >
+                        {t(opt.labelKey, opt.label)}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
           </div>
         </div>
 
         <div className="px-5 py-2">
           {isLoading ? (
-            <div className="flex items-center justify-center py-16 text-sm text-gray-400">
-              불러오는 중...
+            <div className="flex items-center justify-center py-16 text-sm text-slate-400">
+              {t('board.loading', '불러오는 중...')}
             </div>
           ) : error ? (
             <div className="flex items-center justify-center py-16 text-sm text-red-400">
-              데이터를 불러오지 못했습니다.
+              {t('board.error.loadFailed', '데이터를 불러오지 못했습니다.')}
             </div>
           ) : (
             <PostList
@@ -176,7 +280,6 @@ const BoardListContent = () => {
         onPageChange={changePage}
       />
 
-      
     </div>
   );
 };
@@ -190,6 +293,7 @@ const BoardListPage = () => {
   const { facilityId: facilityIdParam } = useParams();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
+  const { t } = useI18n();
   const board = searchParams.get('board');
   const initialBoardValue = BOARD_OPTIONS.some((option) => option.value === board)
     ? board
@@ -215,7 +319,7 @@ const BoardListPage = () => {
       <>
         <Header activeNav="notice" />
         <div className="max-w-5xl mx-auto px-4 py-16 text-center text-gray-500">
-          시설 정보를 확인할 수 없습니다. 다시 로그인해 주세요.
+          {t('board.list.noFacility', '시설 정보를 확인할 수 없습니다. 다시 로그인해 주세요.')}
         </div>
       </>
     );
@@ -224,13 +328,15 @@ const BoardListPage = () => {
   return (
     <>
       <Header activeNav="notice" />
-      <BoardProvider
-        key={`${facilityId}-${initialBoardValue}`}
-        facilityId={facilityId}
-        initialBoardValue={initialBoardValue}
-      >
-        <BoardListContent />
-      </BoardProvider>
+      <div className="min-h-screen bg-slate-50">
+        <BoardProvider
+          key={`${facilityId}-${initialBoardValue}`}
+          facilityId={facilityId}
+          initialBoardValue={initialBoardValue}
+        >
+          <BoardListContent />
+        </BoardProvider>
+      </div>
     </>
   );
 };

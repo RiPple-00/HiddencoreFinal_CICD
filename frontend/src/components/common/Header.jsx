@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AutoContext.jsx";
+import { useLanguage } from "../../contexts/LanguageContext.jsx";
+import { useI18n } from "../../hooks/useI18n.jsx";
 import { resolveStaffFacilityId } from "../../utils/jwtUtils";
 
 function SearchIcon({ className }) {
@@ -80,17 +82,24 @@ export default function Header({
   brandTo,
   userName = "김관리자 (Admin Kim)",
   userRole = "SUPERUSER",
-  searchPlaceholder = "환자 검색...",
+  searchPlaceholder,
   showNotificationDot = true,
 }) {
   const { user } = useAuth();
   const facilityId = resolveStaffFacilityId(user);
+  const { language, setLanguage } = useLanguage();
+  const { t } = useI18n();
+  const languageOptions = [
+    { value: "ko", label: t('label.korean') },
+    { value: "en", label: t('label.english') },
+    { value: "ja", label: t('label.japanese') },
+  ];
 
   const defaultNavItems = [
-    { key: "rooms", label: "병실 조회", to: "/ward" },
-    { key: "patients", label: "환자 조회", to: "/patients" },
-    { key: "calendar", label: "캘린더", to: "/schedule" },
-    { key: "notice", label: "게시판", to: facilityId ? `/facilities/${facilityId}/board` : null },
+    { key: "rooms", label: t('nav.rooms'), to: "/ward" },
+    { key: "patients", label: t('nav.patients'), to: "/patients" },
+    { key: "calendar", label: t('nav.calendar'), to: "/schedule" },
+    { key: "notice", label: t('nav.notice'), to: facilityId ? `/facilities/${facilityId}/board` : null },
   ];
   const resolvedNavItems = navItems ?? defaultNavItems;
 
@@ -142,27 +151,43 @@ export default function Header({
 
         <div className="flex shrink-0 items-center gap-3 md:gap-4">
           <label className="relative hidden sm:block">
-            <span className="sr-only">환자 검색</span>
+            <span className="sr-only">{t('aria.searchPatients')}</span>
             <SearchIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#888]" />
             <input
               type="search"
-              placeholder={searchPlaceholder}
+              placeholder={searchPlaceholder || t('search.placeholder')}
               className="h-10 w-[200px] rounded-full border-0 bg-[#f0f2f5] pl-10 pr-4 text-sm text-slate-800 placeholder:text-slate-400 outline-none ring-0 transition focus:bg-[#e8ebef] lg:w-[260px]"
             />
           </label>
+
+          <div className="hidden sm:flex items-center gap-2 rounded-full border border-slate-200 bg-[#f8fafc] px-3 py-2 text-sm text-slate-700">
+            <span className="whitespace-nowrap">{t('label.language')}</span>
+            <select
+              value={language}
+              onChange={(event) => setLanguage(event.target.value)}
+              className="bg-transparent text-sm outline-none"
+              aria-label={t('label.language')}
+            >
+              {languageOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="flex items-center gap-1 text-slate-600 md:gap-2">
             <button
               type="button"
               className="rounded-full p-2 transition hover:bg-slate-100"
-              aria-label="메일"
+              aria-label={t('aria.mail')}
             >
               <MailIcon className="text-slate-600" />
             </button>
             <button
               type="button"
               className="relative rounded-full p-2 transition hover:bg-slate-100"
-              aria-label="알림"
+              aria-label={t('aria.notifications')}
             >
               <BellIcon className="text-slate-600" />
               {showNotificationDot && (

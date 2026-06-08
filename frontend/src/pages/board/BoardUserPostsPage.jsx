@@ -4,6 +4,7 @@ import postApi from '../../api/postApi';
 import { useAuth } from '../../contexts/AutoContext.jsx';
 import Header from '../../components/common/Header';
 import PostList from '../../components/board/PostList';
+import CreateSidebar from '../../components/board/create/CreateSidebar';
 
 // 작성 이력과 보관함
 
@@ -71,37 +72,53 @@ const BoardUserPostsPage = ({ variant }) => {
   return (
     <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
       <Header activeNav="notice" />
-      <div className="mx-auto max-w-5xl px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-gray-900">
-          {HEADINGS[variant] ?? '내 게시글'}
-        </h1>
-        <div className="flex gap-4 text-sm">
-          <Link
-            to={`/facilities/${facilityId}/board/create`}
-            className="text-teal-600 hover:underline"
-          >
-            새 글 작성
-          </Link>
-          <Link
-            to={`/facilities/${facilityId}/board`}
-            className="text-gray-600 hover:underline"
-          >
-            게시판 목록
-          </Link>
-        </div>
-      </div>
+      <div className="mx-auto flex max-w-6xl gap-6 px-4 py-6">
 
-      {loading ? (
-        <p className="text-center py-16 text-sm text-gray-400">불러오는 중...</p>
-      ) : (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <PostList posts={posts} mode="table" facilityId={facilityId} />
+        <CreateSidebar
+          postType={null}
+          onTypeChange={() => { }}
+          facilityId={facilityId}
+          title=""
+          content=""
+          canWriteOfficial={true}
+        />
+
+        <div className="flex-1">
+
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-slate-900">
+              {HEADINGS[variant] ?? '내 게시글'}
+            </h1>
+
+            <div className="flex gap-4 text-sm">
+              <Link
+                to={`/facilities/${facilityId}/board`}
+                className="text-slate-600 hover:underline"
+              >
+                게시판 목록
+              </Link>
+            </div>
+          </div>
+
+          {loading ? (
+            <p className="text-center py-16 text-sm text-slate-400">
+              불러오는 중...
+            </p>
+          ) : (
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+              <PostList
+                posts={posts}
+                mode="table"
+                facilityId={facilityId}
+              />
+            </div>
+          )}
+
         </div>
-      )}
+
       </div>
     </div>
-  );
+    );
 };
 
-export default BoardUserPostsPage;
+      export default BoardUserPostsPage;

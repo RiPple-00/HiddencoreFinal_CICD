@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import Button from '../../Button';
+import { useI18n } from '../../../hooks/useI18n.jsx';
 
 /**
  * 게시글 상세 페이지 상단 고정 액션바
@@ -15,6 +16,7 @@ import Button from '../../Button';
  * @param {function} onDelete - 삭제 핸들러
  */
 const DetailActionBar = ({ post, user, facilityId, onDelete }) => {
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   // CHECK!!! AuthContext 연동 후 user?.userId === post.authorId 방식으로 교체
@@ -39,7 +41,7 @@ const DetailActionBar = ({ post, user, facilityId, onDelete }) => {
           size="sm"
           onClick={() => navigate(`/facilities/${facilityId}/board`)}
         >
-          ← 목록으로 돌아가기
+          ← {t('board.detail.action.backToList', '목록으로 돌아가기')}
         </Button>
 
         {/* 우측: 수정 / 삭제 / 신청하기 */}
@@ -52,7 +54,7 @@ const DetailActionBar = ({ post, user, facilityId, onDelete }) => {
                 size="sm"
                 onClick={() => navigate(`/facilities/${facilityId}/board/${post.id}/edit`)}
               >
-                수정
+                {t('board.detail.action.edit', '수정')}
               </Button>
               <Button
                 type="button"
@@ -60,7 +62,7 @@ const DetailActionBar = ({ post, user, facilityId, onDelete }) => {
                 size="sm"
                 onClick={onDelete}
               >
-                삭제
+                {t('board.detail.action.delete', '삭제')}
               </Button>
             </>
           )}
@@ -74,10 +76,12 @@ const DetailActionBar = ({ post, user, facilityId, onDelete }) => {
               disabled={!canApply}
               onClick={() => {
                 // CHECK!!! 신청하기 API 엔드포인트 구현 후 연결 필요
-                alert('신청하기 API 연결 필요');
+                alert(t('board.detail.action.applyAlert', '신청하기 API 연결 필요'));
               }}
             >
-              {isRecruiting && hasCapacity ? '신청하기' : '신청 불가'}
+              {isRecruiting && hasCapacity
+                ? t('board.detail.action.apply', '신청하기')
+                : t('board.detail.action.applyDisabled', '신청 불가')}
             </Button>
           )}
         </div>

@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Text from "@/components/Text";
 import { resolveChatbotUrl } from "@/api";
+import { useI18n } from "@/hooks/useI18n";
 
 const API_URL = resolveChatbotUrl();
 
@@ -26,72 +27,86 @@ const MAP_IMAGE = require("../../../assets/soldesk.png");
 const MAP_KEYWORDS = ["오시는 길", "위치", "주소", "종각역", "지하철", "어떻게 가", "찾아가", "교통편", "버스", "길 안내"];
 const isDirectionQuery = (text) => MAP_KEYWORDS.some((kw) => text.includes(kw));
 
+// ── 다국어 UI 문자열 ─────────────────────────────────────────
+const I18N = {
+  ko: {
+    title: "따숨 AI 상담사",
+    online: "온라인",
+    welcome: "안녕하세요! 따숨 요양원 AI 상담사입니다 😊\n위 메뉴를 선택하거나 궁금한 점을 입력해 주세요.",
+    reset: "대화가 초기화되었습니다. 무엇을 도와드릴까요? 😊",
+    placeholder: "궁금한 점을 입력하세요...",
+    error: "일시적인 오류가 발생했습니다. 대표번호 02-6901-7098로 문의해 주세요.",
+  },
+  en: {
+    title: "Thasoom AI Assistant",
+    online: "Online",
+    welcome: "Hello! I'm the AI assistant of Thasoom Nursing Home 😊\nSelect a menu or type your question.",
+    reset: "Conversation reset. How can I help you? 😊",
+    placeholder: "Type your question here...",
+    error: "A temporary error occurred. Please contact 02-6901-7098.",
+  },
+  ja: {
+    title: "따숨 AIアシスタント",
+    online: "オンライン",
+    welcome: "こんにちは！따숨 療養院のAIアシスタントです 😊\nメニューを選択するか、ご質問を入力してください。",
+    reset: "会話がリセットされました。何かお手伝いできますか？😊",
+    placeholder: "ご質問を入力してください...",
+    error: "一時的なエラーが発生しました。代表番号 02-6901-7098 へお問い合わせください。",
+  },
+};
+
 // ── 카테고리 + 소항목 데이터 ───────────────────────────────────
-const CATEGORIES = [
+// question은 RAG 검색 정확도를 위해 한국어 고정, label은 다국어
+const CATEGORIES_BASE = [
   {
-    id: 1,
-    label: "요양원 안내",
-    icon: "🏥",
-    bg: "#E8F5EE",
-    accent: "#2E7D4F",
+    id: 1, icon: "🏥", bg: "#E8F5EE", accent: "#2E7D4F",
+    labels: { ko: "요양원 안내", en: "Facility Info", ja: "施設案内" },
     subs: [
-      { label: "시설 소개", question: "따숨 요양원 시설을 소개해 주세요" },
-      { label: "오시는 길", question: "오시는 길 안내해 주세요" },
-      { label: "주요 연락처", question: "주요 연락처를 알려주세요" },
+      { labels: { ko: "시설 소개",   en: "Facility Overview", ja: "施設紹介" },   question: "따숨 요양원 시설을 소개해 주세요" },
+      { labels: { ko: "오시는 길",   en: "Directions",        ja: "アクセス" },    question: "오시는 길 안내해 주세요" },
+      { labels: { ko: "주요 연락처", en: "Key Contacts",      ja: "主な連絡先" }, question: "주요 연락처를 알려주세요" },
     ],
   },
   {
-    id: 2,
-    label: "주차 안내",
-    icon: "🅿️",
-    bg: "#E3F2FD",
-    accent: "#1565C0",
+    id: 2, icon: "🅿️", bg: "#E3F2FD", accent: "#1565C0",
+    labels: { ko: "주차 안내",  en: "Parking Info",   ja: "駐車場案内" },
     subs: [
-      { label: "주차 요금", question: "주차 요금이 얼마인가요?" },
-      { label: "높이 제한", question: "차량 높이 제한이 어떻게 되나요?" },
-      { label: "차량 등록", question: "차량 등록 방법을 알려주세요" },
-      { label: "전기차 충전", question: "전기차 충전 구역은 어디 있나요?" },
+      { labels: { ko: "주차 요금",  en: "Parking Fee",         ja: "駐車料金" },  question: "주차 요금이 얼마인가요?" },
+      { labels: { ko: "높이 제한",  en: "Height Limit",        ja: "高さ制限" },  question: "차량 높이 제한이 어떻게 되나요?" },
+      { labels: { ko: "차량 등록",  en: "Vehicle Registration", ja: "車両登録" }, question: "차량 등록 방법을 알려주세요" },
+      { labels: { ko: "전기차 충전", en: "EV Charging",         ja: "EV充電" },   question: "전기차 충전 구역은 어디 있나요?" },
     ],
   },
   {
-    id: 3,
-    label: "서류 안내",
-    icon: "📄",
-    bg: "#F3E5F5",
-    accent: "#6A1B9A",
+    id: 3, icon: "📄", bg: "#F3E5F5", accent: "#6A1B9A",
+    labels: { ko: "서류 안내",  en: "Documents",    ja: "書類案内" },
     subs: [
-      { label: "무방문 발급", question: "무방문으로 서류를 발급받으려면 어떻게 하나요?" },
-      { label: "방문 발급", question: "방문해서 서류를 발급받으려면 어떻게 하나요?" },
-      { label: "증명서 발급", question: "증명서 발급 방법을 알려주세요" },
-      { label: "의무기록사본", question: "의무기록사본은 어떻게 발급받나요?" },
+      { labels: { ko: "무방문 발급",  en: "Remote Issuance",    ja: "非来館発行" }, question: "무방문으로 서류를 발급받으려면 어떻게 하나요?" },
+      { labels: { ko: "방문 발급",    en: "In-person Issuance", ja: "来館発行" },   question: "방문해서 서류를 발급받으려면 어떻게 하나요?" },
+      { labels: { ko: "증명서 발급",  en: "Certificate",        ja: "証明書発行" }, question: "증명서 발급 방법을 알려주세요" },
+      { labels: { ko: "의무기록사본", en: "Medical Records",    ja: "診療記録" },   question: "의무기록사본은 어떻게 발급받나요?" },
     ],
   },
   {
-    id: 4,
-    label: "원무",
-    icon: "🏨",
-    bg: "#E0F2F1",
-    accent: "#00695C",
+    id: 4, icon: "🏨", bg: "#E0F2F1", accent: "#00695C",
+    labels: { ko: "원무",        en: "Administration", ja: "事務" },
     subs: [
-      { label: "퇴원 서비스", question: "퇴원환자 서비스에는 어떤 것이 있나요?" },
-      { label: "퇴원 절차", question: "퇴원 절차를 알려주세요" },
-      { label: "면회 신청", question: "면회 신청은 어떻게 하나요?" },
-      { label: "면회 시간", question: "면회 시간이 어떻게 되나요?" },
-      { label: "입원 절차", question: "입원 절차를 알려주세요" },
-      { label: "원무팀 전화", question: "원무팀 전화번호를 알려주세요" },
+      { labels: { ko: "퇴원 서비스", en: "Discharge Services",   ja: "退院サービス" }, question: "퇴원환자 서비스에는 어떤 것이 있나요?" },
+      { labels: { ko: "퇴원 절차",   en: "Discharge Process",    ja: "退院手続き" },   question: "퇴원 절차를 알려주세요" },
+      { labels: { ko: "면회 신청",   en: "Visit Application",    ja: "面会申請" },     question: "면회 신청은 어떻게 하나요?" },
+      { labels: { ko: "면회 시간",   en: "Visit Hours",          ja: "面会時間" },     question: "면회 시간이 어떻게 되나요?" },
+      { labels: { ko: "입원 절차",   en: "Admission Process",    ja: "入院手続き" },   question: "입원 절차를 알려주세요" },
+      { labels: { ko: "원무팀 전화", en: "Admin Phone",          ja: "事務連絡先" },   question: "원무팀 전화번호를 알려주세요" },
     ],
   },
   {
-    id: 5,
-    label: "입원 준비",
-    icon: "🩺",
-    bg: "#FFF3E0",
-    accent: "#E65100",
+    id: 5, icon: "🩺", bg: "#FFF3E0", accent: "#E65100",
+    labels: { ko: "입원 준비",   en: "Admission Prep", ja: "入院準備" },
     subs: [
-      { label: "입원 준비물", question: "입원 시 준비물이 뭔가요?" },
-      { label: "보호자 준비", question: "보호자 준비사항을 알려주세요" },
-      { label: "입원 시간", question: "입원 가능 시간이 언제인가요?" },
-      { label: "응급 입원", question: "응급 입원은 가능한가요?" },
+      { labels: { ko: "입원 준비물", en: "What to Bring",      ja: "入院持ち物" }, question: "입원 시 준비물이 뭔가요?" },
+      { labels: { ko: "보호자 준비", en: "Guardian Info",      ja: "家族の準備" }, question: "보호자 준비사항을 알려주세요" },
+      { labels: { ko: "입원 시간",   en: "Admission Hours",    ja: "入院時間" },   question: "입원 가능 시간이 언제인가요?" },
+      { labels: { ko: "응급 입원",   en: "Emergency Admission", ja: "緊急入院" },  question: "응급 입원은 가능한가요?" },
     ],
   },
 ];
@@ -194,15 +209,26 @@ const MessageBubble = React.memo(({ item }) => {
 //  메인 페이지
 // ══════════════════════════════════════════════════════════════
 export default function ChatbotPage() {
+  const { language } = useI18n();
+  const lang = I18N[language] ?? I18N.ko;
+  const CATEGORIES = CATEGORIES_BASE.map((cat) => ({
+    ...cat,
+    label: cat.labels[language] ?? cat.labels.ko,
+    subs: cat.subs.map((sub) => ({
+      ...sub,
+      label: sub.labels[language] ?? sub.labels.ko,
+    })),
+  }));
+
   const [messages, setMessages] = useState([{
     id: "0", role: "assistant", time: formatTime(),
-    content: "안녕하세요! 따숨 요양원 AI 상담사입니다 😊\n위 메뉴를 선택하거나 궁금한 점을 입력해 주세요.",
+    content: lang.welcome,
   }]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCat, setSelectedCat] = useState(null);   // 선택된 카테고리
   const flatListRef = useRef(null);
-  const historyRef  = useRef([{ role: "assistant", content: messages[0].content }]);
+  const historyRef  = useRef([{ role: "assistant", content: lang.welcome }]);
   const subAnim     = useRef(new Animated.Value(0)).current;
 
   const scrollToBottom = useCallback(() =>
@@ -241,7 +267,7 @@ export default function ChatbotPage() {
       const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: historyRef.current }),
+        body: JSON.stringify({ messages: historyRef.current, language }),
       });
       if (!res.ok) {
         const errBody = await res.text().catch(() => "");
@@ -268,9 +294,7 @@ export default function ChatbotPage() {
           : "";
       setMessages((prev) => [...prev.filter((m) => m.id !== "typing"), {
         id: (Date.now() + 1).toString(), role: "assistant", time: formatTime(),
-        content:
-          "일시적인 오류가 발생했습니다. 대표번호 02-6901-7098로 문의해 주세요."
-          + hint,
+        content: lang.error + hint,
       }]);
     } finally {
       setIsLoading(false);
@@ -292,15 +316,15 @@ export default function ChatbotPage() {
             <MaterialCommunityIcons name="hospital-box-outline" size={21} color="#fff" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 15, fontWeight: "700", color: "#1A1A1A" }}>따숨 AI 상담사</Text>
+            <Text style={{ fontSize: 15, fontWeight: "700", color: "#1A1A1A" }}>{lang.title}</Text>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 5, marginTop: 2 }}>
               <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: "#22C55E" }} />
-              <Text style={{ fontSize: 10, color: "#22C55E" }}>온라인</Text>
+              <Text style={{ fontSize: 10, color: "#22C55E" }}>{lang.online}</Text>
             </View>
           </View>
           <TouchableOpacity onPress={() => {
             const msg = { id: Date.now().toString(), role: "assistant", time: formatTime(),
-              content: "대화가 초기화되었습니다. 무엇을 도와드릴까요? 😊" };
+              content: lang.reset };
             setMessages([msg]);
             historyRef.current = [{ role: "assistant", content: msg.content }];
             setSelectedCat(null);
@@ -403,7 +427,7 @@ export default function ChatbotPage() {
           <View style={{ flex: 1, flexDirection: "row", alignItems: "center",
             backgroundColor: "#F5F5F5", borderRadius: 26, paddingHorizontal: 16, minHeight: 50 }}>
             <TextInput value={input} onChangeText={setInput}
-              placeholder="궁금한 점을 입력하세요..." placeholderTextColor="#BBBBBB"
+              placeholder={lang.placeholder} placeholderTextColor="#BBBBBB"
               style={{ flex: 1, fontSize: 14, color: "#1A1A1A", paddingVertical: 8 }}
               multiline maxLength={300}
               onSubmitEditing={() => sendMessage()} returnKeyType="send" blurOnSubmit />

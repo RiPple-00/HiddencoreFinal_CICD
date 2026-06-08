@@ -1,0 +1,377 @@
+{
+  "nav": {
+    "rooms": "Rooms",
+    "patients": "Patients",
+    "calendar": "Calendar",
+    "notice": "Board"
+  },
+  "search": {
+    "placeholder": "Search patients...",
+    "type": {
+      "all": "Title + Content",
+      "title": "Title",
+      "content": "Content"
+    },
+    "inputPlaceholder": "Enter search keyword"
+  },
+  "label": {
+    "language": "Language",
+    "profile": "My Page",
+    "settings": "Settings",
+    "logout": "Logout",
+    "korean": "한국어",
+    "english": "English",
+    "japanese": "日本語"
+  },
+  "widget": {
+    "programSchedule": "Program Schedule",
+    "notice": "Notice",
+    "viewAll": "View All",
+    "loading": "Loading...",
+    "noPosts": "No posts available"
+  },
+  "aria": {
+    "searchPatients": "Search patients",
+    "mail": "Mail",
+    "notifications": "Notifications"
+  },
+  "button": {
+    "search": "Search"
+  },
+  "board": {
+    "noPosts": "No posts available.",
+    "table": {
+      "programName": "Program Name",
+      "schedule": "Schedule",
+      "capacity": "Capacity",
+      "status": "Status",
+      "manage": "Manage"
+    },
+    "postType": {
+      "review": "Review",
+      "apply": "Application",
+      "unknown": "Post"
+    },
+    "recruitStatus": {
+      "open": "Open",
+      "closed": "Closed",
+      "scheduled": "Scheduled"
+    },
+    "actions": {
+      "manageApplication": "Manage",
+      "viewDetail": "View Details"
+    },
+    "create": {
+      "panel": {
+        "author": "Author",
+        "lastUpdated": "Last Updated",
+        "saveDraft": "Save Draft",
+        "submitting": "Submitting...",
+        "submit": "✓ Publish Post",
+        "cancel": "Cancel",
+        "noticeTarget": "Target Audience",
+        "noticeTip": "Pinned notices are more effective for important announcements.",
+        "recruitSchedule": "Recruitment Schedule",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "capacity": "Capacity",
+        "capacityUnit": "people",
+        "status": "Status"
+      }
+    },
+    "detail": {
+      "action": {
+        "backToList": "Back to list",
+        "edit": "Edit",
+        "delete": "Delete",
+        "applyAlert": "Application API connection needed",
+        "apply": "Apply",
+        "applyDisabled": "Application unavailable"
+      }
+    },
+    "badge": {
+      "urgent": "Urgent",
+      "clinical": "Clinical",
+      "admin": "Admin",
+      "facility": "Facility",
+      "apply": "Apply",
+      "review": "Review",
+      "general": "General"
+    }
+  },
+  "admin": {
+    "quickMenu": {
+      "title": "Administrative Quick Menu",
+      "settlement": "Interim Settlement",
+      "certificate": "Certificate Issuance",
+      "discharge": "Discharge Process",
+      "insurance": "Insurance Claim"
+    }
+  },
+  "bedSidebar": {
+    "menu": {
+      "overview": "Overview",
+      "vitalSigns": "Vital Signs",
+      "prescriptions": "Prescriptions",
+      "testResults": "Test Results",
+      "nursingNotes": "Nursing Notes",
+      "medicalRecords": "Medical Records"
+    }
+  },
+  "ward": {
+    "selection": {
+      "ward": "WARD SELECTION",
+      "floor": "FLOOR SELECTION",
+      "special": "SPECIAL SELECTION"
+    },
+    "specials": {
+      "icu": "ICU",
+      "isolation": "Isolation"
+    },
+    "roomType": {
+      "general": "General Ward",
+      "icu": "ICU",
+      "isolation": "Isolation"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "mixed": "Mixed"
+    }
+  },
+  "patient": {
+    "profile": {
+      "genderAge": "Gender / Age",
+      "bloodType": "Blood Type",
+      "birthDate": "Date of Birth",
+      "address": "Address",
+      "inpatient": "Inpatient",
+      "ageUnit": "",
+      "patientIdLabel": "Patient ID:",
+      "noSelection": "Please select a patient.",
+      "summaryTitle": "Selected Patient Summary",
+      "viewAll": "View Full Patient Info",
+      "doctor": "Attending Physician",
+      "height": "Height",
+      "regularCheck": "Regular Check",
+      "admissionDate": "Admission Date",
+      "weight": "Weight",
+      "comment": "Comment"
+    },
+    "gender": {
+      "male": "M",
+      "maleFull": "Male",
+      "female": "F",
+      "femaleFull": "Female",
+      "other": "Other"
+    },
+    "status": {
+      "stable": "Stable",
+      "monitoring": "Monitoring",
+      "discharge": "Pending Discharge",
+      "postoperative": "Post-Op",
+      "critical": "Critical",
+      "discharged": "Discharged"
+    },
+    "table": {
+      "id": "Patient ID",
+      "name": "Name",
+      "genderAge": "Gender/Age",
+      "ward": "Ward/Room",
+      "admissionDate": "Admission Date",
+      "status": "Status",
+      "noResults": "No results found.",
+      "showingOf": "Showing {from}-{to} of {total} patients"
+    },
+    "register": {
+      "title": "Register Patient",
+      "name": "Name",
+      "gender": "Gender",
+      "birthDate": "Date of Birth",
+      "bloodType": "Blood Type",
+      "address": "Address",
+      "admissionDate": "Admission Date",
+      "memo": "Additional Info",
+      "memoPlaceholder": "Allergies, special notes, etc.",
+      "select": "Select",
+      "yearSuffix": "",
+      "yearPlaceholder": "Year",
+      "monthSuffix": "",
+      "monthPlaceholder": "Month",
+      "daySuffix": "",
+      "dayPlaceholder": "Day",
+      "cancel": "Cancel",
+      "submit": "Register",
+      "success": "Patient registered successfully",
+      "error": "Failed to register patient"
+    }
+  },
+  "admission": {
+    "title": "Admission Info",
+    "date": "Admission Date",
+    "ward": "Ward / Room"
+  },
+  "guardian": {
+    "management": "Guardian Management",
+    "patientManagement": "Patient / Guardian Management",
+    "urgent": "Emergency Guardian Call",
+    "callNow": "Call Now",
+    "title": "Guardian & Visitors",
+    "primary": "Primary Guardian",
+    "recentVisit": "Recent Visits",
+    "noVisit": "No visit records.",
+    "status": "Status:"
+  },
+  "meal": {
+    "noInfo": "No meal info",
+    "noMenu": "No menu available.",
+    "breakfast": "Breakfast",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "loading": "Loading meal...",
+    "loadingDetail": "Checking uploaded meal data.",
+    "noMeal": "No meal registered",
+    "noBreakfast": "No breakfast registered for today.",
+    "noLunch": "No lunch registered for today.",
+    "noDinner": "No dinner registered for today.",
+    "loadError": "Failed to load meal data. Please try again after Excel upload.",
+    "dateLabel": "Meal"
+  },
+  "payment": {
+    "title": "Payment & Insurance",
+    "totalFee": "Total Fee",
+    "paid": "Paid Amount",
+    "unpaid": "Outstanding",
+    "checkDoc": "Check Document",
+    "recentDoc": "Recent Payment"
+  },
+  "diagnosis": {
+    "title": "Diagnosis",
+    "noInfo": "No diagnosis info",
+    "comment": "Diagnosis Comment",
+    "monitoring": "Intensive Monitoring",
+    "dementia": "Cognitive Decline"
+  },
+  "quickMenu": {
+    "title": "Quick Menu",
+    "settlement": "Interim Settlement",
+    "certificate": "Certificate Issuance",
+    "membership": "Membership Process",
+    "insurance": "Insurance Claim"
+  },
+  "bedroom": {
+    "bed": "Bed",
+    "bedNoInfo": "No bed info",
+    "assignPatient": "Assign Patient",
+    "admissionDate": "Admission Date",
+    "bloodType": "Blood Type",
+    "birthDate": "Date of Birth"
+  },
+  "room": {
+    "layoutTitle": "Room Layout",
+    "type": "Room Type",
+    "bedCount": "Bed Count",
+    "bedUnit": "",
+    "window": "WINDOW",
+    "door": "DOOR"
+  },
+  "visitors": {
+    "title": "Visits & Visitors",
+    "description": "Scheduled visits and visitor information will be displayed here.",
+    "noReservation": "No visit reservations registered."
+  },
+  "transfer": {
+    "approve": "Approve",
+    "hold": "Hold",
+    "ageUnit": ""
+  },
+  "applicant": {
+    "unit": "",
+    "recruitStatus": "Recruitment Status",
+    "confirmed": "Confirmed",
+    "waiting": "Waiting",
+    "remaining": "Days Left",
+    "closed": "Closed",
+    "noApplicants": "No applicants.",
+    "name": "Name",
+    "genderAge": "Gender / Age",
+    "contact": "Contact",
+    "appliedAt": "Applied At",
+    "status": "Status",
+    "manage": "Manage",
+    "approve": "Approve",
+    "reject": "Reject",
+    "moveToWaiting": "Move to Waiting"
+  },
+  "patientDetail": {
+    "title": "Patient Details",
+    "loading": "Loading...",
+    "notFound": "Patient not found.",
+    "backToList": "Back to list",
+    "edit": "Edit",
+    "genderAge": "Gender/Age",
+    "birthDate": "Date of Birth",
+    "bloodType": "Blood Type",
+    "statusLabel": "Status",
+    "admissionInfo": "Admission Info",
+    "admissionDate": "Admission Date",
+    "dischargeDate": "Discharge Date",
+    "room": "Room",
+    "diet": "Diet",
+    "memo": "Memo",
+    "ageUnit": ""
+  },
+  "patientList": {
+    "title": "Patient List",
+    "newPatient": "Register New Patient",
+    "searchPlaceholder": "Search by name or ID",
+    "currentInpatients": "Current Inpatients",
+    "todayDischarge": "Discharging Today",
+    "unassignedRooms": "Unassigned to Room",
+    "allStatus": "All Status"
+  },
+  "calendar": {
+    "addSchedule": "Add Schedule",
+    "editSchedule": "Edit Schedule",
+    "viewSchedule": "Schedule Details",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "close": "Close",
+    "delete": "Delete",
+    "processing": "Processing...",
+    "edit": "Edit",
+    "add": "+ Add",
+    "noSchedule": "No schedules for this date.",
+    "noContent": "No content",
+    "prev": "Prev",
+    "next": "Next",
+    "filter": {
+      "all": "All",
+      "program": "Program",
+      "personal": "Personal"
+    },
+    "am": "AM",
+    "pm": "PM",
+    "hourUnit": "",
+    "minuteUnit": "",
+    "deleteConfirm": "Delete this schedule?",
+    "title": "Schedule Calendar",
+    "subtitle": "Select a date to view or register schedules.",
+    "field": {
+      "title": "Title",
+      "period": "Period",
+      "time": "Time",
+      "content": "Content",
+      "titlePlaceholder": "Enter a title.",
+      "contentPlaceholder": "Write content here."
+    },
+    "validate": {
+      "title": "Please enter a title.",
+      "startDate": "Please enter a start date.",
+      "endDate": "Please enter an end date.",
+      "dateRange": "Start date cannot be after end date.",
+      "timeRange": "Start time cannot be after end time."
+    }
+  }
+}

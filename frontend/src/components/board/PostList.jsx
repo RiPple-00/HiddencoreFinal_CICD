@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '../../hooks/useI18n.jsx';
+import { useTranslatedTexts } from '../../hooks/useTranslate';
 import StatusBadge from '../common/StatusBadge';
 import { formatDate, formatRelativeTime, toDate } from '../../utils/dateUtils';
 
@@ -50,16 +52,34 @@ const getCapacity = (post) => post?.capacity ?? null;
 const getCurrentEnrolled = (post) =>
   post?.currentEnrolled ?? post?.current_enrolled ?? null;
 
-const formatCapacityStatus = (post) => {
+const getRecruitStatusLabel = (recruitStatus, t) => {
+  if (recruitStatus === '마감') return t('board.recruitStatus.closed');
+  if (recruitStatus === '모집 예정') return t('board.recruitStatus.scheduled');
+  if (recruitStatus === '모집 중') return t('board.recruitStatus.open');
+  return recruitStatus ?? '-';
+};
+
+const getPostTypeLabel = (postType, t) => {
+  if (postType === 'REVIEW') return t('board.postType.review');
+  if (postType === 'APPLY') return t('board.postType.apply');
+  return t('board.postType.unknown');
+};
+
+const formatCapacityStatus = (post, unit) => {
   const capacity = getCapacity(post);
   const enrolled = getCurrentEnrolled(post);
   if (capacity == null && enrolled == null) return '-';
-  if (capacity == null) return `${enrolled ?? 0}명`;
+  if (capacity == null) return `${enrolled ?? 0}${unit}`;
   return `${enrolled ?? 0} / ${capacity}`;
 };
 
 const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
+  const { t } = useI18n();
   const navigate = useNavigate();
+
+  // DB에서 오는 게시글 제목을 현재 언어로 AI 번역 (ko이면 원본 그대로)
+  const titles = posts.map((p) => p.title).filter(Boolean);
+  const getTranslatedTitle = useTranslatedTexts(titles);
 
   const handleRowClick = (post) => {
     const id = rowId(post);
@@ -77,7 +97,7 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
   if (posts.length === 0) {
     return (
       <div className="flex items-center justify-center py-16 text-gray-400 text-sm">
-        게시글이 없습니다.
+        {t('board.noPosts')}
       </div>
     );
   }
@@ -89,11 +109,11 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 text-gray-500 text-xs">
-              <th className="py-3 text-left font-medium">프로그램명</th>
-              <th className="py-3 w-64 text-center font-medium">일정</th>
-              <th className="py-3 w-24 text-center font-medium">모집 현황</th>
-              <th className="py-3 w-24 text-center font-medium">상태</th>
-              <th className="py-3 w-28 text-center font-medium">관리</th>
+              <th className="py-3 text-left font-medium">{t('board.table.programName')}</th>
+              <th className="py-3 w-64 text-center font-medium">{t('board.table.schedule')}</th>
+              <th className="py-3 w-24 text-center font-medium">{t('board.table.capacity')}</th>
+              <th className="py-3 w-24 text-center font-medium">{t('board.table.status')}</th>
+              <th className="py-3 w-28 text-center font-medium">{t('board.table.manage')}</th>
             </tr>
           </thead>
           <tbody>
@@ -105,9 +125,9 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
               >
                 <td className="py-4">
                   <div className="flex flex-col gap-1">
-                    <span className="text-gray-800 font-medium">{post.title}</span>
+                    <span className="text-gray-800 font-medium">{getTranslatedTitle(post.title)}</span>
                     <span className="text-xs text-gray-400">
-                      {post.type === 'REVIEW' ? '활동 후기' : '참여 신청'}
+                      {getPostTypeLabel(post.type, t)}
                     </span>
                   </div>
                 </td>
@@ -119,12 +139,14 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
                 </td>
 
                 <td className="py-4 text-center text-gray-600 font-medium">
-                  {formatCapacityStatus(post)}
+                  {formatCapacityStatus(post, t('applicant.unit'))}
                 </td>
 
                 <td className="py-4 text-center">
                   <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${getRecruitStatusTone(post.recruitStatus)}`}>
-                    {post.recruitStatus === '마감' ? '모집 완료' : (post.recruitStatus ?? '-')}
+                    {post.recruitStatus === '마감'
+                      ? t('board.recruitStatus.closed')
+                      : getRecruitStatusLabel(post.recruitStatus, t)}
                   </span>
                 </td>
 
@@ -141,7 +163,9 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
                     }}
                     className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
                   >
-                    {post.type === 'APPLY' ? '신청 관리' : '상세 보기'}
+                    {post.type === 'APPLY'
+                      ? t('board.actions.manageApplication')
+                      : t('board.actions.viewDetail')}
                   </button>
                 </td>
               </tr>
@@ -178,7 +202,7 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
                   <StatusBadge type={post.type} />
                   {/* CHECK!!! HOT 배지 - 추후 isHotPost(post.viewCount) 조건으로 주석 해제 */}
                   {/* {isHotPost(post.viewCount) && <StatusBadge type="HOT" />} */}
-                  <span className="text-gray-800">{post.title}</span>
+                  <span className="text-gray-800">{getTranslatedTitle(post.title)}</span>
                   {/* CHECK!!! 첨부파일 필드명 확인 필요 - post.attachmentUrls가 배열인지 */}
                   {post.attachmentUrls?.length > 0 && (
                     <img src="/icons/attachment.svg" alt="첨부파일" className="w-3.5 h-3.5 opacity-40" />
@@ -225,7 +249,7 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
             {/* 배지 + 제목 */}
             <div className="flex items-center gap-2">
               <StatusBadge type={post.type} />
-              <span className="text-sm text-gray-800 truncate">{post.title}</span>
+              <span className="text-sm text-gray-800 truncate">{getTranslatedTitle(post.title)}</span>
             </div>
             {/* 작성자 + 상대 시간 */}
             <div className="flex justify-between text-xs text-gray-400">

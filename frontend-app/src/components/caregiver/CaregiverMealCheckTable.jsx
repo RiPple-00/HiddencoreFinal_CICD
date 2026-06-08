@@ -5,7 +5,7 @@ import CaregiverStatusToggle from "./CaregiverStatusToggle";
 
 /**
  * 식사(Meal) 섹션 - 가로 3열(아침/점심/저녁) x 세로 3행(식사 섭취량/수분 섭취량/사례 여부) 그리드.
- * abnormal시 memo 입력 가능
+ * - theme: "caregiver" (기본, 초록) | "guardian" (노랑)
  */
 const SLOTS = [
   { key: "morning", label: "아침" },
@@ -19,8 +19,13 @@ const ROWS = [
   { key: "incident",  label: "사례 여부" },
 ];
 
-export default function CaregiverMealCheckTable({ value, onChange, readOnly = false, statusErrorMap = null }) {
+export default function CaregiverMealCheckTable({ value, onChange, readOnly = false, statusErrorMap = null, theme = "caregiver" }) {
   const safeValue = value || {};
+
+  const textPrimary   = theme === "guardian" ? "text-guardian-text-primary"   : "text-caregiver-text-primary";
+  const textSecondary = theme === "guardian" ? "text-guardian-text-secondary" : "text-caregiver-text-secondary";
+  const bgPrimary     = theme === "guardian" ? "bg-guardian-bg-primary"       : "bg-caregiver-bg-primary";
+  const borderDivider = theme === "guardian" ? "border-guardian-bg-secondary" : "border-caregiver-bg-secondary";
 
   const updateCell = (slotKey, rowKey, partial) => {
     if (readOnly) return;
@@ -32,7 +37,6 @@ export default function CaregiverMealCheckTable({ value, onChange, readOnly = fa
     });
   };
 
-  // 9칸 중 이상으로 표시된 셀만 모아 메모 입력을 노출.
   const abnormalCells = useMemo(() => {
     const list = [];
     SLOTS.forEach((slot) => {
@@ -55,12 +59,12 @@ export default function CaregiverMealCheckTable({ value, onChange, readOnly = fa
 
   return (
     <View className="px-2 py-[6px]">
-      {/* 헤더 행 (아침/점심/저녁) */}
-      <View className="flex-row items-center py-[6px] border-b border-caregiver-bg-secondary">
+      {/* 헤더 행 */}
+      <View className={`flex-row items-center py-[6px] border-b ${borderDivider}`}>
         <View style={{ width: 78 }} className="px-1" />
         {SLOTS.map((slot) => (
           <View key={slot.key} className="flex-1 items-center">
-            <Text className="text-[13px] font-bold text-caregiver-text-primary">{slot.label}</Text>
+            <Text className={`text-[13px] font-bold ${textPrimary}`}>{slot.label}</Text>
           </View>
         ))}
       </View>
@@ -69,10 +73,10 @@ export default function CaregiverMealCheckTable({ value, onChange, readOnly = fa
       {ROWS.map((row, idx) => (
         <View
           key={row.key}
-          className={`flex-row items-center py-[6px] ${idx < ROWS.length - 1 ? "border-b border-caregiver-bg-secondary" : ""}`}
+          className={`flex-row items-center py-[6px] ${idx < ROWS.length - 1 ? `border-b ${borderDivider}` : ""}`}
         >
           <View style={{ width: 78 }} className="px-1">
-            <Text className="text-[13px] font-bold text-caregiver-text-primary">{row.label}</Text>
+            <Text className={`text-[13px] font-bold ${textPrimary}`}>{row.label}</Text>
           </View>
           {SLOTS.map((slot) => (
             <View key={slot.key} className="flex-1 items-center justify-center">
@@ -80,11 +84,11 @@ export default function CaregiverMealCheckTable({ value, onChange, readOnly = fa
                 <CaregiverStatusToggle
                   size="sm"
                   readOnly={readOnly}
+                  theme={theme}
                   value={safeValue[slot.key]?.[row.key]?.status ?? null}
                   onChange={(next) =>
                     updateCell(slot.key, row.key, {
                       status: next,
-                      // 정상 / 미선택으로 돌리면 해당 셀 메모도 함께 비운다.
                       ...(next !== "abnormal" ? { memo: "" } : {}),
                     })
                   }
@@ -95,10 +99,10 @@ export default function CaregiverMealCheckTable({ value, onChange, readOnly = fa
         </View>
       ))}
 
-      {/* 이상으로 표시된 셀별 메모 입력 */}
+      {/* 이상으로 표시된 셀별 메모 */}
       {abnormalCells.length > 0 && (
-        <View className="mt-1 px-1 pt-2 border-t border-caregiver-bg-secondary">
-          <Text className="text-xs text-caregiver-text-secondary mb-[6px]">이상 항목 메모</Text>
+        <View className={`mt-1 px-1 pt-2 border-t ${borderDivider}`}>
+          <Text className={`text-xs ${textSecondary} mb-[6px]`}>이상 항목 메모</Text>
           {abnormalCells.map((cell) => (
             <View key={`${cell.slotKey}-${cell.rowKey}`} className="mb-2">
               <View className="flex-row mb-1">
@@ -109,20 +113,20 @@ export default function CaregiverMealCheckTable({ value, onChange, readOnly = fa
                 </View>
               </View>
               {readOnly ? (
-                <Text className="border border-error-primary bg-caregiver-bg-primary rounded-lg px-[10px] py-2 text-[13px] text-caregiver-text-primary min-h-[40px]">
+                <Text className={`border border-error-primary ${bgPrimary} rounded-lg px-[10px] py-2 text-[13px] ${textPrimary} min-h-[40px]`}>
                   {cell.memo?.trim() ? cell.memo : "—"}
                 </Text>
               ) : (
-              <TextInput
-                value={cell.memo}
-                onChangeText={(text) => updateCell(cell.slotKey, cell.rowKey, { memo: text })}
-                placeholder={`${cell.slotLabel} ${cell.rowLabel} 이상 사유를 입력하세요`}
-                placeholderTextColor="#949BA0"
-                className="border border-error-primary bg-caregiver-bg-primary rounded-lg px-[10px] py-2 text-[13px] text-caregiver-text-primary"
-                style={{ minHeight: 40 }}
-                multiline
-                textAlignVertical="top"
-              />
+                <TextInput
+                  value={cell.memo}
+                  onChangeText={(text) => updateCell(cell.slotKey, cell.rowKey, { memo: text })}
+                  placeholder={`${cell.slotLabel} ${cell.rowLabel} 이상 사유를 입력하세요`}
+                  placeholderTextColor="#949BA0"
+                  className={`border border-error-primary ${bgPrimary} rounded-lg px-[10px] py-2 text-[13px] ${textPrimary}`}
+                  style={{ minHeight: 40 }}
+                  multiline
+                  textAlignVertical="top"
+                />
               )}
             </View>
           ))}

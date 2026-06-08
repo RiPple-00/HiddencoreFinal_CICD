@@ -1,0 +1,377 @@
+{
+  "nav": {
+    "rooms": "病室照会",
+    "patients": "患者照会",
+    "calendar": "カレンダー",
+    "notice": "掲示板"
+  },
+  "search": {
+    "placeholder": "患者検索...",
+    "type": {
+      "all": "タイトル+内容",
+      "title": "タイトル",
+      "content": "内容"
+    },
+    "inputPlaceholder": "検索ワードを入力してください"
+  },
+  "label": {
+    "language": "言語",
+    "profile": "マイページ",
+    "settings": "設定",
+    "logout": "ログアウト",
+    "korean": "한국어",
+    "english": "English",
+    "japanese": "日本語"
+  },
+  "widget": {
+    "programSchedule": "プログラムスケジュール",
+    "notice": "お知らせ",
+    "viewAll": "すべて見る",
+    "loading": "読み込み中...",
+    "noPosts": "投稿がありません。"
+  },
+  "aria": {
+    "searchPatients": "患者検索",
+    "mail": "メール",
+    "notifications": "通知"
+  },
+  "button": {
+    "search": "検索"
+  },
+  "board": {
+    "noPosts": "投稿がありません。",
+    "table": {
+      "programName": "プログラム名",
+      "schedule": "スケジュール",
+      "capacity": "募集状況",
+      "status": "状態",
+      "manage": "管理"
+    },
+    "postType": {
+      "review": "活動レビュー",
+      "apply": "参加申請",
+      "unknown": "投稿"
+    },
+    "recruitStatus": {
+      "open": "募集中",
+      "closed": "募集完了",
+      "scheduled": "募集予定"
+    },
+    "actions": {
+      "manageApplication": "申請管理",
+      "viewDetail": "詳細表示"
+    },
+    "create": {
+      "panel": {
+        "author": "作成者",
+        "lastUpdated": "最終更新",
+        "saveDraft": "下書き保存",
+        "submitting": "登録中...",
+        "submit": "✓ 投稿を登録",
+        "cancel": "キャンセル",
+        "noticeTarget": "公開対象",
+        "noticeTip": "重要なお知らせは上部固定機能を使用すると効率的です。",
+        "recruitSchedule": "募集スケジュール",
+        "startDate": "開始日",
+        "endDate": "終了日",
+        "capacity": "定員",
+        "capacityUnit": "名",
+        "status": "状態"
+      }
+    },
+    "detail": {
+      "action": {
+        "backToList": "一覧に戻る",
+        "edit": "編集",
+        "delete": "削除",
+        "applyAlert": "申請API接続が必要です",
+        "apply": "申請する",
+        "applyDisabled": "申請不可"
+      }
+    },
+    "badge": {
+      "urgent": "緊急",
+      "clinical": "臨床",
+      "admin": "行政",
+      "facility": "施設",
+      "apply": "参加申請",
+      "review": "活動レビュー",
+      "general": "一般"
+    }
+  },
+  "admin": {
+    "quickMenu": {
+      "title": "行政業務クイックメニュー",
+      "settlement": "中間精算",
+      "certificate": "証明書発行",
+      "discharge": "退院手続き",
+      "insurance": "保険請求"
+    }
+  },
+  "bedSidebar": {
+    "menu": {
+      "overview": "概要",
+      "vitalSigns": "バイタルサイン",
+      "prescriptions": "処方薬",
+      "testResults": "検査結果",
+      "nursingNotes": "看護記録",
+      "medicalRecords": "診療記録"
+    }
+  },
+  "ward": {
+    "selection": {
+      "ward": "WARD SELECTION",
+      "floor": "FLOOR SELECTION",
+      "special": "SPECIAL SELECTION"
+    },
+    "specials": {
+      "icu": "ICU",
+      "isolation": "隔離室"
+    },
+    "roomType": {
+      "general": "一般病室",
+      "icu": "ICU",
+      "isolation": "隔離室"
+    },
+    "gender": {
+      "male": "男性",
+      "female": "女性",
+      "mixed": "混合"
+    }
+  },
+  "patient": {
+    "profile": {
+      "genderAge": "性別 / 年齢",
+      "bloodType": "血液型",
+      "birthDate": "生年月日",
+      "address": "住所",
+      "inpatient": "入院患者",
+      "ageUnit": "歳",
+      "patientIdLabel": "患者ID:",
+      "noSelection": "患者を選択してください。",
+      "summaryTitle": "選択患者サマリー",
+      "viewAll": "患者情報を全て見る",
+      "doctor": "主治医",
+      "height": "身長",
+      "regularCheck": "定期チェック",
+      "admissionDate": "入院日",
+      "weight": "体重",
+      "comment": "コメント"
+    },
+    "gender": {
+      "male": "男",
+      "maleFull": "男性",
+      "female": "女",
+      "femaleFull": "女性",
+      "other": "その他"
+    },
+    "status": {
+      "stable": "安定",
+      "monitoring": "集中観察",
+      "discharge": "退院予定",
+      "postoperative": "術後",
+      "critical": "危険",
+      "discharged": "退院完了"
+    },
+    "table": {
+      "id": "患者ID",
+      "name": "氏名",
+      "genderAge": "性別/年齢",
+      "ward": "病棟/病室",
+      "admissionDate": "入院日",
+      "status": "状態",
+      "noResults": "検索結果がありません。",
+      "showingOf": "{total}名中 {from}-{to}件を表示中"
+    },
+    "register": {
+      "title": "患者登録",
+      "name": "氏名",
+      "gender": "性別",
+      "birthDate": "生年月日",
+      "bloodType": "血液型",
+      "address": "住所",
+      "admissionDate": "入院日",
+      "memo": "その他情報",
+      "memoPlaceholder": "アレルギー、特記事項など",
+      "select": "選択",
+      "yearSuffix": "年",
+      "yearPlaceholder": "年",
+      "monthSuffix": "月",
+      "monthPlaceholder": "月",
+      "daySuffix": "日",
+      "dayPlaceholder": "日",
+      "cancel": "キャンセル",
+      "submit": "登録",
+      "success": "患者登録完了",
+      "error": "患者登録失敗"
+    }
+  },
+  "admission": {
+    "title": "入院情報",
+    "date": "入院日時",
+    "ward": "病棟 / 病室"
+  },
+  "guardian": {
+    "management": "保護者管理",
+    "patientManagement": "患者/保護者管理",
+    "urgent": "緊急保護者呼び出し",
+    "callNow": "今すぐ通話",
+    "title": "保護者・訪問者",
+    "primary": "主保護者",
+    "recentVisit": "最近の面会",
+    "noVisit": "面会記録がありません。",
+    "status": "状態:"
+  },
+  "meal": {
+    "noInfo": "食事情報なし",
+    "noMenu": "表示できるメニューがありません。",
+    "breakfast": "朝食",
+    "lunch": "昼食",
+    "dinner": "夕食",
+    "loading": "食事情報を読み込み中...",
+    "loadingDetail": "アップロードされた食事情報を確認しています。",
+    "noMeal": "食事未登録",
+    "noBreakfast": "今日の朝食の食事が登録されていません。",
+    "noLunch": "今日の昼食の食事が登録されていません。",
+    "noDinner": "今日の夕食の食事が登録されていません。",
+    "loadError": "食事データを読み込めませんでした。Excelアップロード後に再確認してください。",
+    "dateLabel": "食事"
+  },
+  "payment": {
+    "title": "会計・保険",
+    "totalFee": "総診療費",
+    "paid": "支払い金額",
+    "unpaid": "未収金",
+    "checkDoc": "書類確認",
+    "recentDoc": "最近の会計書類"
+  },
+  "diagnosis": {
+    "title": "診断名",
+    "noInfo": "診断情報なし",
+    "comment": "診断コメント",
+    "monitoring": "集中観察",
+    "dementia": "認知機能低下"
+  },
+  "quickMenu": {
+    "title": "クイックメニュー",
+    "settlement": "中間精算",
+    "certificate": "証明書発行",
+    "membership": "会員手続き",
+    "insurance": "保険請求"
+  },
+  "bedroom": {
+    "bed": "ベッド",
+    "bedNoInfo": "ベッド情報なし",
+    "assignPatient": "患者割当",
+    "admissionDate": "入院日",
+    "bloodType": "血液型",
+    "birthDate": "生年月日"
+  },
+  "room": {
+    "layoutTitle": "病床レイアウト",
+    "type": "病室タイプ",
+    "bedCount": "ベッド数",
+    "bedUnit": "台",
+    "window": "窓",
+    "door": "出入口"
+  },
+  "visitors": {
+    "title": "面会・訪問",
+    "description": "予定されている面会スケジュールと訪問者情報がここに表示されます。",
+    "noReservation": "登録された面会予約はありません。"
+  },
+  "transfer": {
+    "approve": "承認",
+    "hold": "保留",
+    "ageUnit": "歳"
+  },
+  "applicant": {
+    "unit": "名",
+    "recruitStatus": "募集状況",
+    "confirmed": "確定人数",
+    "waiting": "待機人数",
+    "remaining": "残り期間",
+    "closed": "締切",
+    "noApplicants": "申請者がいません。",
+    "name": "氏名",
+    "genderAge": "性別 / 年齢",
+    "contact": "連絡先",
+    "appliedAt": "申請日時",
+    "status": "状態",
+    "manage": "管理",
+    "approve": "承認完了",
+    "reject": "却下",
+    "moveToWaiting": "待機に変更"
+  },
+  "patientDetail": {
+    "title": "患者詳細情報",
+    "loading": "読み込み中...",
+    "notFound": "患者が見つかりません。",
+    "backToList": "一覧に戻る",
+    "edit": "編集",
+    "genderAge": "性別/年齢",
+    "birthDate": "生年月日",
+    "bloodType": "血液型",
+    "statusLabel": "状態",
+    "admissionInfo": "入院情報",
+    "admissionDate": "入院日",
+    "dischargeDate": "退院日",
+    "room": "病室",
+    "diet": "食事",
+    "memo": "メモ",
+    "ageUnit": "歳"
+  },
+  "patientList": {
+    "title": "患者照会",
+    "newPatient": "新規患者登録",
+    "searchPlaceholder": "患者名・IDで検索",
+    "currentInpatients": "現在の入院患者",
+    "todayDischarge": "本日退院予定",
+    "unassignedRooms": "病室未配定患者",
+    "allStatus": "全ステータス"
+  },
+  "calendar": {
+    "addSchedule": "スケジュール追加",
+    "editSchedule": "スケジュール編集",
+    "viewSchedule": "スケジュール詳細",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "saving": "保存中...",
+    "close": "閉じる",
+    "delete": "削除",
+    "processing": "処理中...",
+    "edit": "編集",
+    "add": "+ 追加",
+    "noSchedule": "この日のスケジュールはありません。",
+    "noContent": "内容なし",
+    "prev": "前",
+    "next": "次",
+    "filter": {
+      "all": "全て",
+      "program": "プログラム",
+      "personal": "個人"
+    },
+    "am": "午前",
+    "pm": "午後",
+    "hourUnit": "時",
+    "minuteUnit": "分",
+    "deleteConfirm": "このスケジュールを削除しますか？",
+    "title": "スケジュールカレンダー",
+    "subtitle": "日付を選択すると、その日のスケジュールを確認または登録できます。",
+    "field": {
+      "title": "タイトル",
+      "period": "期間",
+      "time": "時間",
+      "content": "内容",
+      "titlePlaceholder": "タイトルを入力してください。",
+      "contentPlaceholder": "内容を入力してください。"
+    },
+    "validate": {
+      "title": "タイトルを入力してください。",
+      "startDate": "開始日を入力してください。",
+      "endDate": "終了日を入力してください。",
+      "dateRange": "開始日は終了日より前にする必要があります。",
+      "timeRange": "開始時間は終了時間より前にする必要があります。"
+    }
+  }
+}

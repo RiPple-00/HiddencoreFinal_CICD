@@ -77,7 +77,7 @@ export default function GuardianTopTab({ navigation }) {
             label: "설정",
             onPress: () => {
               setMenuOpen(false);
-              Alert.alert("설정", "설정 기능은 준비 중입니다.");
+              navigateGuardian(navigation, "Settings");
             },
           },
           {

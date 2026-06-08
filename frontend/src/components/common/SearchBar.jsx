@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SEARCH_TYPES } from '../../utils/boardUtils';
+import { useI18n } from '../../hooks/useI18n.jsx';
 import Input from '../Input';
 import Button from '../Button';
 
@@ -11,6 +12,7 @@ import Button from '../Button';
  * @param {function} onReset - 검색 초기화 콜백
  */
 const SearchBar = ({ searchType, searchKeyword, onSearch, onReset }) => {
+  const { t } = useI18n();
   // 실제 제출 전까지 로컬에서 관리
   const [localType, setLocalType] = useState(searchType ?? 'all');
   const [localKeyword, setLocalKeyword] = useState(searchKeyword ?? '');
@@ -39,7 +41,7 @@ const SearchBar = ({ searchType, searchKeyword, onSearch, onReset }) => {
       >
         {SEARCH_TYPES.map((type) => (
           <option key={type.value} value={type.value}>
-            {type.label}
+            {t(`search.type.${type.value}`)}
           </option>
         ))}
       </select>
@@ -51,7 +53,7 @@ const SearchBar = ({ searchType, searchKeyword, onSearch, onReset }) => {
           value={localKeyword}
           onChange={(e) => setLocalKeyword(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="검색어를 입력하세요"
+          placeholder={t('search.inputPlaceholder')}
         />
       </div>
 
@@ -62,7 +64,7 @@ const SearchBar = ({ searchType, searchKeyword, onSearch, onReset }) => {
         size="md"
         onClick={handleSearch}
       >
-        검색
+        {t('button.search')}
       </Button>
 
     </div>  );

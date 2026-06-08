@@ -1,3 +1,4 @@
+import { useI18n } from '../../hooks/useI18n.jsx';
 import { getBadgeStyle } from '../../utils/boardUtils';
 
 /**
@@ -8,7 +9,9 @@ import { getBadgeStyle } from '../../utils/boardUtils';
  * @param {string} [className] - 추가 Tailwind 클래스 (외부에서 크기/여백 조정 시 사용)
  */
 const StatusBadge = ({ type, className = '' }) => {
-  const { label, className: badgeClass } = getBadgeStyle(type);
+  const { t } = useI18n();
+  const { label: fallbackLabel, className: badgeClass } = getBadgeStyle(type);
+  const label = t(`board.badge.${type?.toLowerCase()}`, fallbackLabel);
 
   return (
     <span

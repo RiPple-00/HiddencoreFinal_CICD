@@ -16,12 +16,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "../Text";
+import useI18n from "@/hooks/useI18n";
 import storageApi from "../../api/storageApi";
 import { normalizePayment, formatWonSymbol } from "../../utils/Storageformat";
 import { TAG_COLORS, STATUS_COLORS } from "../../styles/colors";
 
-const CATEGORY_OPTIONS = ["전체", "진료비", "식대", "입원비", "약제비"];
-const DATE_OPTIONS     = ["전체 기간", "최근 1개월", "최근 3개월", "최근 6개월", "2023년"];
+const CATEGORY_OPTIONS = ["all", "TREATMENT", "MEAL", "ADMISSION", "MEDICATION"];
+const DATE_OPTIONS     = ["all", "1m", "3m", "6m", "2023"];
 const PATIENT_ID = 1; // TODO: 인증/세션에서
 
 function groupByDate(payments) {
@@ -33,15 +34,15 @@ function groupByDate(payments) {
   return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
 }
 
-function makeFormatDateLabel() {
+function makeFormatDateLabel(t) {
   const fmt = (d) =>
     `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
   const now       = new Date();
   const today     = fmt(now);
   const yesterday = fmt(new Date(now.getTime() - 86400000));
   return (dateStr) => {
-    if (dateStr === today)     return "오늘";
-    if (dateStr === yesterday) return "어제";
+    if (dateStr === today)     return t("common.today", "오늘");
+    if (dateStr === yesterday) return t("common.yesterday", "어제");
     return dateStr;
   };
 }
@@ -49,9 +50,9 @@ function makeFormatDateLabel() {
 function dateOptionToRange(opt) {
   const now   = new Date();
   const today = now.toISOString().slice(0, 10);
-  if (opt === "전체 기간") return null;
-  if (opt === "2023년")    return { from: "2023-01-01", to: "2023-12-31" };
-  const months = { "최근 1개월": 1, "최근 3개월": 3, "최근 6개월": 6 }[opt];
+  if (opt === "all") return null;
+  if (opt === "2023") return { from: "2023-01-01", to: "2023-12-31" };
+  const months = { "1m": 1, "3m": 3, "6m": 6 }[opt];
   if (!months) return null;
   const from = new Date(now);
   from.setMonth(from.getMonth() - months);
@@ -59,10 +60,11 @@ function dateOptionToRange(opt) {
 }
 
 export default function InvoicePaymentList({ navigation }) {
-  const formatDateLabel = useMemo(makeFormatDateLabel, []);
+  const { t, language } = useI18n();
+  const formatDateLabel = useMemo(() => makeFormatDateLabel(t), [t]);
 
-  const [selectedDate,     setSelectedDate]     = useState("전체 기간");
-  const [selectedCategory, setSelectedCategory] = useState("전체");
+  const [selectedDate,     setSelectedDate]     = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [openDropdown,     setOpenDropdown]     = useState(null);
   const [payments,         setPayments]         = useState([]);
   const [loading,          setLoading]          = useState(true);
@@ -75,15 +77,15 @@ export default function InvoicePaymentList({ navigation }) {
         setLoading(true);
         setError(null);
         const params = { patientId: PATIENT_ID };
-        if (selectedCategory !== "전체") params.category = selectedCategory;
+        if (selectedCategory !== "all") params.category = selectedCategory;
         const range = dateOptionToRange(selectedDate);
         if (range) { params.from = range.from; params.to = range.to; }
         const res  = await storageApi.getPaymentHistories(params);
         const data = res.data?.data ?? res.data ?? [];
         if (cancelled) return;
-        setPayments((Array.isArray(data) ? data : []).map(normalizePayment));
+        setPayments((Array.isArray(data) ? data : []).map((raw) => normalizePayment(raw, t, language)));
       } catch (e) {
-        if (!cancelled) setError(e?.message ?? "결제 내역을 불러오지 못했습니다.");
+        if (!cancelled) setError(e?.message ?? t("billing.load_error", "결제 내역을 불러오지 못했습니다."));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -92,7 +94,7 @@ export default function InvoicePaymentList({ navigation }) {
   }, [selectedCategory, selectedDate]);
 
   const filtered = useMemo(() =>
-    payments.filter((p) => selectedCategory === "전체" || p.tag === selectedCategory),
+    payments.filter((p) => selectedCategory === "all" || p.tagKey === selectedCategory),
   [payments, selectedCategory]);
 
   const grouped = useMemo(() => groupByDate(filtered), [filtered]);
@@ -103,7 +105,7 @@ export default function InvoicePaymentList({ navigation }) {
     cutoff.setDate(cutoff.getDate() - 30);
     const sum = payments
       .filter((p) => {
-        if (p.status === "미납") return false;
+        if (["UNPAID", "OVERDUE"].includes(p.statusCode)) return false;
         const d = new Date(p.date.replace(/\./g, "-"));
         return d >= cutoff;
       })
@@ -128,7 +130,7 @@ export default function InvoicePaymentList({ navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()} className="w-10">
           <Text className="text-3xl text-guardian-text-primary">‹</Text>
         </TouchableOpacity>
-        <Text className="text-lg font-bold text-guardian-text-primary">결제 내역</Text>
+        <Text className="text-lg font-bold text-guardian-text-primary">{t("billing.payment_history_title", "결제 내역")}</Text>
         <View className="w-10" />
       </View>
 
@@ -136,7 +138,7 @@ export default function InvoicePaymentList({ navigation }) {
         {/* 최근 30일 총 결제금액 */}
         <View className="bg-background-neutral mx-4 mt-4 rounded-2xl p-4 mb-3">
           <Text className="text-sm text-guardian-text-neutral mb-1">
-            총 결제 금액 (최근 30일)
+            {t("billing.recent_30_days", "총 결제 금액 (최근 30일)")}
           </Text>
           {loading ? (
             <ActivityIndicator size="small" color="#FCC101" />
@@ -163,7 +165,12 @@ export default function InvoicePaymentList({ navigation }) {
               <Text className={`text-sm font-bold ${
                 isDateActive ? "text-guardian-text-primary" : "text-guardian-text-neutral"
               }`}>
-                {selectedDate} ▾
+                {selectedDate === "all" ? t("billing.all_period", "전체 기간")
+                  : selectedDate === "1m" ? t("billing.date_filter_1m", "최근 1개월")
+                  : selectedDate === "3m" ? t("billing.date_filter_3m", "최근 3개월")
+                  : selectedDate === "6m" ? t("billing.date_filter_6m", "최근 6개월")
+                  : selectedDate === "2023" ? t("billing.date_filter_2023", "2023년")
+                  : selectedDate} ▾
               </Text>
             </TouchableOpacity>
             {isDateActive && (
@@ -181,7 +188,12 @@ export default function InvoicePaymentList({ navigation }) {
                         ? "text-guardian-text-primary font-bold"
                         : "text-guardian-text-neutral"
                     }`}>
-                      {opt}
+                      {opt === "all" ? t("billing.all_period", "전체 기간")
+                        : opt === "1m" ? t("billing.date_filter_1m", "최근 1개월")
+                        : opt === "3m" ? t("billing.date_filter_3m", "최근 3개월")
+                        : opt === "6m" ? t("billing.date_filter_6m", "최근 6개월")
+                        : opt === "2023" ? t("billing.date_filter_2023", "2023년")
+                        : opt}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -202,7 +214,7 @@ export default function InvoicePaymentList({ navigation }) {
               <Text className={`text-sm font-bold ${
                 isCategoryActive ? "text-guardian-text-primary" : "text-guardian-text-neutral"
               }`}>
-                {selectedCategory === "전체" ? "전체 항목" : selectedCategory} ▾
+                {selectedCategory === "all" ? t("billing.all_items", "전체 항목") : t(`storage.category.${selectedCategory}`, selectedCategory)} ▾
               </Text>
             </TouchableOpacity>
             {isCategoryActive && (
@@ -220,7 +232,7 @@ export default function InvoicePaymentList({ navigation }) {
                         ? "text-guardian-text-primary font-bold"
                         : "text-guardian-text-neutral"
                     }`}>
-                      {opt === "전체" ? "전체 항목" : opt}
+                      {opt === "all" ? t("billing.all_items", "전체 항목") : t(`storage.category.${opt}`, opt)}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -242,7 +254,7 @@ export default function InvoicePaymentList({ navigation }) {
           ) : grouped.length === 0 ? (
             <View className="py-10 items-center">
               <Text className="text-guardian-text-neutral text-sm">
-                해당하는 결제 내역이 없습니다.
+                {t("billing.no_payments", "해당하는 결제 내역이 없습니다.")}
               </Text>
             </View>
           ) : (
@@ -258,9 +270,9 @@ export default function InvoicePaymentList({ navigation }) {
                 </View>
 
                 {dayPayments.map((pay) => {
-                  const tagColor    = TAG_COLORS[pay.tag]    ?? { bg: "#FEF7E5", text: "#503115" };
-                  const statusColor = STATUS_COLORS[pay.status] ?? STATUS_COLORS.미납;
-                  const isMiNap     = pay.status === "미납";
+                  const tagColor    = TAG_COLORS[pay.tagKey ?? pay.tag]    ?? { bg: "#FEF7E5", text: "#503115" };
+                  const statusColor = STATUS_COLORS[pay.statusCode ?? pay.status] ?? STATUS_COLORS.미납;
+                  const isMiNap     = ["UNPAID", "OVERDUE"].includes(pay.statusCode);
                   return (
                     <TouchableOpacity
                       key={pay.id}
@@ -280,7 +292,9 @@ export default function InvoicePaymentList({ navigation }) {
                       </View>
 
                       {/* 결제 금액 */}
-                      <Text className="text-xs text-guardian-text-neutral mb-1">결제 금액</Text>
+                      <Text className="text-xs text-guardian-text-neutral mb-1">
+                        {t("billing.payment_amount", "결제 금액")}
+                      </Text>
                       <Text className={`text-xl font-extrabold mb-3 ${
                         isMiNap ? "text-error-primary" : "text-guardian-text-primary"
                       }`}>

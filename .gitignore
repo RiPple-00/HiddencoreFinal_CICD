@@ -71,6 +71,7 @@ id_ecdsa
 **/bootstrap-local.properties
 local.properties
 **/gradle-local.properties
+backend/src/main/resources/application.properties
 
 # 로컬 DB 스크립트 (비번 — *.example 만 커밋)
 **/local_db.env

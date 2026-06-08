@@ -22,11 +22,13 @@ import storageApi from "../../api/storageApi";
 import { normalizePatient, normalizePayment } from "../../utils/Storageformat";
 import { TAG_COLORS, STATUS_COLORS } from "../../styles/colors";
 import Text from "@/components/Text";
+import useI18n from "@/hooks/useI18n";
 
 // TODO: 인증/세션에서 환자 ID 가져오도록 변경 필요
 const PATIENT_ID = 1;
 
 export default function StoragePage({ navigation }) {
+  const { t, language } = useI18n();
   const [patient,     setPatient]     = useState(null);
   const [pendingList, setPendingList] = useState([]);
   const [loading,     setLoading]     = useState(true);
@@ -48,11 +50,11 @@ export default function StoragePage({ navigation }) {
         const overdueData  = overdueRes.data?.data  ?? overdueRes.data  ?? [];
 
         const normalizedPatient = Array.isArray(patientsData)
-          ? normalizePatient(patientsData[0] ?? {})
-          : normalizePatient(patientsData);
+          ? normalizePatient(patientsData[0] ?? {}, t)
+          : normalizePatient(patientsData, t);
 
         const normalizedOverdue = (Array.isArray(overdueData) ? overdueData : [])
-          .map(normalizePayment)
+          .map((raw) => normalizePayment(raw, t, language))
           .slice(0, 5);
 
         setPatient(normalizedPatient);
@@ -78,12 +80,12 @@ export default function StoragePage({ navigation }) {
           onPress={() => navigation.goBack()}
           className="w-10 justify-center"
           accessibilityRole="button"
-          accessibilityLabel="뒤로가기"
+          accessibilityLabel={t("common.back", "뒤로")}
         >
           <Text className="text-3xl text-guardian-text-primary">‹</Text>
         </TouchableOpacity>
 
-        <Text className="text-lg font-bold text-guardian-text-primary">청구 내역</Text>
+        <Text className="text-lg font-bold text-guardian-text-primary">{t("billing.storage_title", "청구 내역")}</Text>
 
         {/* 가운데 정렬용 스페이서 */}
         <View className="w-10" />
@@ -107,7 +109,7 @@ export default function StoragePage({ navigation }) {
               ) : (
                 <>
                   <Text className="text-base font-bold text-guardian-text-primary">
-                    {patient?.name ?? "-"} 님
+                    {patient?.name ?? "-"}{t("billing.patient_suffix", "님")}
                   </Text>
                   <Text className="text-xs text-guardian-text-neutral mt-[2px]">
                     {patient?.room ? `${patient.room}호 ` : ""}{patient?.status ?? ""}
@@ -119,9 +121,11 @@ export default function StoragePage({ navigation }) {
 
           {/* 예상 수납 헤더 */}
           <View className="flex-row justify-between items-center mb-2">
-            <Text className="text-sm font-bold text-guardian-text-primary">예상 수납 금액</Text>
+            <Text className="text-sm font-bold text-guardian-text-primary">
+              {t("billing.estimated_amount", "예상 수납 금액")}
+            </Text>
             <Text className="text-xs text-guardian-text-neutral">
-              {patient?.expectedTotalAsOf ? `${patient.expectedTotalAsOf} 기준` : ""}
+              {patient?.expectedTotalAsOf ? `${patient.expectedTotalAsOf} ${t("billing.as_of", "기준")}` : ""}
             </Text>
           </View>
 
@@ -141,14 +145,18 @@ export default function StoragePage({ navigation }) {
               className="bg-guardian-button-primary rounded-full py-3 items-center mb-2"
               onPress={() => navigation.navigate("PaymentHistory")}
             >
-              <Text className="font-bold text-guardian-text-primary">최근 결제 내역 보기 →</Text>
+              <Text className="font-bold text-guardian-text-primary">
+                {t("billing.view_recent_payments", "최근 결제 내역 보기 →")}
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               className="bg-guardian-button-secondary border border-guardian-button-primary rounded-full py-3 items-center"
               onPress={() => navigation.navigate("StorageList")}
             >
-              <Text className="font-bold text-guardian-text-primary">청구서 내역 보기 →</Text>
+              <Text className="font-bold text-guardian-text-primary">
+                {t("billing.view_invoice_list", "청구서 내역 보기 →")}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -164,15 +172,19 @@ export default function StoragePage({ navigation }) {
         {!loading && pendingList.length > 0 && (
           <View className="mx-4">
             <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-base font-bold text-guardian-text-primary">미납·부분납 항목</Text>
-              <TouchableOpacity onPress={() => navigation.navigate("InvoicePaymentList")}>
-                <Text className="text-sm font-bold text-guardian-text-secondary">전체보기 →</Text>
+              <Text className="text-base font-bold text-guardian-text-primary">
+                {t("billing.pending_items", "미납·부분납 항목")}
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("InvoicePaymentList")}> 
+                <Text className="text-sm font-bold text-guardian-text-secondary">
+                  {t("billing.view_all", "전체보기 →")}
+                </Text>
               </TouchableOpacity>
             </View>
 
             {pendingList.map((pay) => {
-              const tagColor    = TAG_COLORS[pay.tag]    ?? { bg: "#FEF7E5", text: "#503115" };
-              const statusColor = STATUS_COLORS[pay.status] ?? STATUS_COLORS.미납;
+              const tagColor    = TAG_COLORS[pay.tagKey ?? pay.tag]    ?? { bg: "#FEF7E5", text: "#503115" };
+              const statusColor = STATUS_COLORS[pay.statusCode ?? pay.status] ?? STATUS_COLORS.UNPAID;
               return (
                 <TouchableOpacity
                   key={pay.id}

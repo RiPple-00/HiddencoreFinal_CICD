@@ -6,14 +6,19 @@
  * @param {string|null} currentTab - 현재 선택된 탭 type
  * @param {function} onChange - 탭 변경 콜백 (type 전달)
  */
+import { useI18n } from '../../hooks/useI18n.jsx';
+
 const FilterTab = ({ tabs = [], currentTab, onChange }) => {
+  const { t } = useI18n();
+
   return (
     <div className="flex border-b border-gray-200">
       {tabs.map((tab) => {
         const isActive = tab.type === currentTab;
+        const label = t(tab.labelKey ?? tab.label, tab.label);
         return (
           <button
-            key={tab.label}
+            key={tab.type ?? label}
             onClick={() => onChange(tab.type)}
             className={`
               px-4 py-3 text-sm font-medium transition-colors
@@ -23,7 +28,7 @@ const FilterTab = ({ tabs = [], currentTab, onChange }) => {
               }
             `}
           >
-            {tab.label}
+            {label}
           </button>
         );
       })}

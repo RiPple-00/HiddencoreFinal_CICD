@@ -1,10 +1,5 @@
 import { useMemo, useState } from 'react';
-
-const TABS = [
-  { key: 'BREAKFAST', label: 'Breakfast' },
-  { key: 'LUNCH', label: 'Lunch' },
-  { key: 'DINNER', label: 'Dinner' },
-];
+import { useI18n } from '../../hooks/useI18n';
 
 function splitMenu(menu) {
   if (!menu) return [];
@@ -16,7 +11,14 @@ function splitMenu(menu) {
 }
 
 export default function MealPreviewCard({ patient, meals = [] }) {
+  const { t } = useI18n();
   const [tab, setTab] = useState('LUNCH');
+
+  const TABS = [
+    { key: 'BREAKFAST', label: t('meal.breakfast') },
+    { key: 'LUNCH', label: t('meal.lunch') },
+    { key: 'DINNER', label: t('meal.dinner') },
+  ];
 
   const matched = useMemo(() => {
     const list = Array.isArray(meals) ? meals : [];
@@ -27,7 +29,7 @@ export default function MealPreviewCard({ patient, meals = [] }) {
     return exact ?? byType[0] ?? null;
   }, [meals, patient?.dietType, tab]);
 
-  const title = matched?.menu ? splitMenu(matched.menu)[0] ?? matched.menu : '식단 정보 없음';
+  const title = matched?.menu ? splitMenu(matched.menu)[0] ?? matched.menu : t('meal.noInfo');
   const sides = matched?.menu ? splitMenu(matched.menu).slice(1, 6) : [];
 
   return (
@@ -55,7 +57,7 @@ export default function MealPreviewCard({ patient, meals = [] }) {
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-xs text-slate-500">표시할 메뉴가 없습니다.</p>
+        <p className="mt-2 text-xs text-slate-500">{t('meal.noMenu')}</p>
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-2">

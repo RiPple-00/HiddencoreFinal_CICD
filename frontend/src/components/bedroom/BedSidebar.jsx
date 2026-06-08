@@ -1,6 +1,17 @@
-const menus = ["개요", "활력징후", "처방약", "검사 결과", "간호노트", "진료기록"];
+import { useI18n } from '../../hooks/useI18n.jsx';
+
+const MENU_KEYS = [
+  'bedSidebar.menu.overview',
+  'bedSidebar.menu.vitalSigns',
+  'bedSidebar.menu.prescriptions',
+  'bedSidebar.menu.testResults',
+  'bedSidebar.menu.nursingNotes',
+  'bedSidebar.menu.medicalRecords',
+];
 
 function BedSidebar() {
+  const { t } = useI18n();
+
   return (
     <aside className="w-[240px] rounded-3xl bg-white p-4 shadow-sm">
       <div className="mb-6 border-b border-slate-100 pb-4">
@@ -9,16 +20,16 @@ function BedSidebar() {
       </div>
 
       <nav className="space-y-2">
-        {menus.map((menu, index) => (
+        {MENU_KEYS.map((key, index) => (
           <button
-            key={menu}
+            key={key}
             className={`w-full rounded-2xl px-4 py-3 text-left font-semibold ${
               index === 0
                 ? "bg-blue-50 text-blue-700"
                 : "text-slate-600 hover:bg-slate-50"
             }`}
           >
-            {menu}
+            {t(key)}
           </button>
         ))}
       </nav>

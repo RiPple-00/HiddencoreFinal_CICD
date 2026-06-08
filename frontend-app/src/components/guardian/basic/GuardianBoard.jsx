@@ -3,12 +3,13 @@ import { View, TouchableOpacity } from "react-native";
 import Text from "@/components/Text";
 import { getGuardianPosts } from "@/api/guardian/guardianApi";
 import { rowId } from "@/utils/guardianBoardUtils";
+import { useI18n } from "@/hooks/useI18n";
 
-function formatMainNoticeDate(dateText) {
-  if (!dateText) return "날짜 미정";
+function formatMainNoticeDate(dateText, dateUnknownLabel) {
+  if (!dateText) return dateUnknownLabel;
 
   const date = new Date(dateText);
-  if (Number.isNaN(date.getTime())) return "날짜 미정";
+  if (Number.isNaN(date.getTime())) return dateUnknownLabel;
 
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -18,6 +19,7 @@ function formatMainNoticeDate(dateText) {
 }
 
 export default function GuardianBoard({ navigation }) {
+  const { t } = useI18n();
   const [noticePosts, setNoticePosts] = useState([]);
 
   useEffect(() => {
@@ -65,15 +67,17 @@ export default function GuardianBoard({ navigation }) {
       .slice(0, 2);
   }, [noticePosts]);
 
+  const dateUnknown = t('guardian.board.dateUnknown');
+
   return (
     <View className="mx-5 mt-5">
       <View className="flex-row justify-between items-center mb-3">
         <Text className="text-base font-extrabold text-guardian-text-primary">
-          공지사항
+          {t('guardian.board.title')}
         </Text>
         <TouchableOpacity onPress={() => navigation.navigate("Notice")}>
           <Text className="text-sm font-bold text-guardian-text-secondary">
-            전체보기
+            {t('guardian.board.viewAll')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -81,7 +85,7 @@ export default function GuardianBoard({ navigation }) {
         <TouchableOpacity className="flex-row justify-between items-center bg-background-neutral px-4 py-4 rounded-2xl mb-2 border border-guardian-button-secondary">
           <View>
             <Text className="text-sm font-bold text-guardian-text-primary">
-              등록된 공지사항이 없습니다.
+              {t('guardian.board.empty')}
             </Text>
             <Text className="text-xs text-guardian-text-neutral mt-1">-</Text>
           </View>
@@ -103,7 +107,7 @@ export default function GuardianBoard({ navigation }) {
                 {post.title}
               </Text>
               <Text className="text-xs text-guardian-text-neutral mt-1">
-                {formatMainNoticeDate(post.updatedAt ?? post.createdAt)}
+                {formatMainNoticeDate(post.updatedAt ?? post.createdAt, dateUnknown)}
               </Text>
             </View>
             <Text className="text-xl text-guardian-text-secondary">›</Text>

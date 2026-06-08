@@ -1,11 +1,13 @@
 import { PanelHeader, PanelMeta, PanelActions } from './PanelBase';
 import { TARGET_ROLES } from '../../../../utils/boardUtils';
+import { useI18n } from '../../../../hooks/useI18n.jsx';
 
 /**
  * 공지사항 전용 우측 패널
  * 순서: 상단고정+게시상태 → 공개대상 → 작성자/수정일 → 게시팁 → 버튼
  */
 const NoticePanel = ({ panelState, onPanelChange, onSaveDraft, onSubmit, onCancel, isSubmitting }) => {
+  const { t } = useI18n();
   const {
     isPinned, publishType, reservationAt,
     targetRoles = [],
@@ -36,14 +38,14 @@ const NoticePanel = ({ panelState, onPanelChange, onSaveDraft, onSubmit, onCance
 
       {/* 2. 공개 대상 (공지 전용) */}
       <div>
-        <p className="text-sm font-medium text-gray-700 mb-3">공개 대상</p>
+        <p className="text-sm font-medium text-gray-700 mb-3">{t('board.create.panel.noticeTarget', '공개 대상')}</p>
         <div className="flex flex-col gap-2">
           {TARGET_ROLES.map((role) => (
             <label
               key={role.value}
               className="flex items-center justify-between text-sm text-gray-700 cursor-pointer"
             >
-              {role.label}
+              {t(role.labelKey ?? '', role.label)}
               <input
                 type="checkbox"
                 checked={targetRoles.includes(role.value)}
@@ -64,7 +66,7 @@ const NoticePanel = ({ panelState, onPanelChange, onSaveDraft, onSubmit, onCance
       <div className="bg-teal-50 border border-teal-100 rounded-lg p-3 flex gap-2">
         <span className="text-teal-500 shrink-0 text-sm">💡</span>
         <p className="text-xs text-teal-700">
-          중요 공지사항은 상단 고정 기능을 사용하면 효율적입니다.
+          {t('board.create.panel.noticeTip', '중요 공지사항은 상단 고정 기능을 사용하면 효율적입니다.')}
         </p>
       </div>
 

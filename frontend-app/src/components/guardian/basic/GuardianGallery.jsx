@@ -7,6 +7,7 @@ import {
   Dimensions,
 } from "react-native";
 import Text from "@/components/Text";
+import { useI18n } from "@/hooks/useI18n";
 
 const GALLERY_IMAGES = [
   "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=1200&q=50",
@@ -16,6 +17,7 @@ const GALLERY_IMAGES = [
 ];
 
 export default function GuardianGallery({ navigation }) {
+  const { t } = useI18n();
   const [currentImage, setCurrentImage] = useState(0);
   const [rowWidth, setRowWidth] = useState(0);
   const scrollRef = useRef(null);
@@ -45,7 +47,7 @@ export default function GuardianGallery({ navigation }) {
         onPress={() => navigation.navigate("ActivePhotoGallery")}
       >
         <Text className="text-base font-extrabold text-guardian-text-primary mb-3">
-          활동 갤러리
+          {t('guardian.gallery')}
         </Text>
       </TouchableOpacity>
       <View
