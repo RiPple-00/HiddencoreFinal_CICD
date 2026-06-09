@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import hiddencore.ddasum.backend.domain.Facility;
 import hiddencore.ddasum.backend.domain.GuardianPatient;
@@ -65,60 +67,82 @@ public class KimMankyungPatientSeeder {
             PatientRepository patientRepository,
             MemberRepository memberRepository,
             GuardianPatientRepository guardianPatientRepository,
-            JdbcTemplate jdbcTemplate) {
+            JdbcTemplate jdbcTemplate,
+            PlatformTransactionManager transactionManager) {
         return args -> {
             try {
-                jdbcTemplate.execute("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+                new TransactionTemplate(transactionManager)
+                        .executeWithoutResult(
+                                status -> {
+                                    jdbcTemplate.execute(
+                                            "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
 
-                Facility facility =
-                        facilityRepository.findByFacilityCode("12345678").orElse(null);
-                if (facility == null) {
-                    log.info("[KimMankyungPatientSeeder] 시설 12345678 없음 — 스킵");
-                    return;
-                }
+                                    Facility facility =
+                                            facilityRepository
+                                                    .findByFacilityCode("12345678")
+                                                    .orElse(null);
+                                    if (facility == null) {
+                                        log.info(
+                                                "[KimMankyungPatientSeeder] 시설 12345678 없음 — 스킵");
+                                        return;
+                                    }
 
-                Location bed107 =
-                        reconcileRoom107Beds(
-                                facility, locationRepository, patientRepository, jdbcTemplate);
-                Users caregiver = resolveCaregiver(facility, memberRepository);
+                                    Location bed107 =
+                                            reconcileRoom107Beds(
+                                                    facility,
+                                                    locationRepository,
+                                                    patientRepository,
+                                                    jdbcTemplate);
+                                    Users caregiver =
+                                            resolveCaregiver(facility, memberRepository);
 
-                upsertPatient(jdbcTemplate, facility, bed107, caregiver);
-                Patient patient =
-                        patientRepository
-                                .findById(KIM_PATIENT_ID)
-                                .orElseGet(
-                                        () ->
-                                                patientRepository
-                                                        .findByFacilityId_FacilityId(
-                                                                facility.getFacilityId())
-                                                        .stream()
-                                                        .filter(
-                                                                p ->
-                                                                        KIM_PATIENT_NAME.equals(
-                                                                                p.getName()))
-                                                        .findFirst()
-                                                        .orElse(null));
+                                    upsertPatient(
+                                            jdbcTemplate, facility, bed107, caregiver);
+                                    Patient patient =
+                                            patientRepository
+                                                    .findById(KIM_PATIENT_ID)
+                                                    .orElseGet(
+                                                            () ->
+                                                                    patientRepository
+                                                                            .findByFacilityId_FacilityId(
+                                                                                    facility
+                                                                                            .getFacilityId())
+                                                                            .stream()
+                                                                            .filter(
+                                                                                    p ->
+                                                                                            KIM_PATIENT_NAME
+                                                                                                    .equals(
+                                                                                                            p
+                                                                                                                    .getName()))
+                                                                            .findFirst()
+                                                                            .orElse(null));
 
-                if (patient == null) {
-                    log.warn("[KimMankyungPatientSeeder] 기만경 환자 생성 실패");
-                    return;
-                }
+                                    if (patient == null) {
+                                        log.warn(
+                                                "[KimMankyungPatientSeeder] 기만경 환자 생성 실패");
+                                        return;
+                                    }
 
-                applyPatientFields(patient, facility, bed107, caregiver);
-                patientRepository.save(patient);
+                                    applyPatientFields(
+                                            patient, facility, bed107, caregiver);
+                                    patientRepository.save(patient);
 
-                assignKimToRoom107Bed1(
-                        facility,
-                        bed107,
-                        patient,
-                        locationRepository,
-                        patientRepository,
-                        jdbcTemplate);
+                                    assignKimToRoom107Bed1(
+                                            facility,
+                                            bed107,
+                                            patient,
+                                            locationRepository,
+                                            patientRepository,
+                                            jdbcTemplate);
 
-                linkGuardian001(patient, memberRepository, guardianPatientRepository);
-                log.info(
-                        "[KimMankyungPatientSeeder] 기만경 patient_id={} 원무·요양사·보호자 연동 완료",
-                        patient.getPatientId());
+                                    linkGuardian001(
+                                            patient,
+                                            memberRepository,
+                                            guardianPatientRepository);
+                                    log.info(
+                                            "[KimMankyungPatientSeeder] 기만경 patient_id={} 원무·요양사·보호자 연동 완료",
+                                            patient.getPatientId());
+                                });
             } catch (Exception e) {
                 log.warn("[KimMankyungPatientSeeder] 시드 실패: {}", e.getMessage());
             }
@@ -197,23 +221,8 @@ public class KimMankyungPatientSeeder {
             }
         }
 
-        patientRepository
-                .findByFacilityId_FacilityId(facilityId)
-                .forEach(
-                        p -> {
-                            if (p.getPatientId() == null
-                                    || Objects.equals(p.getPatientId(), KIM_PATIENT_ID)) {
-                                return;
-                            }
-                            Location loc = p.getLocationId();
-                            if (loc != null && isRoom107(loc)) {
-                                loc.setPatientId(null);
-                                loc.setIsOccupied(false);
-                                locationRepository.save(loc);
-                                p.setLocationId(null);
-                                patientRepository.save(p);
-                            }
-                        });
+        evictNonKimPatientsFromRoom107(
+                facilityId, patientRepository, locationRepository, jdbcTemplate);
 
         restoreJangWonjunToRoom105(
                 facility, locationRepository, patientRepository, jdbcTemplate);
@@ -305,6 +314,46 @@ public class KimMankyungPatientSeeder {
             return 100;
         }
         return 10;
+    }
+
+    private static void evictNonKimPatientsFromRoom107(
+            Long facilityId,
+            PatientRepository patientRepository,
+            LocationRepository locationRepository,
+            JdbcTemplate jdbcTemplate) {
+        List<Long> patientIds =
+                jdbcTemplate.query(
+                        "SELECT patient_id FROM patient WHERE facility_id = ? AND patient_id <> ?",
+                        (rs, rowNum) -> rs.getLong("patient_id"),
+                        facilityId,
+                        KIM_PATIENT_ID);
+        for (Long patientId : patientIds) {
+            Long locationId =
+                    jdbcTemplate.query(
+                            "SELECT location_id FROM patient WHERE patient_id = ?",
+                            rs -> {
+                                if (!rs.next()) {
+                                    return null;
+                                }
+                                long value = rs.getLong("location_id");
+                                return rs.wasNull() ? null : value;
+                            },
+                            patientId);
+            if (locationId == null) {
+                continue;
+            }
+            Location loc = locationRepository.findById(locationId).orElse(null);
+            if (loc != null && isRoom107(loc)) {
+                loc.setPatientId(null);
+                loc.setIsOccupied(false);
+                locationRepository.save(loc);
+                Patient p = patientRepository.findById(patientId).orElse(null);
+                if (p != null) {
+                    p.setLocationId(null);
+                    patientRepository.save(p);
+                }
+            }
+        }
     }
 
     private static Long lookupPatientIdOnLocation(JdbcTemplate jdbc, Long locationId) {
