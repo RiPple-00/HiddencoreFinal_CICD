@@ -1,0 +1,15 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # 프로덕션: Nginx가 /api 를 APP 로 프록시 → 상대 경로 /api
+        VITE_API_BASE_URL: /api
+    image: ddasum-frontend:latest
+    container_name: ddasum-frontend
+    restart: unless-stopped
+    ports:
+      # 호스트 Nginx(certbot) 앞단을 쓸 때 127.0.0.1:8080 만 노출
+      - "127.0.0.1:8080:80"
+    # APP 사설 IP가 바뀌면 nginx.conf 수정 후 이미지 재빌드

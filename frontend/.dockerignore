@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+.git
+.gitignore
+*.md
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.vscode
+.idea
+.DS_Store
+npm-debug.log*
+coverage
