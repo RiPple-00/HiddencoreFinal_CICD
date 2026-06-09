@@ -1,0 +1,23 @@
+# DB 서버 — MySQL 8 (선택: 기존 수동 설치 → Docker 이전 시에만 사용)
+# ⚠️ 기존 /var/lib/mysql 데이터 마이그레이션 필요. 신규 환경에서만 권장.
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ddasum-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    env_file:
+      - .env
+    environment:
+      MYSQL_DATABASE: ddasum
+      MYSQL_USER: ${MYSQL_USER:-ddasum}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?required}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?required}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d:ro
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  mysql_data:

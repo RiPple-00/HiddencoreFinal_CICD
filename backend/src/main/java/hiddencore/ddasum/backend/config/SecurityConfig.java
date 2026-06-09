@@ -87,7 +87,9 @@ public class SecurityConfig {
                         "http://localhost:*",
                         "http://127.0.0.1:*",
                         "http://192.168.*.*:*",
-                        "http://10.*.*.*:*"));
+                        "http://10.*.*.*:*",
+                        "https://*.ddasum.shop",
+                        "https://ddasum.shop"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

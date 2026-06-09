@@ -1,0 +1,41 @@
+# AI 서버 — chatbot / ai-report / ai-server (GitHub Actions → docker compose)
+services:
+  chatbot:
+    build:
+      context: ../../ai
+      dockerfile: chatbot/Dockerfile
+    image: ddasum-chatbot:latest
+    container_name: ddasum-chatbot
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      CHATBOT_PORT: "8001"
+      DAILY_MAX_REQUESTS: "${CHATBOT_DAILY_MAX:-50}"
+
+  ai-report:
+    build:
+      context: ../../ai
+      dockerfile: ai-report/Dockerfile
+    image: ddasum-ai-report:latest
+    container_name: ddasum-ai-report
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env
+    environment:
+      AI_REPORT_PORT: "8002"
+      DAILY_MAX_REQUESTS: "${AI_REPORT_DAILY_MAX:-15}"
+
+  ai-server:
+    build:
+      context: ../../ai
+      dockerfile: ai-server/Dockerfile
+    image: ddasum-ai-server:latest
+    container_name: ddasum-ai-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"

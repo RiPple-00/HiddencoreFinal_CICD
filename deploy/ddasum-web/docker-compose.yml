@@ -1,0 +1,25 @@
+# WEB 서버 — 직원 웹 + 보호자 앱 (GitHub Actions → docker compose)
+services:
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    image: ddasum-frontend:latest
+    container_name: ddasum-frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+
+  frontend-app:
+    build:
+      context: ../../frontend-app
+      dockerfile: Dockerfile
+      args:
+        EXPO_PUBLIC_CHATBOT_URL: /chatbot
+    image: ddasum-frontend-app:latest
+    container_name: ddasum-frontend-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8081:80"

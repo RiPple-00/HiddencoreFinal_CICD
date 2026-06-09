@@ -1,0 +1,49 @@
+name: Deploy AI (Docker)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "ai/**"
+      - "deploy/ddasum-ai/**"
+      - "deploy/scripts/**"
+      - ".github/workflows/deploy-ai.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.AI_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Sync repository to AI server
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          AI_HOST: ${{ secrets.AI_HOST }}
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new" \
+            --exclude '.git' --exclude '**/.venv' --exclude '**/chroma_db' --exclude '**/.env' \
+            ./ "${DEPLOY_USER}@${AI_HOST}:~/ddasum-repo/"
+
+      - name: Write secrets .env and deploy
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          AI_HOST: ${{ secrets.AI_HOST }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          CHATBOT_DAILY_MAX: ${{ secrets.CHATBOT_DAILY_MAX }}
+          AI_REPORT_DAILY_MAX: ${{ secrets.AI_REPORT_DAILY_MAX }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${DEPLOY_USER}@${AI_HOST}" \
+            "export OPENAI_API_KEY='${OPENAI_API_KEY}' OPENAI_MODEL='${OPENAI_MODEL:-gpt-4o-mini}' CHATBOT_DAILY_MAX='${CHATBOT_DAILY_MAX:-50}' AI_REPORT_DAILY_MAX='${AI_REPORT_DAILY_MAX:-15}' && \
+             bash ~/ddasum-repo/deploy/scripts/remote-up-all.sh ai"

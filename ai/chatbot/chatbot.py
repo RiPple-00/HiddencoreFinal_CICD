@@ -18,6 +18,14 @@ def safe_print(*args, **kwargs):
         sys.stdout.buffer.write((text + kwargs.get("end", "\n")).encode(enc, errors="replace"))
         sys.stdout.flush()
 
+# Rocky Linux 등 시스템 sqlite3 < 3.35 — ChromaDB용 대체
+try:
+    import pysqlite3  # noqa: F401
+
+    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+except ImportError:
+    pass
+
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,6 +37,9 @@ from chromadb.utils import embedding_functions
 
 # ── 환경 변수 ──────────────────────────────────────────────────
 BASE_DIR   = Path(__file__).parent
+sys.path.insert(0, str(BASE_DIR.parent / "shared"))
+from rate_limit import check_daily_limit  # noqa: E402
+
 load_dotenv(BASE_DIR / ".env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 if not OPENAI_API_KEY:
@@ -181,13 +192,17 @@ def load_documents():
         return
 
     batch_size = 50
-    for i in range(0, len(all_chunks), batch_size):
-        collection.add(
-            documents=all_chunks[i:i+batch_size],
-            ids=all_ids[i:i+batch_size],
-            metadatas=all_metas[i:i+batch_size],
-        )
-    safe_print(f"[ChromaDB] {len(all_chunks)}개 청크 색인 완료")
+    try:
+        for i in range(0, len(all_chunks), batch_size):
+            collection.add(
+                documents=all_chunks[i:i+batch_size],
+                ids=all_ids[i:i+batch_size],
+                metadatas=all_metas[i:i+batch_size],
+            )
+        safe_print(f"[ChromaDB] {len(all_chunks)}개 청크 색인 완료")
+    except Exception as e:
+        safe_print(f"[경고] 문서 색인 실패(RAG 비활성): {type(e).__name__}")
+        safe_print("[경고] OPENAI_API_KEY 확인 후 chatbot/.env 수정 및 재시작")
 
 
 def retrieve_context(query: str, top_k: int = 5) -> str:
@@ -234,6 +249,7 @@ def health():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
+    check_daily_limit("챗봇")
     if not req.messages:
         raise HTTPException(status_code=400, detail="messages 가 비어 있습니다.")
 

@@ -99,21 +99,24 @@ public class ProgramApplicationSeeder {
                 LocalDateTime now = LocalDateTime.now();
 
                 confirmedHave = seedBucket(
-                        post, facility, patients, guardianPatientRepository, fallbackRequester,
+                        post, facility, patients, guardianPatientRepository, memberRepository,
+                        fallbackRequester,
                         documentRepository, postApplicationRepository, usedPatientIds,
                         confirmedHave, confirmedTarget, PostApplicationStatus.COMPLETED,
                         DocumentStatus.APPROVED, patientIdx, now);
                 patientIdx += confirmedTarget;
 
                 waitingHave = seedBucket(
-                        post, facility, patients, guardianPatientRepository, fallbackRequester,
+                        post, facility, patients, guardianPatientRepository, memberRepository,
+                        fallbackRequester,
                         documentRepository, postApplicationRepository, usedPatientIds,
                         waitingHave, waitingTarget, PostApplicationStatus.WAITING,
                         DocumentStatus.PENDING_APPROVAL, patientIdx, now);
                 patientIdx += waitingTarget;
 
                 seedBucket(
-                        post, facility, patients, guardianPatientRepository, fallbackRequester,
+                        post, facility, patients, guardianPatientRepository, memberRepository,
+                        fallbackRequester,
                         documentRepository, postApplicationRepository, usedPatientIds,
                         rejectedHave, rejectedTarget, PostApplicationStatus.REJECTED,
                         DocumentStatus.REJECTED, patientIdx, now);
@@ -146,6 +149,7 @@ public class ProgramApplicationSeeder {
             Facility facility,
             List<Patient> patients,
             GuardianPatientRepository guardianPatientRepository,
+            MemberRepository memberRepository,
             Users fallbackRequester,
             DocumentRepository documentRepository,
             PostApplicationRepository postApplicationRepository,
@@ -174,7 +178,8 @@ public class ProgramApplicationSeeder {
                 continue;
             }
 
-            Users guardian = resolveGuardian(guardianPatientRepository, patient, fallbackRequester);
+            Users guardian = resolveGuardian(
+                    guardianPatientRepository, memberRepository, patient, fallbackRequester);
             if (GuardianProgramDemoGuard.isDemoGuardian(guardian)) {
                 if (idx - patientStartIdx > patients.size() * 2) {
                     break;
@@ -217,12 +222,16 @@ public class ProgramApplicationSeeder {
 
     private static Users resolveGuardian(
             GuardianPatientRepository guardianPatientRepository,
+            MemberRepository memberRepository,
             Patient patient,
             Users fallbackRequester) {
         List<GuardianPatient> links = guardianPatientRepository
                 .findByPatientId_PatientIdOrderByIsPrimaryDesc(patient.getPatientId());
         if (!links.isEmpty()) {
-            return links.get(0).getGuardianUserId();
+            Users linked = links.get(0).getGuardianUserId();
+            if (linked != null && linked.getUserId() != null) {
+                return memberRepository.findById(linked.getUserId()).orElse(null);
+            }
         }
         return fallbackRequester != null && fallbackRequester.getRole() == UsersRole.GUARDIAN
                 ? fallbackRequester

@@ -25,6 +25,9 @@ from openai import OpenAI
 from pydantic import BaseModel, Field
 
 BASE_DIR = Path(__file__).parent
+sys.path.insert(0, str(BASE_DIR.parent / "shared"))
+from rate_limit import check_daily_limit  # noqa: E402
+
 load_dotenv(BASE_DIR / ".env")
 # 챗봇과 동일 키 공유 (ai-report/.env 없을 때)
 if not os.getenv("OPENAI_API_KEY", "").strip():
@@ -247,6 +250,7 @@ def health():
 
 @app.post("/api/weekly-narrative", response_model=WeeklyNarrativeResponse)
 def weekly_narrative(body: WeeklyNarrativeRequest):
+    check_daily_limit("주간보고서 AI")
     user_prompt = f"""
 아래 주간 돌봄 데이터로 보호자용 요약 JSON을 생성해라.
 
@@ -300,6 +304,7 @@ def weekly_narrative(body: WeeklyNarrativeRequest):
 
 @app.post("/api/prescription-summary", response_model=PrescriptionSummaryResponse)
 def prescription_summary(body: PrescriptionSummaryRequest):
+    check_daily_limit("주간보고서 AI")
     if not body.medications:
         return PrescriptionSummaryResponse(
             summary_text="등록된 처방전이 없어 복약 분석을 제공할 수 없습니다.",
@@ -371,6 +376,7 @@ def prescription_summary(body: PrescriptionSummaryRequest):
 
 @app.post("/api/program-recommendation", response_model=ProgramRecommendationResponse)
 def program_recommendation(body: ProgramRecommendationRequest):
+    check_daily_limit("주간보고서 AI")
     if not body.available_programs:
         return ProgramRecommendationResponse(
             activity_title="주간 돌봄 기반 활동 요약",

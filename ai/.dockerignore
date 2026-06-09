@@ -1,0 +1,12 @@
+**/__pycache__
+**/.venv
+**/chroma_db
+**/.env
+**/.git
+ai-server/runs
+ai-server/datasets
+ai-server/notebooks
+dasum-face-ai-test/output
+dasum-face-ai-test/output_v2
+*.pt
+*.pem

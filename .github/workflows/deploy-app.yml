@@ -1,0 +1,53 @@
+name: Deploy APP (Docker)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "backend/**"
+      - "deploy/ddasum-app/**"
+      - "deploy/scripts/**"
+      - ".github/workflows/deploy-app.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.APP_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Sync repository to APP server
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          APP_HOST: ${{ secrets.APP_HOST }}
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new" \
+            --exclude '.git' --exclude 'node_modules' --exclude 'backend/build' \
+            --exclude '**/.env' --exclude '**/application-local.yml' --exclude '**/application-cloud.yml' \
+            ./ "${DEPLOY_USER}@${APP_HOST}:~/ddasum-repo/"
+
+      - name: Write secrets .env and deploy (Docker)
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          APP_HOST: ${{ secrets.APP_HOST }}
+          MYSQL_URL: ${{ secrets.MYSQL_URL }}
+          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          AI_REPORT_URL: ${{ secrets.AI_REPORT_URL }}
+          AI_SERVER_URL: ${{ secrets.AI_SERVER_URL }}
+          PUBLIC_DATA_SERVICE_KEY: ${{ secrets.PUBLIC_DATA_SERVICE_KEY }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${DEPLOY_USER}@${APP_HOST}" \
+            "export MYSQL_URL='${MYSQL_URL}' MYSQL_USERNAME='${MYSQL_USERNAME}' MYSQL_PASSWORD='${MYSQL_PASSWORD}' JWT_SECRET='${JWT_SECRET}' AI_REPORT_URL='${AI_REPORT_URL}' AI_SERVER_URL='${AI_SERVER_URL}' PUBLIC_DATA_SERVICE_KEY='${PUBLIC_DATA_SERVICE_KEY}' && \
+             bash ~/ddasum-repo/deploy/scripts/remote-up-all.sh app"

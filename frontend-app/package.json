@@ -8,7 +8,8 @@
     "reset:metro": "node -e \"const fs=require('fs');['.expo','node_modules/.cache'].forEach(p=>{try{fs.rmSync(p,{recursive:true,force:true})}catch(e){}})\" && expo start -c",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:web": "expo export --platform web"
   },
   "dependencies": {
     "@expo-google-fonts/noto-sans-kr": "^0.4.3",

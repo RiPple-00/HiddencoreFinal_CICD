@@ -109,17 +109,17 @@ public class LocalPythonFaceVerifier {
 
     private static String buildFaceVerifyMessage(boolean accepted, List<String> detectedPatientNames) {
         if (detectedPatientNames.isEmpty()) {
-            return "인식된 환자가 없습니다. 기만경이 보이는 사진을 올려 주세요.";
+            return "담당 환자가 인식되지 않았습니다. 담당 환자를 포함한 사진을 올려 주세요.";
         }
         String listed = String.join(", ", detectedPatientNames);
         if (accepted) {
             return "인식된 환자: "
                     + listed
-                    + ". 기만경이 포함되어 보호자 사진 기록에 등록합니다.";
+                    + ". 보호자 사진 기록에 등록합니다.";
         }
         return "인식된 환자: "
                 + listed
-                + ". 기만경이 없어 보호자 사진 기록에 등록되지 않습니다.";
+                + ". 보호자 사진 기록에 등록되지 않습니다.";
     }
 
     private static String stringVal(Object v) {

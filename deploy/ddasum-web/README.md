@@ -70,3 +70,7 @@ sudo certbot --nginx -d ddasum.shop -d www.ddasum.shop
 ## APP IP 변경 시
 
 `frontend/nginx.conf` 의 `192.168.0.181` 수정 후 `docker compose build` 재실행.
+
+## 보호자 앱 웹 (`app.ddasum.shop`)
+
+동일 WEB 서버, Docker 포트 `8081`. 자세한 절차는 [README-app.md](./README-app.md) 참고.

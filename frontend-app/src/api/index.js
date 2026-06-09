@@ -82,7 +82,8 @@ export function resolveApiBaseUrl() {
       }
       return `http://${h}:${port}`;
     }
-    return `http://${h}:${port}`;
+    // 배포 웹(app.ddasum.shop 등): 같은 도메인 Nginx가 /api 프록시 → 상대 경로
+    return "";
   }
   return `http://127.0.0.1:${port}`;
 }

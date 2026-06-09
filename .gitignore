@@ -60,6 +60,16 @@ id_ecdsa
 **/application-local.yaml
 **/application-local.properties
 **/application-cloud.yml
+deploy/**/.env
+!deploy/**/.env.example
+deploy/.secrets.env
+**/ddasum-deploy.env
+ai/chatbot/.env
+ai/ai-report/.env
+frontend-app/.env
+frontend/.env
+**/application-cloud.yml.bak
+**/*.pem.example
 **/application-cloud.yaml
 **/application-cloud.properties
 **/application-*.local.yml

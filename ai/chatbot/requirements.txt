@@ -3,4 +3,5 @@ uvicorn[standard]
 python-dotenv
 openai
 chromadb
+pysqlite3-binary
 pypdf

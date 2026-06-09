@@ -1,0 +1,15 @@
+node_modules
+dist
+.expo
+.git
+.gitignore
+*.md
+.env
+.env.*
+!.env.production.example
+*.pem
+*.key
+.vscode
+.idea
+.DS_Store
+npm-debug.log*

@@ -1,0 +1,45 @@
+name: Deploy WEB (Docker)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "frontend/**"
+      - "frontend-app/**"
+      - "deploy/ddasum-web/**"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.WEB_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Sync repository to WEB server
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          WEB_HOST: ${{ secrets.WEB_HOST }}
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new" \
+            --exclude '.git' --exclude 'node_modules' --exclude 'backend/build' \
+            --exclude '**/.env' --exclude '**/application-local.yml' --exclude '**/application-cloud.yml' \
+            ./ "${DEPLOY_USER}@${WEB_HOST}:~/ddasum-repo/"
+
+      - name: Docker compose build & up
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          WEB_HOST: ${{ secrets.WEB_HOST }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${DEPLOY_USER}@${WEB_HOST}" \
+            'bash ~/ddasum-repo/deploy/scripts/remote-up-all.sh web'

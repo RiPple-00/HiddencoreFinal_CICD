@@ -1,0 +1,24 @@
+# APP 서버 — Spring Boot (동적 배포: GitHub Actions → docker compose)
+services:
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    image: ddasum-backend:latest
+    container_name: ddasum-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: cloud
+      SERVER_PORT: "8080"
+    volumes:
+      - ${UPLOAD_HOST_DIR:-/data/ddasum/uploads}:/data/ddasum/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/swagger-ui.html || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
