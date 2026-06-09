@@ -25,17 +25,14 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "${{ secrets.APP_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
-      - name: Sync repository to APP server
+      - name: Sync repository on APP server
         env:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           APP_HOST: ${{ secrets.APP_HOST }}
         run: |
-          rsync -az --delete --partial --timeout=600 \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30" \
-            --exclude '.git' --exclude 'node_modules' --exclude 'frontend/node_modules' --exclude 'frontend-app/node_modules' \
-            --exclude 'backend/build' --exclude 'backend/.gradle' --exclude '**/.venv' --exclude '**/chroma_db' \
-            --exclude '**/.env' --exclude '**/application-local.yml' --exclude '**/application-cloud.yml' \
-            ./ "${DEPLOY_USER}@${APP_HOST}:~/ddasum-repo/"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${DEPLOY_USER}@${APP_HOST}" \
+            "bash -s ${{ github.ref_name }}" < deploy/scripts/sync-repo-from-github.sh
 
       - name: Write secrets .env and deploy (Docker)
         env:
