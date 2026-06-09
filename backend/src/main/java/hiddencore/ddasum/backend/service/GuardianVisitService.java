@@ -1,5 +1,10 @@
 package hiddencore.ddasum.backend.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hiddencore.ddasum.backend.domain.Document;
@@ -100,8 +105,109 @@ public class GuardianVisitService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public List<VisitRequestDto.AdminListResponse> getAdminVisitRequests() {
+        return documentRepository
+                .findByTypeOrderByRequestedAtDesc(Document.DocumentType.VISIT_REQUEST)
+                .stream()
+                .map(this::toAdminListResponse)
+                .toList();
+    }
+
+    public VisitRequestDto.AdminListResponse approveVisitRequest(Long visitRequestId) {
+        Document doc = documentRepository.findById(visitRequestId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "면회 신청을 찾을 수 없습니다."));
+
+        if (doc.getType() != Document.DocumentType.VISIT_REQUEST) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "면회 신청 문서가 아닙니다.");
+        }
+
+        doc.setStatus(Document.DocumentStatus.APPROVED);
+        doc.setApprovedAt(LocalDateTime.now());
+
+        return toAdminListResponse(doc);
+    }
+
+    public VisitRequestDto.AdminListResponse rejectVisitRequest(Long visitRequestId,
+            VisitRequestDto.RejectRequest request) {
+        Document doc = documentRepository.findById(visitRequestId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "면회 신청을 찾을 수 없습니다."));
+
+        if (doc.getType() != Document.DocumentType.VISIT_REQUEST) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "면회 신청 문서가 아닙니다.");
+        }
+
+        doc.setStatus(Document.DocumentStatus.REJECTED);
+        doc.setApprovedAt(LocalDateTime.now());
+
+        try {
+            JsonNode node = objectMapper.readTree(doc.getContent());
+            ObjectNode objectNode = node.isObject()
+                    ? (ObjectNode) node
+                    : objectMapper.createObjectNode();
+
+            objectNode.put("rejectReason", request.getReason());
+            doc.setContent(objectMapper.writeValueAsString(objectNode));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "반려 사유 저장에 실패했습니다.");
+        }
+
+        return toAdminListResponse(doc);
+    }
+
+    private VisitRequestDto.AdminListResponse toAdminListResponse(Document doc) {
+        JsonNode content = parseContent(doc.getContent());
+        Patient patient = doc.getPatientId();
+
+        return VisitRequestDto.AdminListResponse.builder()
+                .visitRequestId(doc.getDocumentId())
+                .patientId(patient != null ? patient.getPatientId() : null)
+                .patientName(patient != null ? patient.getName() : "-")
+                .patientRoom(patient != null ? formatPatientRoom(patient) : "병실 미배정")
+                .visitorName(textValue(content, "visitorName"))
+                .visitorPhone(textValue(content, "visitorPhone"))
+                .relationship(textValue(content, "relationship"))
+                .visitDate(localDateValue(content, "visitDate"))
+                .visitTime(localTimeValue(content, "visitTime"))
+                .visitType(textValue(content, "visitType"))
+                .status(doc.getStatus() != null ? doc.getStatus().name() : null)
+                .requestedAt(doc.getRequestedAt() != null ? doc.getRequestedAt() : doc.getCreatedAt())
+                .build();
+    }
+
+    private JsonNode parseContent(String content) {
+        try {
+            if (content == null || content.isBlank()) {
+                return objectMapper.createObjectNode();
+            }
+            return objectMapper.readTree(content);
+        } catch (Exception e) {
+            return objectMapper.createObjectNode();
+        }
+    }
+
+    private String textValue(JsonNode node, String fieldName) {
+        JsonNode value = node.get(fieldName);
+        return value == null || value.isNull() ? "" : value.asText();
+    }
+
+    private LocalDate localDateValue(JsonNode node, String fieldName) {
+        String value = textValue(node, fieldName);
+        if (value == null || value.isBlank())
+            return null;
+        return LocalDate.parse(value);
+    }
+
+    private LocalTime localTimeValue(JsonNode node, String fieldName) {
+        String value = textValue(node, fieldName);
+        if (value == null || value.isBlank())
+            return null;
+        return LocalTime.parse(value);
+    }
+
     /**
-     * 면회 신청 화면에서 선택한 관계 문자열을 해당 보호자–환자 {@link GuardianPatient} 행의 relationship 에 반영합니다.
+     * 면회 신청 화면에서 선택한 관계 문자열을 해당 보호자–환자 {@link GuardianPatient} 행의 relationship 에
+     * 반영합니다.
      * 행이 없으면(요청자만 지정된 경우 등) 새로 연결 행을 만듭니다.
      */
     private void syncGuardianPatientRelationship(Users requester, Patient patient, String relationship) {

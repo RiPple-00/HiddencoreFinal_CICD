@@ -38,7 +38,34 @@ function formatLastRecordTime(iso) {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  return new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d);
+}
+
+function hasChecklistContent(meta) {
+  if (!meta?.content) return false;
+  const c = meta.content;
+  const mealSlots = [c.meal?.morning, c.meal?.lunch, c.meal?.dinner];
+  const mealChecked = mealSlots.some((slot) =>
+    ["NORMAL", "ABNORMAL"].includes(slot?.intake?.status)
+    || ["NORMAL", "ABNORMAL"].includes(slot?.hydration?.status)
+    || ["NORMAL", "ABNORMAL"].includes(slot?.incident?.status)
+  );
+  const hygieneChecked = ["bedding", "patientItems", "bathing"].some((k) =>
+    ["NORMAL", "ABNORMAL"].includes(c.hygiene?.[k]?.status)
+  );
+  const conditionChecked = ["breathing", "pain", "fall"].some((k) =>
+    ["NORMAL", "ABNORMAL"].includes(c.condition?.[k]?.status)
+  );
+  const eliminationChecked = ["urination", "defecation"].some((k) =>
+    Array.isArray(c.elimination?.[k]?.logs) && c.elimination[k].logs.length > 0
+  );
+  const hasNotes = Boolean(c.specialNotes?.trim());
+  return mealChecked || hygieneChecked || conditionChecked || eliminationChecked || hasNotes;
 }
 
 export default function LiveCheckPage() {
@@ -63,12 +90,14 @@ export default function LiveCheckPage() {
           const list = res.data ?? [];
           setLinked(list);
           setPatientId((prev) => {
-            if (prev != null) return prev;
+            if (prev != null && list.some((p) => Number(p.patientId) === Number(prev))) {
+              return prev;
+            }
             return resolveGuardianPrimaryPatientId(list);
           });
         } catch (e) {
           if (!cancelled) {
-            setError(e?.response?.data?.message ?? t('live.error_patients'));
+            setError(e?.response?.data?.message ?? t("live.error_patients"));
           }
         } finally {
           if (!cancelled) setLoadingPatients(false);
@@ -89,11 +118,12 @@ export default function LiveCheckPage() {
           const res = await fetchGuardianCareCheck(patientId, todayStr());
           if (cancelled) return;
           setError(null);
-          setCareMeta(res.data ?? null);
-          setState(applyResponseToState(res.data));
+          const data = res.data ?? null;
+          setCareMeta(data);
+          setState(applyResponseToState(data));
         } catch (e) {
           if (!cancelled) {
-            setError(e?.response?.data?.message ?? t('live.error_checklist'));
+            setError(e?.response?.data?.message ?? t("live.error_checklist"));
           }
         } finally {
           if (!cancelled) setRefreshing(false);
@@ -101,8 +131,11 @@ export default function LiveCheckPage() {
       };
 
       tick();
-      const id = setInterval(tick, 5000);
-      return () => { cancelled = true; clearInterval(id); };
+      const id = setInterval(tick, 3000);
+      return () => {
+        cancelled = true;
+        clearInterval(id);
+      };
     }, [patientId])
   );
 
@@ -110,7 +143,8 @@ export default function LiveCheckPage() {
   const noop = () => {};
   const lastRecordTime = formatLastRecordTime(careMeta?.updatedAt);
   const isSubmitted = careMeta?.status === "PENDING_APPROVAL" || careMeta?.status === "APPROVED";
-  const isRecording = careMeta != null && !isSubmitted;
+  const hasContent = Boolean(careMeta?.documentId) || hasChecklistContent(careMeta);
+  const isRecording = hasContent && !isSubmitted;
 
   return (
     <SafeAreaView style={pageStyles.safe} edges={["bottom", "left", "right"]}>

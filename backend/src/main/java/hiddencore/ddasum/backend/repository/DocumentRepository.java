@@ -12,6 +12,8 @@ import hiddencore.ddasum.backend.domain.Document.DocumentType;
 
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
+    List<Document> findByTypeOrderByRequestedAtDesc(DocumentType type);
+
     List<Document> findTop5ByPatientId_PatientIdAndTypeOrderByCreatedAtDesc(Long patientId, DocumentType type);
 
     /** 동일 프로그램에 이미 진행 중인 신청이 있는지(반려 후 재신청은 허용) */

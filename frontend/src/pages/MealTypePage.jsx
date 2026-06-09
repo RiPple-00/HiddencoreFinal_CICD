@@ -6,7 +6,7 @@ import Header from "../components/common/Header";
 
 const sideMenus = [
   "대시보드",
-  "환자 기록",
+  "입소자 기록",
   "식단 플래너",
   "재고 관리",
   "분석",
@@ -200,7 +200,7 @@ export default function MealType() {
           <header className="mb-4 flex items-center gap-4 rounded-xl bg-white px-5 py-3 shadow-sm">
             <input
               readOnly
-              value="식단, 환자명 또는 영양소 검색..."
+              value="식단, 입소자명 또는 영양소 검색..."
               className="h-10 flex-1 rounded-full border border-[#e3ecfb] bg-[#f8fbff] px-4 text-sm text-slate-400"
             />
             <span>🔔</span>

@@ -40,7 +40,7 @@ public class VisitRequestDto {
     @Builder
     public static class CreateRequest {
 
-        @NotNull(message = "환자 ID는 필수입니다.")
+        @NotNull(message = "입소자 ID는 필수입니다.")
         private Long patientId;
 
         @NotNull(message = "면회 날짜는 필수입니다.")
@@ -200,6 +200,7 @@ public class VisitRequestDto {
 
         private String patientName;
         private String patientRoom;
+        private Long patientId;
 
         private String visitorName;
         private String visitorPhone;

@@ -1,0 +1,32 @@
+# 클라우드 APP — Spring Boot + Python(얼굴·YOLO 로컬 폴백)
+FROM eclipse-temurin:17-jdk-alpine AS build
+WORKDIR /app
+COPY gradlew gradlew.bat settings.gradle build.gradle ./
+COPY gradle gradle
+RUN chmod +x gradlew && ./gradlew --no-daemon dependencies -q || true
+COPY src src
+RUN cp src/main/resources/application-cloud.yml.example src/main/resources/application-cloud.yml
+RUN ./gradlew --no-daemon bootJar -x test
+
+FROM eclipse-temurin:17-jre-jammy
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-pip python3-venv wget \
+    libgl1 libglib2.0-0 libxcb1 libsm6 libxext6 libxrender1 \
+    && pip3 install --no-cache-dir \
+      ultralytics insightface onnxruntime opencv-python-headless pillow numpy \
+      pandas openpyxl \
+    && rm -rf /var/lib/apt/lists/*
+RUN useradd -m -u 1000 appuser \
+    && mkdir -p /home/appuser/.insightface /tmp/ultralytics \
+    && chown -R appuser:appuser /home/appuser /tmp/ultralytics
+ENV HOME=/home/appuser
+ENV INSIGHTFACE_HOME=/home/appuser/.insightface
+ENV YOLO_CONFIG_DIR=/tmp/ultralytics
+COPY --from=build /app/build/libs/*-SNAPSHOT.jar /app/app.jar
+RUN chown appuser:appuser /app/app.jar
+USER appuser
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
+  CMD wget -q --spider http://127.0.0.1:8080/swagger-ui.html || exit 1
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

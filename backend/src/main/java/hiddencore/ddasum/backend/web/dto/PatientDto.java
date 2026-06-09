@@ -140,6 +140,7 @@ public class PatientDto {
         private LocalDate admissionDate;
         private Patient.BloodType bloodType;
         private String building;
+        private Patient.PatientStatus patientStatus;
         private String room;
         private Integer bed;
         private String memo;

@@ -2,13 +2,16 @@ package hiddencore.ddasum.backend.config;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import hiddencore.ddasum.backend.domain.Facility;
@@ -48,7 +51,14 @@ public class KimMankyungPatientSeeder {
                     + "과거 기억과 기본적인 의사소통 능력은 비교적 유지되고 있으나, 시간 지남력 저하와 반복 질문이 동반됩니다. "
                     + "현재 상태에서는 일상생활 전반의 독립성은 일부 유지되나, 복약 관리 및 일정 확인에는 보호자 또는 요양 인력의 보조가 필요합니다.";
 
+    private static final long JANG_WONJUN_PATIENT_ID = 260401007L;
+    private static final String ROOM_107_BUILDING = "A동";
+    private static final int ROOM_107_FLOOR = 1;
+    private static final String ROOM_107 = "107";
+    private static final int ROOM_107_CAPACITY = 4;
+
     @Bean
+    @Order(20)
     CommandLineRunner seedKimMankyungPatient(
             FacilityRepository facilityRepository,
             LocationRepository locationRepository,
@@ -67,7 +77,8 @@ public class KimMankyungPatientSeeder {
                     return;
                 }
 
-                Location bed107 = ensureRoom107(facility, locationRepository);
+                Location bed107 =
+                        reconcileRoom107Beds(facility, locationRepository, patientRepository);
                 Users caregiver = resolveCaregiver(facility, memberRepository);
 
                 upsertPatient(jdbcTemplate, facility, bed107, caregiver);
@@ -95,11 +106,8 @@ public class KimMankyungPatientSeeder {
                 applyPatientFields(patient, facility, bed107, caregiver);
                 patientRepository.save(patient);
 
-                if (bed107 != null) {
-                    bed107.setPatientId(patient);
-                    bed107.setIsOccupied(true);
-                    locationRepository.save(bed107);
-                }
+                assignKimToRoom107Bed1(
+                        facility, bed107, patient, locationRepository, patientRepository);
 
                 linkGuardian001(patient, memberRepository, guardianPatientRepository);
                 log.info(
@@ -111,34 +119,238 @@ public class KimMankyungPatientSeeder {
         };
     }
 
-    private static Location ensureRoom107(Facility facility, LocationRepository locationRepository) {
+    /**
+     * A동 107호 4인실(침상 1~4) 정리 후 기만경을 1번 침상에 배정.
+     * 중복 LOCATION·잘못된 환자(장원준 등) 배정을 원무과 기준으로 맞춘다.
+     */
+    private static Location reconcileRoom107Beds(
+            Facility facility,
+            LocationRepository locationRepository,
+            PatientRepository patientRepository) {
         Long facilityId = facility.getFacilityId();
-        Optional<Location> existing =
+        List<Location> inRoom =
                 locationRepository.findByFacilityId_FacilityId(facilityId).stream()
-                        .filter(
-                                loc ->
-                                        "A동".equals(loc.getBuilding())
-                                                && Integer.valueOf(1).equals(loc.getFloor())
-                                                && "107".equals(loc.getRoom())
-                                                && Integer.valueOf(1).equals(loc.getBed()))
-                        .findFirst();
+                        .filter(KimMankyungPatientSeeder::isRoom107)
+                        .toList();
 
-        if (existing.isPresent()) {
-            return existing.get();
+        Map<Integer, Location> canonicalByBed = pickCanonicalBeds(inRoom);
+        for (int bed = 1; bed <= ROOM_107_CAPACITY; bed++) {
+            canonicalByBed.computeIfAbsent(
+                    bed,
+                    b ->
+                            locationRepository.save(
+                                    Location.builder()
+                                            .facilityId(facility)
+                                            .building(ROOM_107_BUILDING)
+                                            .floor(ROOM_107_FLOOR)
+                                            .room(ROOM_107)
+                                            .bed(b)
+                                            .roomType(RoomType.GENERAL)
+                                            .roomGenderType(RoomGenderType.MALE)
+                                            .roomCapacity(ROOM_107_CAPACITY)
+                                            .isOccupied(false)
+                                            .build()));
         }
 
-        return locationRepository.save(
-                Location.builder()
-                        .facilityId(facility)
-                        .building("A동")
-                        .floor(1)
-                        .room("107")
-                        .bed(1)
-                        .roomType(RoomType.GENERAL)
-                        .roomGenderType(RoomGenderType.MALE)
-                        .roomCapacity(4)
-                        .isOccupied(false)
-                        .build());
+        for (Location duplicate : inRoom) {
+            if (duplicate.getBed() == null) {
+                continue;
+            }
+            Location keep = canonicalByBed.get(duplicate.getBed());
+            if (keep != null
+                    && !Objects.equals(keep.getLocationId(), duplicate.getLocationId())) {
+                clearBed(duplicate, patientRepository);
+                locationRepository.save(duplicate);
+            }
+        }
+
+        for (Location bed : canonicalByBed.values()) {
+            bed.setRoomCapacity(ROOM_107_CAPACITY);
+            bed.setBuilding(ROOM_107_BUILDING);
+            bed.setFloor(ROOM_107_FLOOR);
+            bed.setRoom(ROOM_107);
+            locationRepository.save(bed);
+        }
+
+        Location bed1 = canonicalByBed.get(1);
+
+        for (Location loc : inRoom) {
+            Patient onBed = loc.getPatientId();
+            if (onBed != null && !Objects.equals(onBed.getPatientId(), KIM_PATIENT_ID)) {
+                clearBed(loc, patientRepository);
+                locationRepository.save(loc);
+            }
+        }
+
+        for (int bed = 2; bed <= ROOM_107_CAPACITY; bed++) {
+            Location loc = canonicalByBed.get(bed);
+            if (loc != null) {
+                clearBed(loc, patientRepository);
+                locationRepository.save(loc);
+            }
+        }
+
+        patientRepository
+                .findByFacilityId_FacilityId(facilityId)
+                .forEach(
+                        p -> {
+                            if (p.getPatientId() == null
+                                    || Objects.equals(p.getPatientId(), KIM_PATIENT_ID)) {
+                                return;
+                            }
+                            Location loc = p.getLocationId();
+                            if (loc != null && isRoom107(loc)) {
+                                loc.setPatientId(null);
+                                loc.setIsOccupied(false);
+                                locationRepository.save(loc);
+                                p.setLocationId(null);
+                                patientRepository.save(p);
+                            }
+                        });
+
+        restoreJangWonjunToRoom105(facility, locationRepository, patientRepository);
+
+        if (bed1 != null) {
+            clearBed(bed1, patientRepository);
+            locationRepository.save(bed1);
+        }
+
+        return bed1;
+    }
+
+    /** 107호 전체를 비운 뒤 기만경만 1번 침상에 양방향 배정 */
+    private static void assignKimToRoom107Bed1(
+            Facility facility,
+            Location bed1,
+            Patient kim,
+            LocationRepository locationRepository,
+            PatientRepository patientRepository) {
+        if (kim == null || bed1 == null) {
+            return;
+        }
+        Long facilityId = facility.getFacilityId();
+        List<Location> inRoom =
+                locationRepository.findByFacilityId_FacilityId(facilityId).stream()
+                        .filter(KimMankyungPatientSeeder::isRoom107)
+                        .toList();
+        for (Location loc : inRoom) {
+            clearBed(loc, patientRepository);
+            locationRepository.save(loc);
+        }
+        bed1.setPatientId(kim);
+        bed1.setIsOccupied(true);
+        bed1.setRoomCapacity(ROOM_107_CAPACITY);
+        locationRepository.save(bed1);
+        kim.setLocationId(bed1);
+        patientRepository.save(kim);
+    }
+
+    private static boolean isRoom107(Location loc) {
+        return loc != null
+                && ROOM_107_BUILDING.equals(loc.getBuilding())
+                && Integer.valueOf(ROOM_107_FLOOR).equals(loc.getFloor())
+                && ROOM_107.equals(normalizeRoomNumber(loc.getRoom()));
+    }
+
+    private static String normalizeRoomNumber(String room) {
+        if (room == null) {
+            return "";
+        }
+        return room.replaceAll("호$", "").trim();
+    }
+
+    private static Map<Integer, Location> pickCanonicalBeds(List<Location> inRoom) {
+        Map<Integer, Location> best = new LinkedHashMap<>();
+        for (Location loc : inRoom) {
+            if (loc.getBed() == null) {
+                continue;
+            }
+            Location prev = best.get(loc.getBed());
+            if (prev == null || preferCanonical(loc, prev)) {
+                best.put(loc.getBed(), loc);
+            }
+        }
+        return best;
+    }
+
+    private static boolean preferCanonical(Location candidate, Location current) {
+        int cScore = locationTrustScore(candidate);
+        int pScore = locationTrustScore(current);
+        if (cScore != pScore) {
+            return cScore > pScore;
+        }
+        return candidate.getLocationId() < current.getLocationId();
+    }
+
+    private static int locationTrustScore(Location loc) {
+        if (loc == null) {
+            return 0;
+        }
+        Patient patient = loc.getPatientId();
+        if (patient == null) {
+            return Boolean.TRUE.equals(loc.getIsOccupied()) ? 1 : 0;
+        }
+        Location patientLoc = patient.getLocationId();
+        if (patientLoc != null
+                && Objects.equals(patientLoc.getLocationId(), loc.getLocationId())) {
+            if (Objects.equals(patient.getPatientId(), KIM_PATIENT_ID)) {
+                return 100;
+            }
+            return 10;
+        }
+        return 2;
+    }
+
+    private static void clearBed(Location loc, PatientRepository patientRepository) {
+        Patient onBed = loc.getPatientId();
+        if (onBed != null) {
+            if (onBed.getLocationId() != null
+                    && Objects.equals(onBed.getLocationId().getLocationId(), loc.getLocationId())) {
+                onBed.setLocationId(null);
+                patientRepository.save(onBed);
+            }
+            loc.setPatientId(null);
+        }
+        loc.setIsOccupied(false);
+    }
+
+    private static void restoreJangWonjunToRoom105(
+            Facility facility,
+            LocationRepository locationRepository,
+            PatientRepository patientRepository) {
+        Patient jang = patientRepository.findById(JANG_WONJUN_PATIENT_ID).orElse(null);
+        if (jang == null) {
+            return;
+        }
+        if (jang.getLocationId() != null && isRoom107(jang.getLocationId())) {
+            jang.setLocationId(null);
+        }
+        if (jang.getLocationId() != null) {
+            patientRepository.save(jang);
+            return;
+        }
+        Location bed105 =
+                locationRepository.findByFacilityId_FacilityId(facility.getFacilityId()).stream()
+                        .filter(
+                                loc ->
+                                        ROOM_107_BUILDING.equals(loc.getBuilding())
+                                                && Integer.valueOf(ROOM_107_FLOOR)
+                                                        .equals(loc.getFloor())
+                                                && "105".equals(normalizeRoomNumber(loc.getRoom()))
+                                                && Integer.valueOf(1).equals(loc.getBed()))
+                        .findFirst()
+                        .orElse(null);
+        if (bed105 == null) {
+            patientRepository.save(jang);
+            return;
+        }
+        if (bed105.getPatientId() == null) {
+            bed105.setPatientId(jang);
+            bed105.setIsOccupied(true);
+            locationRepository.save(bed105);
+            jang.setLocationId(bed105);
+        }
+        patientRepository.save(jang);
     }
 
     private static Users resolveCaregiver(Facility facility, MemberRepository memberRepository) {
@@ -162,7 +374,7 @@ public class KimMankyungPatientSeeder {
 
         jdbc.update(
                 """
-                INSERT INTO PATIENT (
+                INSERT INTO patient (
                   patient_id, facility_id, location_id, primary_caregiver_user_id,
                   name, gender, birth_date, address, admission_date, discharge_date,
                   blood_type, admission_status, status, memo, created_at, updated_at

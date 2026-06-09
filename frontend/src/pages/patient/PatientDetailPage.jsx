@@ -40,7 +40,7 @@ export default function PatientDetailPage() {
         const response = await patientApi.getPatientById(patientId);
         setPatient(response.data);
       } catch (error) {
-        console.error("환자 상세 조회 실패", error);
+        console.error("입소자 상세 조회 실패", error);
         setPatient(null);
       } finally {
         setLoading(false);

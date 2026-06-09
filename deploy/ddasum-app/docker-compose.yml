@@ -3,7 +3,7 @@ services:
   backend:
     build:
       context: ../../backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.cloud
     image: ddasum-backend:latest
     container_name: ddasum-backend
     restart: unless-stopped
@@ -11,11 +11,18 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    volumes:
+      - ${UPLOAD_HOST_DIR:-/data/ddasum/uploads}:/data/ddasum/uploads
+      - ${DDASUM_AI_DIR:-/home/rocky/ddasum-repo/ai}:/ai:ro
     environment:
       SPRING_PROFILES_ACTIVE: cloud
       SERVER_PORT: "8080"
-    volumes:
-      - ${UPLOAD_HOST_DIR:-/data/ddasum/uploads}:/data/ddasum/uploads
+      APP_GALLERY_UPLOAD_DIR: /data/ddasum/uploads
+      APP_GALLERY_FACE_AI_HOME: /ai/dasum-face-ai-test
+      APP_GALLERY_AI_SERVER_HOME: /ai/ai-server
+      PYTHON_EXECUTABLE: python3
+      INSIGHTFACE_HOME: /home/appuser/.insightface
+      YOLO_CONFIG_DIR: /tmp/ultralytics
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/swagger-ui.html || exit 1"]
       interval: 30s

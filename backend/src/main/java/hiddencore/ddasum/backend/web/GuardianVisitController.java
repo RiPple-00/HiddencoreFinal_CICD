@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import hiddencore.ddasum.backend.service.GuardianVisitService;
 import hiddencore.ddasum.backend.service.VisitAvailabilityService;
@@ -33,6 +35,27 @@ public class GuardianVisitController {
             @Valid @RequestBody VisitRequestDto.CreateRequest body) {
         VisitRequestDto.CreateResponse res = guardianVisitService.createVisit(body);
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
+
+    /** 원무과 면회 신청 전체 목록 조회 */
+    @GetMapping("/admin")
+    public ResponseEntity<List<VisitRequestDto.AdminListResponse>> getAdminVisitRequests() {
+        return ResponseEntity.ok(guardianVisitService.getAdminVisitRequests());
+    }
+
+    /** 원무과 면회 신청 승인 */
+    @PatchMapping("/admin/{visitRequestId}/approve")
+    public ResponseEntity<VisitRequestDto.AdminListResponse> approveVisitRequest(
+            @PathVariable Long visitRequestId) {
+        return ResponseEntity.ok(guardianVisitService.approveVisitRequest(visitRequestId));
+    }
+
+    /** 원무과 면회 신청 반려 */
+    @PatchMapping("/admin/{visitRequestId}/reject")
+    public ResponseEntity<VisitRequestDto.AdminListResponse> rejectVisitRequest(
+            @PathVariable Long visitRequestId,
+            @Valid @RequestBody VisitRequestDto.RejectRequest request) {
+        return ResponseEntity.ok(guardianVisitService.rejectVisitRequest(visitRequestId, request));
     }
 
     // 가능 시간 조회 API

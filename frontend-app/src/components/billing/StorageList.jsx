@@ -84,7 +84,7 @@ export default function StorageList({ route, navigation }) {
       } catch {/* 환자 실패는 무시 */}
     })();
     return () => { cancelled = true; };
-  }, [t]);
+  }, []);
 
   // 청구서 (필터 변경 시마다)
   useEffect(() => {
@@ -198,10 +198,13 @@ export default function StorageList({ route, navigation }) {
       </View>
 
       {/* 필터 바 */}
-      <View className="flex-row gap-2 px-4 py-3">
+      <View
+        className="flex-row gap-2 px-4 py-3 bg-guardian-bg-primary"
+        style={{ zIndex: openDropdown ? 50 : 1, elevation: openDropdown ? 50 : 0 }}
+      >
 
         {/* 날짜(년/월) 피커 */}
-        <View>
+        <View style={{ zIndex: 51 }}>
           <TouchableOpacity
             onPress={() => toggleDropdown("date")}
             className={`flex-row items-center gap-1 px-3 py-2 rounded-full border ${
@@ -219,7 +222,10 @@ export default function StorageList({ route, navigation }) {
           </TouchableOpacity>
 
           {openDropdown === "date" && (
-            <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-64 p-3">
+            <View
+              className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary w-64 p-3"
+              style={{ zIndex: 52, elevation: 52 }}
+            >
 
               {/* 년도 네비게이션 */}
               <View className="flex-row items-center justify-between mb-2">
@@ -281,7 +287,7 @@ export default function StorageList({ route, navigation }) {
         </View>
 
         {/* 상태 드롭다운 */}
-        <View>
+        <View style={{ zIndex: 51 }}>
           <TouchableOpacity
             onPress={() => toggleDropdown("status")}
             className={`px-3 py-2 rounded-full border ${
@@ -299,7 +305,10 @@ export default function StorageList({ route, navigation }) {
             </Text>
           </TouchableOpacity>
           {openDropdown === "status" && (
-            <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-32">
+            <View
+              className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary w-32"
+              style={{ zIndex: 52, elevation: 52 }}
+            >
               {STATUS_OPTIONS.map((opt) => (
                 <TouchableOpacity
                   key={opt}

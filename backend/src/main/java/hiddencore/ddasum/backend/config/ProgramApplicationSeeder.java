@@ -8,6 +8,7 @@ import java.util.Set;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.PageRequest;
 
 import hiddencore.ddasum.backend.config.GuardianProgramDemoGuard;
@@ -43,6 +44,7 @@ public class ProgramApplicationSeeder {
     private static final int MIN_APPLICANTS_PER_POST = 5;
 
     @Bean
+    @Order(5)
     CommandLineRunner seedProgramApplications(
             FacilityRepository facilityRepository,
             MemberRepository memberRepository,

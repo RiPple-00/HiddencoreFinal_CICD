@@ -16,7 +16,7 @@ const FORM_META = {
     titleKey: 'board.create.form.programTitle',
     title: '프로그램 작성',
     subtitleKey: 'board.create.form.programSubtitle',
-    subtitle: '환자를 위한 신규 프로그램을 등록합니다.',
+    subtitle: '입소자를 위한 신규 프로그램을 등록합니다.',
   },
   GENERAL: {
     titleKey: 'board.create.form.generalTitle',

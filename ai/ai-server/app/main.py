@@ -9,7 +9,10 @@ app = FastAPI(title="HiddenCore AI Server")
 
 @app.post("/ai/action", response_model=ActionResponse)
 def action_api(request: ActionRequest) -> ActionResponse:
-    result = classify_action(request.image_path)
+    result = classify_action(
+        image_path=request.image_path,
+        image_base64=request.image_base64,
+    )
 
     matched_program = match_program(
         taken_at=request.taken_at,

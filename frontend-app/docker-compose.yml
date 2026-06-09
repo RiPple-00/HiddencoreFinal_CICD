@@ -1,0 +1,14 @@
+services:
+  frontend-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        EXPO_PUBLIC_CHATBOT_URL: /chatbot
+    image: ddasum-frontend-app:latest
+    container_name: ddasum-frontend-app
+    restart: unless-stopped
+    ports:
+      # 직원 웹(8080)과 분리 — 호스트 Nginx app.ddasum.shop → 8081
+      - "127.0.0.1:8081:80"
+    # APP·AI 사설 IP 변경 시 nginx.conf 수정 후 재빌드

@@ -3,7 +3,12 @@ package hiddencore.ddasum.backend.service;
 import hiddencore.ddasum.backend.web.dto.BedResponseDto;
 import hiddencore.ddasum.backend.web.dto.PatientAssignSearchResponseDto;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import hiddencore.ddasum.backend.domain.Location;
 import hiddencore.ddasum.backend.domain.Patient;
@@ -22,19 +27,94 @@ public class BedRoomService {
 
     @Transactional(readOnly = true)
     public List<BedResponseDto> getBedsByRoom(String room, String building, Integer floor) {
+        String normalizedRoom = normalizeRoom(room);
         List<Location> locations;
 
         if (building != null && !building.isBlank() && floor != null) {
-            locations = locationRepository.findByBuildingAndFloorAndRoomOrderByBedAsc(building, floor, room);
+            locations =
+                    locationRepository.findByBuildingAndFloorAndRoomOrderByBedAsc(
+                            building, floor, normalizedRoom);
         } else if (building != null && !building.isBlank()) {
-            locations = locationRepository.findByBuildingAndRoomOrderByBedAsc(building, room);
+            locations =
+                    locationRepository.findByBuildingAndRoomOrderByBedAsc(building, normalizedRoom);
         } else {
-            locations = locationRepository.findByRoomOrderByBedAsc(room);
+            locations = locationRepository.findByRoomOrderByBedAsc(normalizedRoom);
         }
 
-        return locations.stream()
-                .map(this::toDto)
+        List<Location> deduped = deduplicateByBed(locations);
+        int capacity =
+                deduped.stream()
+                        .map(Location::getRoomCapacity)
+                        .filter(Objects::nonNull)
+                        .filter(c -> c > 0)
+                        .findFirst()
+                        .orElse(Math.max(deduped.size(), 1));
+
+        Map<Integer, Location> byBed = new LinkedHashMap<>();
+        for (Location loc : deduped) {
+            if (loc.getBed() != null) {
+                byBed.putIfAbsent(loc.getBed(), loc);
+            }
+        }
+
+        List<BedResponseDto> result = new ArrayList<>();
+        for (int bedNo = 1; bedNo <= capacity; bedNo++) {
+            Location loc = byBed.get(bedNo);
+            if (loc != null) {
+                result.add(toDto(loc));
+            }
+        }
+        return result;
+    }
+
+    private static String normalizeRoom(String room) {
+        if (room == null) {
+            return "";
+        }
+        return room.replaceAll("호$", "").trim();
+    }
+
+    /** 동일 병실·침상 번호 중복 LOCATION 행 제거 (원무 4인실 = 침상 1~4 각 1건) */
+    private static List<Location> deduplicateByBed(List<Location> locations) {
+        Map<Integer, Location> best = new LinkedHashMap<>();
+        for (Location loc : locations) {
+            if (loc.getBed() == null) {
+                continue;
+            }
+            Location prev = best.get(loc.getBed());
+            if (prev == null || preferLocation(loc, prev)) {
+                best.put(loc.getBed(), loc);
+            }
+        }
+        return best.values().stream()
+                .sorted(Comparator.comparing(Location::getBed))
                 .toList();
+    }
+
+    /** 양방향 배정(location↔patient)이 맞는 행을 우선 — 점유만 있고 역참조가 어긋난 중복 행 제외 */
+    private static boolean preferLocation(Location candidate, Location current) {
+        int cScore = locationTrustScore(candidate);
+        int pScore = locationTrustScore(current);
+        if (cScore != pScore) {
+            return cScore > pScore;
+        }
+        return candidate.getLocationId() < current.getLocationId();
+    }
+
+    private static int locationTrustScore(Location loc) {
+        if (loc == null) {
+            return 0;
+        }
+        Patient patient = loc.getPatientId();
+        if (patient == null) {
+            return Boolean.TRUE.equals(loc.getIsOccupied()) ? 1 : 0;
+        }
+        Location patientLoc = patient.getLocationId();
+        if (patientLoc != null
+                && Objects.equals(patientLoc.getLocationId(), loc.getLocationId())) {
+            return 10;
+        }
+        return 2;
     }
 
     @Transactional(readOnly = true)
@@ -85,9 +165,12 @@ public class BedRoomService {
 
     private BedResponseDto toDto(Location location) {
         Patient patient = location.getPatientId();
-        if (patient == null) {
-            patient = patientRepository.findByLocationId_LocationId(location.getLocationId())
-                    .orElse(null);
+        if (patient != null) {
+            Location patientLoc = patient.getLocationId();
+            if (patientLoc != null
+                    && !Objects.equals(patientLoc.getLocationId(), location.getLocationId())) {
+                patient = null;
+            }
         }
         return BedResponseDto.from(location, patient);
     }

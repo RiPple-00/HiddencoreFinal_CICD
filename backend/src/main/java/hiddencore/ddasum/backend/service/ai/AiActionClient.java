@@ -1,8 +1,12 @@
 package hiddencore.ddasum.backend.service.ai;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -71,14 +75,16 @@ public class AiActionClient {
                             post.getEndAt().format(AI_TIME)));
         }
 
-        Map<String, Object> body =
-                Map.of(
-                        "image_path",
-                        absoluteImagePath,
-                        "taken_at",
-                        takenAt.format(AI_TIME),
-                        "program_candidates",
-                        candidates);
+        Map<String, Object> body = new HashMap<>();
+        body.put("taken_at", takenAt.format(AI_TIME));
+        body.put("program_candidates", candidates);
+        try {
+            byte[] bytes = Files.readAllBytes(Path.of(absoluteImagePath));
+            body.put("image_base64", Base64.getEncoder().encodeToString(bytes));
+        } catch (Exception ex) {
+            log.warn("AI action image read failed, falling back to path: {}", ex.getMessage());
+            body.put("image_path", absoluteImagePath);
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

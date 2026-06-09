@@ -28,8 +28,8 @@ import CaregiverSectionCard    from "../../components/caregiver/CaregiverSection
 export default function CaregiverTaskCheckPage({ navigation, route }) {
   // route 파라미터로 환자 정보를 받을 수 있게 하되, 없으면 디자인의 더미값을 사용한다.
   const params      = route?.params ?? {};
-  const patientId   = params.patientId   ?? 1;
-  const patientName = params.patientName ?? "김따숨";
+  const patientId   = params.patientId ?? null;
+  const patientName = params.patientName ?? "환자";
   const genderAge   = params.genderAge   ?? "M/82";
   const metaItems   = params.metaItems   ?? ["441212", "Ward 402", "72283944"];
   const recordDate  = params.recordDate  ?? todayStr();
@@ -52,6 +52,10 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
 
   // 1) 마운트 시 기존 저장본 로딩
   useEffect(() => {
+    if (patientId == null) {
+      setBootstrapping(false);
+      return undefined;
+    }
     let cancelled = false;
     isMountedRef.current = true;
     (async () => {
@@ -82,6 +86,7 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
 
   // 2) state 변경 시 자동 저장(디바운스)
   useEffect(() => {
+    if (patientId == null) return;
     if (!bootstrappedRef.current) return; // 초기 로딩 직후의 setState 는 무시
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
@@ -229,7 +234,15 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
 
         <CaregiverPatientStrip name={patientName} genderAge={genderAge} metaItems={metaItems} />
 
-        {submitBanner && (
+        {patientId == null ? (
+          <View className="flex-1 items-center justify-center px-6">
+            <Text className="text-center text-caregiver-text-secondary text-sm leading-5">
+              환자 정보가 없습니다. 메인 화면에서 담당 환자를 선택한 뒤 업무 체크를 열어 주세요.
+            </Text>
+          </View>
+        ) : null}
+
+        {patientId != null && submitBanner && (
           <View
             className={`mx-[14px] mt-2 rounded-lg border px-3 py-2.5 ${
               submitBanner.type === "success"
@@ -249,7 +262,7 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
           </View>
         )}
 
-        {isSubmitted && !submitBanner && (
+        {patientId != null && isSubmitted && !submitBanner && (
           <View className="mx-[14px] mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5">
             <Text className="text-[13px] font-semibold text-emerald-800">
               제출이 완료되었습니다.
@@ -258,6 +271,7 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
         )}
 
         {/* 자동 저장 상태 표시 */}
+        {patientId != null ? (
         <View className="px-[14px] pt-2 pb-[2px]">
           <Text className="text-[11px] text-caregiver-text-secondary text-right">
             {bootstrapping
@@ -267,12 +281,13 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
                 : saveStatusText}
           </Text>
         </View>
+        ) : null}
 
-        {bootstrapping ? (
+        {patientId != null && bootstrapping ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator color="#005E53" />
           </View>
-        ) : (
+        ) : patientId != null ? (
           <ScrollView
             ref={scrollRef}
             contentContainerStyle={{ paddingBottom: 100 }}
@@ -383,7 +398,7 @@ export default function CaregiverTaskCheckPage({ navigation, route }) {
               </Pressable>
             </View>
           </ScrollView>
-        )}
+        ) : null}
       </View>
     </SafeAreaView>
   );

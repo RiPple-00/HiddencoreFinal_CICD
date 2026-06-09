@@ -8,6 +8,7 @@ import java.util.Objects;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -65,6 +66,7 @@ import hiddencore.ddasum.backend.security.StaffLoginIdCodec;
 public class DataSeeder {
 
         @Bean
+        @Order(1)
         CommandLineRunner seedAuthDemo(
                         FacilityRepository facilityRepository,
                         MemberRepository memberRepository,
@@ -141,6 +143,26 @@ public class DataSeeder {
                         caregiver.setEmailAgreedAt(LocalDateTime.now());
                         memberRepository.save(caregiver);
 
+                        String demoDoctorEmployeeId = "2120010101";
+                        String doctorLoginId = StaffLoginIdCodec.encode(facility.getFacilityCode(),
+                                        demoDoctorEmployeeId);
+                        Users doctor = memberRepository.findByLoginId(doctorLoginId)
+                                        .orElse(Users.builder().loginId(doctorLoginId)
+                                                        .employeeLoginId(demoDoctorEmployeeId).build());
+                        doctor.setFacilityId(facility);
+                        doctor.setEmployeeLoginId(demoDoctorEmployeeId);
+                        doctor.setHireDate(LocalDate.of(2020, 1, 1));
+                        doctor.setPassword(passwordEncoder.encode("office123!"));
+                        doctor.setName("데모 의사");
+                        doctor.setPhone("01020000001");
+                        doctor.setEmail("doctor-demo@ddasum.local");
+                        doctor.setRole(UsersRole.DOCTOR);
+                        doctor.setStatus(UsersStatus.ACTIVE);
+                        doctor.setMustChangePassword(false);
+                        doctor.setEmailAgreed(true);
+                        doctor.setEmailAgreedAt(LocalDateTime.now());
+                        memberRepository.save(doctor);
+
                         Users guardian = memberRepository.findByLoginId("guardian001")
                                         .orElse(Users.builder().loginId("guardian001").build());
                         guardian.setFacilityId(null);
@@ -160,12 +182,15 @@ public class DataSeeder {
                         /* ── Location 더미 ── */
                         if (locationRepository.findByFacilityId_FacilityId(facility.getFacilityId()).isEmpty()) {
 
-                                // A동 1~5층, 층당 5개 병실(4인실)
+                                // A동 1~5층 (1층 10개 병실, 나머지 층 5개)
                                 String[] genders = { "MALE", "FEMALE", "CONCOCTION", "MALE", "FEMALE" };
                                 for (int floor = 1; floor <= 5; floor++) {
-                                        for (int roomNum = 1; roomNum <= 5; roomNum++) {
-                                                String room = floor + "0" + roomNum;
-                                                RoomGenderType gender = RoomGenderType.valueOf(genders[roomNum - 1]);
+                                        int roomsOnFloor = floor == 1 ? 10 : 5;
+                                        for (int roomNum = 1; roomNum <= roomsOnFloor; roomNum++) {
+                                                String room = String.valueOf(floor * 100 + roomNum);
+                                                RoomGenderType gender =
+                                                        RoomGenderType.valueOf(
+                                                                genders[(roomNum - 1) % genders.length]);
                                                 for (int bed = 1; bed <= 4; bed++) {
                                                         locationRepository.save(Location.builder()
                                                                         .facilityId(facility).building("A동")
@@ -177,7 +202,7 @@ public class DataSeeder {
                                         }
                                 }
 
-                                // B동 1층: 일반실 3개 + 중환자실 2개
+                                // B동 1층: 일반실 3개 + 중증실 2개
                                 for (int roomNum = 1; roomNum <= 3; roomNum++) {
                                         for (int bed = 1; bed <= 4; bed++) {
                                                 locationRepository.save(Location.builder()
@@ -220,7 +245,7 @@ public class DataSeeder {
                                         }
                                 }
 
-                                // B동 3층: 일반실 3개 + 중환자실 1개 + 격리실 1개
+                                // B동 3층: 일반실 3개 + 중증실 1개 + 격리실 1개
                                 for (int roomNum = 1; roomNum <= 3; roomNum++) {
                                         for (int bed = 1; bed <= 4; bed++) {
                                                 locationRepository.save(Location.builder()
@@ -282,60 +307,8 @@ public class DataSeeder {
                                 link.setRelationship("가족");
                                 link.setIsPrimary(true);
                                 guardianPatientRepository.save(link);
-                        } else if (guardianPatientRepository
-                                        .findByGuardianUserId_UserId(guardian.getUserId())
-                                        .isEmpty()) {
-                                List<Patient> inFacility =
-                                                patientRepository.findByFacilityId_FacilityId(
-                                                                facility.getFacilityId());
-                                Patient demoPatient;
-                                if (inFacility.isEmpty()) {
-                                        Location freeBed =
-                                                        locationRepository
-                                                                        .findByFacilityId_FacilityId(
-                                                                                        facility.getFacilityId())
-                                                                        .stream()
-                                                                        .filter(loc -> loc.getPatientId() == null)
-                                                                        .findFirst()
-                                                                        .orElse(null);
-                                        demoPatient =
-                                                        patientRepository.save(
-                                                                        Patient.builder()
-                                                                                        .facilityId(facility)
-                                                                                        .locationId(freeBed)
-                                                                                        .primaryCaregiver(caregiver)
-                                                                                        .name("데모 환자(보호자연결)")
-                                                                                        .gender(Patient.Gender.MALE)
-                                                                                        .birthDate(
-                                                                                                        LocalDate.of(
-                                                                                                                        1942,
-                                                                                                                        5,
-                                                                                                                        12))
-                                                                                        .admissionDate(
-                                                                                                        LocalDate.now()
-                                                                                                                        .minusMonths(
-                                                                                                                                        1))
-                                                                                        .type(Patient.BloodType.A_POSITIVE)
-                                                                                        .status(
-                                                                                                        Patient.PatientStatus
-                                                                                                                        .STABLE)
-                                                                                        .build());
-                                        if (freeBed != null) {
-                                                freeBed.setPatientId(demoPatient);
-                                                freeBed.setIsOccupied(true);
-                                                locationRepository.save(freeBed);
-                                        }
-                                } else {
-                                        demoPatient = inFacility.get(0);
-                                }
-                                guardianPatientRepository.save(
-                                                GuardianPatient.builder()
-                                                                .guardianUserId(guardian)
-                                                                .patientId(demoPatient)
-                                                                .relationship("가족")
-                                                                .isPrimary(true)
-                                                                .build());
                         }
+                        /* 기만경(260401008) 연동은 KimMankyungPatientSeeder(@Order 2)가 담당 */
 
                         /* ── Post 더미 ── */
                         if (postRepository.findAllByFacility(facility.getFacilityId(), PageRequest.of(0, 1))

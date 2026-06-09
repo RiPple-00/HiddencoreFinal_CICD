@@ -85,7 +85,7 @@ export default function PaymentHistory({ navigation }) {
       } catch {/* 환자 실패는 무시 */}
     })();
     return () => { cancelled = true; };
-  }, [t]);
+  }, []);
 
   // 결제 내역 (필터 변경 시마다)
   useEffect(() => {
@@ -109,7 +109,7 @@ export default function PaymentHistory({ navigation }) {
       }
     })();
     return () => { cancelled = true; };
-  }, [selectedCategory, selectedDate, t, language]);
+  }, [selectedCategory, selectedDate]);
 
   const filtered = useMemo(() =>
     payments.filter((p) => selectedCategory === "all" || p.tagKey === selectedCategory),
@@ -169,10 +169,13 @@ export default function PaymentHistory({ navigation }) {
       </View>
 
       {/* 필터 바 */}
-      <View className="flex-row gap-2 px-4 py-3">
+      <View
+        className="flex-row gap-2 px-4 py-3 bg-guardian-bg-primary"
+        style={{ zIndex: openDropdown ? 50 : 1, elevation: openDropdown ? 50 : 0 }}
+      >
 
         {/* 기간 필터 */}
-        <View>
+        <View style={{ zIndex: 51 }}>
           <TouchableOpacity
             onPress={() => toggleDropdown("date")}
             className={`px-3 py-2 rounded-full border ${
@@ -191,7 +194,10 @@ export default function PaymentHistory({ navigation }) {
             </Text>
           </TouchableOpacity>
           {isDateActive && (
-            <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-36">
+            <View
+              className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary w-36"
+              style={{ zIndex: 52, elevation: 52 }}
+            >
               {DATE_OPTIONS.map((opt) => (
                 <TouchableOpacity
                   key={opt}
@@ -218,7 +224,7 @@ export default function PaymentHistory({ navigation }) {
         </View>
 
         {/* 카테고리 필터 */}
-        <View>
+        <View style={{ zIndex: 51 }}>
           <TouchableOpacity
             onPress={() => toggleDropdown("category")}
             className={`px-3 py-2 rounded-full border ${
@@ -234,7 +240,10 @@ export default function PaymentHistory({ navigation }) {
             </Text>
           </TouchableOpacity>
           {isCategoryActive && (
-            <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-32">
+            <View
+              className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary w-32"
+              style={{ zIndex: 52, elevation: 52 }}
+            >
               {CATEGORY_OPTIONS.map((opt) => (
                 <TouchableOpacity
                   key={opt}

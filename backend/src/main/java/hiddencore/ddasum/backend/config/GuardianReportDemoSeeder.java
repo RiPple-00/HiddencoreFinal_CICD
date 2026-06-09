@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +41,7 @@ public class GuardianReportDemoSeeder {
     private static final LocalDate WEEK_END = LocalDate.of(2026, 6, 7);
 
     @Bean
+    @Order(3)
     CommandLineRunner seedGuardianReportDemo(
             PatientRepository patientRepository,
             MemberRepository memberRepository,

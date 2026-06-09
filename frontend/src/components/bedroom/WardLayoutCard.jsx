@@ -70,7 +70,7 @@ function WardLayoutCard() {
 
         setRoomCounts(counts);
       } catch (error) {
-        console.error('병실 환자 수 조회 실패:', error);
+        console.error('병실 입소자 수 조회 실패:', error);
         setRoomCounts({});
       }
     };

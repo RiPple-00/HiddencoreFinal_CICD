@@ -23,6 +23,7 @@ export default function PatientListPage() {
   const [quickFilter, setQuickFilter] = useState("");
   const [beds, setBeds] = useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isAssignPromptOpen, setIsAssignPromptOpen] = useState(false);
 
   const { user } = useAuth();
   const token = user?.accessToken ?? user?.token;
@@ -84,7 +85,21 @@ export default function PatientListPage() {
   }, [patients, keyword, statusFilter, quickFilter]);
 
   const handleGoCreatePage = () => setIsCreateModalOpen(true);
+  const handlePatientCreateSuccess = async () => {
+    await fetchPatients();
+    setIsCreateModalOpen(false);
+    setIsAssignPromptOpen(true);
+  };
 
+  const handleGoBedroomPage = () => {
+    setIsAssignPromptOpen(false);
+    navigate("/ward");
+  };
+
+  const handleGoPatientList = () => {
+    setIsAssignPromptOpen(false);
+    navigate("/patients");
+  };
   const fetchBedsForCreateModal = async () => {
     try {
       const data = await getAllBeds(facilityId);
@@ -153,9 +168,8 @@ export default function PatientListPage() {
 
                 <div
                   onClick={() => setQuickFilter((prev) => (prev === "UNASSIGNED" ? "" : "UNASSIGNED"))}
-                  className={`cursor-pointer rounded-2xl border px-6 py-5 ${
-                    quickFilter === "UNASSIGNED" ? "border-red-400 bg-red-50" : "border-slate-200 bg-slate-50"
-                  }`}
+                  className={`cursor-pointer rounded-2xl border px-6 py-5 ${quickFilter === "UNASSIGNED" ? "border-red-400 bg-red-50" : "border-slate-200 bg-slate-50"
+                    }`}
                 >
                   <p className="text-sm font-medium text-slate-500">{t('patientList.unassignedRooms')}</p>
                   <p className="mt-3 text-3xl font-bold text-slate-900">{summary.unassignedCount}</p>
@@ -195,12 +209,43 @@ export default function PatientListPage() {
           <PatientCreateModal
             open={isCreateModalOpen}
             onClose={() => setIsCreateModalOpen(false)}
-            onSuccess={fetchPatients}
+            onSuccess={handlePatientCreateSuccess}
             beds={beds}
           />
+          {isAssignPromptOpen && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/45 px-4">
+              <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl">
+                <h3 className="text-2xl font-bold text-slate-900">입소자 등록 완료</h3>
+
+                <p className="mt-4 text-base leading-7 text-slate-600">
+                  입소자가 등록되었습니다.
+                  <br />
+                  입소자 배치를 바로 진행하시겠습니까?
+                </p>
+
+                <div className="mt-7 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={handleGoPatientList}
+                    className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    목록으로 가기
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleGoBedroomPage}
+                    className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+                  >
+                    병실 조회로 이동
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           <aside className="w-[360px] shrink-0 space-y-6 self-start lg:sticky lg:top-6">
             <GuardianPanel />
-            <AdminMenuPanel />
+            {/* <AdminMenuPanel /> */}
             <MealCarePage />
           </aside>
         </div>

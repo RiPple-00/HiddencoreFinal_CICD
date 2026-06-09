@@ -71,7 +71,9 @@ public class PatientService {
                                 .admissionDate(request.getAdmissionDate())
                                 .type(request.getBloodType())
                                 .memo(request.getMemo())
-                                .status(Patient.PatientStatus.STABLE)
+                                .status(request.getPatientStatus() != null
+                                                ? request.getPatientStatus()
+                                                : Patient.PatientStatus.STABLE)
                                 .build();
 
                 Patient savedPatient = patientRepository.save(patient);
@@ -86,7 +88,7 @@ public class PatientService {
 
         @Transactional
         public PatientDto.DetailResponse updatePatient(Long patientId, PatientDto.UpdateRequest request) {
-                Patient patient = patientRepository.findById(patientId) // 환자 찾기
+                Patient patient = patientRepository.findById(patientId) // 입소자 찾기
                                 .orElseThrow(() -> new IllegalArgumentException("환자가 없습니다. id=" + patientId));
 
                 Facility facility = facilityRepository.findById(request.getFacilityId()) // 시설찾기
@@ -108,5 +110,20 @@ public class PatientService {
                 patient.setStatus(request.getPatientStatus());
 
                 return PatientDto.DetailResponse.from(patient);
+        }
+
+        @Transactional
+        public void deletePatient(Long patientId) {
+                Patient patient = patientRepository.findById(patientId)
+                                .orElseThrow(() -> new IllegalArgumentException("환자가 없습니다. id=" + patientId));
+
+                Location location = patient.getLocationId();
+
+                if (location != null) {
+                        location.setPatientId(null);
+                        location.setIsOccupied(false);
+                }
+
+                patientRepository.delete(patient);
         }
 }

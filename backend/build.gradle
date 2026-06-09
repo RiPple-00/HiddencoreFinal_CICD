@@ -80,3 +80,10 @@ tasks.register('fixKimEncoding', JavaExec) {
 	classpath = sourceSets.main.runtimeClasspath
 	mainClass = 'hiddencore.ddasum.backend.tools.FixKimMankyungEncoding'
 }
+
+tasks.register('fixRoom107Kim', JavaExec) {
+	group = 'application'
+	description = 'Assign 기만경 to A동 107호 bed 1 and clear wrong occupants'
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = 'hiddencore.ddasum.backend.tools.FixRoom107KimMankyung'
+}

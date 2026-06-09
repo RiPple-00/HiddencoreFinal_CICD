@@ -15,10 +15,17 @@ import bedRoomApi from "@/api/bedRoomApi";
 import { fetchCaregiverPatients } from "@/api/careChecklistApi";
 import { caregiverPatientToTaskCheckRouteParams } from "@/utils/careCheckState";
 import {
+  DEMO_GUARDIAN_PATIENT_ID,
+  resolveGuardianPatientDisplayName,
+} from "@/utils/guardianPatientId";
+import {
+  findDemoPatient,
   isCriticalStatus,
   mapBedFromApi,
-  normalizeRoom,
+  normalizeBedsByCapacity,
+  overlayAnchorPatientOnBed,
   resolveCaregiverWard,
+  resolvePatientForTaskCheck,
 } from "@/utils/caregiverWard";
 
 function patientById(patients, patientId) {
@@ -32,7 +39,9 @@ export default function CaregiverPatientListPage({ navigation }) {
   const [search, setSearch] = useState("");
   const [beds, setBeds] = useState([]);
   const [ward, setWard] = useState({ room: null, building: null, floor: null });
+  const [allPatients, setAllPatients] = useState([]);
   const [myPatients, setMyPatients] = useState([]);
+  const [anchorPatient, setAnchorPatient] = useState(null);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [roomCapacity, setRoomCapacity] = useState(0);
 
@@ -46,17 +55,26 @@ export default function CaregiverPatientListPage({ navigation }) {
 
       const { data: patientList } = await fetchCaregiverPatients();
       const list = patientList ?? [];
+      setAllPatients(list);
+
       const wardInfo = resolveCaregiverWard(list, caregiverUserId);
+      const demo = wardInfo.anchorPatient ?? findDemoPatient(list);
 
       if (!wardInfo.room) {
         setBeds([]);
         setMyPatients([]);
+        setAnchorPatient(demo);
         setWard({ room: null, building: null, floor: null });
-        setError("담당 병실이 없습니다. 원무과에서 107호 담당 배정을 확인해 주세요.");
+        setError(
+          demo
+            ? "기만경 환자의 병실 배정 정보가 없습니다. 원무과에서 침상 배정을 확인해 주세요."
+            : "기만경 환자를 찾을 수 없습니다. 원무과 환자·침상 배정을 확인해 주세요."
+        );
         return;
       }
 
       setMyPatients(wardInfo.myPatients);
+      setAnchorPatient(demo);
       setWard({
         room: wardInfo.room,
         building: wardInfo.building,
@@ -70,11 +88,31 @@ export default function CaregiverPatientListPage({ navigation }) {
       );
       const rawBeds = bedRes?.data ?? [];
       const mapped = rawBeds.map(mapBedFromApi);
-      setBeds(mapped);
-      setRoomCapacity(rawBeds[0]?.roomCapacity ?? mapped.length);
+      const capacity = rawBeds[0]?.roomCapacity ?? 4;
+      let normalized = normalizeBedsByCapacity(wardInfo.room, capacity, mapped);
+      if (demo) {
+        normalized = overlayAnchorPatientOnBed(
+          normalized,
+          demo,
+          wardInfo.room,
+          1
+        );
+      }
+      setBeds(normalized);
+      setRoomCapacity(capacity);
 
-      const firstOccupied = mapped.find((b) => b.occupied && b.patientId);
-      setSelectedPatientId((prev) => prev ?? firstOccupied?.patientId ?? null);
+      const demoBed = normalized.find(
+        (b) => Number(b.patientId) === DEMO_GUARDIAN_PATIENT_ID
+      );
+      const firstOccupied = normalized.find((b) => b.occupied && b.patientId);
+      setSelectedPatientId(
+        (prev) =>
+          prev ??
+          demoBed?.patientId ??
+          demo?.patientId ??
+          firstOccupied?.patientId ??
+          null
+      );
     } catch (e) {
       console.error(e);
       setError(
@@ -106,8 +144,8 @@ export default function CaregiverPatientListPage({ navigation }) {
   );
 
   const selectedPatient = useMemo(
-    () => patientById(myPatients, selectedPatientId),
-    [myPatients, selectedPatientId]
+    () => patientById(allPatients, selectedPatientId) ?? patientById(myPatients, selectedPatientId),
+    [allPatients, myPatients, selectedPatientId]
   );
 
   const selectedBed = useMemo(
@@ -126,9 +164,9 @@ export default function CaregiverPatientListPage({ navigation }) {
 
   const onPressBed = (bed) => {
     if (!bed.occupied || !bed.patientId) return;
-    const patient = patientById(myPatients, bed.patientId);
+    const patient = resolvePatientForTaskCheck(allPatients, bed);
     if (!patient) {
-      Alert.alert("안내", "담당 환자가 아닙니다.");
+      Alert.alert("안내", "환자 정보를 확인할 수 없습니다.");
       return;
     }
     setSelectedPatientId(bed.patientId);
@@ -192,7 +230,10 @@ export default function CaregiverPatientListPage({ navigation }) {
                   </View>
                   <Text className="text-xs text-caregiver-text-secondary mt-1">
                     {ward.building ? `${ward.building} · ` : ""}
-                    병상 배치 순서 (원무과와 동일)
+                    {anchorPatient
+                      ? `${resolveGuardianPatientDisplayName(anchorPatient.patientId, anchorPatient.name)} 환자 배정 병실 · `
+                      : ""}
+                    원무과 침상 배치와 동일
                   </Text>
                 </View>
 
@@ -228,7 +269,9 @@ export default function CaregiverPatientListPage({ navigation }) {
                     }
 
                     const initial = (bed.patientName ?? "?").charAt(0);
-                    const isMine = myPatients.some(
+                    const isDemoPatient =
+                      Number(bed.patientId) === DEMO_GUARDIAN_PATIENT_ID;
+                    const isInWard = myPatients.some(
                       (p) => Number(p.patientId) === Number(bed.patientId)
                     );
 
@@ -240,10 +283,10 @@ export default function CaregiverPatientListPage({ navigation }) {
                           isSelected
                             ? "border-caregiver-button-primary bg-caregiver-bg-secondary"
                             : "border-caregiver-bg-secondary"
-                        } ${!isMine ? "opacity-60" : ""}`}
+                        } ${!isInWard && !isDemoPatient ? "opacity-60" : ""}`}
                         onPress={() => onPressBed(bed)}
                         onLongPress={() => {
-                          const p = patientById(myPatients, bed.patientId);
+                          const p = resolvePatientForTaskCheck(allPatients, bed);
                           if (p) openTaskCheck(p);
                         }}
                       >
@@ -298,7 +341,11 @@ export default function CaregiverPatientListPage({ navigation }) {
                       onPress={() => openTaskCheck(selectedPatient)}
                     >
                       <Text className="text-white font-bold">
-                        {selectedPatient.name} 업무 체크 열기
+                        {resolveGuardianPatientDisplayName(
+                          selectedPatient.patientId,
+                          selectedPatient.name
+                        )}{" "}
+                        업무 체크 열기
                       </Text>
                     </TouchableOpacity>
 

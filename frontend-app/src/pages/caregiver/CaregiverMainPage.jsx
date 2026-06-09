@@ -6,6 +6,7 @@ import { getTodaySchedules } from "../../api/scheduleApi";
 import { getCaregiverNotices } from "../../api/noticeApi";
 import { resolveFacilityId } from "../../utils/facilityId";
 import { caregiverPatientToTaskCheckRouteParams } from "../../utils/careCheckState";
+import { resolveGuardianPrimaryPatientId } from "../../utils/guardianPatientId";
 import CaregiverPatientSelect from "@/components/caregiver/basic/CaregiverPatientSelect";
 import CaregiverCalendar from "@/components/caregiver/basic/CaregiverCalendar";
 import CaregiverTodaySchedule from "@/components/caregiver/basic/CaregiverTodaySchedule";
@@ -42,7 +43,9 @@ export default function CaregiverMainPage({ navigation }) {
         if (!mounted) return;
         const list = res.data ?? [];
         setPatients(list);
-        setSelectedPatientId((prev) => prev ?? (list[0]?.patientId ?? null));
+        setSelectedPatientId(
+          (prev) => prev ?? resolveGuardianPrimaryPatientId(list) ?? list[0]?.patientId ?? null
+        );
       } catch (e) {
         Alert.alert(
           "환자 목록",

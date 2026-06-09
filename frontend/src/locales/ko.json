@@ -1,12 +1,12 @@
 {
   "nav": {
     "rooms": "병실 조회",
-    "patients": "환자 조회",
+    "patients": "입소자 조회",
     "calendar": "캘린더",
     "notice": "게시판"
   },
   "search": {
-    "placeholder": "환자 검색...",
+    "placeholder": "입소자 검색...",
     "type": {
       "all": "제목+내용",
       "title": "제목",
@@ -31,7 +31,7 @@
     "noPosts": "게시글이 없습니다."
   },
   "aria": {
-    "searchPatients": "환자 검색",
+    "searchPatients": "입소자 검색",
     "mail": "메일",
     "notifications": "알림"
   },
@@ -199,12 +199,12 @@
       "special": "SPECIAL SELECTION"
     },
     "specials": {
-      "icu": "중환자실",
+      "icu": "중증실",
       "isolation": "격리실"
     },
     "roomType": {
       "general": "일반실",
-      "icu": "중환자실",
+      "icu": "중증실",
       "isolation": "격리실"
     },
     "gender": {
@@ -219,12 +219,12 @@
       "bloodType": "혈액형",
       "birthDate": "생년월일",
       "address": "주소",
-      "inpatient": "입원 환자",
+      "inpatient": "입원 입소자",
       "ageUnit": "세",
-      "patientIdLabel": "환자 ID:",
-      "noSelection": "환자를 선택해주세요.",
-      "summaryTitle": "선택 환자 요약 정보",
-      "viewAll": "전체 환자 정보 보기",
+      "patientIdLabel": "입소자 ID:",
+      "noSelection": "입소자를 선택해주세요.",
+      "summaryTitle": "선택 입소자 요약 정보",
+      "viewAll": "전체 입소자 정보 보기",
       "doctor": "주치의",
       "height": "키",
       "regularCheck": "정기 체크",
@@ -248,7 +248,7 @@
       "discharged": "퇴원완료"
     },
     "table": {
-      "id": "환자 ID",
+      "id": "입소자 ID",
       "name": "성명",
       "genderAge": "성별/나이",
       "ward": "병동/병실",
@@ -258,7 +258,7 @@
       "showingOf": "전체 {total}명 중 {from}-{to} 표시 중"
     },
     "register": {
-      "title": "환자 등록",
+      "title": "입소자 등록",
       "name": "이름",
       "gender": "성별",
       "birthDate": "생년월일",
@@ -276,8 +276,8 @@
       "dayPlaceholder": "일",
       "cancel": "취소",
       "submit": "등록",
-      "success": "환자 등록 완료",
-      "error": "환자 등록 실패"
+      "success": "입소자 등록 완료",
+      "error": "입소자 등록 실패"
     }
   },
   "admission": {
@@ -287,7 +287,7 @@
   },
   "guardian": {
     "management": "보호자 관리",
-    "patientManagement": "환자/보호자 관리",
+    "patientManagement": "입소자/보호자 관리",
     "urgent": "긴급 보호자 호출",
     "callNow": "즉시 통화하기",
     "title": "보호자 및 방문객",
@@ -336,7 +336,7 @@
   "bedroom": {
     "bed": "침상",
     "bedNoInfo": "침상 정보 없음",
-    "assignPatient": "환자 배정",
+    "assignPatient": "입소자 배정",
     "admissionDate": "입원 날짜",
     "bloodType": "혈액형",
     "birthDate": "생년월일"
@@ -378,9 +378,9 @@
     "moveToWaiting": "대기(승인 대기)로 변경"
   },
   "patientDetail": {
-    "title": "환자 상세 정보",
+    "title": "입소자 상세 정보",
     "loading": "불러오는 중...",
-    "notFound": "해당 환자를 찾을 수 없습니다.",
+    "notFound": "해당 입소자를 찾을 수 없습니다.",
     "backToList": "목록으로",
     "edit": "편집하기",
     "genderAge": "성별/나이",
@@ -396,12 +396,12 @@
     "ageUnit": "세"
   },
   "patientList": {
-    "title": "환자 조회",
-    "newPatient": "신규 환자 등록",
-    "searchPlaceholder": "환자 이름, ID 검색",
-    "currentInpatients": "현재 입원 환자",
+    "title": "입소자 조회",
+    "newPatient": "신규 입소자 등록",
+    "searchPlaceholder": "입소자 이름, ID 검색",
+    "currentInpatients": "현재 입원 입소자",
     "todayDischarge": "금일 퇴원 예정",
-    "unassignedRooms": "병실 미배정 환자",
+    "unassignedRooms": "병실 미배정 입소자",
     "allStatus": "전체 상태"
   },
   "calendar": {

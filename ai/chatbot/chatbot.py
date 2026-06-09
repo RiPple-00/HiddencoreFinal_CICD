@@ -40,10 +40,12 @@ BASE_DIR   = Path(__file__).parent
 sys.path.insert(0, str(BASE_DIR.parent / "shared"))
 from rate_limit import check_daily_limit  # noqa: E402
 
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env", override=False)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 if not OPENAI_API_KEY:
-    raise RuntimeError(".env 파일에 OPENAI_API_KEY 가 없습니다.")
+    raise RuntimeError(
+        "OPENAI_API_KEY 가 없습니다. Docker .env 또는 환경 변수를 설정하세요."
+    )
 
 # ── 경로 설정 ──────────────────────────────────────────────────
 DATA_DIR   = BASE_DIR / "data"

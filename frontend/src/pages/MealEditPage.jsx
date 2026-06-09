@@ -3,13 +3,13 @@ import { useParams, useLocation } from "react-router-dom";
 
 const menuItems = [
   { id: "dashboard", label: "대시보드", icon: "" },
-  { id: "patients", label: "환자 기록", icon: "" },
+  { id: "patients", label: "입소자 기록", icon: "" },
   { id: "meal", label: "식단 관리", icon: "" },
   { id: "inventory", label: "재고 관리", icon: "" },
   { id: "analytics", label: "통계 분석", icon: "" },
 ];
 
-const navTabs = ["개요", "식단 관리", "환자 목록"];
+const navTabs = ["개요", "식단 관리", "입소자 목록"];
 const dietOptions = ["일반식", "저염식", "금식"];
 const reasonOptions = ["재료 소진", "영양 조정", "알레르기", "의사 지시", "기타"];
 
@@ -48,7 +48,7 @@ export default function MealPlanner() {
           borderRadius: 8, padding: "6px 14px", gap: 8, width: 220
         }}>
           <span style={{ color: "#94a3b8", fontSize: 14 }}>🔍</span>
-          <input placeholder="환자 검색..." style={{
+          <input placeholder="입소자 검색..." style={{
             border: "none", background: "none", outline: "none",
             fontSize: 13, color: "#334155", width: "100%"
           }} />
@@ -154,7 +154,7 @@ export default function MealPlanner() {
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                placeholder="예: 2024년 5월 고혈압 환자 저염식 수정안"
+                placeholder="예: 2024년 5월 고혈압 입소자 저염식 수정안"
                 style={{
                   width: "100%", padding: "12px 14px", borderRadius: 8,
                   border: "1px solid #e2e8f0", fontSize: 13, color: "#334155",

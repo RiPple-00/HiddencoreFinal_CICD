@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -30,6 +31,7 @@ public class ProgramRecruitmentSeeder {
     private static final String DEMO_FACILITY_CODE = "12345678";
 
     @Bean
+    @Order(4)
     CommandLineRunner seedProgramRecruitment(
             FacilityRepository facilityRepository,
             MemberRepository memberRepository,

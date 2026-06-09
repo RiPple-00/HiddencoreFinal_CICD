@@ -4,25 +4,25 @@ import { useLanguage } from "../../contexts/LanguageContext.jsx";
 import { useI18n } from "../../hooks/useI18n.jsx";
 import { resolveStaffFacilityId } from "../../utils/jwtUtils";
 
-function SearchIcon({ className }) {
-  return (
-    <svg
-      className={className}
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  );
-}
+// function SearchIcon({ className }) {
+//   return (
+//     <svg
+//       className={className}
+//       width="18"
+//       height="18"
+//       viewBox="0 0 24 24"
+//       fill="none"
+//       stroke="currentColor"
+//       strokeWidth="2"
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//       aria-hidden
+//     >
+//       <circle cx="11" cy="11" r="8" />
+//       <path d="m21 21-4.3-4.3" />
+//     </svg>
+//   );
+// }
 
 function MailIcon({ className }) {
   return (
@@ -65,24 +65,24 @@ function BellIcon({ className }) {
 }
 
 /**
- * 원무과·공통 상단 네비 (따숨, 병실/환자/캘린더/공지, 검색, 알림, 프로필).
+ * 원무과·공통 상단 네비 (따숨, 병실/입소자/캘린더/공지, 검색, 알림, 프로필).
  * @param {'rooms'|'patients'|'calendar'|'notice'} [activeNav]
  * @param {{ key: string, label: string, to: string | null }[]} [navItems]
  * @param {string} [brandLabel]
  * @param {string} [brandTo] — 지정 시 브랜드(따숨) 클릭 시 이동 경로
  * @param {string} [userName]
  * @param {string} [userRole]
- * @param {string} [searchPlaceholder]
+// @param {string} [searchPlaceholder]
  * @param {boolean} [showNotificationDot]
  */
 export default function Header({
   activeNav = "rooms",
   navItems,
   brandLabel = "따숨",
-  brandTo,
+  brandTo = "/ward",
   userName = "김관리자 (Admin Kim)",
   userRole = "SUPERUSER",
-  searchPlaceholder,
+  // searchPlaceholder,
   showNotificationDot = true,
 }) {
   const { user } = useAuth();
@@ -100,6 +100,7 @@ export default function Header({
     { key: "patients", label: t('nav.patients'), to: "/patients" },
     { key: "calendar", label: t('nav.calendar'), to: "/schedule" },
     { key: "notice", label: t('nav.notice'), to: facilityId ? `/facilities/${facilityId}/board` : null },
+    { key: "visits", label: "면회 관리", to: "/visit-management" },
   ];
   const resolvedNavItems = navItems ?? defaultNavItems;
 
@@ -152,12 +153,12 @@ export default function Header({
         <div className="flex shrink-0 items-center gap-3 md:gap-4">
           <label className="relative hidden sm:block">
             <span className="sr-only">{t('aria.searchPatients')}</span>
-            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#888]" />
-            <input
+            {/* <SearchIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#888]" /> */}
+            {/* <input
               type="search"
               placeholder={searchPlaceholder || t('search.placeholder')}
               className="h-10 w-[200px] rounded-full border-0 bg-[#f0f2f5] pl-10 pr-4 text-sm text-slate-800 placeholder:text-slate-400 outline-none ring-0 transition focus:bg-[#e8ebef] lg:w-[260px]"
-            />
+            /> */}
           </label>
 
           <div className="hidden sm:flex items-center gap-2 rounded-full border border-slate-200 bg-[#f8fafc] px-3 py-2 text-sm text-slate-700">

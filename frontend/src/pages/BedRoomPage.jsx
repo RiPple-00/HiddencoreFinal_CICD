@@ -181,8 +181,8 @@ function BedRoomPage() {
       const res = await bedRoomApi.getUnassignedPatientsForAssign();
       setUnassignedPatients(res?.data ?? []);
     } catch (e) {
-      console.error("미배정 환자 조회 실패", e);
-      setUnassignedError("미배정 환자 목록을 불러오지 못했습니다.");
+      console.error("미배정 입소자 조회 실패", e);
+      setUnassignedError("미배정 입소자 목록을 불러오지 못했습니다.");
       setUnassignedPatients([]);
     } finally {
       setUnassignedLoading(false);
@@ -193,7 +193,7 @@ function BedRoomPage() {
     const keyword = patientSearch.trim();
     if (!keyword) {
       setSearchedPatients([]);
-      setSearchError("환자 이름을 입력해주세요.");
+      setSearchError("입소자 이름을 입력해주세요.");
       return;
     }
 
@@ -204,15 +204,15 @@ function BedRoomPage() {
       const res = await bedRoomApi.getSearchPatientsForAssign(keyword);
       setSearchedPatients(res?.data ?? []);
     } catch (e) {
-      console.error("환자 검색 실패", e);
-      setSearchError("환자 검색 중 오류가 발생했습니다.");
+      console.error("입소자 검색 실패", e);
+      setSearchError("입소자 검색 중 오류가 발생했습니다.");
       setSearchedPatients([]);
     } finally {
       setSearchLoading(false);
     }
   };
 
-  // 환자 배정 모달 열기
+  // 입소자 배정 모달 열기
   const openAssignModal = (bed) => {
     setSelectedBed(bed);
     setPatientSearch("");
@@ -225,7 +225,7 @@ function BedRoomPage() {
     fetchUnassignedPatients();
   };
 
-  // 환자 배정 모달 닫기 및 상태 초기화
+  // 입소자 배정 모달 닫기 및 상태 초기화
   const closeAssignModal = () => {
     setIsAssignModalOpen(false);
     setSelectedBed(null);
@@ -250,11 +250,11 @@ function BedRoomPage() {
         toast.error("배정할 수 없습니다. (이미 배정됨/병상 사용중/성별 불일치)");
         return;
       }
-      toast.success("환자를 침상에 배정했습니다.");
+      toast.success("입소자를 침상에 배정했습니다.");
       closeAssignModal();
       await loadBeds();
     } catch (e) {
-      console.error("환자 배정 실패", e);
+      console.error("입소자 배정 실패", e);
     } finally {
       setAssigningPatientId(null);
     }
@@ -268,7 +268,7 @@ function BedRoomPage() {
     setPatientDetailError("");
 
     if (!bed?.patientId) {
-      setPatientDetailError("선택한 침상에 배정된 환자가 없습니다.");
+      setPatientDetailError("선택한 침상에 배정된 입소자가 없습니다.");
       return;
     }
 
@@ -277,8 +277,8 @@ function BedRoomPage() {
       const res = await patientApi.getPatientById(bed.patientId);
       setSelectedPatient(mapDetailToSummaryPatient(res?.data));
     } catch (e) {
-      console.error("환자 상세 조회", e);
-      setPatientDetailError("환자 상세 정보를 불러오지 못했습니다.");
+      console.error("입소자 상세 조회", e);
+      setPatientDetailError("입소자 상세 정보를 불러오지 못했습니다.");
     } finally {
       setPatientDetailLoading(false);
     }
@@ -402,7 +402,7 @@ function BedRoomPage() {
       id: 2,
       name: "김태진",
       age: 68,
-      desc: "BED A → 중환자실(ICU) 이동 대기 (상태 악화)",
+      desc: "BED A → 중증실(ICU) 이동 대기 (상태 악화)",
       type: "urgent",
     },
   ];
@@ -443,7 +443,7 @@ function BedRoomPage() {
             {/* <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-slate-900">
-                환자 병실 이동(전실) 관리
+                입소자 병실 이동(전실) 관리
               </h2>
               <span className="text-sm text-slate-400">2023년 10월 24일</span>
             </div>
@@ -458,8 +458,8 @@ function BedRoomPage() {
 
           <aside className="w-[320px] space-y-6">
             <GuardianPanel />
-            <AdminMenuPanel />
-            <VisitorsPanel />
+            {/* <AdminMenuPanel /> */}
+            <VisitorsPanel room={room} beds={beds} />
             <MealCarePage />
           </aside>
         </div>
@@ -471,10 +471,10 @@ function BedRoomPage() {
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-slate-900">
-                  환자 검색 및 배정
+                  입소자 검색 및 배정
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  병동 관리 및 환자 담당의 배정 시스템
+                  병동 관리 및 입소자 담당의 배정 시스템
                 </p>
               </div>
               <button
@@ -497,7 +497,7 @@ function BedRoomPage() {
                     handlePatientSearch();
                   }
                 }}
-                placeholder="환자 이름을 입력하세요"
+                placeholder="입소자 이름을 입력하세요"
                 className="h-12 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 text-base outline-none transition focus:border-blue-500 focus:bg-white"
               />
               <button
@@ -533,12 +533,12 @@ function BedRoomPage() {
                     searchAttempted &&
                     searchedPatients.length === 0 && (
                       <div className="rounded-2xl border border-dashed border-slate-200 py-8 text-center text-slate-400">
-                        검색된 환자가 없습니다.
+                        검색된 입소자가 없습니다.
                       </div>
                     )}
                   {!searchLoading && !searchAttempted && (
                     <div className="rounded-2xl border border-dashed border-slate-200 py-8 text-center text-slate-400">
-                      환자 이름을 입력한 뒤 검색을 눌러주세요.
+                      입소자 이름을 입력한 뒤 검색을 눌러주세요.
                     </div>
                   )}
                 </div>
@@ -546,7 +546,7 @@ function BedRoomPage() {
 
               <div>
                 <p className="mb-3 text-sm font-semibold text-slate-700">
-                  미배정 환자 ({unassignedPatients.length})
+                  미배정 입소자 ({unassignedPatients.length})
                 </p>
                 {unassignedError && (
                   <p className="mb-3 text-sm text-red-500">{unassignedError}</p>
@@ -554,7 +554,7 @@ function BedRoomPage() {
                 <div className="max-h-[220px] space-y-3 overflow-y-auto rounded-2xl border border-amber-100 bg-amber-50/40 p-1">
                   {unassignedLoading && (
                     <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-8 text-center text-slate-400">
-                      미배정 환자를 불러오는 중...
+                      미배정 입소자를 불러오는 중...
                     </div>
                   )}
                   {!unassignedLoading &&
@@ -563,7 +563,7 @@ function BedRoomPage() {
                     )}
                   {!unassignedLoading && unassignedPatients.length === 0 && (
                     <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-8 text-center text-slate-400">
-                      미배정 환자가 없습니다.
+                      미배정 입소자가 없습니다.
                     </div>
                   )}
                 </div>
@@ -633,7 +633,7 @@ function BedRoomPage() {
 
 
             <button className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-600">
-              환자 병실 이동(전실) 관리
+              입소자 병실 이동(전실) 관리
             </button>
 
 

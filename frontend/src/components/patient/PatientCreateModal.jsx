@@ -10,6 +10,7 @@ function createEmptyFormData() {
     address: "",
     bloodType: "",
     admissionDate: new Date().toISOString().split("T")[0],
+    patientStatus: "STABLE",
     building: "",
     floor: "",
     room: "",
@@ -105,6 +106,13 @@ export default function PatientCreateModal({
 
   const monthEnabled = Boolean(birthY);
   const dayEnabled = Boolean(birthY && birthM);
+  const statusOptions = [
+    { value: "STABLE", labelKey: "patient.status.stable" },
+    { value: "MONITORING", labelKey: "patient.status.monitoring" },
+    { value: "DISCHARGE", labelKey: "patient.status.discharge" },
+    { value: "POSTOPERATIVE", labelKey: "patient.status.postoperative" },
+    { value: "CRITICAL", labelKey: "patient.status.critical" },
+  ];
 
   if (!open) return null;
 
@@ -134,11 +142,12 @@ export default function PatientCreateModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       await patientApi.createPatient({ ...formData });
-      alert(t('patient.register.success'));
-      handleClose();
-      onSuccess?.();
+
+      resetForm();
+      await onSuccess?.();
     } catch (error) {
       console.error(t('patient.register.error'), error);
       alert(t('patient.register.error'));
@@ -213,9 +222,8 @@ export default function PatientCreateModal({
                           key={y}
                           type="button"
                           onClick={() => onPickYear(y)}
-                          className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
-                            birthY === y ? "bg-slate-100 font-semibold" : ""
-                          }`}
+                          className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${birthY === y ? "bg-slate-100 font-semibold" : ""
+                            }`}
                         >
                           {y}{yearSuffix}
                         </button>
@@ -231,9 +239,8 @@ export default function PatientCreateModal({
                   type="button"
                   disabled={!monthEnabled}
                   onClick={() => setOpenBirthPicker((v) => (v === "m" ? null : "m"))}
-                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left ${
-                    monthEnabled ? "bg-white" : "bg-slate-100 text-slate-400 cursor-not-allowed"
-                  }`}
+                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left ${monthEnabled ? "bg-white" : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                    }`}
                 >
                   <span className={birthM ? "text-slate-900" : "text-slate-400"}>
                     {birthM ? `${birthM}${monthSuffix}` : t('patient.register.monthPlaceholder')}
@@ -248,9 +255,8 @@ export default function PatientCreateModal({
                           key={m}
                           type="button"
                           onClick={() => onPickMonth(m)}
-                          className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
-                            birthM === m ? "bg-slate-100 font-semibold" : ""
-                          }`}
+                          className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${birthM === m ? "bg-slate-100 font-semibold" : ""
+                            }`}
                         >
                           {m}{monthSuffix}
                         </button>
@@ -266,9 +272,8 @@ export default function PatientCreateModal({
                   type="button"
                   disabled={!dayEnabled}
                   onClick={() => setOpenBirthPicker((v) => (v === "d" ? null : "d"))}
-                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left ${
-                    dayEnabled ? "bg-white" : "bg-slate-100 text-slate-400 cursor-not-allowed"
-                  }`}
+                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left ${dayEnabled ? "bg-white" : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                    }`}
                 >
                   <span className={birthD ? "text-slate-900" : "text-slate-400"}>
                     {birthD ? `${birthD}${daySuffix}` : t('patient.register.dayPlaceholder')}
@@ -283,9 +288,8 @@ export default function PatientCreateModal({
                           key={d}
                           type="button"
                           onClick={() => onPickDay(d)}
-                          className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
-                            birthD === d ? "bg-slate-100 font-semibold" : ""
-                          }`}
+                          className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${birthD === d ? "bg-slate-100 font-semibold" : ""
+                            }`}
                         >
                           {d}{daySuffix}
                         </button>
@@ -337,6 +341,21 @@ export default function PatientCreateModal({
               onChange={handleChange}
               className="w-full rounded-lg border px-3 py-2"
             />
+          </div>
+          <div>
+            <label className="mb-1 block font-medium">상태</label>
+            <select
+              name="patientStatus"
+              value={formData.patientStatus}
+              onChange={handleChange}
+              className="w-full rounded-lg border px-3 py-2"
+            >
+              {statusOptions.map(({ value, labelKey }) => (
+                <option key={value} value={value}>
+                  {t(labelKey)}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="md:col-span-2">

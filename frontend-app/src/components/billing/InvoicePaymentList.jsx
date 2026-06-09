@@ -134,26 +134,28 @@ export default function InvoicePaymentList({ navigation }) {
         <View className="w-10" />
       </View>
 
-      <ScrollView>
-        {/* 최근 30일 총 결제금액 */}
-        <View className="bg-background-neutral mx-4 mt-4 rounded-2xl p-4 mb-3">
-          <Text className="text-sm text-guardian-text-neutral mb-1">
-            {t("billing.recent_30_days", "총 결제 금액 (최근 30일)")}
+      {/* 최근 30일 총 결제금액 */}
+      <View className="bg-background-neutral mx-4 mt-4 rounded-2xl p-4 mb-3">
+        <Text className="text-sm text-guardian-text-neutral mb-1">
+          {t("billing.recent_30_days", "총 결제 금액 (최근 30일)")}
+        </Text>
+        {loading ? (
+          <ActivityIndicator size="small" color="#FCC101" />
+        ) : (
+          <Text className="text-2xl font-extrabold text-guardian-text-primary">
+            {thisMonthTotal}
           </Text>
-          {loading ? (
-            <ActivityIndicator size="small" color="#FCC101" />
-          ) : (
-            <Text className="text-2xl font-extrabold text-guardian-text-primary">
-              {thisMonthTotal}
-            </Text>
-          )}
-        </View>
+        )}
+      </View>
 
-        {/* 필터 바 */}
-        <View className="flex-row gap-2 px-4 py-3">
+      {/* 필터 바 */}
+      <View
+        className="flex-row gap-2 px-4 py-3 bg-guardian-bg-primary"
+        style={{ zIndex: openDropdown ? 50 : 1, elevation: openDropdown ? 50 : 0 }}
+      >
 
-          {/* 기간 필터 */}
-          <View>
+        {/* 기간 필터 */}
+        <View style={{ zIndex: 51 }}>
             <TouchableOpacity
               onPress={() => toggleDropdown("date")}
               className={`px-3 py-2 rounded-full border ${
@@ -174,7 +176,10 @@ export default function InvoicePaymentList({ navigation }) {
               </Text>
             </TouchableOpacity>
             {isDateActive && (
-              <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-36">
+              <View
+                className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary w-36"
+                style={{ zIndex: 52, elevation: 52 }}
+              >
                 {DATE_OPTIONS.map((opt) => (
                   <TouchableOpacity
                     key={opt}
@@ -201,8 +206,8 @@ export default function InvoicePaymentList({ navigation }) {
             )}
           </View>
 
-          {/* 카테고리 필터 */}
-          <View>
+        {/* 카테고리 필터 */}
+        <View style={{ zIndex: 51 }}>
             <TouchableOpacity
               onPress={() => toggleDropdown("category")}
               className={`px-3 py-2 rounded-full border ${
@@ -217,8 +222,11 @@ export default function InvoicePaymentList({ navigation }) {
                 {selectedCategory === "all" ? t("billing.all_items", "전체 항목") : t(`storage.category.${selectedCategory}`, selectedCategory)} ▾
               </Text>
             </TouchableOpacity>
-            {isCategoryActive && (
-              <View className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary z-10 w-32">
+          {isCategoryActive && (
+            <View
+              className="absolute top-10 left-0 bg-background-neutral rounded-xl border border-guardian-button-secondary w-32"
+              style={{ zIndex: 52, elevation: 52 }}
+            >
                 {CATEGORY_OPTIONS.map((opt) => (
                   <TouchableOpacity
                     key={opt}
@@ -238,11 +246,12 @@ export default function InvoicePaymentList({ navigation }) {
                 ))}
               </View>
             )}
-          </View>
         </View>
+      </View>
 
-        {/* 목록 */}
-        <View className="px-4 pb-10">
+      {/* 목록 */}
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+        <View className="pb-10">
           {error ? (
             <View className="py-10 items-center">
               <Text className="text-error-primary text-sm">{error}</Text>

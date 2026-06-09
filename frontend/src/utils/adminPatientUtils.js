@@ -35,7 +35,7 @@ export function formatBirthDot(birthDate) {
   return s;
 }
 
-/** 시연 환자 기만경(patient_6) — AI 얼굴 DB 정렬 사진 */
+/** 시연 입소자 기만경(patient_6) — AI 얼굴 DB 정렬 사진 */
 export const DEMO_PATIENT_ID = 260401008;
 
 export function resolvePatientAvatarUrl(patient) {

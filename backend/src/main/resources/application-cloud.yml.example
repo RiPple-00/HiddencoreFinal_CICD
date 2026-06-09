@@ -15,8 +15,11 @@ app:
   jwt:
     secret: ${JWT_SECRET}
   gallery:
-    upload-dir: /data/ddasum/uploads
+    upload-dir: ${APP_GALLERY_UPLOAD_DIR:/data/ddasum/uploads}
     ai-server-base-url: ${AI_SERVER_URL:http://192.168.0.163:8000}
+    face-ai-home: ${APP_GALLERY_FACE_AI_HOME:/ai/dasum-face-ai-test}
+    ai-server-home: ${APP_GALLERY_AI_SERVER_HOME:/ai/ai-server}
+    python-executable: ${PYTHON_EXECUTABLE:python3}
   ai-report:
     enabled: true
     base-url: ${AI_REPORT_URL:http://192.168.0.163:8002}

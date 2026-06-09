@@ -94,7 +94,7 @@ public class Location {
     public enum RoomType {
 
         GENERAL("일반실"),
-        ICU("중환자실"),
+        ICU("중증실"),
         ISOLATION("격리실");
 
         private final String description;

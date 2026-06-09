@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import base64
 import logging
+import tempfile
 from pathlib import Path
 from typing import Any, Union
 
@@ -53,6 +55,19 @@ def _resolve_image_path(image_path: Union[str, Path]) -> Path:
     return path.resolve()
 
 
+def _materialize_image(*, image_path: str | None, image_base64: str | None) -> tuple[Path, tempfile._TemporaryFileWrapper | None]:
+    if image_base64:
+        raw = base64.b64decode(image_base64, validate=False)
+        tmp = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
+        tmp.write(raw)
+        tmp.flush()
+        tmp.close()
+        return Path(tmp.name), tmp
+    if image_path:
+        return _resolve_image_path(image_path), None
+    raise ValueError("image_path 또는 image_base64 가 필요합니다.")
+
+
 def _probabilities_from_result(result) -> list[dict[str, Any]]:
     probs = result.probs.data.cpu().numpy()
     items: list[dict[str, Any]] = []
@@ -70,8 +85,9 @@ def _probabilities_from_result(result) -> list[dict[str, Any]]:
 
 
 def classify_action(
-    image_path: Union[str, Path],
+    image_path: Union[str, Path, None] = None,
     *,
+    image_base64: str | None = None,
     model_path: Path | str | None = None,
 ) -> dict[str, Any]:
     """
@@ -83,24 +99,32 @@ def classify_action(
         confidence: 1위 클래스 확률 (0~1)
         probabilities: 클래스별 확률 목록 (내림차순)
     """
-    path = _resolve_image_path(image_path)
-    model = get_model(model_path)
+    path, tmp = _materialize_image(
+        image_path=str(image_path) if image_path else None, image_base64=image_base64
+    )
+    try:
+        model = get_model(model_path)
+        results = model(str(path), verbose=False)
+        if not results:
+            raise RuntimeError("모델이 예측 결과를 반환하지 않았습니다.")
 
-    results = model(str(path), verbose=False)
-    if not results:
-        raise RuntimeError("모델이 예측 결과를 반환하지 않았습니다.")
+        r = results[0]
+        if r.probs is None:
+            raise RuntimeError("분류 모델이 아닌 가중치이거나 probs가 없습니다.")
 
-    r = results[0]
-    if r.probs is None:
-        raise RuntimeError("분류 모델이 아닌 가중치이거나 probs가 없습니다.")
+        class_id = int(r.probs.top1)
+        confidence = float(r.probs.top1conf)
+        action = r.names[class_id]
 
-    class_id = int(r.probs.top1)
-    confidence = float(r.probs.top1conf)
-    action = r.names[class_id]
-
-    return {
-        "action": action,
-        "action_ko": ACTION_KO.get(action, action),
-        "confidence": round(confidence, 4),
-        "probabilities": _probabilities_from_result(r),
-    }
+        return {
+            "action": action,
+            "action_ko": ACTION_KO.get(action, action),
+            "confidence": round(confidence, 4),
+            "probabilities": _probabilities_from_result(r),
+        }
+    finally:
+        if tmp is not None:
+            try:
+                Path(tmp.name).unlink(missing_ok=True)
+            except OSError:
+                pass

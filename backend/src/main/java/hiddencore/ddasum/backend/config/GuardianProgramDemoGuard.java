@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
 import hiddencore.ddasum.backend.domain.Document;
 import hiddencore.ddasum.backend.domain.Document.DocumentType;
@@ -26,6 +27,7 @@ public class GuardianProgramDemoGuard {
     public static final long DEMO_GUARDIAN_PATIENT_ID = KimMankyungPatientSeeder.KIM_PATIENT_ID;
 
     @Bean
+    @Order(6)
     CommandLineRunner purgeGuardianDemoProgramApplications(
             MemberRepository memberRepository,
             DocumentRepository documentRepository,

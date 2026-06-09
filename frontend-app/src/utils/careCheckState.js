@@ -15,12 +15,9 @@ export const STATUS_FROM_BACK = (s) => {
   return null;
 };
 
+/** 백엔드 CaregiverCareCheckService(APP_ZONE=Asia/Seoul)와 동일한 '오늘' 날짜 */
 export function todayStr() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
 }
 
 export const emptyMealSlot = () => ({
