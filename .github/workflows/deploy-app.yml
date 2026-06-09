@@ -12,32 +12,17 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, ddasum-app]
     timeout-minutes: 45
     environment: production
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup SSH
-        run: |
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.APP_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
-
-      - name: Sync repository on APP server
-        env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          APP_HOST: ${{ secrets.APP_HOST }}
-        run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
-            "${DEPLOY_USER}@${APP_HOST}" \
-            "bash -s ${{ github.ref_name }}" < deploy/scripts/sync-repo-from-github.sh
+      - name: Sync repository to ~/ddasum-repo
+        run: bash deploy/scripts/sync-repo-from-github.sh "${{ github.ref_name }}"
 
       - name: Write secrets .env and deploy (Docker)
         env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          APP_HOST: ${{ secrets.APP_HOST }}
           MYSQL_URL: ${{ secrets.MYSQL_URL }}
           MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
@@ -45,21 +30,11 @@ jobs:
           AI_REPORT_URL: ${{ secrets.AI_REPORT_URL }}
           AI_SERVER_URL: ${{ secrets.AI_SERVER_URL }}
           PUBLIC_DATA_SERVICE_KEY: ${{ secrets.PUBLIC_DATA_SERVICE_KEY }}
-        run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
-            "${DEPLOY_USER}@${APP_HOST}" \
-            "export MYSQL_URL='${MYSQL_URL}' MYSQL_USERNAME='${MYSQL_USERNAME}' MYSQL_PASSWORD='${MYSQL_PASSWORD}' JWT_SECRET='${JWT_SECRET}' AI_REPORT_URL='${AI_REPORT_URL}' AI_SERVER_URL='${AI_SERVER_URL}' PUBLIC_DATA_SERVICE_KEY='${PUBLIC_DATA_SERVICE_KEY}' && \
-             bash ~/ddasum-repo/deploy/scripts/remote-up-all.sh app"
+        run: bash ~/ddasum-repo/deploy/scripts/remote-up-all.sh app
 
       - name: Reset demo DB and reseed (로컬과 동일 더미)
         env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          APP_HOST: ${{ secrets.APP_HOST }}
           MYSQL_URL: ${{ secrets.MYSQL_URL }}
           MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-        run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
-            "${DEPLOY_USER}@${APP_HOST}" \
-            "export MYSQL_URL='${MYSQL_URL}' MYSQL_USERNAME='${MYSQL_USERNAME}' MYSQL_PASSWORD='${MYSQL_PASSWORD}' && \
-             bash ~/ddasum-repo/deploy/scripts/reset-cloud-demo-and-restart.sh"
+        run: bash ~/ddasum-repo/deploy/scripts/reset-cloud-demo-and-restart.sh
