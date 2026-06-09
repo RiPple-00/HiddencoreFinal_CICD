@@ -122,6 +122,16 @@ export function resolveChatbotUrl() {
   if (Platform.OS === "android") {
     return `http://10.0.2.2:${chatbotPort}`;
   }
+  if (
+    Platform.OS === "web" &&
+    typeof window !== "undefined" &&
+    window.location?.hostname
+  ) {
+    const h = window.location.hostname;
+    if (h !== "localhost" && h !== "127.0.0.1") {
+      return "/chatbot";
+    }
+  }
   return `http://127.0.0.1:${chatbotPort}`;
 }
 

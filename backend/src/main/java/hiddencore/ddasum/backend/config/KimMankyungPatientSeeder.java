@@ -78,7 +78,8 @@ public class KimMankyungPatientSeeder {
                 }
 
                 Location bed107 =
-                        reconcileRoom107Beds(facility, locationRepository, patientRepository);
+                        reconcileRoom107Beds(
+                                facility, locationRepository, patientRepository, jdbcTemplate);
                 Users caregiver = resolveCaregiver(facility, memberRepository);
 
                 upsertPatient(jdbcTemplate, facility, bed107, caregiver);
@@ -107,7 +108,12 @@ public class KimMankyungPatientSeeder {
                 patientRepository.save(patient);
 
                 assignKimToRoom107Bed1(
-                        facility, bed107, patient, locationRepository, patientRepository);
+                        facility,
+                        bed107,
+                        patient,
+                        locationRepository,
+                        patientRepository,
+                        jdbcTemplate);
 
                 linkGuardian001(patient, memberRepository, guardianPatientRepository);
                 log.info(
@@ -126,14 +132,15 @@ public class KimMankyungPatientSeeder {
     private static Location reconcileRoom107Beds(
             Facility facility,
             LocationRepository locationRepository,
-            PatientRepository patientRepository) {
+            PatientRepository patientRepository,
+            JdbcTemplate jdbcTemplate) {
         Long facilityId = facility.getFacilityId();
         List<Location> inRoom =
                 locationRepository.findByFacilityId_FacilityId(facilityId).stream()
                         .filter(KimMankyungPatientSeeder::isRoom107)
                         .toList();
 
-        Map<Integer, Location> canonicalByBed = pickCanonicalBeds(inRoom);
+        Map<Integer, Location> canonicalByBed = pickCanonicalBeds(inRoom, jdbcTemplate);
         for (int bed = 1; bed <= ROOM_107_CAPACITY; bed++) {
             canonicalByBed.computeIfAbsent(
                     bed,
@@ -159,7 +166,7 @@ public class KimMankyungPatientSeeder {
             Location keep = canonicalByBed.get(duplicate.getBed());
             if (keep != null
                     && !Objects.equals(keep.getLocationId(), duplicate.getLocationId())) {
-                clearBed(duplicate, patientRepository);
+                clearBed(duplicate, patientRepository, jdbcTemplate);
                 locationRepository.save(duplicate);
             }
         }
@@ -175,9 +182,9 @@ public class KimMankyungPatientSeeder {
         Location bed1 = canonicalByBed.get(1);
 
         for (Location loc : inRoom) {
-            Patient onBed = loc.getPatientId();
-            if (onBed != null && !Objects.equals(onBed.getPatientId(), KIM_PATIENT_ID)) {
-                clearBed(loc, patientRepository);
+            Long onBedId = lookupPatientIdOnLocation(jdbcTemplate, loc.getLocationId());
+            if (onBedId != null && !Objects.equals(onBedId, KIM_PATIENT_ID)) {
+                clearBed(loc, patientRepository, jdbcTemplate);
                 locationRepository.save(loc);
             }
         }
@@ -185,7 +192,7 @@ public class KimMankyungPatientSeeder {
         for (int bed = 2; bed <= ROOM_107_CAPACITY; bed++) {
             Location loc = canonicalByBed.get(bed);
             if (loc != null) {
-                clearBed(loc, patientRepository);
+                clearBed(loc, patientRepository, jdbcTemplate);
                 locationRepository.save(loc);
             }
         }
@@ -208,10 +215,11 @@ public class KimMankyungPatientSeeder {
                             }
                         });
 
-        restoreJangWonjunToRoom105(facility, locationRepository, patientRepository);
+        restoreJangWonjunToRoom105(
+                facility, locationRepository, patientRepository, jdbcTemplate);
 
         if (bed1 != null) {
-            clearBed(bed1, patientRepository);
+            clearBed(bed1, patientRepository, jdbcTemplate);
             locationRepository.save(bed1);
         }
 
@@ -224,7 +232,8 @@ public class KimMankyungPatientSeeder {
             Location bed1,
             Patient kim,
             LocationRepository locationRepository,
-            PatientRepository patientRepository) {
+            PatientRepository patientRepository,
+            JdbcTemplate jdbcTemplate) {
         if (kim == null || bed1 == null) {
             return;
         }
@@ -234,7 +243,7 @@ public class KimMankyungPatientSeeder {
                         .filter(KimMankyungPatientSeeder::isRoom107)
                         .toList();
         for (Location loc : inRoom) {
-            clearBed(loc, patientRepository);
+            clearBed(loc, patientRepository, jdbcTemplate);
             locationRepository.save(loc);
         }
         bed1.setPatientId(kim);
@@ -259,53 +268,70 @@ public class KimMankyungPatientSeeder {
         return room.replaceAll("호$", "").trim();
     }
 
-    private static Map<Integer, Location> pickCanonicalBeds(List<Location> inRoom) {
+    private static Map<Integer, Location> pickCanonicalBeds(
+            List<Location> inRoom, JdbcTemplate jdbcTemplate) {
         Map<Integer, Location> best = new LinkedHashMap<>();
         for (Location loc : inRoom) {
             if (loc.getBed() == null) {
                 continue;
             }
             Location prev = best.get(loc.getBed());
-            if (prev == null || preferCanonical(loc, prev)) {
+            if (prev == null || preferCanonical(loc, prev, jdbcTemplate)) {
                 best.put(loc.getBed(), loc);
             }
         }
         return best;
     }
 
-    private static boolean preferCanonical(Location candidate, Location current) {
-        int cScore = locationTrustScore(candidate);
-        int pScore = locationTrustScore(current);
+    private static boolean preferCanonical(
+            Location candidate, Location current, JdbcTemplate jdbcTemplate) {
+        int cScore = locationTrustScore(candidate, jdbcTemplate);
+        int pScore = locationTrustScore(current, jdbcTemplate);
         if (cScore != pScore) {
             return cScore > pScore;
         }
         return candidate.getLocationId() < current.getLocationId();
     }
 
-    private static int locationTrustScore(Location loc) {
+    private static int locationTrustScore(Location loc, JdbcTemplate jdbcTemplate) {
         if (loc == null) {
             return 0;
         }
-        Patient patient = loc.getPatientId();
-        if (patient == null) {
+        Long patientId = lookupPatientIdOnLocation(jdbcTemplate, loc.getLocationId());
+        if (patientId == null) {
             return Boolean.TRUE.equals(loc.getIsOccupied()) ? 1 : 0;
         }
-        Location patientLoc = patient.getLocationId();
-        if (patientLoc != null
-                && Objects.equals(patientLoc.getLocationId(), loc.getLocationId())) {
-            if (Objects.equals(patient.getPatientId(), KIM_PATIENT_ID)) {
-                return 100;
-            }
-            return 10;
+        if (Objects.equals(patientId, KIM_PATIENT_ID)) {
+            return 100;
         }
-        return 2;
+        return 10;
     }
 
-    private static void clearBed(Location loc, PatientRepository patientRepository) {
-        Patient onBed = loc.getPatientId();
-        if (onBed != null) {
-            if (onBed.getLocationId() != null
-                    && Objects.equals(onBed.getLocationId().getLocationId(), loc.getLocationId())) {
+    private static Long lookupPatientIdOnLocation(JdbcTemplate jdbc, Long locationId) {
+        if (locationId == null) {
+            return null;
+        }
+        return jdbc.query(
+                "SELECT patient_id FROM location WHERE location_id = ?",
+                rs -> {
+                    if (!rs.next()) {
+                        return null;
+                    }
+                    long value = rs.getLong("patient_id");
+                    return rs.wasNull() ? null : value;
+                },
+                locationId);
+    }
+
+    private static void clearBed(
+            Location loc, PatientRepository patientRepository, JdbcTemplate jdbcTemplate) {
+        Long onBedId = lookupPatientIdOnLocation(jdbcTemplate, loc.getLocationId());
+        if (onBedId != null) {
+            Patient onBed = patientRepository.findById(onBedId).orElse(null);
+            if (onBed != null
+                    && onBed.getLocationId() != null
+                    && Objects.equals(
+                            onBed.getLocationId().getLocationId(), loc.getLocationId())) {
                 onBed.setLocationId(null);
                 patientRepository.save(onBed);
             }
@@ -317,7 +343,8 @@ public class KimMankyungPatientSeeder {
     private static void restoreJangWonjunToRoom105(
             Facility facility,
             LocationRepository locationRepository,
-            PatientRepository patientRepository) {
+            PatientRepository patientRepository,
+            JdbcTemplate jdbcTemplate) {
         Patient jang = patientRepository.findById(JANG_WONJUN_PATIENT_ID).orElse(null);
         if (jang == null) {
             return;
@@ -344,7 +371,7 @@ public class KimMankyungPatientSeeder {
             patientRepository.save(jang);
             return;
         }
-        if (bed105.getPatientId() == null) {
+        if (lookupPatientIdOnLocation(jdbcTemplate, bed105.getLocationId()) == null) {
             bed105.setPatientId(jang);
             bed105.setIsOccupied(true);
             locationRepository.save(bed105);

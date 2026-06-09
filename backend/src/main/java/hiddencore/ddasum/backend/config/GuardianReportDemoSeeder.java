@@ -41,7 +41,7 @@ public class GuardianReportDemoSeeder {
     private static final LocalDate WEEK_END = LocalDate.of(2026, 6, 7);
 
     @Bean
-    @Order(3)
+    @Order(21)
     CommandLineRunner seedGuardianReportDemo(
             PatientRepository patientRepository,
             MemberRepository memberRepository,

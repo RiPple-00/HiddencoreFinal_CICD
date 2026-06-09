@@ -50,3 +50,16 @@ jobs:
             "${DEPLOY_USER}@${APP_HOST}" \
             "export MYSQL_URL='${MYSQL_URL}' MYSQL_USERNAME='${MYSQL_USERNAME}' MYSQL_PASSWORD='${MYSQL_PASSWORD}' JWT_SECRET='${JWT_SECRET}' AI_REPORT_URL='${AI_REPORT_URL}' AI_SERVER_URL='${AI_SERVER_URL}' PUBLIC_DATA_SERVICE_KEY='${PUBLIC_DATA_SERVICE_KEY}' && \
              bash ~/ddasum-repo/deploy/scripts/remote-up-all.sh app"
+
+      - name: Reset demo DB and reseed (로컬과 동일 더미)
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          APP_HOST: ${{ secrets.APP_HOST }}
+          MYSQL_URL: ${{ secrets.MYSQL_URL }}
+          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${DEPLOY_USER}@${APP_HOST}" \
+            "export MYSQL_URL='${MYSQL_URL}' MYSQL_USERNAME='${MYSQL_USERNAME}' MYSQL_PASSWORD='${MYSQL_PASSWORD}' && \
+             bash ~/ddasum-repo/deploy/scripts/reset-cloud-demo-and-restart.sh"
