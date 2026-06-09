@@ -13,6 +13,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -29,9 +30,10 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           WEB_HOST: ${{ secrets.WEB_HOST }}
         run: |
-          rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new" \
-            --exclude '.git' --exclude 'node_modules' --exclude 'backend/build' \
+          rsync -az --delete --partial --timeout=600 \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30" \
+            --exclude '.git' --exclude 'node_modules' --exclude 'frontend/node_modules' --exclude 'frontend-app/node_modules' \
+            --exclude 'backend/build' --exclude 'backend/.gradle' --exclude '**/.venv' --exclude '**/chroma_db' \
             --exclude '**/.env' --exclude '**/application-local.yml' --exclude '**/application-cloud.yml' \
             ./ "${DEPLOY_USER}@${WEB_HOST}:~/ddasum-repo/"
 

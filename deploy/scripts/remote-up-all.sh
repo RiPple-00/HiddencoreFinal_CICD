@@ -37,6 +37,11 @@ case "$ROLE" in
     pkill -f chatbot.py 2>/dev/null || true
     pkill -f report_service.py 2>/dev/null || true
     pkill -f 'uvicorn app.main' 2>/dev/null || true
+    # YOLO weights (*.pt) are gitignored — keep from previous deploy if sync omitted them
+    if [[ ! -f "$REPO/ai/ai-server/models/action_model.pt" && -d "${HOME}/ddasum-repo.bak/ai/ai-server/models" ]]; then
+      mkdir -p "$REPO/ai/ai-server/models"
+      cp -a "${HOME}/ddasum-repo.bak/ai/ai-server/models/." "$REPO/ai/ai-server/models/"
+    fi
     if [[ -f "${HOME}/ddasum-deploy.env" ]]; then
       set -a
       # shellcheck disable=SC1091
