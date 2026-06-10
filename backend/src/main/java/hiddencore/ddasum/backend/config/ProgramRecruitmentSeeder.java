@@ -108,16 +108,60 @@ public class ProgramRecruitmentSeeder {
                         10, 7, now.minusDays(1), now.plusDays(21));
             }
 
-            // 보호자 주간보고서 AI·fallback 추천용 인지 프로그램 (항상 보강)
-            insertIfAbsent(postRepository, scheduleRepository, facility, author, now,
+            // 보호자 주간보고서 AI·fallback 추천용 인지 프로그램 (항상 모집 중으로 보강)
+            ensureRecruitingProgram(postRepository, scheduleRepository, facility, author, now,
                     "나만의 추억 앨범 만들기",
                     "알츠하이머·치매 환자 대상 추억 회상·앨범 제작 인지 프로그램.",
                     12, 5, now.minusDays(2), now.plusDays(28));
-            insertIfAbsent(postRepository, scheduleRepository, facility, author, now,
+            ensureRecruitingProgram(postRepository, scheduleRepository, facility, author, now,
                     "숫자 카드 순서 맞추기",
                     "경도 인지 저하 환자를 위한 순서·기억 훈련 프로그램.",
                     10, 4, now.minusDays(1), now.plusDays(25));
         };
+    }
+
+    /** 제목이 있으면 모집 기간·정원을 갱신(만료 방지), 없으면 생성 */
+    private static void ensureRecruitingProgram(
+            PostRepository postRepository,
+            ScheduleRepository scheduleRepository,
+            Facility facility,
+            Users author,
+            LocalDateTime now,
+            String title,
+            String content,
+            int capacity,
+            int enrolled,
+            LocalDateTime recruitStart,
+            LocalDateTime recruitEnd) {
+        Post existing =
+                postRepository.findAllByFacility(facility.getFacilityId(), PageRequest.of(0, 500))
+                        .stream()
+                        .filter(p -> title.equals(p.getTitle()) && p.getType() == PostType.APPLY)
+                        .findFirst()
+                        .orElse(null);
+        if (existing != null) {
+            existing.setContent(content);
+            existing.setStatus(PostStatus.ACTIVE);
+            existing.setCapacity(capacity);
+            existing.setCurrentEnrolled(enrolled);
+            existing.setStartAt(recruitStart);
+            existing.setEndAt(recruitEnd);
+            postRepository.save(existing);
+            ensureProgramSchedule(scheduleRepository, facility, author, existing, now);
+            return;
+        }
+        insertIfAbsent(
+                postRepository,
+                scheduleRepository,
+                facility,
+                author,
+                now,
+                title,
+                content,
+                capacity,
+                enrolled,
+                recruitStart,
+                recruitEnd);
     }
 
     private static void insertIfAbsent(

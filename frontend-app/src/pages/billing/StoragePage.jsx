@@ -19,13 +19,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import storageApi from "../../api/storageApi";
+import { DEMO_GUARDIAN_PATIENT_ID } from "../../utils/guardianPatientId";
 import { normalizePatient, normalizePayment } from "../../utils/Storageformat";
 import { TAG_COLORS, STATUS_COLORS } from "../../styles/colors";
 import Text from "@/components/Text";
 import useI18n from "@/hooks/useI18n";
 
-// TODO: 인증/세션에서 환자 ID 가져오도록 변경 필요
-const PATIENT_ID = 1;
+const PATIENT_ID = DEMO_GUARDIAN_PATIENT_ID;
 
 export default function StoragePage({ navigation }) {
   const { t, language } = useI18n();

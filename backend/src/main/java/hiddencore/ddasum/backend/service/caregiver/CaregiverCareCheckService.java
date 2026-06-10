@@ -298,7 +298,7 @@ public class CaregiverCareCheckService {
         Long facilityId =
                 patient.getFacilityId() != null ? patient.getFacilityId().getFacilityId() : null;
         List<GuardianWeeklyCareReportResponse.ApplyEligibleProgram> eligiblePrograms =
-                weeklyReportProgramService.listApplyEligiblePrograms(guardianUserId, facilityId, end);
+                weeklyReportProgramService.listApplyEligiblePrograms(facilityId, guardianUserId, end);
 
         GuardianWeeklyCareReportResponse.ProgramSection programSection =
                 buildProgramSectionWithRecommendation(

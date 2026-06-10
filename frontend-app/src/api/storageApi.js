@@ -90,12 +90,12 @@ function ok(data) {
 const storageApi = {
   // 1. 환자 조회
   getPatients: (params) => {
-    return api.get(`/storage/patients`, { params }).catch(() => ok([MOCK.patient]));
+    return api.get(`/api/storage/patients`, { params }).catch(() => ok([MOCK.patient]));
   },
 
   // 2. 청구서 조회
   getInvoices: (params) => {
-    return api.get(`/storage/invoices`, { params }).catch(() => {
+    return api.get(`/api/storage/invoices`, { params }).catch(() => {
       // id 단건 조회면 1건만
       if (params?.id) {
         const inv = MOCK.invoices.find((i) => String(i.id) === String(params.id));
@@ -110,22 +110,22 @@ const storageApi = {
     const body = { ...paymentData };
     if (body.paidAt === "" || body.paidAt == null) delete body.paidAt;
     if (body.memo === "" || body.memo == null) delete body.memo;
-    return api.post(`/storage/payments`, body);
+    return api.post(`/api/storage/payments`, body);
   },
 
   // 4. 미수납 잔액 수정
   updateOutstandingBalance: (balanceData) => {
-    return api.put(`/storage/outstanding-balance`, balanceData);
+    return api.put(`/api/storage/outstanding-balance`, balanceData);
   },
 
   // 5. 수납 내역 조회
   getPaymentHistories: (params) => {
-    return api.get(`/storage/payments`, { params }).catch(() => ok(MOCK.payments));
+    return api.get(`/api/storage/payments`, { params }).catch(() => ok(MOCK.payments));
   },
 
   // 6. 연체 내역 조회
   getOverdueHistories: (params) => {
-    return api.get(`/storage/overdue`, { params }).catch(() => {
+    return api.get(`/api/storage/overdue`, { params }).catch(() => {
       const overdue = MOCK.payments.filter((p) => p.status === "미납" || p.status === "부분납");
       return ok(overdue);
     });
@@ -133,19 +133,19 @@ const storageApi = {
 
   // 7. 영수증 / 납부확인서 출력
   printReceipt: (printData) => {
-    return api.post(`/storage/receipts/print`, printData).catch(() =>
+    return api.post(`/api/storage/receipts/print`, printData).catch(() =>
       Promise.resolve({ data: { url: null } })
     );
   },
 
   // 8. 수납 취소
   cancelPayment: (cancelData) => {
-    return api.post(`/storage/payments/cancel`, cancelData);
+    return api.post(`/api/storage/payments/cancel`, cancelData);
   },
 
   // 9. 알람 요청
   sendAlarm: (alarmData) => {
-    return api.post(`/storage/alarms`, alarmData);
+    return api.post(`/api/storage/alarms`, alarmData);
   },
 };
 

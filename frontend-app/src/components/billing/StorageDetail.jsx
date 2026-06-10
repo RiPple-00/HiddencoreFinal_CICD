@@ -19,12 +19,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "../Text";
 import storageApi from "../../api/storageApi";
+import { DEMO_GUARDIAN_PATIENT_ID } from "../../utils/guardianPatientId";
 import {
   normalizeInvoice, normalizePatient,
   formatWon, toNumber,
 } from "../../utils/Storageformat";
 
-const PATIENT_ID = 1; // TODO: 인증/세션에서
+const PATIENT_ID = DEMO_GUARDIAN_PATIENT_ID;
 
 function FeeRow({ name, amount, isLast }) {
   return (

@@ -52,9 +52,18 @@ public class PaymentDemoSeeder {
                         memberRepository
                                 .findByFacilityId_FacilityIdAndEmployeeLoginId(
                                         facility.getFacilityId(), "1120010101")
-                                .orElse(null);
+                                .orElseGet(
+                                        () ->
+                                                memberRepository.findAll().stream()
+                                                        .filter(
+                                                                u ->
+                                                                        u.getRole()
+                                                                                == Users.UsersRole
+                                                                                        .OFFICE)
+                                                        .findFirst()
+                                                        .orElse(null));
 
-                seedIfAbsent(
+                ensurePaymentDoc(
                         documentRepository,
                         patient,
                         facility,
@@ -62,7 +71,7 @@ public class PaymentDemoSeeder {
                         "2026.06 입원·식대 청구서",
                         "입원료 420,000원 / 식대 180,000원 / 비급여 검사 290,000원",
                         DocumentStatus.PAYMENT_PENDING);
-                seedIfAbsent(
+                ensurePaymentDoc(
                         documentRepository,
                         patient,
                         facility,
@@ -70,7 +79,7 @@ public class PaymentDemoSeeder {
                         "2026.05 진료·약제비 수납 완료",
                         "진료비 300,000원 / 약제비 220,000원 — 2026-05-28 완납",
                         DocumentStatus.PAID);
-                seedIfAbsent(
+                ensurePaymentDoc(
                         documentRepository,
                         patient,
                         facility,
@@ -86,7 +95,7 @@ public class PaymentDemoSeeder {
         };
     }
 
-    private static void seedIfAbsent(
+    private static void ensurePaymentDoc(
             DocumentRepository documentRepository,
             Patient patient,
             Facility facility,
@@ -94,17 +103,27 @@ public class PaymentDemoSeeder {
             String title,
             String content,
             DocumentStatus status) {
-        boolean exists =
+        Document existing =
                 documentRepository
                         .findTop5ByPatientId_PatientIdAndTypeOrderByCreatedAtDesc(
                                 patient.getPatientId(), DocumentType.PAYMENT)
                         .stream()
-                        .anyMatch(d -> title.equals(d.getTitle()));
-        if (exists) {
+                        .filter(d -> title.equals(d.getTitle()))
+                        .findFirst()
+                        .orElse(null);
+
+        LocalDateTime now = LocalDateTime.now();
+        if (existing != null) {
+            existing.setContent(content);
+            existing.setStatus(status);
+            existing.setRequesterUserId(office);
+            if (existing.getIssuedAt() == null) {
+                existing.setIssuedAt(now);
+            }
+            documentRepository.save(existing);
             return;
         }
 
-        LocalDateTime now = LocalDateTime.now();
         documentRepository.save(
                 Document.builder()
                         .patientId(patient)
@@ -115,6 +134,7 @@ public class PaymentDemoSeeder {
                         .requesterUserId(office)
                         .status(status)
                         .issuedAt(now)
+                        .requestedAt(now)
                         .build());
     }
 }

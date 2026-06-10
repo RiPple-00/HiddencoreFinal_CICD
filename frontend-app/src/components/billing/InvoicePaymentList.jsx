@@ -18,12 +18,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "../Text";
 import useI18n from "@/hooks/useI18n";
 import storageApi from "../../api/storageApi";
+import { DEMO_GUARDIAN_PATIENT_ID } from "../../utils/guardianPatientId";
 import { normalizePayment, formatWonSymbol } from "../../utils/Storageformat";
 import { TAG_COLORS, STATUS_COLORS } from "../../styles/colors";
 
 const CATEGORY_OPTIONS = ["all", "TREATMENT", "MEAL", "ADMISSION", "MEDICATION"];
 const DATE_OPTIONS     = ["all", "1m", "3m", "6m", "2023"];
-const PATIENT_ID = 1; // TODO: 인증/세션에서
+const PATIENT_ID = DEMO_GUARDIAN_PATIENT_ID;
 
 function groupByDate(payments) {
   const groups = {};

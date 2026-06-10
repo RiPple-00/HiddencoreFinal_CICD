@@ -23,10 +23,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "../Text";
 import useI18n from "@/hooks/useI18n";
 import storageApi from "../../api/storageApi";
+import { DEMO_GUARDIAN_PATIENT_ID } from "../../utils/guardianPatientId";
 import { normalizeInvoice, normalizePatient, formatWon } from "../../utils/Storageformat";
 
 const STATUS_OPTIONS = ["all", "PAID", "PARTIAL", "UNPAID"];
-const PATIENT_ID = 1; // TODO: 인증/세션에서
+const PATIENT_ID = DEMO_GUARDIAN_PATIENT_ID;
 
 // 상태 뱃지 색상 토큰
 const STATUS_STYLE = {
