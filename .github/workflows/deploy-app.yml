@@ -9,6 +9,12 @@ on:
       - "deploy/scripts/**"
       - ".github/workflows/deploy-app.yml"
   workflow_dispatch:
+    inputs:
+      reset_demo_db:
+        description: "데모 DB 초기화 (TRUNCATE — 기존 데이터 삭제됨, 기본 false)"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   deploy:
@@ -59,7 +65,8 @@ jobs:
             "export MYSQL_URL='${MYSQL_URL}' MYSQL_USERNAME='${MYSQL_USERNAME}' MYSQL_PASSWORD='${MYSQL_PASSWORD}' JWT_SECRET='${JWT_SECRET}' AI_REPORT_URL='${AI_REPORT_URL}' AI_SERVER_URL='${AI_SERVER_URL}' PUBLIC_DATA_SERVICE_KEY='${PUBLIC_DATA_SERVICE_KEY}' && \
              bash ~/ddasum-repo/deploy/scripts/remote-up-all.sh app"
 
-      - name: Reset demo DB and reseed (로컬과 동일 더미)
+      - name: Reset demo DB and reseed (destructive — manual opt-in only)
+        if: github.event_name == 'workflow_dispatch' && inputs.reset_demo_db == true
         env:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           APP_HOST: ${{ secrets.APP_HOST }}

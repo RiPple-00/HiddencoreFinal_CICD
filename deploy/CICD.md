@@ -76,7 +76,9 @@ git push master
   → sync-repo-from-github.sh → ~/ddasum-repo/
   → write-env.sh (.env 생성, chmod 600)
   → docker compose build && up -d
-  → (APP만) reset-cloud-demo-and-restart.sh
+  → (APP push) DB 초기화 **하지 않음** — 데이터 유지
+  → (APP 수동) `reset_demo_db: true` 선택 시에만 reset-cloud-demo-and-restart.sh
+  → (전체 수동) Actions → **Deploy ALL (safe, no DB reset)** workflow_dispatch
 ```
 
 ## 5) 수동 1회 전환 (지금 서버)
