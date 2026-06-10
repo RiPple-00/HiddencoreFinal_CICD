@@ -27,7 +27,7 @@ const BoardUserPostsPage = ({ variant }) => {
       try {
         const res =
           variant === 'draft'
-            ? await postApi.getMyDrafts(facilityId, null, 0, 500)
+            ? await postApi.getMyStored(facilityId, null, 0, 500)
             : await postApi.getMyPosts(facilityId, null, 0, 500);
         const raw = Array.isArray(res.data) ? res.data : [];
         const fid = String(facilityId);
@@ -65,7 +65,7 @@ const BoardUserPostsPage = ({ variant }) => {
   }
 
   const headingKey = variant === 'history' ? 'board.userPosts.history' : 'board.userPosts.draft';
-  const headingFallback = variant === 'history' ? '작성 이력' : '보관함 (임시 저장)';
+  const headingFallback = variant === 'history' ? '작성 이력' : '보관함';
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]" style={{ fontFamily: '"Noto Sans KR", "Segoe UI", system-ui, sans-serif' }}>
@@ -109,6 +109,7 @@ const BoardUserPostsPage = ({ variant }) => {
                 posts={posts}
                 mode="table"
                 facilityId={facilityId}
+                showStorageStatus={variant === 'draft'}
               />
             </div>
           )}

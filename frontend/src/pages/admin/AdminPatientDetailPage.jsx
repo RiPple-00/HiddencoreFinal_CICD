@@ -12,11 +12,13 @@ import GuardianAlertCard from '../../components/adminPatient/GuardianAlertCard';
 import GuardianVisitCard from '../../components/adminPatient/GuardianVisitCard';
 // import AdminQuickMenu from '../../components/adminPatient/AdminQuickMenu';
 import MealPreviewCard from '../../components/adminPatient/MealPreviewCard';
+import { useI18n } from '../../hooks/useI18n.jsx';
 
 export default function AdminPatientDetailPage() {
   const { patientId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useI18n();
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [extras, setExtras] = useState({ guardians: [], visitRequests: [], payments: [] });
@@ -152,8 +154,10 @@ export default function AdminPatientDetailPage() {
           <GuardianAlertCard patient={patient} />
           <MealPreviewCard patient={patient} meals={meals} />
           <div className="flex items-center justify-between rounded-2xl bg-[#2d5bff] px-4 py-3 text-white shadow-md">
-            <span className="text-sm font-bold">실시간 면회 현황</span>
-            <span className="rounded-full bg-[#e53e3e] px-2.5 py-0.5 text-xs font-bold text-white">3 New</span>
+            <span className="text-sm font-bold">{t('visitManagement.liveStatus', '실시간 면회 현황')}</span>
+            <span className="rounded-full bg-[#e53e3e] px-2.5 py-0.5 text-xs font-bold text-white">
+              {t('visitManagement.newBadge', '{count} New', { count: 3 })}
+            </span>
           </div>
         </aside>
       </div>

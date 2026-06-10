@@ -14,6 +14,19 @@ function cacheSet(lang, text, translated) {
 }
 
 /**
+ * 언어 변경 시 텍스트 배열을 백그라운드에서 미리 번역해 캐시에 채웁니다.
+ * 이미 캐시된 항목은 건너뜁니다.
+ */
+export async function warmupCache(texts, language) {
+  if (!texts?.length || language === 'ko') return;
+  const unique = [...new Set(texts.filter(Boolean))];
+  const uncached = unique.filter((t) => cacheGet(language, t) === undefined);
+  if (!uncached.length) return;
+  const results = await translateBatch(uncached, 'ko', language);
+  uncached.forEach((t, i) => cacheSet(language, t, results[i] ?? t));
+}
+
+/**
  * 단일 텍스트 번역 훅.
  * 언어가 'ko'이면 원본을 그대로 반환합니다.
  */

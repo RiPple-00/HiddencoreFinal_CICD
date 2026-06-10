@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.jsx?$\")",
+      "Read(//c/Users/soldesk/AppData/Local/Temp/claude/c--Users-soldesk-Documents-GABIA-99-Project-04-Ddasum/c0772c2c-d10c-433f-b14b-803dba0875f1/tasks/**)",
+      "Bash(xargs grep -l \"edit\\\\|Edit\")",
+      "Bash(python -c \"import fastapi, uvicorn, dotenv, openai, chromadb, pypdf; print\\('all packages OK'\\)\")",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":8001\")"
+    ]
+  }
+}

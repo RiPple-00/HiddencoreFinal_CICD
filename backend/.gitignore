@@ -68,3 +68,6 @@ hs_err_pid*
 *.sql.gz
 *.sql.bak
 *.dump
+
+# Local Environment
+src/main/resources/application-local.yml

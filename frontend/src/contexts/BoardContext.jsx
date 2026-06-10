@@ -161,22 +161,23 @@ export const BoardProvider = ({ facilityId, initialBoardValue = 'ALL', children 
       });
     }
 
-    // 4단계: 정렬
+    // 4단계: 정렬 (isPinned 항상 최상단 유지)
     const sorted = [...result];
-    switch (sortOrder) {
-      case 'oldest':
-        sorted.sort((a, b) => toMs(a.createdAt ?? a.updatedAt) - toMs(b.createdAt ?? b.updatedAt));
-        break;
-      case 'views':
-        sorted.sort((a, b) => (b.views ?? b.viewCount ?? 0) - (a.views ?? a.viewCount ?? 0));
-        break;
-      case 'alpha':
-        sorted.sort((a, b) => (a.title ?? '').localeCompare(b.title ?? '', 'ko'));
-        break;
-      default: // 'newest'
-        sorted.sort((a, b) => toMs(b.updatedAt ?? b.createdAt) - toMs(a.updatedAt ?? a.createdAt));
-        break;
-    }
+    sorted.sort((a, b) => {
+      const pinnedDiff = (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0);
+      if (pinnedDiff !== 0) return pinnedDiff;
+
+      switch (sortOrder) {
+        case 'oldest':
+          return toMs(a.createdAt ?? a.updatedAt) - toMs(b.createdAt ?? b.updatedAt);
+        case 'views':
+          return (b.views ?? b.viewCount ?? 0) - (a.views ?? a.viewCount ?? 0);
+        case 'alpha':
+          return (a.title ?? '').localeCompare(b.title ?? '', 'ko');
+        default: // 'newest'
+          return toMs(b.updatedAt ?? b.createdAt) - toMs(a.updatedAt ?? a.createdAt);
+      }
+    });
     return sorted;
   }, [allPosts, selectedBoard, currentTab, searchKeyword, searchType, filterType, sortOrder]);
 

@@ -3,7 +3,8 @@
     "rooms": "Rooms",
     "patients": "Patients",
     "calendar": "Calendar",
-    "notice": "Board"
+    "notice": "Board",
+    "visits": "Visit Management"
   },
   "search": {
     "placeholder": "Search patients...",
@@ -352,7 +353,66 @@
   "visitors": {
     "title": "Visits & Visitors",
     "description": "Scheduled visits and visitor information will be displayed here.",
-    "noReservation": "No visit reservations registered."
+    "noReservation": "No visit reservations registered.",
+    "loading": "Loading visit reservations...",
+    "refresh": "Refresh",
+    "defaultType": "Visit",
+    "patientFallback": "Resident",
+    "guardianVisit": "Guardian visit for {name}",
+    "roomSuffix": ""
+  },
+  "visitManagement": {
+    "title": "Visit Management",
+    "description": "Review, approve, or reject visit requests submitted by guardians.",
+    "searchPlaceholder": "Search visit requests...",
+    "refresh": "Refresh",
+    "liveStatus": "Live Visit Status",
+    "newBadge": "{count} New",
+    "summary": {
+      "total": "All Requests",
+      "pending": "Pending Approval",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "filter": {
+      "searchPlaceholder": "Search by resident, visitor, or phone",
+      "allStatus": "All Statuses"
+    },
+    "status": {
+      "PENDING_APPROVAL": "Pending Approval",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "CANCELLED": "Cancelled",
+      "REQUESTED": "Requested"
+    },
+    "table": {
+      "status": "Status",
+      "patient": "Resident",
+      "room": "Room",
+      "visitor": "Visitor",
+      "phone": "Phone",
+      "relationship": "Relationship",
+      "datetime": "Visit Date/Time",
+      "type": "Type",
+      "actions": "Actions"
+    },
+    "noRoom": "Room not assigned",
+    "loading": "Loading visit requests...",
+    "empty": "No visit requests found.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "cancel": "Cancel",
+    "processing": "Processing...",
+    "confirmApprove": "Approve this visit request?",
+    "approveFailed": "Failed to approve the visit request.",
+    "rejectFailed": "Failed to reject the visit request.",
+    "rejectModal": {
+      "title": "Reject Visit Request",
+      "description": "Please enter a reason for rejection.",
+      "descriptionNote": "The reason will be saved in the document record.",
+      "placeholder": "e.g. Visit capacity exceeded for this time slot.",
+      "reasonRequired": "Please enter a rejection reason."
+    }
   },
   "transfer": {
     "approve": "Approve",

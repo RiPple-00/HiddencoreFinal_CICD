@@ -30,7 +30,7 @@ const FORM_META = {
  * 게시글 작성 중앙 본문 영역 - 모든 타입 공통
  * 제목 / 본문 / 첨부파일은 타입에 무관하게 동일
  */
-const CreateForm = ({ postType, title, content, attachmentUrls, facilityId, onChange, noticeType, onNoticeTypeChange, scheduledAt, scheduleEndAt, onCancel, onSubmit }) => {
+const CreateForm = ({ postType, title, content, attachmentUrls, facilityId, onChange, noticeType, onNoticeTypeChange, scheduledAt, scheduleEndAt, onCancel, onSubmit, isSubmitting, submitLabel }) => {
   const { t } = useI18n();
   const meta = FORM_META[postType] ?? { title: '', subtitle: '' };
 
@@ -155,9 +155,10 @@ const CreateForm = ({ postType, title, content, attachmentUrls, facilityId, onCh
 
             <button
               onClick={onSubmit}
-              className="px-4 py-2 text-sm font-semibold text-white bg-blue-500 rounded-xl hover:bg-blue-600 transition"
+              disabled={isSubmitting}
+              className="px-4 py-2 text-sm font-semibold text-white bg-blue-500 rounded-xl hover:bg-blue-600 transition disabled:opacity-50"
             >
-              {t('board.create.form.submitButton', '게시글 등록')}
+              {submitLabel ?? t('board.create.form.submitButton', '게시글 등록')}
             </button>
           </div>
         )}

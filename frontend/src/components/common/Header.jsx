@@ -3,6 +3,8 @@ import { useAuth } from "../../contexts/AutoContext.jsx";
 import { useLanguage } from "../../contexts/LanguageContext.jsx";
 import { useI18n } from "../../hooks/useI18n.jsx";
 import { resolveStaffFacilityId } from "../../utils/jwtUtils";
+import postApi from "../../api/postApi";
+import { warmupCache } from "../../hooks/useTranslate";
 
 // function SearchIcon({ className }) {
 //   return (
@@ -88,6 +90,17 @@ export default function Header({
   const { user } = useAuth();
   const facilityId = resolveStaffFacilityId(user);
   const { language, setLanguage } = useLanguage();
+
+  const handleLanguageChange = (newLang) => {
+    setLanguage(newLang);
+    if (newLang === 'ko' || !facilityId) return;
+    // 백그라운드에서 게시글 제목·내용 pre-cache (UI 블로킹 없음)
+    postApi.getPostList(facilityId, null, 0, 500).then((res) => {
+      const list = Array.isArray(res.data) ? res.data : (res.data?.content ?? []);
+      const texts = list.flatMap((p) => [p.title, p.content].filter(Boolean));
+      warmupCache(texts, newLang);
+    }).catch(() => {});
+  };
   const { t } = useI18n();
   const languageOptions = [
     { value: "ko", label: t('label.korean') },
@@ -100,7 +113,7 @@ export default function Header({
     { key: "patients", label: t('nav.patients'), to: "/patients" },
     { key: "calendar", label: t('nav.calendar'), to: "/schedule" },
     { key: "notice", label: t('nav.notice'), to: facilityId ? `/facilities/${facilityId}/board` : null },
-    { key: "visits", label: "면회 관리", to: "/visit-management" },
+    { key: "visits", label: t('nav.visits', '면회 관리'), to: "/visit-management" },
   ];
   const resolvedNavItems = navItems ?? defaultNavItems;
 
@@ -165,7 +178,7 @@ export default function Header({
             <span className="whitespace-nowrap">{t('label.language')}</span>
             <select
               value={language}
-              onChange={(event) => setLanguage(event.target.value)}
+              onChange={(event) => handleLanguageChange(event.target.value)}
               className="bg-transparent text-sm outline-none"
               aria-label={t('label.language')}
             >

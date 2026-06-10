@@ -1,13 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "../components/common/Header";
 import visitAdminApi from "../api/visitAdminApi";
+import { useI18n } from "../hooks/useI18n.jsx";
 
-const statusLabelMap = {
-  PENDING_APPROVAL: "승인 대기",
-  APPROVED: "승인 완료",
-  REJECTED: "반려",
-  CANCELLED: "취소",
-};
+const STATUS_KEYS = ["PENDING_APPROVAL", "APPROVED", "REJECTED", "CANCELLED"];
 
 const statusClassMap = {
   PENDING_APPROVAL: "border-amber-200 bg-amber-50 text-amber-700",
@@ -27,6 +23,7 @@ function formatTime(value) {
 }
 
 export default function VisitManagementPage() {
+  const { t } = useI18n();
   const [visitRequests, setVisitRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
@@ -36,6 +33,9 @@ export default function VisitManagementPage() {
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectTargetId, setRejectTargetId] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
+
+  const statusLabel = (status) =>
+    t(`visitManagement.status.${status}`, status ?? "-");
 
   const fetchVisitRequests = async () => {
     try {
@@ -84,7 +84,7 @@ export default function VisitManagementPage() {
   }, [visitRequests, keyword, statusFilter]);
 
   const handleApprove = async (visitRequestId) => {
-    const ok = window.confirm("이 면회 신청을 승인하시겠습니까?");
+    const ok = window.confirm(t("visitManagement.confirmApprove", "이 면회 신청을 승인하시겠습니까?"));
     if (!ok) return;
 
     try {
@@ -93,7 +93,7 @@ export default function VisitManagementPage() {
       await fetchVisitRequests();
     } catch (error) {
       console.error("면회 신청 승인 실패", error);
-      alert("면회 신청 승인에 실패했습니다.");
+      alert(t("visitManagement.approveFailed", "면회 신청 승인에 실패했습니다."));
     } finally {
       setProcessingId(null);
     }
@@ -117,7 +117,7 @@ export default function VisitManagementPage() {
 
     const reason = rejectReason.trim();
     if (!reason) {
-      alert("반려 사유를 입력해 주세요.");
+      alert(t("visitManagement.rejectModal.reasonRequired", "반려 사유를 입력해 주세요."));
       return;
     }
 
@@ -128,7 +128,7 @@ export default function VisitManagementPage() {
       await fetchVisitRequests();
     } catch (error) {
       console.error("면회 신청 반려 실패", error);
-      alert("면회 신청 반려에 실패했습니다.");
+      alert(t("visitManagement.rejectFailed", "면회 신청 반려에 실패했습니다."));
     } finally {
       setProcessingId(null);
     }
@@ -143,16 +143,18 @@ export default function VisitManagementPage() {
         activeNav="visits"
         userName="김관리자 (Admin Kim)"
         userRole="SUPERUSER"
-        searchPlaceholder="면회 신청 검색..."
+        searchPlaceholder={t("visitManagement.searchPlaceholder", "면회 신청 검색...")}
       />
 
       <main className="mx-auto w-full max-w-[1440px] px-8 py-6">
         <div className="rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm">
           <div className="mb-8 flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">면회 관리</h1>
+              <h1 className="text-3xl font-bold text-slate-900">
+                {t("visitManagement.title", "면회 관리")}
+              </h1>
               <p className="mt-2 text-sm text-slate-500">
-                보호자가 신청한 면회 예약을 조회하고 승인 또는 반려할 수 있습니다.
+                {t("visitManagement.description", "보호자가 신청한 면회 예약을 조회하고 승인 또는 반려할 수 있습니다.")}
               </p>
             </div>
 
@@ -161,28 +163,36 @@ export default function VisitManagementPage() {
               onClick={fetchVisitRequests}
               className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
-              새로고침
+              {t("visitManagement.refresh", "새로고침")}
             </button>
           </div>
 
           <div className="mb-6 grid gap-4 md:grid-cols-4">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-5">
-              <p className="text-sm font-medium text-slate-500">전체 신청</p>
+              <p className="text-sm font-medium text-slate-500">
+                {t("visitManagement.summary.total", "전체 신청")}
+              </p>
               <p className="mt-3 text-3xl font-bold text-slate-900">{summary.total}</p>
             </div>
 
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-6 py-5">
-              <p className="text-sm font-medium text-amber-700">승인 대기</p>
+              <p className="text-sm font-medium text-amber-700">
+                {t("visitManagement.summary.pending", "승인 대기")}
+              </p>
               <p className="mt-3 text-3xl font-bold text-amber-700">{summary.pending}</p>
             </div>
 
             <div className="rounded-2xl border border-blue-200 bg-blue-50 px-6 py-5">
-              <p className="text-sm font-medium text-blue-700">승인 완료</p>
+              <p className="text-sm font-medium text-blue-700">
+                {t("visitManagement.summary.approved", "승인 완료")}
+              </p>
               <p className="mt-3 text-3xl font-bold text-blue-700">{summary.approved}</p>
             </div>
 
             <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-5">
-              <p className="text-sm font-medium text-red-700">반려</p>
+              <p className="text-sm font-medium text-red-700">
+                {t("visitManagement.summary.rejected", "반려")}
+              </p>
               <p className="mt-3 text-3xl font-bold text-red-700">{summary.rejected}</p>
             </div>
           </div>
@@ -192,7 +202,7 @@ export default function VisitManagementPage() {
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="입소자명, 신청자명, 연락처 검색"
+              placeholder={t("visitManagement.filter.searchPlaceholder", "입소자명, 신청자명, 연락처 검색")}
               className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500"
             />
 
@@ -201,11 +211,14 @@ export default function VisitManagementPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-48 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-blue-500"
             >
-              <option value="">전체 상태</option>
-              <option value="PENDING_APPROVAL">승인 대기</option>
-              <option value="APPROVED">승인 완료</option>
-              <option value="REJECTED">반려</option>
-              <option value="CANCELLED">취소</option>
+              <option value="">
+                {t("visitManagement.filter.allStatus", "전체 상태")}
+              </option>
+              {STATUS_KEYS.map((key) => (
+                <option key={key} value={key}>
+                  {statusLabel(key)}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -213,15 +226,15 @@ export default function VisitManagementPage() {
             <table className="w-full border-collapse bg-white text-sm">
               <thead className="bg-slate-50 text-left text-slate-500">
                 <tr>
-                  <th className="px-5 py-4 font-semibold">상태</th>
-                  <th className="px-5 py-4 font-semibold">입소자</th>
-                  <th className="px-5 py-4 font-semibold">병실</th>
-                  <th className="px-5 py-4 font-semibold">신청자</th>
-                  <th className="px-5 py-4 font-semibold">연락처</th>
-                  <th className="px-5 py-4 font-semibold">관계</th>
-                  <th className="px-5 py-4 font-semibold">면회 일시</th>
-                  <th className="px-5 py-4 font-semibold">유형</th>
-                  <th className="px-5 py-4 text-center font-semibold">관리</th>
+                  <th className="px-5 py-4 font-semibold">{t("visitManagement.table.status", "상태")}</th>
+                  <th className="px-5 py-4 font-semibold">{t("visitManagement.table.patient", "입소자")}</th>
+                  <th className="px-5 py-4 font-semibold">{t("visitManagement.table.room", "병실")}</th>
+                  <th className="px-5 py-4 font-semibold">{t("visitManagement.table.visitor", "신청자")}</th>
+                  <th className="px-5 py-4 font-semibold">{t("visitManagement.table.phone", "연락처")}</th>
+                  <th className="px-5 py-4 font-semibold">{t("visitManagement.table.relationship", "관계")}</th>
+                  <th className="px-5 py-4 font-semibold">{t("visitManagement.table.datetime", "면회 일시")}</th>
+                  <th className="px-5 py-4 font-semibold">{t("visitManagement.table.type", "유형")}</th>
+                  <th className="px-5 py-4 text-center font-semibold">{t("visitManagement.table.actions", "관리")}</th>
                 </tr>
               </thead>
 
@@ -229,13 +242,13 @@ export default function VisitManagementPage() {
                 {loading ? (
                   <tr>
                     <td colSpan={9} className="px-5 py-12 text-center text-slate-500">
-                      면회 신청 목록을 불러오는 중...
+                      {t("visitManagement.loading", "면회 신청 목록을 불러오는 중...")}
                     </td>
                   </tr>
                 ) : filteredRequests.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="px-5 py-12 text-center text-slate-500">
-                      면회 신청 내역이 없습니다.
+                      {t("visitManagement.empty", "면회 신청 내역이 없습니다.")}
                     </td>
                   </tr>
                 ) : (
@@ -252,7 +265,7 @@ export default function VisitManagementPage() {
                               "border-slate-200 bg-slate-50 text-slate-600"
                             }`}
                           >
-                            {statusLabelMap[item.status] ?? item.status ?? "-"}
+                            {statusLabel(item.status)}
                           </span>
                         </td>
 
@@ -261,7 +274,7 @@ export default function VisitManagementPage() {
                         </td>
 
                         <td className="px-5 py-4 text-slate-600">
-                          {item.patientRoom || "병실 미배정"}
+                          {item.patientRoom || t("visitManagement.noRoom", "병실 미배정")}
                         </td>
 
                         <td className="px-5 py-4 text-slate-700">
@@ -292,7 +305,7 @@ export default function VisitManagementPage() {
                               onClick={() => handleApprove(item.visitRequestId)}
                               className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                             >
-                              승인
+                              {t("visitManagement.approve", "승인")}
                             </button>
 
                             <button
@@ -301,7 +314,7 @@ export default function VisitManagementPage() {
                               onClick={() => openRejectModal(item.visitRequestId)}
                               className="rounded-lg bg-red-600 px-3 py-2 text-xs font-bold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                             >
-                              반려
+                              {t("visitManagement.reject", "반려")}
                             </button>
                           </div>
                         </td>
@@ -318,18 +331,20 @@ export default function VisitManagementPage() {
       {rejectModalOpen && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/45 px-4">
           <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl">
-            <h3 className="text-2xl font-bold text-slate-900">면회 신청 반려</h3>
+            <h3 className="text-2xl font-bold text-slate-900">
+              {t("visitManagement.rejectModal.title", "면회 신청 반려")}
+            </h3>
 
             <p className="mt-4 text-sm leading-6 text-slate-600">
-              반려 사유를 입력해 주세요.
+              {t("visitManagement.rejectModal.description", "반려 사유를 입력해 주세요.")}
               <br />
-              입력한 사유는 문서 내용에 함께 저장됩니다.
+              {t("visitManagement.rejectModal.descriptionNote", "입력한 사유는 문서 내용에 함께 저장됩니다.")}
             </p>
 
             <textarea
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="예: 해당 시간대 면회 인원이 초과되었습니다."
+              placeholder={t("visitManagement.rejectModal.placeholder", "예: 해당 시간대 면회 인원이 초과되었습니다.")}
               className="mt-5 h-28 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-red-500"
             />
 
@@ -340,7 +355,7 @@ export default function VisitManagementPage() {
                 disabled={Boolean(processingId)}
                 className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                취소
+                {t("visitManagement.cancel", "취소")}
               </button>
 
               <button
@@ -349,7 +364,9 @@ export default function VisitManagementPage() {
                 disabled={Boolean(processingId)}
                 className="rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {processingId ? "처리 중..." : "반려"}
+                {processingId
+                  ? t("visitManagement.processing", "처리 중...")
+                  : t("visitManagement.reject", "반려")}
               </button>
             </div>
           </div>

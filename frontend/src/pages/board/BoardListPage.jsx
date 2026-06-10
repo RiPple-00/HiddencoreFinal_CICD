@@ -77,9 +77,11 @@ const BoardListContent = () => {
   // null이면 탭 없음 (전체 게시판, 자유 게시판)
   const currentTabs = BOARD_TABS_MAP[selectedBoard.value] ?? null;
 
-  // 게시판 변경 시 탭 및 검색 초기화
+  // 게시판 변경 시 탭 및 검색 초기화 + URL 동기화 (뒤로가기 복원을 위해)
   const handleBoardSelect = (option) => {
     changeBoard(option);
+    const query = option.value !== 'ALL' ? `?board=${option.value}` : '';
+    navigate(`/facilities/${facilityId}/board${query}`, { replace: true });
     setIsDropdownOpen(false);
   };
 
@@ -330,7 +332,7 @@ const BoardListPage = () => {
       <Header activeNav="notice" />
       <div className="min-h-screen bg-slate-50">
         <BoardProvider
-          key={`${facilityId}-${initialBoardValue}`}
+          key={facilityId}
           facilityId={facilityId}
           initialBoardValue={initialBoardValue}
         >

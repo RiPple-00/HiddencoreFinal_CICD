@@ -3,7 +3,8 @@
     "rooms": "병실 조회",
     "patients": "입소자 조회",
     "calendar": "캘린더",
-    "notice": "게시판"
+    "notice": "게시판",
+    "visits": "면회 관리"
   },
   "search": {
     "placeholder": "입소자 검색...",
@@ -352,7 +353,66 @@
   "visitors": {
     "title": "면회 · 방문",
     "description": "예정된 면회 일정과 방문객 안내가 이 영역에 표시됩니다.",
-    "noReservation": "등록된 면회 예약이 없습니다."
+    "noReservation": "등록된 면회 예약이 없습니다.",
+    "loading": "면회 예약을 불러오는 중입니다.",
+    "refresh": "새로고침",
+    "defaultType": "면회",
+    "patientFallback": "입소자",
+    "guardianVisit": "{name} 보호자 방문",
+    "roomSuffix": "호"
+  },
+  "visitManagement": {
+    "title": "면회 관리",
+    "description": "보호자가 신청한 면회 예약을 조회하고 승인 또는 반려할 수 있습니다.",
+    "searchPlaceholder": "면회 신청 검색...",
+    "refresh": "새로고침",
+    "liveStatus": "실시간 면회 현황",
+    "newBadge": "{count} New",
+    "summary": {
+      "total": "전체 신청",
+      "pending": "승인 대기",
+      "approved": "승인 완료",
+      "rejected": "반려"
+    },
+    "filter": {
+      "searchPlaceholder": "입소자명, 신청자명, 연락처 검색",
+      "allStatus": "전체 상태"
+    },
+    "status": {
+      "PENDING_APPROVAL": "승인 대기",
+      "APPROVED": "승인 완료",
+      "REJECTED": "반려",
+      "CANCELLED": "취소",
+      "REQUESTED": "신청됨"
+    },
+    "table": {
+      "status": "상태",
+      "patient": "입소자",
+      "room": "병실",
+      "visitor": "신청자",
+      "phone": "연락처",
+      "relationship": "관계",
+      "datetime": "면회 일시",
+      "type": "유형",
+      "actions": "관리"
+    },
+    "noRoom": "병실 미배정",
+    "loading": "면회 신청 목록을 불러오는 중...",
+    "empty": "면회 신청 내역이 없습니다.",
+    "approve": "승인",
+    "reject": "반려",
+    "cancel": "취소",
+    "processing": "처리 중...",
+    "confirmApprove": "이 면회 신청을 승인하시겠습니까?",
+    "approveFailed": "면회 신청 승인에 실패했습니다.",
+    "rejectFailed": "면회 신청 반려에 실패했습니다.",
+    "rejectModal": {
+      "title": "면회 신청 반려",
+      "description": "반려 사유를 입력해 주세요.",
+      "descriptionNote": "입력한 사유는 문서 내용에 함께 저장됩니다.",
+      "placeholder": "예: 해당 시간대 면회 인원이 초과되었습니다.",
+      "reasonRequired": "반려 사유를 입력해 주세요."
+    }
   },
   "transfer": {
     "approve": "승인",

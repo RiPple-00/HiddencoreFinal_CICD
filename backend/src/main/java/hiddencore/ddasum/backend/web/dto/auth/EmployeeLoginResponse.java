@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EmployeeLoginResponse {
 
+    private Long id;
+    private String username;
     private String accessToken;
     private UsersRole role;
     private Long facilityId;

@@ -109,11 +109,9 @@ public class OpenAiTranslationService implements TranslationService {
     }
 
     private String buildPrompt(String sourceLanguage, String targetLanguage, String text) {
-        if (sourceLanguage.equalsIgnoreCase("auto")) {
-            return String.format("Translate the following text into %s. Respond with the translated text only.\n\nText: %s",
-                    targetLanguage, text);
-        }
-        return String.format("Translate the following text from %s to %s. Respond with the translated text only.\n\nText: %s",
-                sourceLanguage, targetLanguage, text);
+        String instruction = sourceLanguage.equalsIgnoreCase("auto")
+                ? String.format("Translate the following text into %s. Output only the translated text, no labels or explanations.", targetLanguage)
+                : String.format("Translate the following text from %s to %s. Output only the translated text, no labels or explanations.", sourceLanguage, targetLanguage);
+        return instruction + "\n\n" + text;
     }
 }

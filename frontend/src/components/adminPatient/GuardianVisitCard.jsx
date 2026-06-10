@@ -14,6 +14,9 @@ export default function GuardianVisitCard({ guardians = [], visitRequests = [] }
     guardians.find((g) => g?.isPrimary) ?? guardians[0] ?? null;
   const recent = Array.isArray(visitRequests) ? visitRequests : [];
 
+  const statusLabel = (status) =>
+    t(`visitManagement.status.${status}`, status ?? "-");
+
   return (
     <section className="rounded-2xl border border-[#e8eaef] bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
@@ -41,7 +44,7 @@ export default function GuardianVisitCard({ guardians = [], visitRequests = [] }
           recent.slice(0, 2).map((d) => {
             const name = d?.title?.includes('—')
               ? d.title.split('—').slice(1).join('—').trim()
-              : d?.title ?? '방문';
+              : d?.title ?? t('visitors.defaultType', '면회');
             const initials = String(name).slice(0, 2).toUpperCase();
             const at = d?.requestedAt || d?.createdAt;
             const timeText = at ? String(at).slice(0, 16).replace('T', ' ') : '-';
@@ -59,7 +62,7 @@ export default function GuardianVisitCard({ guardians = [], visitRequests = [] }
                     isActive ? 'bg-[#2d5bff] text-white' : 'bg-slate-200 text-slate-600'
                   }`}
                 >
-                  {status}
+                  {statusLabel(status)}
                 </span>
               </li>
             );

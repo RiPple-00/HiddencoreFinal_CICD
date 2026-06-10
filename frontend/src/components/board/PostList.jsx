@@ -73,7 +73,12 @@ const formatCapacityStatus = (post, unit) => {
   return `${enrolled ?? 0} / ${capacity}`;
 };
 
-const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
+const STORAGE_STATUS = {
+  INACTIVE: { label: '임시 저장', className: 'bg-gray-100 text-gray-500' },
+  RESERVE:  { label: '예약됨',   className: 'bg-amber-100 text-amber-600' },
+};
+
+const PostList = ({ posts = [], mode = 'table', facilityId, boardType, showStorageStatus = false }) => {
   const { t } = useI18n();
   const navigate = useNavigate();
 
@@ -181,9 +186,14 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
           <tr className="border-b border-gray-200 text-gray-500 text-xs">
             <th className="py-3 w-12 text-center font-medium">NO.</th>
             <th className="py-3 text-left font-medium">TITLE</th>
+            {showStorageStatus && (
+              <th className="py-3 w-28 text-center font-medium">상태</th>
+            )}
             <th className="py-3 w-24 text-center font-medium">AUTHOR</th>
             <th className="py-3 w-24 text-center font-medium">DATE</th>
-            <th className="py-3 w-16 text-center font-medium">VIEWS</th>
+            {!showStorageStatus && (
+              <th className="py-3 w-16 text-center font-medium">VIEWS</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -194,29 +204,47 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
               className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
             >
               {/* NO */}
-              <td className="py-3 text-center text-gray-400">{index + 1}</td>
+              <td className="py-3 text-center">
+                {post.isPinned
+                  ? <span className="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold bg-teal-50 text-teal-600 border border-teal-200">고정</span>
+                  : <span className="text-gray-400">{index + 1}</span>}
+              </td>
 
               {/* TITLE: 배지 + 제목 + 첨부파일 아이콘 + 댓글 수 */}
               <td className="py-3">
                 <div className="flex items-center gap-2">
                   <StatusBadge type={post.type} />
-                  {/* CHECK!!! HOT 배지 - 추후 isHotPost(post.viewCount) 조건으로 주석 해제 */}
-                  {/* {isHotPost(post.viewCount) && <StatusBadge type="HOT" />} */}
                   <span className="text-gray-800">{getTranslatedTitle(post.title)}</span>
-                  {/* CHECK!!! 첨부파일 필드명 확인 필요 - post.attachmentUrls가 배열인지 */}
                   {post.attachmentUrls?.length > 0 && (
                     <img src="/icons/attachment.svg" alt="첨부파일" className="w-3.5 h-3.5 opacity-40" />
                   )}
-                  {/* CHECK!!! 댓글 수 필드명 확인 필요 - 백엔드 응답에 commentCount가 있는지 */}
                   {post.commentCount > 0 && (
                     <span className="text-teal-600 text-xs font-medium">({post.commentCount})</span>
                   )}
                 </div>
               </td>
 
+              {/* 보관함 상태 (임시 저장 / 예약됨) */}
+              {showStorageStatus && (() => {
+                const s = STORAGE_STATUS[post.status];
+                return (
+                  <td className="py-3 text-center">
+                    {s ? (
+                      <div>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${s.className}`}>
+                          {s.label}
+                        </span>
+                        {post.status === 'RESERVE' && post.reservationAt && (
+                          <p className="text-xs text-gray-400 mt-0.5">{formatDateTimeLabel(post.reservationAt)}</p>
+                        )}
+                      </div>
+                    ) : '-'}
+                  </td>
+                );
+              })()}
+
               {/* AUTHOR */}
               <td className="py-3 text-center text-gray-500">
-                {/* CHECK!!! 작성자 필드명 확인 필요 - post.authorName 또는 post.author?.name */}
                 {post.authorName ?? '-'}
               </td>
 
@@ -225,10 +253,12 @@ const PostList = ({ posts = [], mode = 'table', facilityId, boardType }) => {
                 {formatDate(post.updatedAt ?? post.createdAt)}
               </td>
 
-              {/* VIEWS */}
-              <td className="py-3 text-center text-gray-400">
-                {post.views ?? post.viewCount ?? 0}
-              </td>
+              {/* VIEWS (보관함에서는 숨김) */}
+              {!showStorageStatus && (
+                <td className="py-3 text-center text-gray-400">
+                  {post.views ?? post.viewCount ?? 0}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

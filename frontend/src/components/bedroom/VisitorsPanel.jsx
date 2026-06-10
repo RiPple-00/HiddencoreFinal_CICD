@@ -2,13 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "../../hooks/useI18n";
 import visitAdminApi from "../../api/visitAdminApi";
 
-const statusLabelMap = {
-  PENDING_APPROVAL: "승인 대기",
-  APPROVED: "승인 완료",
-  REJECTED: "반려",
-  CANCELLED: "취소",
-};
-
 const statusClassMap = {
   PENDING_APPROVAL: "bg-amber-100 text-amber-700",
   APPROVED: "bg-blue-100 text-blue-700",
@@ -25,6 +18,9 @@ function VisitorsPanel({ room, beds = [] }) {
   const { t } = useI18n();
   const [visits, setVisits] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const statusLabel = (status) =>
+    t(`visitManagement.status.${status}`, status ?? "-");
 
   const patientIdsInRoom = useMemo(() => {
     return beds
@@ -49,6 +45,8 @@ function VisitorsPanel({ room, beds = [] }) {
     fetchVisits();
   }, []);
 
+  const roomSuffix = t("visitors.roomSuffix", "호");
+
   const visibleVisits = useMemo(() => {
     return visits
       .filter((visit) => {
@@ -62,7 +60,10 @@ function VisitorsPanel({ room, beds = [] }) {
         }
 
         if (room && visit.patientRoom) {
-          return String(visit.patientRoom).includes(`${room}호`);
+          const roomPattern = roomSuffix
+            ? `${room}${roomSuffix}`
+            : String(room);
+          return String(visit.patientRoom).includes(roomPattern);
         }
 
         return false;
@@ -73,7 +74,7 @@ function VisitorsPanel({ room, beds = [] }) {
         return aDate.localeCompare(bDate);
       })
       .slice(0, 3);
-  }, [visits, patientIdsInRoom, room]);
+  }, [visits, patientIdsInRoom, room, roomSuffix]);
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -85,7 +86,7 @@ function VisitorsPanel({ room, beds = [] }) {
           onClick={fetchVisits}
           className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 hover:bg-blue-100"
         >
-          새로고침
+          {t("visitors.refresh", "새로고침")}
         </button>
       </div>
 
@@ -94,7 +95,7 @@ function VisitorsPanel({ room, beds = [] }) {
       <div className="mt-4 space-y-3">
         {loading ? (
           <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-500">
-            면회 예약을 불러오는 중입니다.
+            {t("visitors.loading", "면회 예약을 불러오는 중입니다.")}
           </div>
         ) : visibleVisits.length === 0 ? (
           <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-500">
@@ -112,16 +113,18 @@ function VisitorsPanel({ room, beds = [] }) {
                     statusClassMap[visit.status] ?? "bg-slate-100 text-slate-500"
                   }`}
                 >
-                  {statusLabelMap[visit.status] ?? visit.status}
+                  {statusLabel(visit.status)}
                 </span>
 
                 <span className="text-xs font-semibold text-slate-400">
-                  {visit.visitType || "면회"}
+                  {visit.visitType || t("visitors.defaultType", "면회")}
                 </span>
               </div>
 
               <p className="text-sm font-bold text-slate-900">
-                {visit.patientName || "입소자"} 보호자 방문
+                {t("visitors.guardianVisit", "{name} 보호자 방문", {
+                  name: visit.patientName || t("visitors.patientFallback", "입소자"),
+                })}
               </p>
 
               <p className="mt-1 text-sm text-slate-600">

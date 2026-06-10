@@ -56,6 +56,7 @@ public class PostDto {
 
         private Long id;
         private Long facilityId;
+        private Long authorId;
         private String authorName;
         private PostType type;
         private Boolean isPinned;
@@ -78,6 +79,7 @@ public class PostDto {
             return PostResponse.builder()
                     .id(post.getPostId())
                     .facilityId(post.getFacilityId().getFacilityId())
+                    .authorId(post.getAuthorUserId().getUserId())
                     .authorName(post.getAuthorUserId().getName())
                     .type(post.getType())
                     .isPinned(post.getIsPinned())
@@ -209,6 +211,24 @@ public class PostDto {
 
         // reservationAt이 now()보다 과거면 변경 불가.
         private LocalDateTime reservationAt;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostNeighborItem {
+        private Long id;
+        private String title;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostNeighborsResponse {
+        private PostNeighborItem prev; // 이전 글 (더 오래된 글)
+        private PostNeighborItem next; // 다음 글 (더 최신 글)
     }
 
 }

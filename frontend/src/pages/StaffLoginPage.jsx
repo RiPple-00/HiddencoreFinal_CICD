@@ -55,6 +55,8 @@ export default function StaffLoginPage() {
                 mustChangePassword: data.mustChangePassword,
                 username: form.employeeLoginId,
                 userId: form.employeeLoginId,
+                name: data.username,
+                id: data.id,
             };
             login(userPayload);
             toast.success('로그인되었습니다.');

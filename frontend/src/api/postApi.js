@@ -9,6 +9,9 @@ const postApi = {
   getPost: (facilityId, postId) =>
     api.get(`/facilities/${facilityId}/posts/${postId}`),
 
+  getNeighborPosts: (facilityId, postId) =>
+    api.get(`/facilities/${facilityId}/posts/${postId}/neighbors`),
+
   searchPosts: (facilityId, type, searchType, keyword, page = 0, size = 20) =>
     api.get(`/facilities/${facilityId}/posts/search`, {
       params: { type, searchType, keyword, page, size },
@@ -30,6 +33,11 @@ const postApi = {
 
   getMyDrafts: (facilityId, type = null, page = 0, size = 20) =>
     api.get(`/facilities/${facilityId}/posts/draft`, {
+      params: { page, size, ...(type != null ? { type } : {}) },
+    }),
+
+  getMyStored: (facilityId, type = null, page = 0, size = 500) =>
+    api.get(`/facilities/${facilityId}/posts/stored`, {
       params: { page, size, ...(type != null ? { type } : {}) },
     }),
 

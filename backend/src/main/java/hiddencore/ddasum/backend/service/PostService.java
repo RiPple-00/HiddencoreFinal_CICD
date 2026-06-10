@@ -38,6 +38,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final ScheduleService scheduleService;
     private final ScheduleRepository scheduleRepository;
+    private final PostPublishScheduler postPublishScheduler;
 
     /* 게시판 조회 */
 
@@ -56,9 +57,11 @@ public class PostService {
     public PostDto.PostResponse getPost(Long facilityId, Long postId) {
         Post post = postRepository.findByPostIdAndFacilityId(postId, facilityId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
-        // 공개 게시글만 조회수 증가 (임시저장·비공개 조회는 제외)
+        // JPQL UPDATE로 조회수만 증가 — entity setter를 쓰지 않으므로 @PreUpdate(updatedAt)가 발생하지 않음
         if (post.getStatus() == PostStatus.ACTIVE || post.getStatus() == PostStatus.RESERVE) {
-            post.incrementViews();
+            postRepository.incrementViewsByPostId(postId);
+            post = postRepository.findByPostIdAndFacilityId(postId, facilityId)
+                    .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
         }
         return PostDto.PostResponse.from(post);
     }
@@ -132,7 +135,14 @@ public class PostService {
             scheduleService.createFacilitySchedule(scheduleRequest, userId, scheduleType);
         }
 
-        return PostDto.PostResponse.from(postRepository.save(post));
+        Post saved = postRepository.save(post);
+
+        // 예약 게시글이면 지정 시각에 자동 발행 등록
+        if (saved.getStatus() == PostStatus.RESERVE && saved.getReservationAt() != null) {
+            postPublishScheduler.schedule(saved.getPostId(), saved.getReservationAt());
+        }
+
+        return PostDto.PostResponse.from(saved);
     }
 
     // 게시글 수정: 작성자 본인만 가능
@@ -196,6 +206,7 @@ public class PostService {
             throw new IllegalArgumentException("삭제 권한이 없습니다.");
         }
 
+        postPublishScheduler.cancel(postId);
         postRepository.delete(post);
     }
 
@@ -211,6 +222,16 @@ public class PostService {
         return toPostListResponses(facilityId, posts);
     }
 
+    // 보관함 조회: 임시 저장(INACTIVE) + 예약(RESERVE) 모두
+    public List<PostDto.PostListResponse> getUserStoredPosts(Long userId, PostType type, Pageable pageable) {
+        List<Post> posts = (type == null)
+                ? postRepository.findStoredByUser(userId, pageable)
+                : postRepository.findStoredByUserAndType(userId, type, pageable);
+
+        Long facilityId = posts == null || posts.isEmpty() ? null : posts.get(0).getFacilityId().getFacilityId();
+        return toPostListResponses(facilityId, posts);
+    }
+
     // 임시 저장 조회: type 없으면 전체, 있으면 해당 타입만
     public List<PostDto.PostListResponse> getUserDrafts(Long userId, PostType type, Pageable pageable) {
         List<Post> posts = (type == null)
@@ -219,6 +240,23 @@ public class PostService {
 
         Long facilityId = posts == null || posts.isEmpty() ? null : posts.get(0).getFacilityId().getFacilityId();
         return toPostListResponses(facilityId, posts);
+    }
+
+    // 이전/다음 글 조회
+    public PostDto.PostNeighborsResponse getNeighborPosts(Long facilityId, Long postId) {
+        org.springframework.data.domain.Pageable one = org.springframework.data.domain.PageRequest.of(0, 1);
+
+        PostDto.PostNeighborItem prev = postRepository.findPrevPost(facilityId, postId, one)
+                .stream().findFirst()
+                .map(p -> PostDto.PostNeighborItem.builder().id(p.getPostId()).title(p.getTitle()).build())
+                .orElse(null);
+
+        PostDto.PostNeighborItem next = postRepository.findNextPost(facilityId, postId, one)
+                .stream().findFirst()
+                .map(p -> PostDto.PostNeighborItem.builder().id(p.getPostId()).title(p.getTitle()).build())
+                .orElse(null);
+
+        return PostDto.PostNeighborsResponse.builder().prev(prev).next(next).build();
     }
 
     @Transactional

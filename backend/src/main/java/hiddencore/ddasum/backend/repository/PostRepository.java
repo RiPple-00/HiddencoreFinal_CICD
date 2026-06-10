@@ -5,6 +5,7 @@ import hiddencore.ddasum.backend.domain.Post.PostType;
 import hiddencore.ddasum.backend.domain.Post.PostStatus;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -93,4 +94,32 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                         + "AND p.startAt IS NOT NULL AND p.endAt IS NOT NULL "
                                         + "ORDER BY p.startAt DESC")
         List<Post> findActiveApplyProgramsWithSchedule(@Param("facilityId") Long facilityId);
+
+        // 조회수만 직접 SQL로 증가 — @PreUpdate(updatedAt 갱신)를 트리거하지 않음
+        @Modifying(clearAutomatically = true)
+        @Query("UPDATE Post p SET p.views = COALESCE(p.views, 0) + 1 WHERE p.postId = :postId")
+        void incrementViewsByPostId(@Param("postId") Long postId);
+
+        // 서버 재시작 시 아직 발행되지 않은 예약 게시글 전체 조회
+        @Query("SELECT p FROM Post p WHERE p.status = 'RESERVE' AND p.reservationAt IS NOT NULL AND p.reservationAt > :now")
+        List<Post> findPendingReservedPosts(@Param("now") java.time.LocalDateTime now);
+
+        // 이전 글: 현재보다 postId가 작은 ACTIVE 게시글 중 가장 최근 것
+        @Query("SELECT p FROM Post p WHERE p.facilityId.facilityId = :facilityId AND p.status = 'ACTIVE' AND p.postId < :postId ORDER BY p.postId DESC")
+        List<Post> findPrevPost(@Param("facilityId") Long facilityId, @Param("postId") Long postId, Pageable pageable);
+
+        // 다음 글: 현재보다 postId가 큰 ACTIVE 게시글 중 가장 오래된 것
+        @Query("SELECT p FROM Post p WHERE p.facilityId.facilityId = :facilityId AND p.status = 'ACTIVE' AND p.postId > :postId ORDER BY p.postId ASC")
+        List<Post> findNextPost(@Param("facilityId") Long facilityId, @Param("postId") Long postId, Pageable pageable);
+
+        // 보관함: 임시 저장(INACTIVE) + 예약(RESERVE) 게시글
+        @Query("SELECT p FROM Post p JOIN FETCH p.facilityId f JOIN FETCH p.authorUserId a " +
+                        "WHERE a.userId = :userId AND p.status IN ('INACTIVE', 'RESERVE')")
+        List<Post> findStoredByUser(@Param("userId") Long userId, Pageable pageable);
+
+        @Query("SELECT p FROM Post p JOIN FETCH p.facilityId f JOIN FETCH p.authorUserId a " +
+                        "WHERE a.userId = :userId AND p.status IN ('INACTIVE', 'RESERVE') AND p.type = :type")
+        List<Post> findStoredByUserAndType(@Param("userId") Long userId,
+                        @Param("type") PostType type,
+                        Pageable pageable);
 }

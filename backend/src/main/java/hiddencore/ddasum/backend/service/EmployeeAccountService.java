@@ -136,6 +136,8 @@ public class EmployeeAccountService {
         Long facilityPk = user.getFacilityId() != null ? user.getFacilityId().getFacilityId() : null;
         String token = jwtService.createAccessToken(user.getUserId(), user.getRole().name(), facilityPk);
         return EmployeeLoginResponse.builder()
+                .id(user.getUserId())
+                .username(user.getName())
                 .accessToken(token)
                 .role(user.getRole())
                 .facilityId(facilityPk)

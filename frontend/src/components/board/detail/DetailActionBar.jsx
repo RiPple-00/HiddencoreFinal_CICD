@@ -19,16 +19,21 @@ const DetailActionBar = ({ post, user, facilityId, onDelete }) => {
   const { t } = useI18n();
   const navigate = useNavigate();
 
-  // CHECK!!! AuthContext 연동 후 user?.userId === post.authorId 방식으로 교체
-  const isAuthor = user?.name === post?.authorName;
-  const isAdmin  = user?.role === 'ADMIN';
-  const canEdit  = isAuthor || isAdmin;
+  const token = user?.accessToken ?? user?.token;
+  const jwtPayload = token ? (() => { try { return JSON.parse(atob(token.split('.')[1])); } catch { return {}; } })() : {};
+  const jwtUserId = jwtPayload.sub ? Number(jwtPayload.sub) : null;
+  const jwtRole   = jwtPayload.role ?? user?.role ?? null;
 
-  // 신청하기: APPLY 타입이고 모집 중이며 정원이 남아있을 때만 활성화
-  const isApplyType     = post?.type === 'APPLY';
-  const isRecruiting    = post?.recruitStatus === '모집 중';
-  const hasCapacity     = post?.currentEnrolled < post?.capacity;
-  const canApply        = isApplyType && isRecruiting && hasCapacity;
+  const isAuthor   = jwtUserId != null && post?.authorId != null && jwtUserId === Number(post.authorId);
+  const isAdmin    = jwtRole === 'ADMIN';
+  const isGuardian = jwtRole === 'GUARDIAN';
+  const canEdit    = isAuthor || isAdmin;
+
+  // 신청하기: APPLY 타입 + 모집 중 + 정원 미달 + 보호자만
+  const isApplyType  = post?.type === 'APPLY';
+  const isRecruiting = post?.recruitStatus === '모집 중';
+  const hasCapacity  = post?.currentEnrolled < post?.capacity;
+  const canApply     = isApplyType && isRecruiting && hasCapacity;
 
   return (
     <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
@@ -39,7 +44,7 @@ const DetailActionBar = ({ post, user, facilityId, onDelete }) => {
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => navigate(`/facilities/${facilityId}/board`)}
+          onClick={() => navigate(-1)}
         >
           ← {t('board.detail.action.backToList', '목록으로 돌아가기')}
         </Button>
@@ -67,8 +72,8 @@ const DetailActionBar = ({ post, user, facilityId, onDelete }) => {
             </>
           )}
 
-          {/* 신청하기: APPLY 타입일 때만 렌더링 */}
-          {isApplyType && (
+          {/* 신청하기: APPLY 타입 + 보호자(GUARDIAN)일 때만 렌더링 */}
+          {isApplyType && isGuardian && (
             <Button
               type="button"
               variant="primary"

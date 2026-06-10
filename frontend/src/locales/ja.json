@@ -3,7 +3,8 @@
     "rooms": "病室照会",
     "patients": "患者照会",
     "calendar": "カレンダー",
-    "notice": "掲示板"
+    "notice": "掲示板",
+    "visits": "面会管理"
   },
   "search": {
     "placeholder": "患者検索...",
@@ -352,7 +353,66 @@
   "visitors": {
     "title": "面会・訪問",
     "description": "予定されている面会スケジュールと訪問者情報がここに表示されます。",
-    "noReservation": "登録された面会予約はありません。"
+    "noReservation": "登録された面会予約はありません。",
+    "loading": "面会予約を読み込んでいます。",
+    "refresh": "更新",
+    "defaultType": "面会",
+    "patientFallback": "入所者",
+    "guardianVisit": "{name} 保護者面会",
+    "roomSuffix": "号室"
+  },
+  "visitManagement": {
+    "title": "面会管理",
+    "description": "保護者が申請した面会予約を確認し、承認または却下できます。",
+    "searchPlaceholder": "面会申請を検索...",
+    "refresh": "更新",
+    "liveStatus": "リアルタイム面会状況",
+    "newBadge": "新着 {count}件",
+    "summary": {
+      "total": "全申請",
+      "pending": "承認待ち",
+      "approved": "承認済み",
+      "rejected": "却下"
+    },
+    "filter": {
+      "searchPlaceholder": "入所者名、申請者名、連絡先で検索",
+      "allStatus": "すべての状態"
+    },
+    "status": {
+      "PENDING_APPROVAL": "承認待ち",
+      "APPROVED": "承認済み",
+      "REJECTED": "却下",
+      "CANCELLED": "キャンセル",
+      "REQUESTED": "申請済み"
+    },
+    "table": {
+      "status": "状態",
+      "patient": "入所者",
+      "room": "病室",
+      "visitor": "申請者",
+      "phone": "連絡先",
+      "relationship": "関係",
+      "datetime": "面会日時",
+      "type": "種別",
+      "actions": "管理"
+    },
+    "noRoom": "病室未割当",
+    "loading": "面会申請一覧を読み込んでいます...",
+    "empty": "面会申請履歴がありません。",
+    "approve": "承認",
+    "reject": "却下",
+    "cancel": "キャンセル",
+    "processing": "処理中...",
+    "confirmApprove": "この面会申請を承認しますか？",
+    "approveFailed": "面会申請の承認に失敗しました。",
+    "rejectFailed": "面会申請の却下に失敗しました。",
+    "rejectModal": {
+      "title": "面会申請却下",
+      "description": "却下理由を入力してください。",
+      "descriptionNote": "入力した理由は文書内容と一緒に保存されます。",
+      "placeholder": "例：該当時間帯の面会定員を超過しました。",
+      "reasonRequired": "却下理由を入力してください。"
+    }
   },
   "transfer": {
     "approve": "承認",
