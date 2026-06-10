@@ -308,7 +308,7 @@ public class DataSeeder {
                                 link.setIsPrimary(true);
                                 guardianPatientRepository.save(link);
                         }
-                        /* 기만경(260401008) 연동은 KimMankyungPatientSeeder(@Order 2)가 담당 */
+                        /* 기만경(260401008) 연동은 AiDemoPatientsSeeder(@Order 2)가 담당 */
 
                         /* ── Post 더미 ── */
                         if (postRepository.findAllByFacility(facility.getFacilityId(), PageRequest.of(0, 1))

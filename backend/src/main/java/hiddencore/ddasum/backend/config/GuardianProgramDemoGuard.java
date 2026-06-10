@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GuardianProgramDemoGuard {
 
     public static final String DEMO_GUARDIAN_LOGIN = "guardian001";
-    public static final long DEMO_GUARDIAN_PATIENT_ID = KimMankyungPatientSeeder.KIM_PATIENT_ID;
+    public static final long DEMO_GUARDIAN_PATIENT_ID = DemoPatientConstants.KIM_PATIENT_ID;
 
     @Bean
     @Order(6)

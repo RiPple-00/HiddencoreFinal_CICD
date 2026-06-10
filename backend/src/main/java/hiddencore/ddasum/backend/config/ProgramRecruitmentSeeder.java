@@ -107,6 +107,16 @@ public class ProgramRecruitmentSeeder {
                         "치매 예방 보드게임 프로그램 (소규모 10명).",
                         10, 7, now.minusDays(1), now.plusDays(21));
             }
+
+            // 보호자 주간보고서 AI·fallback 추천용 인지 프로그램 (항상 보강)
+            insertIfAbsent(postRepository, scheduleRepository, facility, author, now,
+                    "나만의 추억 앨범 만들기",
+                    "알츠하이머·치매 환자 대상 추억 회상·앨범 제작 인지 프로그램.",
+                    12, 5, now.minusDays(2), now.plusDays(28));
+            insertIfAbsent(postRepository, scheduleRepository, facility, author, now,
+                    "숫자 카드 순서 맞추기",
+                    "경도 인지 저하 환자를 위한 순서·기억 훈련 프로그램.",
+                    10, 4, now.minusDays(1), now.plusDays(25));
         };
     }
 

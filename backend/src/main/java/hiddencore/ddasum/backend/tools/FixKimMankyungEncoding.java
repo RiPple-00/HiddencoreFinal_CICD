@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import hiddencore.ddasum.backend.config.KimMankyungPatientSeeder;
+import hiddencore.ddasum.backend.config.DemoPatientConstants;
 
 /**
  * 기만경 환자 한글 깨짐 복구 — JDBC UTF-8로 직접 갱신.
@@ -37,11 +37,11 @@ public final class FixKimMankyungEncoding {
                             SET name = ?, address = ?, admission_status = ?, memo = ?, updated_at = NOW()
                             WHERE patient_id = ?
                             """)) {
-                ps.setString(1, KimMankyungPatientSeeder.KIM_PATIENT_NAME);
+                ps.setString(1, DemoPatientConstants.KIM_PATIENT_NAME);
                 ps.setString(2, "서울특별시 종로구");
-                ps.setString(3, KimMankyungPatientSeeder.DIAGNOSIS_TITLE);
-                ps.setString(4, KimMankyungPatientSeeder.DIAGNOSIS_COMMENT);
-                ps.setLong(5, KimMankyungPatientSeeder.KIM_PATIENT_ID);
+                ps.setString(3, DemoPatientConstants.KIM_DIAGNOSIS_TITLE);
+                ps.setString(4, DemoPatientConstants.KIM_DIAGNOSIS_COMMENT);
+                ps.setLong(5, DemoPatientConstants.KIM_PATIENT_ID);
                 System.out.println("PATIENT rows updated: " + ps.executeUpdate());
             }
 
@@ -49,7 +49,7 @@ public final class FixKimMankyungEncoding {
                     conn.prepareStatement(
                             "UPDATE LOCATION SET building = ? WHERE patient_id = ?")) {
                 ps.setString(1, "A동");
-                ps.setLong(2, KimMankyungPatientSeeder.KIM_PATIENT_ID);
+                ps.setLong(2, DemoPatientConstants.KIM_PATIENT_ID);
                 System.out.println("LOCATION rows updated: " + ps.executeUpdate());
             }
 
@@ -58,7 +58,7 @@ public final class FixKimMankyungEncoding {
                             .executeQuery(
                                     "SELECT name, HEX(name), admission_status, LEFT(memo, 20) AS memo_preview"
                                             + " FROM PATIENT WHERE patient_id = "
-                                            + KimMankyungPatientSeeder.KIM_PATIENT_ID)) {
+                                            + DemoPatientConstants.KIM_PATIENT_ID)) {
                 if (rs.next()) {
                     System.out.println("name=" + rs.getString(1));
                     System.out.println("name_hex=" + rs.getString(2));

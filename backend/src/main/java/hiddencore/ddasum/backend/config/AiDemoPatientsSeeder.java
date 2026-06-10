@@ -1,7 +1,6 @@
 package hiddencore.ddasum.backend.config;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 얼굴 AI 시연 환자 6명 + 병실 배정 (Linux MySQL 소문자 테이블명 호환).
- * patient_1~6 ↔ InsightFace DB 키와 동일한 이름·ID.
+ * patient_1~6 ↔ InsightFace DB 키와 동일한 이름·ID. 기만경(260401008) 포함.
  */
 @Slf4j
 @Configuration
@@ -108,8 +107,8 @@ public class AiDemoPatientsSeeder {
                             "105",
                             1),
                     new DemoPatient(
-                            KimMankyungPatientSeeder.KIM_PATIENT_ID,
-                            KimMankyungPatientSeeder.KIM_PATIENT_NAME,
+                            DemoPatientConstants.KIM_PATIENT_ID,
+                            DemoPatientConstants.KIM_PATIENT_NAME,
                             "MALE",
                             LocalDate.of(1942, 5, 12),
                             LocalDate.of(2026, 4, 10),
@@ -148,10 +147,6 @@ public class AiDemoPatientsSeeder {
                 Long caregiverId = caregiver != null ? caregiver.getUserId() : null;
 
                 for (DemoPatient demo : DEMO_PATIENTS) {
-                    // 107호 기만경 배정·중복 침상 정리는 KimMankyungPatientSeeder(@Order 20) 전담
-                    if (demo.id() == KimMankyungPatientSeeder.KIM_PATIENT_ID) {
-                        continue;
-                    }
                     Location bed =
                             ensureBed(
                                     facility,
@@ -162,14 +157,10 @@ public class AiDemoPatientsSeeder {
                                     demo.bed());
                     Long locationId = bed != null ? bed.getLocationId() : null;
 
+                    boolean isKim = demo.id() == DemoPatientConstants.KIM_PATIENT_ID;
                     String admissionStatus =
-                            demo.id() == KimMankyungPatientSeeder.KIM_PATIENT_ID
-                                    ? KimMankyungPatientSeeder.DIAGNOSIS_TITLE
-                                    : null;
-                    String memo =
-                            demo.id() == KimMankyungPatientSeeder.KIM_PATIENT_ID
-                                    ? KimMankyungPatientSeeder.DIAGNOSIS_COMMENT
-                                    : "AI 시연 환자";
+                            isKim ? DemoPatientConstants.KIM_DIAGNOSIS_TITLE : null;
+                    String memo = isKim ? DemoPatientConstants.KIM_DIAGNOSIS_COMMENT : "AI 시연 환자";
 
                     jdbcTemplate.update(
                             """
@@ -199,9 +190,7 @@ public class AiDemoPatientsSeeder {
                             demo.id(),
                             facility.getFacilityId(),
                             locationId,
-                            demo.id() == KimMankyungPatientSeeder.KIM_PATIENT_ID
-                                    ? caregiverId
-                                    : null,
+                            isKim ? caregiverId : null,
                             demo.name(),
                             demo.gender(),
                             demo.birthDate(),
@@ -223,12 +212,14 @@ public class AiDemoPatientsSeeder {
                         bed.setPatientId(patient);
                         bed.setIsOccupied(true);
                         locationRepository.save(bed);
+                        patient.setLocationId(bed);
+                        patientRepository.save(patient);
                     }
                 }
 
                 linkGuardian001(
                         patientRepository
-                                .findById(KimMankyungPatientSeeder.KIM_PATIENT_ID)
+                                .findById(DemoPatientConstants.KIM_PATIENT_ID)
                                 .orElse(null),
                         memberRepository,
                         guardianPatientRepository);

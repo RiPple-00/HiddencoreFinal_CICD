@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class GuardianReportDemoSeeder {
 
-    private static final long DEMO_PATIENT_ID = 260401008L;
+    private static final long DEMO_PATIENT_ID = DemoPatientConstants.KIM_PATIENT_ID;
     private static final LocalDate WEEK_START = LocalDate.of(2026, 6, 1);
     private static final LocalDate WEEK_END = LocalDate.of(2026, 6, 7);
 

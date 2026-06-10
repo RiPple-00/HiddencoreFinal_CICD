@@ -2,13 +2,13 @@ import api from "./index";
 
 const MOCK = {
   patient: {
-    id: 1,
-    name: "홍길동",
+    id: 260401008,
+    name: "기만경",
     status: "입원중",
-    room: "302",
-    admissionDate: "2026.04.01",
+    room: "107",
+    admissionDate: "2026.04.10",
     expectedTotal: 1280000,
-    expectedTotalAsOf: "2026.04.28",
+    expectedTotalAsOf: "2026.06.08",
   },
   invoices: [
     {

@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import hiddencore.ddasum.backend.config.KimMankyungPatientSeeder;
+import hiddencore.ddasum.backend.config.DemoPatientConstants;
 
 /**
  * A동 107호 1번 침상을 기만경(260401008)으로 맞추고 잘못 배정된 환자를 제거.
@@ -69,7 +69,7 @@ public final class FixRoom107KimMankyung {
                         WHERE l.building = 'A동' AND l.floor = 1 AND l.room = '107'
                           AND p.patient_id <> ?
                         """)) {
-            ps.setLong(1, KimMankyungPatientSeeder.KIM_PATIENT_ID);
+            ps.setLong(1, DemoPatientConstants.KIM_PATIENT_ID);
             System.out.println("patients unlinked from 107: " + ps.executeUpdate());
         }
 
@@ -107,7 +107,7 @@ public final class FixRoom107KimMankyung {
                         SET patient_id = ?, is_occupied = 1, room_capacity = 4
                         WHERE location_id = ?
                         """)) {
-            ps.setLong(1, KimMankyungPatientSeeder.KIM_PATIENT_ID);
+            ps.setLong(1, DemoPatientConstants.KIM_PATIENT_ID);
             ps.setLong(2, bed1Id);
             System.out.println("bed1 assigned to 기만경: " + ps.executeUpdate());
         }
@@ -116,7 +116,7 @@ public final class FixRoom107KimMankyung {
                 conn.prepareStatement(
                         "UPDATE PATIENT SET location_id = ? WHERE patient_id = ?")) {
             ps.setLong(1, bed1Id);
-            ps.setLong(2, KimMankyungPatientSeeder.KIM_PATIENT_ID);
+            ps.setLong(2, DemoPatientConstants.KIM_PATIENT_ID);
             System.out.println("기만경 location_id updated: " + ps.executeUpdate());
         }
     }
