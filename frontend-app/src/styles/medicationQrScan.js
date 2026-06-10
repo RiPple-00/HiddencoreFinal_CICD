@@ -3,13 +3,19 @@ import { StyleSheet } from "react-native";
 const BOX_SIZE = 240;
 
 const styles = StyleSheet.create({
-    container: {
+    page: {
         flex: 1,
         backgroundColor: "#000",
     },
 
-    camera: {
+    cameraArea: {
         flex: 1,
+        overflow: "hidden",
+        position: "relative",
+    },
+
+    camera: {
+        ...StyleSheet.absoluteFillObject,
     },
 
     center: {
@@ -130,16 +136,13 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
 
-    bottomBox: {
-        position: "absolute",
-        left: 20,
-        right: 20,
-        bottom: 105,
-        backgroundColor: "rgba(0,0,0,0.7)",
-        padding: 16,
-        borderRadius: 16,
-        zIndex: 20,
-        elevation: 20,
+    bottomPanel: {
+        backgroundColor: "rgba(0,0,0,0.85)",
+        paddingHorizontal: 20,
+        paddingTop: 16,
+        paddingBottom: 12,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
     },
 
     resultTitle: {
@@ -248,7 +251,7 @@ const styles = StyleSheet.create({
 
     resultScrollContent: {
         padding: 18,
-        paddingBottom: 36,
+        paddingBottom: 24,
     },
 
     summaryCard: {

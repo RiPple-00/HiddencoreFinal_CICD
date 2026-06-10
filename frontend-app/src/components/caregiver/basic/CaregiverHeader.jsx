@@ -30,7 +30,7 @@ export default function CaregiverHeader({
             </Text>
           </Pressable>
         ) : null}
-        <Text className="text-[18px]">🏥</Text>
+        <Text className="text-[18px]"></Text>
         <Text className="text-[22px] font-extrabold text-caregiver-text-primary">
           따숨
         </Text>

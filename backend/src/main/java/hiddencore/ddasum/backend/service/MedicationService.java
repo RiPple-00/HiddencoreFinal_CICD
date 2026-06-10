@@ -1,14 +1,26 @@
 package hiddencore.ddasum.backend.service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,6 +41,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MedicationService {
 
+    private static final int EDB_FAST_ENRICH_PARALLELISM = 6;
+    private static final Duration EDB_FAST_ENRICH_DEADLINE = Duration.ofSeconds(35);
+
+    private final ObjectProvider<MedicationService> medicationServiceProvider;
     private final MedicationRepository medicationRepository;
     private final PatientRepository patientRepository;
     private final UsersRepository usersRepository;
@@ -150,120 +166,7 @@ public class MedicationService {
             throw new IllegalArgumentException("EDB QR에서 약 코드를 추출할 수 없습니다.");
         }
 
-        List<Map<String, Object>> medicineInfos = new ArrayList<>();
-
-        for (String itemSeq : itemSeqs) {
-            Map<String, Object> row = new LinkedHashMap<>();
-
-            row.put("source", "EDB_QR");
-            row.put("itemSeq", itemSeq);
-
-            var hiraDrugInfoOptional = hiraMedicationApiClient.searchByMdsCd(itemSeq);
-
-            if (hiraDrugInfoOptional.isPresent()) {
-                HiraMedicationApiClient.HiraDrugInfo drugInfo = hiraDrugInfoOptional.get();
-
-                row.put("apiFound", true);
-                row.put("medicineName", drugInfo.getItemName());
-                row.put("itemName", drugInfo.getItemName());
-                row.put("manufacturerName", drugInfo.getManufacturerName());
-                row.put("unit", drugInfo.getUnit());
-                row.put("payType", drugInfo.getPayType());
-                row.put("route", drugInfo.getRoute());
-                row.put("classNo", drugInfo.getClassNo());
-                row.put("mainIngredientCode", drugInfo.getMainIngredientCode());
-                row.put("applyStartDate", drugInfo.getApplyStartDate());
-                row.put("applyEndDate", drugInfo.getApplyEndDate());
-                row.put("maxPrice", drugInfo.getMaxPrice());
-                row.put("specialGeneralType", drugInfo.getSpecialGeneralType());
-                row.put("substitutionType", drugInfo.getSubstitutionType());
-            } else {
-                Map<String, Object> permitInfoByEdi = mfdsDrugPermitApiClient.getPermitInfoByEdiCode(itemSeq);
-
-                row.putAll(permitInfoByEdi);
-
-                if (Boolean.TRUE.equals(permitInfoByEdi.get("permitInfoFound"))) {
-                    row.put("apiFound", true);
-                    row.put("apiSource", "MFDS_PERMIT_BY_EDI");
-
-                    Object permitItemName = permitInfoByEdi.get("permitItemName");
-                    Object permitEntpName = permitInfoByEdi.get("permitEntpName");
-
-                    row.put("medicineName", permitItemName == null ? null : permitItemName.toString());
-                    row.put("itemName", permitItemName == null ? null : permitItemName.toString());
-                    row.put("manufacturerName", permitEntpName == null ? "" : permitEntpName.toString());
-
-                } else {
-                    row.put("apiFound", false);
-                    row.put("medicineName", null);
-                    row.put("itemName", null);
-                }
-            }
-
-            String medicineNameForSearch = resolveMedicineName(row);
-            String manufacturerName = resolveManufacturerName(row);
-
-            Map<String, Object> easyDrugInfo = mfdsEasyDrugApiClient.getEasyDrugInfo(medicineNameForSearch);
-            row.putAll(easyDrugInfo);
-
-            /*
-             * e약은요 이름 조회 실패 + 아직 허가정보가 없으면
-             * 식약처 허가정보에서 permitItemSeq를 먼저 확보
-             */
-            if (!Boolean.TRUE.equals(easyDrugInfo.get("drugInfoFound"))
-                    && !Boolean.TRUE.equals(row.get("permitInfoFound"))) {
-                Map<String, Object> permitInfo = mfdsDrugPermitApiClient.getPermitInfo(
-                        medicineNameForSearch,
-                        manufacturerName);
-                row.putAll(permitInfo);
-            }
-
-            String permitItemSeq = "";
-
-            Object permitItemSeqValue = row.get("permitItemSeq");
-            if (permitItemSeqValue != null) {
-                permitItemSeq = permitItemSeqValue.toString();
-            }
-
-            /*
-             * e약은요 이름 조회 실패 시,
-             * 공식 요청변수 itemSeq로 한 번 더 조회
-             */
-            if (!Boolean.TRUE.equals(easyDrugInfo.get("drugInfoFound"))
-                    && permitItemSeq != null
-                    && !permitItemSeq.isBlank()) {
-                Map<String, Object> easyDrugInfoByItemSeq = mfdsEasyDrugApiClient
-                        .getEasyDrugInfoByItemSeq(permitItemSeq);
-
-                row.putAll(easyDrugInfoByItemSeq);
-            }
-
-            /*
-             * e약은요 조회가 최종 실패하면,
-             * 식약처 허가 상세정보 API로 효능/용법/주의사항 조회
-             */
-            if (!Boolean.TRUE.equals(row.get("drugInfoFound"))
-                    && permitItemSeq != null
-                    && !permitItemSeq.isBlank()) {
-                Map<String, Object> permitDetailInfo = mfdsDrugPermitApiClient.getPermitDetailByItemSeq(permitItemSeq);
-
-                row.putAll(permitDetailInfo);
-            }  
-
-            if (permitItemSeq != null && !permitItemSeq.isBlank()) {
-                Map<String, Object> durInfo = mfdsDurApiClient.getDurInfo(medicineNameForSearch, permitItemSeq);
-                row.putAll(durInfo);
-            } else {
-                row.put("durInfoFound", false);
-                row.put("durProductFound", false);
-                row.put("durWarningCount", 0);
-                row.put("durWarnings", new ArrayList<>());
-                row.put("durProductInfo", null);
-                row.put("durInfoMessage", "품목기준코드가 없어 DUR 정확 조회를 생략했습니다.");
-            }
-
-            medicineInfos.add(row);
-        }
+        List<Map<String, Object>> medicineInfos = enrichEdbMedicineRowsFast(itemSeqs);
 
         String medicineData;
 
@@ -289,6 +192,8 @@ public class MedicationService {
 
         saveEdbMedicationDetails(savedMedication, medicineInfos);
 
+        scheduleBackgroundEnrichment(savedMedication.getMedicationId(), itemSeqs);
+
         return MedicationDto.Response.builder()
                 .medicationId(savedMedication.getMedicationId())
                 .patientId(request.getPatientId())
@@ -297,6 +202,167 @@ public class MedicationService {
                 .medicineSummary(savedMedication.getMedicineSummary())
                 .medicineData(savedMedication.getMedicineData())
                 .build();
+    }
+
+    private void scheduleBackgroundEnrichment(Long medicationId, List<String> itemSeqs) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            CompletableFuture.runAsync(() ->
+                    medicationServiceProvider.getObject().enrichSavedMedicationFull(medicationId, itemSeqs));
+            return;
+        }
+
+        List<String> itemSeqsCopy = List.copyOf(itemSeqs);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                CompletableFuture.runAsync(() ->
+                        medicationServiceProvider.getObject()
+                                .enrichSavedMedicationFull(medicationId, itemSeqsCopy));
+            }
+        });
+    }
+
+    @Transactional
+    public void enrichSavedMedicationFull(Long medicationId, List<String> itemSeqs) {
+        Medication medication = medicationRepository.findById(medicationId).orElse(null);
+        if (medication == null || itemSeqs == null || itemSeqs.isEmpty()) {
+            return;
+        }
+
+        Map<String, Map<String, Object>> medicineInfoBySeq = new ConcurrentHashMap<>();
+        itemSeqs.parallelStream().forEach(itemSeq ->
+                medicineInfoBySeq.put(itemSeq, enrichEdbMedicineRow(itemSeq)));
+
+        List<Map<String, Object>> medicineInfos = itemSeqs.stream()
+                .map(medicineInfoBySeq::get)
+                .filter(row -> row != null)
+                .toList();
+
+        try {
+            medication.setMedicineData(objectMapper.writeValueAsString(medicineInfos));
+            medication.setMedicineSummary(createEdbMedicineSummary(medicineInfos));
+            medicationRepository.save(medication);
+
+            medicationDetailRepository.deleteByMedication_MedicationId(medicationId);
+            saveEdbMedicationDetails(medication, medicineInfos);
+        } catch (Exception e) {
+            System.out.println("[복약 백그라운드 보강 실패] medicationId=" + medicationId + ", " + e.getMessage());
+        }
+    }
+
+    private List<Map<String, Object>> enrichEdbMedicineRowsFast(List<String> itemSeqs) {
+        Map<String, Map<String, Object>> medicineInfoBySeq = new ConcurrentHashMap<>();
+        int poolSize = Math.min(EDB_FAST_ENRICH_PARALLELISM, Math.max(1, itemSeqs.size()));
+        ExecutorService executor = Executors.newFixedThreadPool(poolSize);
+
+        try {
+            List<Future<Map<String, Object>>> futures = itemSeqs.stream()
+                    .map(itemSeq -> executor.<Map<String, Object>>submit(() ->
+                            medicineInfoBySeq.put(itemSeq, enrichEdbMedicineRowFast(itemSeq))))
+                    .toList();
+
+            long deadlineNanos = System.nanoTime() + EDB_FAST_ENRICH_DEADLINE.toNanos();
+            for (Future<?> future : futures) {
+                long remainingNanos = deadlineNanos - System.nanoTime();
+                if (remainingNanos <= 0) {
+                    future.cancel(true);
+                    continue;
+                }
+                try {
+                    future.get(remainingNanos, TimeUnit.NANOSECONDS);
+                } catch (TimeoutException e) {
+                    future.cancel(true);
+                } catch (ExecutionException | InterruptedException e) {
+                    future.cancel(true);
+                    if (e instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+        } finally {
+            executor.shutdownNow();
+        }
+
+        return itemSeqs.stream()
+                .map(seq -> medicineInfoBySeq.computeIfAbsent(seq, this::buildMinimalEdbRow))
+                .toList();
+    }
+
+    private Map<String, Object> buildMinimalEdbRow(String itemSeq) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("source", "EDB_QR");
+        row.put("itemSeq", itemSeq);
+        row.put("apiFound", false);
+        row.put("medicineName", "약품코드 " + itemSeq);
+        row.put("itemName", "약품코드 " + itemSeq);
+        row.put("enrichPending", true);
+        putFastPathSkippedDefaults(row);
+        row.put("durInfoMessage", "약 정보 조회 시간 초과 — 기록 상세에서 다시 확인해 주세요.");
+        return row;
+    }
+
+    private Map<String, Object> enrichEdbMedicineRowFast(String itemSeq) {
+        Map<String, Object> row = new LinkedHashMap<>();
+
+        row.put("source", "EDB_QR");
+        row.put("itemSeq", itemSeq);
+
+        var hiraDrugInfoOptional = hiraMedicationApiClient.searchByMdsCd(itemSeq);
+
+        if (hiraDrugInfoOptional.isPresent()) {
+            HiraMedicationApiClient.HiraDrugInfo drugInfo = hiraDrugInfoOptional.get();
+
+            row.put("apiFound", true);
+            row.put("apiSource", "HIRA");
+            row.put("medicineName", drugInfo.getItemName());
+            row.put("itemName", drugInfo.getItemName());
+            row.put("manufacturerName", drugInfo.getManufacturerName());
+            row.put("unit", drugInfo.getUnit());
+            row.put("payType", drugInfo.getPayType());
+            row.put("route", drugInfo.getRoute());
+            row.put("classNo", drugInfo.getClassNo());
+            row.put("mainIngredientCode", drugInfo.getMainIngredientCode());
+            row.put("applyStartDate", drugInfo.getApplyStartDate());
+            row.put("applyEndDate", drugInfo.getApplyEndDate());
+            row.put("maxPrice", drugInfo.getMaxPrice());
+            row.put("specialGeneralType", drugInfo.getSpecialGeneralType());
+            row.put("substitutionType", drugInfo.getSubstitutionType());
+            putFastPathSkippedDefaults(row);
+            return row;
+        }
+
+        Map<String, Object> permitInfoByEdi = mfdsDrugPermitApiClient.getPermitInfoByEdiCode(itemSeq);
+        row.putAll(permitInfoByEdi);
+
+        if (Boolean.TRUE.equals(permitInfoByEdi.get("permitInfoFound"))) {
+            row.put("apiFound", true);
+            row.put("apiSource", "MFDS_PERMIT_BY_EDI");
+
+            Object permitItemName = permitInfoByEdi.get("permitItemName");
+            Object permitEntpName = permitInfoByEdi.get("permitEntpName");
+
+            row.put("medicineName", permitItemName == null ? null : permitItemName.toString());
+            row.put("itemName", permitItemName == null ? null : permitItemName.toString());
+            row.put("manufacturerName", permitEntpName == null ? "" : permitEntpName.toString());
+        } else {
+            row.put("apiFound", false);
+            row.put("medicineName", "약품코드 " + itemSeq);
+            row.put("itemName", "약품코드 " + itemSeq);
+        }
+
+        putFastPathSkippedDefaults(row);
+        return row;
+    }
+
+    private void putFastPathSkippedDefaults(Map<String, Object> row) {
+        row.put("drugInfoFound", false);
+        row.put("drugInfoMessage", "스캔 저장 시 빠른 조회 모드로 e약은요 정보는 생략했습니다.");
+        row.put("durInfoFound", false);
+        row.put("durProductFound", false);
+        row.put("durWarningCount", 0);
+        row.put("durWarnings", new ArrayList<>());
+        row.put("durProductInfo", null);
+        row.put("durInfoMessage", "DUR 정보는 저장 후 백그라운드에서 보강됩니다. 기록 상세에서 확인해 주세요.");
     }
 
     private Medication buildMedicationRecord(
@@ -341,10 +407,117 @@ public class MedicationService {
             if (doctor.isPresent()) {
                 return doctor.get();
             }
+            Optional<Users> office =
+                    memberRepository.findFirstByFacilityId_FacilityIdAndRole(facilityId, UsersRole.OFFICE);
+            if (office.isPresent()) {
+                return office.get();
+            }
         }
         return memberRepository
                 .findByLoginId("12345678|2120010101")
-                .orElseThrow(() -> new IllegalStateException("처방 저장용 의사 계정을 찾을 수 없습니다."));
+                .or(() -> memberRepository.findByLoginId("12345678|2120010102"))
+                .orElseThrow(() -> new IllegalStateException("처방 저장용 의사/원무 계정을 찾을 수 없습니다."));
+    }
+
+    private Map<String, Object> enrichEdbMedicineRow(String itemSeq) {
+        Map<String, Object> row = new LinkedHashMap<>();
+
+        row.put("source", "EDB_QR");
+        row.put("itemSeq", itemSeq);
+
+        var hiraDrugInfoOptional = hiraMedicationApiClient.searchByMdsCd(itemSeq);
+
+        if (hiraDrugInfoOptional.isPresent()) {
+            HiraMedicationApiClient.HiraDrugInfo drugInfo = hiraDrugInfoOptional.get();
+
+            row.put("apiFound", true);
+            row.put("medicineName", drugInfo.getItemName());
+            row.put("itemName", drugInfo.getItemName());
+            row.put("manufacturerName", drugInfo.getManufacturerName());
+            row.put("unit", drugInfo.getUnit());
+            row.put("payType", drugInfo.getPayType());
+            row.put("route", drugInfo.getRoute());
+            row.put("classNo", drugInfo.getClassNo());
+            row.put("mainIngredientCode", drugInfo.getMainIngredientCode());
+            row.put("applyStartDate", drugInfo.getApplyStartDate());
+            row.put("applyEndDate", drugInfo.getApplyEndDate());
+            row.put("maxPrice", drugInfo.getMaxPrice());
+            row.put("specialGeneralType", drugInfo.getSpecialGeneralType());
+            row.put("substitutionType", drugInfo.getSubstitutionType());
+        } else {
+            Map<String, Object> permitInfoByEdi = mfdsDrugPermitApiClient.getPermitInfoByEdiCode(itemSeq);
+
+            row.putAll(permitInfoByEdi);
+
+            if (Boolean.TRUE.equals(permitInfoByEdi.get("permitInfoFound"))) {
+                row.put("apiFound", true);
+                row.put("apiSource", "MFDS_PERMIT_BY_EDI");
+
+                Object permitItemName = permitInfoByEdi.get("permitItemName");
+                Object permitEntpName = permitInfoByEdi.get("permitEntpName");
+
+                row.put("medicineName", permitItemName == null ? null : permitItemName.toString());
+                row.put("itemName", permitItemName == null ? null : permitItemName.toString());
+                row.put("manufacturerName", permitEntpName == null ? "" : permitEntpName.toString());
+
+            } else {
+                row.put("apiFound", false);
+                row.put("medicineName", null);
+                row.put("itemName", null);
+            }
+        }
+
+        String medicineNameForSearch = resolveMedicineName(row);
+        String manufacturerName = resolveManufacturerName(row);
+
+        Map<String, Object> easyDrugInfo = mfdsEasyDrugApiClient.getEasyDrugInfo(medicineNameForSearch);
+        row.putAll(easyDrugInfo);
+
+        if (!Boolean.TRUE.equals(easyDrugInfo.get("drugInfoFound"))
+                && !Boolean.TRUE.equals(row.get("permitInfoFound"))) {
+            Map<String, Object> permitInfo = mfdsDrugPermitApiClient.getPermitInfo(
+                    medicineNameForSearch,
+                    manufacturerName);
+            row.putAll(permitInfo);
+        }
+
+        String permitItemSeq = "";
+
+        Object permitItemSeqValue = row.get("permitItemSeq");
+        if (permitItemSeqValue != null) {
+            permitItemSeq = permitItemSeqValue.toString();
+        }
+
+        if (!Boolean.TRUE.equals(easyDrugInfo.get("drugInfoFound"))
+                && permitItemSeq != null
+                && !permitItemSeq.isBlank()) {
+            Map<String, Object> easyDrugInfoByItemSeq = mfdsEasyDrugApiClient
+                    .getEasyDrugInfoByItemSeq(permitItemSeq);
+
+            row.putAll(easyDrugInfoByItemSeq);
+        }
+
+        if (!Boolean.TRUE.equals(row.get("drugInfoFound"))
+                && permitItemSeq != null
+                && !permitItemSeq.isBlank()) {
+            Map<String, Object> permitDetailInfo = mfdsDrugPermitApiClient.getPermitDetailByItemSeq(permitItemSeq);
+
+            row.putAll(permitDetailInfo);
+        }
+
+        if (permitItemSeq != null && !permitItemSeq.isBlank()) {
+            Map<String, Object> durInfo = mfdsDurApiClient.getDurInfo(medicineNameForSearch, permitItemSeq);
+            row.putAll(durInfo);
+        } else {
+            row.put("durInfoFound", false);
+            row.put("durProductFound", false);
+            row.put("durWarningCount", 0);
+            row.put("durWarnings", new ArrayList<>());
+            row.put("durProductInfo", null);
+            row.put("durInfoMessage", "품목기준코드가 없어 DUR 정확 조회를 생략했습니다.");
+        }
+
+        return row;
     }
 
     private boolean isEdbQr(String qrRawData) {

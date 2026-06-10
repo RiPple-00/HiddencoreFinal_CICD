@@ -225,6 +225,10 @@ function AppNavigation() {
   const content = (
     <NavigationContainer
       ref={navigationRef}
+      documentTitle={{
+        enabled: Platform.OS === "web",
+        formatter: () => "따숨",
+      }}
       onReady={() => {
         const route = navigationRef.getCurrentRoute();
         setCurrentRouteName(route?.name ?? null);

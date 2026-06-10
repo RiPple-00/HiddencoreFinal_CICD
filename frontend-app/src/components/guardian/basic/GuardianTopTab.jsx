@@ -48,7 +48,7 @@ export default function GuardianTopTab({ navigation }) {
       >
         <View className="flex-row flex-1 justify-between items-center px-5 py-4 border-b border-guardian-button-secondary">
           <View className="flex-row items-center gap-2">
-            <Text className="text-xl">🩺</Text>
+            <Text className="text-xl"></Text>
             <Text className="text-lg font-extrabold text-guardian-text-primary">
               따숨
             </Text>

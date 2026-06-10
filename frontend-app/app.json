@@ -1,46 +1,49 @@
-{
-  "expo": {
-    "name": "frontend-app",
-    "slug": "frontend-app",
-    "scheme": "frontend-app",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.frontendapp"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-font",
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "프로그램 활동 사진 업로드를 위해 사진 보관함 접근이 필요합니다."
-        }
-      ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "처방전 QR 스캔을 위해 카메라 접근이 필요합니다."
-        }
-      ]
-    ]
-  }
-}
+{
+  "expo": {
+    "name": "따숨",
+    "slug": "ddasum",
+    "scheme": "ddasum",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/ddasum-favicon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/ddasum-favicon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/ddasum-favicon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.frontendapp"
+    },
+    "web": {
+      "favicon": "./assets/ddasum-favicon.png",
+      "name": "따숨",
+      "shortName": "따숨",
+      "title": "따숨"
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "프로그램 활동 사진 업로드를 위해 사진 보관함 접근이 필요합니다."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "처방전 QR 스캔을 위해 카메라 접근이 필요합니다."
+        }
+      ]
+    ]
+  }
+}
