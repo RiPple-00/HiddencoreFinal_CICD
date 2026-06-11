@@ -12,6 +12,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.PageRequest;
 
 import hiddencore.ddasum.backend.config.GuardianProgramDemoGuard;
+import hiddencore.ddasum.backend.config.ProgramDemoConstants;
 import hiddencore.ddasum.backend.domain.Document;
 import hiddencore.ddasum.backend.domain.Document.DocumentStatus;
 import hiddencore.ddasum.backend.domain.Document.DocumentType;
@@ -79,6 +80,14 @@ public class ProgramApplicationSeeder {
                     facilityId, PostType.APPLY, PageRequest.of(0, 500));
 
             for (Post post : applyPosts) {
+                if (!ProgramDemoConstants.isOrigamiProgram(post.getTitle())) {
+                    if (post.getCapacity() == null) {
+                        post.setCapacity(ProgramDemoConstants.DEFAULT_CAPACITY);
+                        postRepository.save(post);
+                    }
+                    continue;
+                }
+
                 List<PostApplication> existing = postApplicationRepository.findManagementApplications(
                         facilityId, post.getPostId());
                 int targetTotal = resolveTargetApplicantCount(post, existing.size());
@@ -122,18 +131,21 @@ public class ProgramApplicationSeeder {
                         documentRepository, postApplicationRepository, usedPatientIds,
                         rejectedHave, rejectedTarget, PostApplicationStatus.REJECTED,
                         DocumentStatus.REJECTED, patientIdx, now);
+            }
 
-                int confirmedCount = postApplicationRepository.countByPostId_PostIdAndStatus(
-                        post.getPostId(), PostApplicationStatus.COMPLETED);
-                postService.syncCurrentEnrolled(post, confirmedCount);
-
-                Integer enrolledDisplay = post.getCurrentEnrolled();
-                if (enrolledDisplay != null && enrolledDisplay > confirmedCount) {
-                    post.setCurrentEnrolled(enrolledDisplay);
-                    postRepository.save(post);
-                }
+            for (Post post : applyPosts) {
+                syncEnrolledFromApplications(post, postApplicationRepository, postService);
             }
         };
+    }
+
+    private static void syncEnrolledFromApplications(
+            Post post,
+            PostApplicationRepository postApplicationRepository,
+            PostService postService) {
+        int confirmed = postApplicationRepository.countByPostId_PostIdAndStatus(
+                post.getPostId(), PostApplicationStatus.COMPLETED);
+        postService.syncCurrentEnrolled(post, confirmed);
     }
 
     private static int resolveTargetApplicantCount(Post post, int existingCount) {
@@ -236,6 +248,7 @@ public class ProgramApplicationSeeder {
             }
         }
         return fallbackRequester != null && fallbackRequester.getRole() == UsersRole.GUARDIAN
+                && !GuardianProgramDemoGuard.isDemoGuardian(fallbackRequester)
                 ? fallbackRequester
                 : null;
     }

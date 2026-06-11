@@ -31,7 +31,6 @@ public class PostApplicationService {
     private final MemberRepository memberRepository;
     private final PostService postService;
     private final DocumentRepository documentRepository;
-    private final ProgramApplicationBootstrapService programApplicationBootstrapService;
 
     public PostApplicationDto.ManagementResponse getApplications(Long facilityId, Long postId) {
         Post post = postRepository.findById(postId)
@@ -42,8 +41,6 @@ public class PostApplicationService {
         List<PostApplication> applications = postApplicationRepository.findManagementApplications(
                 postFacilityId, postId);
 
-        programApplicationBootstrapService.ensureDemoApplicantsIfEmpty(post);
-        applications = postApplicationRepository.findManagementApplications(postFacilityId, postId);
         List<PostApplicationDto.ApplicationInfo> confirmedApplicants = applications.stream()
                 .filter(application -> application.getStatus() == PostApplicationStatus.COMPLETED)
                 .map(this::toApplicationInfo)

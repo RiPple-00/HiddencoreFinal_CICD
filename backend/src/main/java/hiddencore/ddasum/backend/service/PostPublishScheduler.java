@@ -3,6 +3,7 @@ package hiddencore.ddasum.backend.service;
 import hiddencore.ddasum.backend.domain.Post;
 import hiddencore.ddasum.backend.domain.Post.PostStatus;
 import hiddencore.ddasum.backend.repository.PostRepository;
+import hiddencore.ddasum.backend.util.AppDateTimes;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +32,7 @@ public class PostPublishScheduler {
     /** 서버 재시작 시 미발행 예약 게시글을 다시 스케줄링 */
     @PostConstruct
     public void restoreOnStartup() {
-        List<Post> pending = postRepository.findPendingReservedPosts(LocalDateTime.now());
+        List<Post> pending = postRepository.findPendingReservedPosts(AppDateTimes.now());
         pending.forEach(post -> schedule(post.getPostId(), post.getReservationAt()));
         if (!pending.isEmpty()) {
             log.info("[PostPublish] 서버 재시작 - {}건 예약 복원", pending.size());
@@ -47,7 +47,8 @@ public class PostPublishScheduler {
         ScheduledFuture<?> existing = pendingTasks.remove(postId);
         if (existing != null) existing.cancel(false);
 
-        Instant fireAt = reservationAt.atZone(ZoneId.systemDefault()).toInstant();
+        Instant fireAt = AppDateTimes.toInstant(reservationAt);
+        if (fireAt == null) return;
         ScheduledFuture<?> future = taskScheduler.schedule(
                 () -> publish(postId),
                 Objects.requireNonNull(fireAt)

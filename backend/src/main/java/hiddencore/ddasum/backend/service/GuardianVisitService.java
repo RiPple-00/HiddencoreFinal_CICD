@@ -155,6 +155,51 @@ public class GuardianVisitService {
         return toAdminListResponse(doc);
     }
 
+    @Transactional(readOnly = true)
+    public List<VisitRequestDto.MyListResponse> getMyVisitApplications(Long guardianUserId) {
+        return documentRepository
+                .findByRequesterUserId_UserIdAndTypeOrderByRequestedAtDesc(
+                        guardianUserId, DocumentType.VISIT_REQUEST)
+                .stream()
+                .filter(doc -> doc.getStatus() != DocumentStatus.CANCELLED)
+                .map(this::toMyListResponse)
+                .toList();
+    }
+
+    private VisitRequestDto.MyListResponse toMyListResponse(Document doc) {
+        JsonNode content = parseContent(doc.getContent());
+        Patient patient = doc.getPatientId();
+        DocumentStatus status = doc.getStatus();
+
+        return VisitRequestDto.MyListResponse.builder()
+                .visitRequestId(doc.getDocumentId())
+                .patientName(patient != null ? patient.getName() : "-")
+                .patientRoom(patient != null ? formatPatientRoom(patient) : "병실 미배정")
+                .visitDate(localDateValue(content, "visitDate"))
+                .visitTime(localTimeValue(content, "visitTime"))
+                .visitorName(textValue(content, "visitorName"))
+                .relationship(textValue(content, "relationship"))
+                .visitType(textValue(content, "visitType"))
+                .status(status != null ? status.name() : null)
+                .statusLabel(toGuardianVisitStatusLabel(status))
+                .rejectReason(textValue(content, "rejectReason"))
+                .requestedAt(doc.getRequestedAt() != null ? doc.getRequestedAt() : doc.getCreatedAt())
+                .build();
+    }
+
+    private static String toGuardianVisitStatusLabel(DocumentStatus status) {
+        if (status == null) {
+            return "-";
+        }
+        return switch (status) {
+            case PENDING_APPROVAL -> "승인 대기";
+            case APPROVED -> "승인 완료";
+            case REJECTED -> "반려";
+            case CANCELLED -> "취소됨";
+            default -> status.name();
+        };
+    }
+
     private VisitRequestDto.AdminListResponse toAdminListResponse(Document doc) {
         JsonNode content = parseContent(doc.getContent());
         Patient patient = doc.getPatientId();

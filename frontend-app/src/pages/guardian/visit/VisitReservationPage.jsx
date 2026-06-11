@@ -16,7 +16,7 @@ import Text from "@/components/Text";
 import VisitCalendarSection from "../../../components/visit/VisitCalendarSection";
 import VisitTimeSelector from "../../../components/visit/VisitTimeSelector";
 import visitApi from "@/api/visitApi";
-import { resolveApiBaseUrl } from "@/api/index";
+import { decodeJwtPayload, getAccessToken, resolveApiBaseUrl } from "@/api/index";
 import { G, GMutedLight } from "@/styles/guardianTheme";
 import {
   DEMO_GUARDIAN_PATIENT_ID,
@@ -154,7 +154,7 @@ function ProgressBar({ step, total }) {
   );
 }
 
-export default function VisitReservationPage({ onBack, onComplete }) {
+export default function VisitReservationPage({ onBack, onComplete, embedded = false }) {
   const [step,          setStep]          = useState(1);
   const [selectedDate,  setSelectedDate]  = useState(() => new Date());
   const [selectedTime,  setSelectedTime]  = useState("11:00");
@@ -203,6 +203,16 @@ export default function VisitReservationPage({ onBack, onComplete }) {
     };
     if (REQUESTER_USER_ID != null && String(REQUESTER_USER_ID).trim() !== "") {
       body.requesterUserId = Number(REQUESTER_USER_ID);
+    } else {
+      try {
+        const token = await getAccessToken();
+        const payload = decodeJwtPayload(token);
+        if (payload?.sub != null) {
+          body.requesterUserId = Number(payload.sub);
+        }
+      } catch {
+        /* JWT 없으면 서버가 환자 주보호자로 처리 */
+      }
     }
     setSubmitting(true);
     try {
@@ -266,22 +276,31 @@ export default function VisitReservationPage({ onBack, onComplete }) {
     relationship.length > 0 &&
     !submitting;
 
-  return (
-    <SafeAreaView
-      className="flex-1 bg-guardian-bg-secondary"
-      edges={["bottom", "left", "right"]}
-    >
+  const Root = embedded ? View : SafeAreaView;
+  const rootProps = embedded
+    ? { className: "flex-1 bg-guardian-bg-secondary" }
+    : {
+        className: "flex-1 bg-guardian-bg-secondary",
+        edges: ["bottom", "left", "right"],
+      };
 
-      {/* 헤더 */}
-      <View className="flex-row items-center justify-between px-4 py-[14px] bg-background-neutral border-b border-guardian-button-secondary">
-        <TouchableOpacity onPress={headerBack} hitSlop={12}>
-          <Text className="text-[22px] text-guardian-text-primary w-10">←</Text>
-        </TouchableOpacity>
-        <Text className="text-[17px] font-bold text-guardian-text-primary">
-          방문 예약 신청
-        </Text>
-        <View className="w-10" />
-      </View>
+  return (
+    <Root {...rootProps}>
+
+      {!embedded ? (
+        <>
+          {/* 헤더 */}
+          <View className="flex-row items-center justify-between px-4 py-[14px] bg-background-neutral border-b border-guardian-button-secondary">
+            <TouchableOpacity onPress={headerBack} hitSlop={12}>
+              <Text className="text-[22px] text-guardian-text-primary w-10">←</Text>
+            </TouchableOpacity>
+            <Text className="text-[17px] font-bold text-guardian-text-primary">
+              방문 예약 신청
+            </Text>
+            <View className="w-10" />
+          </View>
+        </>
+      ) : null}
 
       <ProgressBar step={step} total={3} />
 
@@ -495,6 +514,6 @@ export default function VisitReservationPage({ onBack, onComplete }) {
           </Pressable>
         </Pressable>
       </Modal>
-    </SafeAreaView>
+    </Root>
   );
 }

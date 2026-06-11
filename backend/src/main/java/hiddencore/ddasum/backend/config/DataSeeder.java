@@ -350,7 +350,7 @@ public class DataSeeder {
                                                                 .status(PostStatus.ACTIVE).isPinned(false)
                                                                 .startAt(LocalDateTime.now().minusDays(3))
                                                                 .endAt(LocalDateTime.now().plusDays(18))
-                                                                .capacity(15).currentEnrolled(9).views(18).build(),
+                                                                .capacity(12).currentEnrolled(0).views(18).build(),
                                                 Post.builder().facilityId(facility).authorUserId(office)
                                                                 .type(PostType.GENERAL).title("4월 생신잔치 후기")
                                                                 .content("4월 생신잔치가 성황리에 마무리되었습니다. 참여해 주신 모든 분께 감사드립니다.")

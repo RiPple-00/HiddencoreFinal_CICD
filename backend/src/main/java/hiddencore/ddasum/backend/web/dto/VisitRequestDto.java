@@ -146,10 +146,13 @@ public class VisitRequestDto {
         private LocalDate visitDate;
         private LocalTime visitTime;
 
+        private String visitorName;
         private String relationship;
         private String visitType;
 
         private String status;
+        private String statusLabel;
+        private String rejectReason;
         private LocalDateTime requestedAt;
     }
 

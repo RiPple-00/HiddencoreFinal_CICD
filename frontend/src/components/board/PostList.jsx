@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../../hooks/useI18n.jsx';
 import { useTranslatedTexts } from '../../hooks/useTranslate';
 import StatusBadge from '../common/StatusBadge';
-import { formatDate, formatRelativeTime, toDate } from '../../utils/dateUtils';
+import { formatDate, formatRelativeTime } from '../../utils/dateUtils';
+import { formatDateTimeKst } from '../../utils/boardUtils';
 
 /**
  * 게시글 목록 컴포넌트
@@ -16,20 +17,7 @@ import { formatDate, formatRelativeTime, toDate } from '../../utils/dateUtils';
 /** 목록 API(PostListResponse)는 `id`, 구버전 호환으로 `postId` */
 const rowId = (post) => post?.id ?? post?.postId;
 
-const pad2 = (value) => String(value).padStart(2, '0');
-
-const formatDateTimeLabel = (value) => {
-  const date = toDate(value);
-  if (!date) return null;
-
-  const year = date.getFullYear();
-  const month = pad2(date.getMonth() + 1);
-  const day = pad2(date.getDate());
-  const hour = pad2(date.getHours());
-  const minute = pad2(date.getMinutes());
-
-  return `${year}.${month}.${day} ${hour}:${minute}`;
-};
+const formatDateTimeLabel = (value) => formatDateTimeKst(value);
 
 const formatScheduleRange = (startAt, endAt) => {
   const startLabel = formatDateTimeLabel(startAt);

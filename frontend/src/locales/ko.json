@@ -1,6 +1,6 @@
 {
   "nav": {
-    "rooms": "병실 조회",
+    "rooms": "생활실 조회",
     "patients": "입소자 조회",
     "calendar": "캘린더",
     "notice": "게시판",
@@ -343,8 +343,8 @@
     "birthDate": "생년월일"
   },
   "room": {
-    "layoutTitle": "병상 배치도",
-    "type": "병실 유형",
+    "layoutTitle": "생활실 배치도",
+    "type": "생활실 유형",
     "bedCount": "병상 수",
     "bedUnit": "개",
     "window": "창문",

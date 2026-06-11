@@ -8,8 +8,10 @@ import hiddencore.ddasum.backend.domain.Facility;
 import hiddencore.ddasum.backend.domain.Post;
 import hiddencore.ddasum.backend.domain.Post.PostStatus;
 import hiddencore.ddasum.backend.domain.Post.PostType;
+import hiddencore.ddasum.backend.domain.PostApplication.PostApplicationStatus;
 import hiddencore.ddasum.backend.domain.Users;
 import hiddencore.ddasum.backend.repository.FacilityRepository;
+import hiddencore.ddasum.backend.repository.PostApplicationRepository;
 import hiddencore.ddasum.backend.repository.PostRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
 import hiddencore.ddasum.backend.repository.ScheduleRepository;
@@ -34,6 +36,7 @@ import java.util.stream.Stream;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final PostApplicationRepository postApplicationRepository;
     private final FacilityRepository facilityRepository;
     private final MemberRepository memberRepository;
     private final ScheduleService scheduleService;
@@ -63,7 +66,7 @@ public class PostService {
             post = postRepository.findByPostIdAndFacilityId(postId, facilityId)
                     .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
         }
-        return PostDto.PostResponse.from(post);
+        return PostDto.PostResponse.from(post, resolveCurrentEnrolled(post));
     }
 
     // 검색: searchType = title | content | all
@@ -277,17 +280,47 @@ public class PostService {
                 facilityId != null ? facilityId : safePosts.get(0).getFacilityId().getFacilityId(),
                 safePosts);
 
+        Map<Long, Integer> confirmedByPostId = loadConfirmedEnrolledMap(safePosts);
+
         return safePosts.stream()
                 .map(post -> {
                     Schedule schedule = isProgramPost(post)
                             ? programSchedules.get(buildProgramScheduleKey(post.getTitle(), post.getContent()))
                             : null;
+                    Integer enrolled = confirmedByPostId.getOrDefault(
+                            post.getPostId(),
+                            post.getCurrentEnrolled());
                     return PostDto.PostListResponse.from(
                             post,
                             schedule != null ? schedule.getScheduledAt() : null,
-                            schedule != null ? schedule.getEndAt() : null);
+                            schedule != null ? schedule.getEndAt() : null,
+                            enrolled);
                 })
                 .toList();
+    }
+
+    /** APPLY 게시글: 확정(COMPLETED) 신청 수 = 모집현황 currentEnrolled */
+    private Integer resolveCurrentEnrolled(Post post) {
+        if (post == null || post.getType() != PostType.APPLY) {
+            return post != null ? post.getCurrentEnrolled() : null;
+        }
+        return countConfirmedApplications(post.getPostId());
+    }
+
+    private Map<Long, Integer> loadConfirmedEnrolledMap(List<Post> posts) {
+        Map<Long, Integer> map = new HashMap<>();
+        for (Post post : posts) {
+            if (post.getType() != PostType.APPLY) {
+                continue;
+            }
+            map.put(post.getPostId(), countConfirmedApplications(post.getPostId()));
+        }
+        return map;
+    }
+
+    private int countConfirmedApplications(Long postId) {
+        return postApplicationRepository.countByPostId_PostIdAndStatus(
+                postId, PostApplicationStatus.COMPLETED);
     }
 
     private Map<String, Schedule> loadProgramScheduleMap(Long facilityId, List<Post> posts) {

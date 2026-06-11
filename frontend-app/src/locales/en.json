@@ -340,5 +340,26 @@
       "REQUESTED": "Received",
       "DRAFT": "Draft"
     }
+  },
+  "visit": {
+    "title": "Visit Request",
+    "subtitle": "Apply for visits and check approval status.",
+    "tab_apply": "Apply",
+    "tab_applications": "My Requests",
+    "empty_applications": "No visit requests yet.",
+    "loading": "Loading...",
+    "default_type": "Visit",
+    "detail_datetime": "Visit date & time",
+    "detail_patient": "Patient",
+    "detail_visitor": "Applicant",
+    "detail_status": "Status",
+    "detail_applied_date": "Applied on",
+    "reject_reason": "Rejection reason",
+    "status": {
+      "PENDING_APPROVAL": "Pending Approval",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "CANCELLED": "Cancelled"
+    }
   }
 }

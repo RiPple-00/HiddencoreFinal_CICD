@@ -340,5 +340,26 @@
       "REQUESTED": "접수됨",
       "DRAFT": "작성 중"
     }
+  },
+  "visit": {
+    "title": "면회 신청",
+    "subtitle": "면회를 신청하고 승인·반려 결과를 확인할 수 있어요.",
+    "tab_apply": "면회 신청",
+    "tab_applications": "신청내역",
+    "empty_applications": "신청한 면회 내역이 없습니다.",
+    "loading": "불러오는 중...",
+    "default_type": "면회",
+    "detail_datetime": "면회 일시",
+    "detail_patient": "대상 환자",
+    "detail_visitor": "신청자",
+    "detail_status": "상태",
+    "detail_applied_date": "신청일",
+    "reject_reason": "반려 사유",
+    "status": {
+      "PENDING_APPROVAL": "승인 대기",
+      "APPROVED": "승인 완료",
+      "REJECTED": "반려",
+      "CANCELLED": "취소됨"
+    }
   }
 }

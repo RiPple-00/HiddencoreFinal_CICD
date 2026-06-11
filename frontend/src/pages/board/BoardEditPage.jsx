@@ -7,6 +7,8 @@ import {
   stringifyTargetRoles,
   stringifyAttachmentUrls,
   dateOnlyToLocalDateTimeString,
+  datetimeLocalToKstApiString,
+  kstApiToDatetimeLocal,
 } from '../../utils/boardUtils';
 import { useAuth } from '../../contexts/AutoContext.jsx';
 import Header from '../../components/common/Header';
@@ -23,8 +25,6 @@ const resolvePostCategory = (type) => {
   if (PROGRAM_TYPES.has(type)) return 'PROGRAM';
   return 'GENERAL';
 };
-
-const emptyToNull = (v) => (v === '' || v == null ? null : v);
 
 const localDateTimeToDateOnly = (ldt) => {
   if (!ldt) return '';
@@ -91,7 +91,7 @@ const BoardEditPage = () => {
         setPanelState({
           isPinned: post.isPinned ?? false,
           publishType: post.reservationAt ? 'SCHEDULED' : 'IMMEDIATE',
-          reservationAt: localDateTimeToDateOnly(post.reservationAt),
+          reservationAt: kstApiToDatetimeLocal(post.reservationAt),
           targetRoles,
           startAt: localDateTimeToDateOnly(post.startAt),
           endAt: localDateTimeToDateOnly(post.endAt),
@@ -128,7 +128,9 @@ const BoardEditPage = () => {
       status: panelState.publishType === 'SCHEDULED' ? POST_STATUS.RESERVE : POST_STATUS.ACTIVE,
       isPinned: panelState.isPinned,
       reservationAt:
-        panelState.publishType === 'SCHEDULED' ? emptyToNull(panelState.reservationAt) : null,
+        panelState.publishType === 'SCHEDULED'
+          ? datetimeLocalToKstApiString(panelState.reservationAt)
+          : null,
       ...(postType === 'NOTICE' && {
         targetRoles: stringifyTargetRoles(panelState.targetRoles),
       }),

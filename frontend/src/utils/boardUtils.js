@@ -175,6 +175,92 @@ export const BOARD_UI_TO_POST_TYPE = {
 };
 
 /**
+ * HTML `type="datetime-local"` 값 → KST wall-clock LocalDateTime JSON 문자열 (타임존 Z 없음)
+ * @param {string|null|undefined} value
+ * @returns {string|null}
+ */
+export const datetimeLocalToKstApiString = (value) => {
+  if (value == null || String(value).trim() === '') return null;
+  const s = String(value).trim();
+  const match = s.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(?::(\d{2}))?/);
+  if (!match) return s.includes('T') ? s : null;
+  return match[2] != null ? `${match[1]}:${match[2]}` : `${match[1]}:00`;
+};
+
+const pad2 = (n) => String(n).padStart(2, '0');
+
+const KST = 'Asia/Seoul';
+
+/**
+ * 백엔드 LocalDateTime → `datetime-local` 입력값 (KST 기준 시·분)
+ * @param {string|number[]|object|null|undefined} value
+ * @returns {string}
+ */
+export const kstApiToDatetimeLocal = (value) => {
+  if (value == null || value === '') return '';
+
+  if (Array.isArray(value)) {
+    const [y, m, d, hh = 0, mm = 0] = value;
+    if (!y || !m || !d) return '';
+    return `${y}-${pad2(m)}-${pad2(d)}T${pad2(hh)}:${pad2(mm)}`;
+  }
+
+  if (typeof value === 'object') {
+    const y = value.year ?? value.y;
+    const m = value.monthValue ?? value.month ?? value.m;
+    const d = value.dayOfMonth ?? value.day ?? value.d;
+    const hh = value.hour ?? 0;
+    const mm = value.minute ?? 0;
+    if (!y || !m || !d) return '';
+    return `${y}-${pad2(m)}-${pad2(d)}T${pad2(hh)}:${pad2(mm)}`;
+  }
+
+  const str = String(value).trim();
+  const naive = str.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/);
+  if (naive && !/Z$|[+-]\d{2}:\d{2}$/.test(str)) {
+    return `${naive[1]}T${naive[2]}:${naive[3]}`;
+  }
+
+  const instant = new Date(str);
+  if (Number.isNaN(instant.getTime())) return '';
+
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: KST,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(instant);
+
+  const pick = (type) => parts.find((p) => p.type === type)?.value ?? '';
+  const year = pick('year');
+  const month = pick('month');
+  const day = pick('day');
+  let hour = pick('hour');
+  if (hour === '24') hour = '00';
+  const minute = pick('minute');
+  if (!year || !month || !day) return '';
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+};
+
+/**
+ * KST 기준 날짜·시간 라벨 (게시판 예약 일시 표시)
+ * @param {string|number[]|object|null|undefined} value
+ * @returns {string|null}
+ */
+export const formatDateTimeKst = (value) => {
+  const local = kstApiToDatetimeLocal(value);
+  if (!local) return null;
+  const [datePart, timePart] = local.split('T');
+  if (!datePart || !timePart) return null;
+  const [y, m, d] = datePart.split('-');
+  const [hh, mm] = timePart.split(':');
+  return `${y}.${m}.${d} ${hh}:${mm}`;
+};
+
+/**
  * HTML `type="date"` 값(YYYY-MM-DD)을 백엔드 `LocalDateTime` JSON 역직렬화용 ISO 문자열로 변환
  * @param {string|null|undefined} value
  * @param {boolean} endOfDay - 종료일이면 해당 일 23:59:59

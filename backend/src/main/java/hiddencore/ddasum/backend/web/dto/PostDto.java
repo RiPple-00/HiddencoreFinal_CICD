@@ -74,7 +74,11 @@ public class PostDto {
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
-        public static PostResponse from(Post post) { // 단일 게시글 조회
+        public static PostResponse from(Post post) {
+            return from(post, post.getCurrentEnrolled());
+        }
+
+        public static PostResponse from(Post post, Integer currentEnrolled) { // 단일 게시글 조회
 
             return PostResponse.builder()
                     .id(post.getPostId())
@@ -91,7 +95,7 @@ public class PostDto {
                     .startAt(post.getStartAt())
                     .endAt(post.getEndAt())
                     .capacity(post.getCapacity())
-                    .currentEnrolled(post.getCurrentEnrolled())
+                    .currentEnrolled(currentEnrolled)
                     .attachmentUrls(post.getAttachmentUrls())
                     .reservationAt(post.getReservationAt())
                     .createdAt(post.getCreatedAt())
@@ -140,10 +144,18 @@ public class PostDto {
 
         // 전체 게시글 조회
         public static PostListResponse from(Post post) {
-            return from(post, null, null);
+            return from(post, null, null, post.getCurrentEnrolled());
         }
 
         public static PostListResponse from(Post post, LocalDateTime scheduledAt, LocalDateTime scheduleEndAt) {
+            return from(post, scheduledAt, scheduleEndAt, post.getCurrentEnrolled());
+        }
+
+        public static PostListResponse from(
+                Post post,
+                LocalDateTime scheduledAt,
+                LocalDateTime scheduleEndAt,
+                Integer currentEnrolled) {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime start = post.getStartAt();
             LocalDateTime end = post.getEndAt();
@@ -172,7 +184,7 @@ public class PostDto {
                     .startAt(post.getStartAt())
                     .endAt(post.getEndAt())
                     .capacity(post.getCapacity())
-                    .currentEnrolled(post.getCurrentEnrolled())
+                    .currentEnrolled(currentEnrolled)
                     .scheduledAt(scheduledAt)
                     .scheduleEndAt(scheduleEndAt)
                     .updatedAt(post.getUpdatedAt())

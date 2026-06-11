@@ -8,6 +8,7 @@ import {
   stringifyAttachmentUrls,
   BOARD_UI_TO_POST_TYPE,
   dateOnlyToLocalDateTimeString,
+  datetimeLocalToKstApiString,
 } from '../../utils/boardUtils';
 import { useAuth } from '../../contexts/AutoContext.jsx';
 import Header from '../../components/common/Header';
@@ -49,8 +50,6 @@ const resolveStatus = (publishType, isDraft) => {
   if (publishType === 'SCHEDULED') return POST_STATUS.RESERVE;
   return POST_STATUS.ACTIVE;
 };
-
-const emptyToNull = (v) => (v === '' || v == null ? null : v);
 
 /**
  * 게시글 작성 페이지
@@ -129,7 +128,7 @@ const BoardCreatePage = () => {
       isPinned: panelState.isPinned,
       reservationAt:
         panelState.publishType === 'SCHEDULED'
-          ? emptyToNull(panelState.reservationAt)
+          ? datetimeLocalToKstApiString(panelState.reservationAt)
           : null,
       ...(postType === 'NOTICE' && {
         targetRoles: stringifyTargetRoles(panelState.targetRoles),

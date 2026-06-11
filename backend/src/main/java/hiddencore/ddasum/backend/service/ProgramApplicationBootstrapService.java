@@ -12,6 +12,7 @@ import hiddencore.ddasum.backend.domain.Document;
 import hiddencore.ddasum.backend.domain.Document.DocumentStatus;
 import hiddencore.ddasum.backend.domain.Document.DocumentType;
 import hiddencore.ddasum.backend.config.GuardianProgramDemoGuard;
+import hiddencore.ddasum.backend.config.ProgramDemoConstants;
 import hiddencore.ddasum.backend.domain.Facility;
 import hiddencore.ddasum.backend.domain.GuardianPatient;
 import hiddencore.ddasum.backend.domain.Patient;
@@ -66,6 +67,9 @@ public class ProgramApplicationBootstrapService {
         if (post == null || post.getType() != PostType.APPLY) {
             return;
         }
+        if (!ProgramDemoConstants.isOrigamiProgram(post.getTitle())) {
+            return;
+        }
 
         Long facilityId = post.getFacilityId().getFacilityId();
         int existing = postApplicationRepository.findManagementApplications(facilityId, post.getPostId()).size();
@@ -109,12 +113,6 @@ public class ProgramApplicationBootstrapService {
         int confirmedCount = postApplicationRepository.countByPostId_PostIdAndStatus(
                 post.getPostId(), PostApplicationStatus.COMPLETED);
         postService.syncCurrentEnrolled(post, confirmedCount);
-
-        Integer display = post.getCurrentEnrolled();
-        if (display != null && display > confirmedCount) {
-            post.setCurrentEnrolled(display);
-            postRepository.save(post);
-        }
     }
 
     private static int resolveTargetCount(Post post, int existing) {
@@ -197,6 +195,7 @@ public class ProgramApplicationBootstrapService {
             return links.get(0).getGuardianUserId();
         }
         return fallbackGuardian != null && fallbackGuardian.getRole() == UsersRole.GUARDIAN
+                && !GuardianProgramDemoGuard.isDemoGuardian(fallbackGuardian)
                 ? fallbackGuardian
                 : null;
     }

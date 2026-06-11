@@ -14,16 +14,19 @@ import hiddencore.ddasum.backend.domain.Facility;
 import hiddencore.ddasum.backend.domain.Post;
 import hiddencore.ddasum.backend.domain.Post.PostStatus;
 import hiddencore.ddasum.backend.domain.Post.PostType;
+import hiddencore.ddasum.backend.domain.PostApplication.PostApplicationStatus;
 import hiddencore.ddasum.backend.domain.Schedule;
 import hiddencore.ddasum.backend.domain.Schedule.ScheduleType;
 import hiddencore.ddasum.backend.domain.Users;
 import hiddencore.ddasum.backend.repository.FacilityRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
+import hiddencore.ddasum.backend.repository.PostApplicationRepository;
 import hiddencore.ddasum.backend.repository.PostRepository;
 import hiddencore.ddasum.backend.repository.ScheduleRepository;
+import hiddencore.ddasum.backend.service.PostService;
 
 /**
- * 프로그램 게시판(APPLY) 모집 현황 더미 — 기동 시 기존 글도 보강 (SQL 미실행 환경 대비).
+ * 프로그램 게시판(APPLY) 모집 기간·정원 설정. current_enrolled 는 확정 신청 수와 동기화.
  */
 @Configuration
 public class ProgramRecruitmentSeeder {
@@ -36,6 +39,8 @@ public class ProgramRecruitmentSeeder {
             FacilityRepository facilityRepository,
             MemberRepository memberRepository,
             PostRepository postRepository,
+            PostApplicationRepository postApplicationRepository,
+            PostService postService,
             ScheduleRepository scheduleRepository) {
         return args -> {
             Facility facility = facilityRepository.findByFacilityCode(DEMO_FACILITY_CODE).orElse(null);
@@ -60,67 +65,65 @@ public class ProgramRecruitmentSeeder {
             List<Post> applyPosts = postRepository.findAllByFacilityAndType(
                     facility.getFacilityId(), PostType.APPLY, all);
 
-            int[][] quota = {{20, 14}, {15, 9}, {18, 12}, {10, 7}, {30, 3}};
-            for (int i = 0; i < applyPosts.size(); i++) {
-                Post p = applyPosts.get(i);
-                int cap = quota[i % quota.length][0];
-                int enrolled = quota[i % quota.length][1];
-                // 데모: 모집 현황·기간이 비어 있거나 신청 0명이면 매 기동 시 보강
-                boolean needsPatch = p.getCapacity() == null
-                        || p.getStartAt() == null
-                        || p.getEndAt() == null
-                        || p.getCurrentEnrolled() == null
-                        || p.getCurrentEnrolled() <= 0;
-
-                if (needsPatch) {
-                    p.setCapacity(cap);
-                    p.setCurrentEnrolled(enrolled);
-                    if (i % 3 == 0) {
-                        p.setStartAt(now.minusDays(5));
-                        p.setEndAt(now.plusDays(20));
-                    } else if (i % 3 == 1) {
-                        p.setStartAt(now.plusDays(10));
-                        p.setEndAt(now.plusDays(35));
-                    } else {
-                        p.setStartAt(now.minusDays(45));
-                        p.setEndAt(now.minusDays(10));
+            for (Post p : applyPosts) {
+                if (ProgramDemoConstants.isOrigamiProgram(p.getTitle())) {
+                    ensureRecruitmentDates(p, now);
+                    if (p.getCapacity() == null) {
+                        p.setCapacity(20);
                     }
                     if (p.getStatus() == null) {
                         p.setStatus(PostStatus.ACTIVE);
                     }
                     postRepository.save(p);
                     ensureProgramSchedule(scheduleRepository, facility, author, p, now);
+                } else {
+                    if (p.getCapacity() == null) {
+                        p.setCapacity(ProgramDemoConstants.DEFAULT_CAPACITY);
+                    }
+                    ensureRecruitmentDates(p, now);
+                    if (p.getStatus() == null) {
+                        p.setStatus(PostStatus.ACTIVE);
+                    }
+                    postRepository.save(p);
+                    ensureProgramSchedule(scheduleRepository, facility, author, p, now);
                 }
+                syncEnrolledFromApplications(p, postApplicationRepository, postService);
             }
 
             if (applyPosts.size() < 4) {
                 insertIfAbsent(postRepository, scheduleRepository, facility, author, now,
                         "6월 음악 치료 프로그램",
                         "어르신 인지·정서 안정을 위한 음악 치료입니다.",
-                        18, 12, now.minusDays(7), now.plusDays(14));
+                        now.minusDays(7), now.plusDays(14));
                 insertIfAbsent(postRepository, scheduleRepository, facility, author, now,
                         "7월 레크리에이션 체조",
                         "전 신체 가벼운 체조와 게임을 함께합니다.",
-                        30, 3, now.plusDays(10), now.plusDays(35));
+                        now.plusDays(10), now.plusDays(35));
                 insertIfAbsent(postRepository, scheduleRepository, facility, author, now,
                         "인지 강화 보드게임 모임",
-                        "치매 예방 보드게임 프로그램 (소규모 10명).",
-                        10, 7, now.minusDays(1), now.plusDays(21));
+                        "치매 예방 보드게임 프로그램 (소규모).",
+                        now.minusDays(1), now.plusDays(21));
             }
 
-            // 보호자 주간보고서 AI·fallback 추천용 인지 프로그램 (항상 모집 중으로 보강)
             ensureRecruitingProgram(postRepository, scheduleRepository, facility, author, now,
                     "나만의 추억 앨범 만들기",
                     "알츠하이머·치매 환자 대상 추억 회상·앨범 제작 인지 프로그램.",
-                    12, 5, now.minusDays(2), now.plusDays(28));
+                    now.minusDays(2), now.plusDays(28));
             ensureRecruitingProgram(postRepository, scheduleRepository, facility, author, now,
                     "숫자 카드 순서 맞추기",
                     "경도 인지 저하 환자를 위한 순서·기억 훈련 프로그램.",
-                    10, 4, now.minusDays(1), now.plusDays(25));
+                    now.minusDays(1), now.plusDays(25));
         };
     }
 
-    /** 제목이 있으면 모집 기간·정원을 갱신(만료 방지), 없으면 생성 */
+    private static void ensureRecruitmentDates(Post p, LocalDateTime now) {
+        if (p.getStartAt() != null && p.getEndAt() != null) {
+            return;
+        }
+        p.setStartAt(now.minusDays(5));
+        p.setEndAt(now.plusDays(20));
+    }
+
     private static void ensureRecruitingProgram(
             PostRepository postRepository,
             ScheduleRepository scheduleRepository,
@@ -129,8 +132,6 @@ public class ProgramRecruitmentSeeder {
             LocalDateTime now,
             String title,
             String content,
-            int capacity,
-            int enrolled,
             LocalDateTime recruitStart,
             LocalDateTime recruitEnd) {
         Post existing =
@@ -142,8 +143,9 @@ public class ProgramRecruitmentSeeder {
         if (existing != null) {
             existing.setContent(content);
             existing.setStatus(PostStatus.ACTIVE);
-            existing.setCapacity(capacity);
-            existing.setCurrentEnrolled(enrolled);
+            if (existing.getCapacity() == null) {
+                existing.setCapacity(ProgramDemoConstants.DEFAULT_CAPACITY);
+            }
             existing.setStartAt(recruitStart);
             existing.setEndAt(recruitEnd);
             postRepository.save(existing);
@@ -158,8 +160,6 @@ public class ProgramRecruitmentSeeder {
                 now,
                 title,
                 content,
-                capacity,
-                enrolled,
                 recruitStart,
                 recruitEnd);
     }
@@ -172,8 +172,6 @@ public class ProgramRecruitmentSeeder {
             LocalDateTime now,
             String title,
             String content,
-            int capacity,
-            int enrolled,
             LocalDateTime recruitStart,
             LocalDateTime recruitEnd) {
         boolean exists = postRepository.findAllByFacility(facility.getFacilityId(), PageRequest.of(0, 500))
@@ -194,10 +192,19 @@ public class ProgramRecruitmentSeeder {
                 .views(20)
                 .startAt(recruitStart)
                 .endAt(recruitEnd)
-                .capacity(capacity)
-                .currentEnrolled(enrolled)
+                .capacity(ProgramDemoConstants.DEFAULT_CAPACITY)
+                .currentEnrolled(0)
                 .build());
         ensureProgramSchedule(scheduleRepository, facility, author, post, now);
+    }
+
+    private static void syncEnrolledFromApplications(
+            Post post,
+            PostApplicationRepository postApplicationRepository,
+            PostService postService) {
+        int confirmed = postApplicationRepository.countByPostId_PostIdAndStatus(
+                post.getPostId(), PostApplicationStatus.COMPLETED);
+        postService.syncCurrentEnrolled(post, confirmed);
     }
 
     private static void ensureProgramSchedule(
@@ -230,3 +237,4 @@ public class ProgramRecruitmentSeeder {
         }
     }
 }
+
