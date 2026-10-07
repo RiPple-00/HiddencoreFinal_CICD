@@ -16,6 +16,7 @@ import hiddencore.ddasum.backend.domain.Patient;
 import hiddencore.ddasum.backend.repository.GuardianPatientRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
 import hiddencore.ddasum.backend.security.JwtService;
+import hiddencore.ddasum.backend.security.TokenStore;
 
 import java.util.List;
 import hiddencore.ddasum.backend.web.dto.auth.GuardianLoginRequest;
@@ -32,6 +33,7 @@ public class GuardianAccountService {
     private final GuardianPatientRepository guardianPatientRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenStore tokenStore;
 
     @Transactional
     public void signup(GuardianSignupRequest request) {
@@ -77,6 +79,7 @@ public class GuardianAccountService {
 
         Long facilityPk = resolveGuardianFacilityId(user.getUserId());
         String token = jwtService.createAccessToken(user.getUserId(), user.getRole().name(), facilityPk);
+        tokenStore.store(token);
         return GuardianLoginResponse.builder()
                 .accessToken(token)
                 .role(user.getRole())

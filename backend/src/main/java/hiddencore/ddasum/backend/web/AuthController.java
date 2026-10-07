@@ -1,5 +1,6 @@
 package hiddencore.ddasum.backend.web;
 
+import hiddencore.ddasum.backend.security.TokenStore;
 import hiddencore.ddasum.backend.service.MemberService;
 import hiddencore.ddasum.backend.web.dto.MemberDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ public class AuthController {
     
     //DI
     private final MemberService memberService;
+    private final TokenStore tokenStore;
 
     //회원가입
     @Operation(summary = "회원가입", description = "새로운 회원을 등록합니다.")
@@ -45,7 +48,19 @@ public class AuthController {
         MemberDto.LoginResponse response = memberService.login(request);
         return ResponseEntity.ok(response);  //200
     }
-    
+
+    //로그아웃 — 제시한 토큰을 Redis 화이트리스트에서 제거하여 즉시 무효화
+    @Operation(summary = "로그아웃", description = "현재 액세스 토큰을 무효화합니다.")
+    @ApiResponse(responseCode = "204", description = "로그아웃 성공")
+    @PostMapping("/logout")   //http://localhost:8080/api/auth/logout
+    public ResponseEntity<Void> logout(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            tokenStore.revoke(authHeader.substring(7).trim());
+        }
+        return ResponseEntity.noContent().build();  //204
+    }
+
 
     // 사용자명 중복 체크
     @Operation(summary = "사용자명 중복 체크", description =  "사용자명 사용 가능 여부를 확인합니다.")

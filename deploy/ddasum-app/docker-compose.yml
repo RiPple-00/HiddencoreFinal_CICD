@@ -1,5 +1,17 @@
 # APP 서버 — Spring Boot (동적 배포: GitHub Actions → docker compose)
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: ddasum-redis
+    restart: unless-stopped
+    # 토큰 화이트리스트 전용 (TTL 로 자동 만료). 영속화 불필요 — 재시작 시 전원 재로그인.
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
   backend:
     build:
       context: ../../backend
@@ -7,6 +19,9 @@ services:
     image: ddasum-backend:latest
     container_name: ddasum-backend
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "8080:8080"
     env_file:
@@ -17,6 +32,8 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: cloud
       SERVER_PORT: "8080"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
       APP_GALLERY_UPLOAD_DIR: /data/ddasum/uploads
       APP_GALLERY_FACE_AI_HOME: /ai/dasum-face-ai-test
       APP_GALLERY_AI_SERVER_HOME: /ai/ai-server

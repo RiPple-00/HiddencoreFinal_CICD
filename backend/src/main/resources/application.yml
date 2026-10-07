@@ -7,6 +7,11 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:local}
   application:
     name: ddasum
+  data:
+    redis:
+      # 인증 토큰 화이트리스트/로그아웃 저장소 (운영은 REDIS_HOST/REDIS_PORT 로 덮어쓰기)
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   datasource:
     # 실제 비밀번호는 application-local.yml 또는 환경 변수 MYSQL_PASSWORD 로 설정
     url: ${MYSQL_URL:jdbc:mysql://localhost:3306/ddasum?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci}

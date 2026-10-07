@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final TokenStore tokenStore;
 
     @Override
     protected void doFilterInternal(
@@ -36,6 +37,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = header.substring(7).trim();
         try {
             Claims claims = jwtService.parseClaims(token);
+            if (!tokenStore.isValid(token)) {
+                // Signed but revoked (logout) or no longer whitelisted: reject like any invalid token.
+                throw new JwtException("token is not active");
+            }
             long userId = Long.parseLong(claims.getSubject());
             String role = claims.get("role", String.class);
             Long facilityId = jwtService.extractFacilityIdOrNull(claims);
