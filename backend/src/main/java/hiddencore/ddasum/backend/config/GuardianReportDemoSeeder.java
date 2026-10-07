@@ -2,8 +2,12 @@ package hiddencore.ddasum.backend.config;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -37,8 +41,8 @@ import lombok.extern.slf4j.Slf4j;
 public class GuardianReportDemoSeeder {
 
     private static final long DEMO_PATIENT_ID = DemoPatientConstants.KIM_PATIENT_ID;
-    private static final LocalDate WEEK_START = LocalDate.of(2026, 6, 1);
-    private static final LocalDate WEEK_END = LocalDate.of(2026, 6, 7);
+    /** 케어체크 더미의 시작점 — 여기서부터 오늘까지 매일 연속으로 채운다. */
+    private static final LocalDate SERIES_START = LocalDate.of(2026, 6, 1);
 
     @Bean
     @Order(21)
@@ -69,17 +73,24 @@ public class GuardianReportDemoSeeder {
             Patient patient,
             CaregiverCareCheckRepository careCheckRepository,
             ObjectMapper objectMapper) throws JsonProcessingException {
-        List<Document> existing =
-                careCheckRepository.findAllByPatientAndDateRange(
-                        patient.getPatientId(), WEEK_START, WEEK_END);
-        if (!existing.isEmpty()) {
-            log.info("[GuardianReportDemoSeeder] CARE_CHECK {}건 이미 존재 — 스킵", existing.size());
-            return;
-        }
+        LocalDate today = LocalDate.now();
+        // 시작점부터 오늘까지의 기존 기록 날짜 집합 — 빠진 날짜만 채워 재실행해도 중복되지 않는다.
+        Set<LocalDate> existingDates =
+                careCheckRepository
+                        .findAllByPatientAndDateRange(patient.getPatientId(), SERIES_START, today)
+                        .stream()
+                        .map(Document::getRecordDate)
+                        .collect(Collectors.toCollection(HashSet::new));
 
-        LocalDate cursor = WEEK_START;
-        int dayIndex = 0;
-        while (!cursor.isAfter(WEEK_END)) {
+        int created = 0;
+        LocalDate cursor = SERIES_START;
+        while (!cursor.isAfter(today)) {
+            if (existingDates.contains(cursor)) {
+                cursor = cursor.plusDays(1);
+                continue;
+            }
+            // 요일별 정상/이상 패턴을 7일 주기로 반복 (기존 buildDayContent 재사용).
+            int dayIndex = (int) (ChronoUnit.DAYS.between(SERIES_START, cursor) % 7);
             CaregiverCareCheckDto.Content content = buildDayContent(dayIndex);
             Status overall = isContentAbnormal(content) ? Status.ABNORMAL : Status.NORMAL;
             String json = objectMapper.writeValueAsString(content);
@@ -100,20 +111,29 @@ public class GuardianReportDemoSeeder {
                             .updatedAt(ts)
                             .build();
             careCheckRepository.save(doc);
+            created += 1;
             cursor = cursor.plusDays(1);
-            dayIndex += 1;
         }
-        log.info("[GuardianReportDemoSeeder] CARE_CHECK 7건 생성 ({} ~ {})", WEEK_START, WEEK_END);
+        if (created > 0) {
+            log.info("[GuardianReportDemoSeeder] CARE_CHECK {}건 생성 ({} ~ {})", created, SERIES_START, today);
+        } else {
+            log.info("[GuardianReportDemoSeeder] CARE_CHECK 최신 상태 — 추가 없음");
+        }
     }
 
     private void seedMedicationsIfMissing(
             Patient patient,
             MemberRepository memberRepository,
             MedicationRepository medicationRepository) {
+        LocalDate today = LocalDate.now();
         List<Medication> existing =
                 medicationRepository.findByPatientId_PatientIdOrderByPrescriptionDateDesc(patient.getPatientId());
-        if (!existing.isEmpty()) {
-            log.info("[GuardianReportDemoSeeder] MEDICATION {}건 이미 존재 — 스킵", existing.size());
+        // 현재 복용 중(만료 전)인 처방이 이미 있으면 스킵. 과거의 만료 처방만 있으면 최신 활성 처방을 추가한다.
+        boolean hasActive =
+                existing.stream()
+                        .anyMatch(m -> m.getEndDate() != null && !m.getEndDate().isBefore(today));
+        if (hasActive) {
+            log.info("[GuardianReportDemoSeeder] 활성 MEDICATION 이미 존재 — 스킵");
             return;
         }
 
@@ -130,10 +150,10 @@ public class GuardianReportDemoSeeder {
                 Medication.builder()
                         .patientId(patient)
                         .guardianId(guardian)
-                        .prescriptionDate(LocalDate.of(2026, 5, 28))
+                        .prescriptionDate(today.minusDays(30))
                         .medicationName("혈압·당뇨 복합 처방")
-                        .startDate(LocalDate.of(2026, 5, 28))
-                        .endDate(LocalDate.of(2026, 6, 27))
+                        .startDate(today.minusDays(30))
+                        .endDate(today.plusDays(30))
                         .doctorUserId(doctor)
                         .qrRawData("DEMO-QR-KIM-001")
                         .medicineSummary("암로디핀, 메트포르민")
@@ -171,10 +191,10 @@ public class GuardianReportDemoSeeder {
                 Medication.builder()
                         .patientId(patient)
                         .guardianId(guardian)
-                        .prescriptionDate(LocalDate.of(2026, 6, 3))
+                        .prescriptionDate(today.minusDays(10))
                         .medicationName("소화·영양 보조 처방")
-                        .startDate(LocalDate.of(2026, 6, 3))
-                        .endDate(LocalDate.of(2026, 6, 23))
+                        .startDate(today.minusDays(10))
+                        .endDate(today.plusDays(20))
                         .doctorUserId(doctor)
                         .qrRawData("DEMO-QR-KIM-002")
                         .medicineSummary("판토프라졸, 종합비타민")
