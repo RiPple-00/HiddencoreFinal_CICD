@@ -140,6 +140,7 @@
   },
   "login": {
     "title": "따숨 Login",
+    "demo_hint": "A demo account is pre-filled. Just tap Login to explore.",
     "tab_guardian": "Guardian",
     "tab_caregiver": "Caregiver",
     "id_placeholder": "User ID",

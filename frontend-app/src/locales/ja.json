@@ -140,6 +140,7 @@
   },
   "login": {
     "title": "따숨 ログイン",
+    "demo_hint": "デモアカウントが入力済みです。そのままログインしてお試しください。",
     "tab_guardian": "保護者",
     "tab_caregiver": "介護士",
     "id_placeholder": "ユーザーID",

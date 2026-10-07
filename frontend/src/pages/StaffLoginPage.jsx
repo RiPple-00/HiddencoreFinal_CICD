@@ -6,6 +6,11 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import { useAuth } from '../contexts/AutoContext.jsx';
 
+const DEMO_ACCOUNTS = [
+    { label: '원무', employeeLoginId: '1120010101' },
+    { label: '의사', employeeLoginId: '2120010101' },
+];
+
 export default function StaffLoginPage() {
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -17,6 +22,12 @@ export default function StaffLoginPage() {
     });
     const [errors, setErrors] = useState({});
 
+    const fillDemoAccount = (employeeLoginId) => {
+        // Public demo credentials, intentionally shown on screen for visitors to explore the app.
+        setForm({ facilityCode: '12345678', employeeLoginId, password: 'office123!' }); // NOSONAR
+        setErrors({});
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
@@ -25,10 +36,10 @@ export default function StaffLoginPage() {
 
     const validate = () => {
         const next = {};
-        if (!form.facilityCode || form.facilityCode.length !== 8) {
+        if (form.facilityCode?.length !== 8) {
             next.facilityCode = '시설코드 8자리를 입력해주세요.';
         }
-        if (!form.employeeLoginId || form.employeeLoginId.length !== 10) {
+        if (form.employeeLoginId?.length !== 10) {
             next.employeeLoginId = '직원 ID 10자리를 입력해주세요.';
         }
         if (!form.password) next.password = '비밀번호를 입력해주세요.';
@@ -109,6 +120,26 @@ export default function StaffLoginPage() {
                         {loading ? '로그인 중...' : '로그인'}
                     </Button>
                 </form>
+
+                <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-sm font-semibold text-slate-700">데모 계정으로 둘러보기</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                        시설코드 <span className="font-mono font-semibold">12345678</span> · 비밀번호{' '}
+                        <span className="font-mono font-semibold">office123!</span>
+                    </p>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                        {DEMO_ACCOUNTS.map((acc) => (
+                            <button
+                                key={acc.employeeLoginId}
+                                type="button"
+                                onClick={() => fillDemoAccount(acc.employeeLoginId)}
+                                className="rounded-md border border-slate-300 bg-white py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                            >
+                                {acc.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );
