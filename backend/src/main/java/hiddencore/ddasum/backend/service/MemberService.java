@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import hiddencore.ddasum.backend.domain.Users;
 import hiddencore.ddasum.backend.repository.MemberRepository;
 import hiddencore.ddasum.backend.security.JwtService;
+import hiddencore.ddasum.backend.security.TokenStore;
 import hiddencore.ddasum.backend.web.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenStore tokenStore;
 
     // ═══════════════════════════════════════════════════════════
     // 회원가입
@@ -70,6 +72,7 @@ public class MemberService {
 
         Long facilityPk = users.getFacilityId() != null ? users.getFacilityId().getFacilityId() : null;
         String jwt = jwtService.createAccessToken(users.getUserId(), users.getRole().name(), facilityPk);
+        tokenStore.store(jwt);
 
         return MemberDto.LoginResponse.builder()
                 .token(jwt)

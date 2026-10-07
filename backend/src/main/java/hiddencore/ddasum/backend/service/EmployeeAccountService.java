@@ -16,6 +16,7 @@ import hiddencore.ddasum.backend.domain.Users.UsersStatus;
 import hiddencore.ddasum.backend.repository.FacilityRepository;
 import hiddencore.ddasum.backend.repository.MemberRepository;
 import hiddencore.ddasum.backend.security.JwtService;
+import hiddencore.ddasum.backend.security.TokenStore;
 import hiddencore.ddasum.backend.security.StaffLoginIdCodec;
 import hiddencore.ddasum.backend.service.mail.EmployeeCredentialMailService;
 import hiddencore.ddasum.backend.web.dto.admin.AdminEmployeeCreateRequest;
@@ -35,6 +36,7 @@ public class EmployeeAccountService {
     private final FacilityRepository facilityRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenStore tokenStore;
     private final EmployeeCredentialMailService employeeCredentialMailService;
 
     @Transactional
@@ -135,6 +137,7 @@ public class EmployeeAccountService {
 
         Long facilityPk = user.getFacilityId() != null ? user.getFacilityId().getFacilityId() : null;
         String token = jwtService.createAccessToken(user.getUserId(), user.getRole().name(), facilityPk);
+        tokenStore.store(token);
         return EmployeeLoginResponse.builder()
                 .id(user.getUserId())
                 .username(user.getName())
