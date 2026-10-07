@@ -116,6 +116,10 @@ export default function GuardianLoginPage({ navigation }) {
         })}
       </View>
 
+      <Text className="text-center text-xs text-guardian-text-neutral opacity-70 mb-3">
+        {t('login.demo_hint')}
+      </Text>
+
       {isGuardian ? (
         <>
           <TextInput
