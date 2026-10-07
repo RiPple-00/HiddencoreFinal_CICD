@@ -24,6 +24,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check required secrets
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          APP_HOST: ${{ secrets.APP_HOST }}
+          MYSQL_URL: ${{ secrets.MYSQL_URL }}
+          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: |
+          missing=()
+          for name in DEPLOY_SSH_KEY DEPLOY_USER APP_HOST MYSQL_URL MYSQL_USERNAME MYSQL_PASSWORD JWT_SECRET; do
+            [ -z "${!name}" ] && missing+=("$name")
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Missing required secrets for the 'production' environment: ${missing[*]}"
+            echo "Set them under Settings > Environments > production (or as repo secrets)."
+            exit 1
+          fi
+
       - name: Setup SSH
         run: |
           install -m 700 -d ~/.ssh

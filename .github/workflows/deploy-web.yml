@@ -19,6 +19,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check required secrets
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          WEB_HOST: ${{ secrets.WEB_HOST }}
+        run: |
+          missing=()
+          for name in DEPLOY_SSH_KEY DEPLOY_USER WEB_HOST; do
+            [ -z "${!name}" ] && missing+=("$name")
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Missing required secrets for the 'production' environment: ${missing[*]}"
+            echo "Set them under Settings > Environments > production (or as repo secrets)."
+            exit 1
+          fi
+
       - name: Setup SSH
         run: |
           install -m 700 -d ~/.ssh
