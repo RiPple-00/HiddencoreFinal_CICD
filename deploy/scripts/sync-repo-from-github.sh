@@ -2,11 +2,13 @@
 # GitHub Actions / 서버에서 master(또는 지정 브랜치) tarball 동기화
 set -euo pipefail
 BRANCH="${1:-master}"
+# Deploy from this repo by default; override with REPO_SLUG for a fork/rename.
+REPO_SLUG="${REPO_SLUG:-RiPple-00/HiddencoreFinal_CICD}"
 REPO="${HOME}/ddasum-repo"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-curl -fsSL "https://codeload.github.com/RiPple-00/HiddencoreFinal/tar.gz/${BRANCH}" -o "$TMP/repo.tgz"
+curl -fsSL "https://codeload.github.com/${REPO_SLUG}/tar.gz/${BRANCH}" -o "$TMP/repo.tgz"
 tar -xzf "$TMP/repo.tgz" -C "$TMP"
 ARCHIVE_DIR="$(ls -1 "$TMP" | head -1)"
 
