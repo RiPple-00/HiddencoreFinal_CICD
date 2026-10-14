@@ -341,5 +341,26 @@
       "REQUESTED": "受付済み",
       "DRAFT": "作成中"
     }
+  },
+  "visit": {
+    "title": "面会申請",
+    "subtitle": "面会を申請し、承認・却下の結果を確認できます。",
+    "tab_apply": "面会申請",
+    "tab_applications": "申請履歴",
+    "empty_applications": "申請した面会はありません。",
+    "loading": "読み込み中...",
+    "default_type": "面会",
+    "detail_datetime": "面会日時",
+    "detail_patient": "対象患者",
+    "detail_visitor": "申請者",
+    "detail_status": "状態",
+    "detail_applied_date": "申請日",
+    "reject_reason": "却下理由",
+    "status": {
+      "PENDING_APPROVAL": "承認待ち",
+      "APPROVED": "承認済み",
+      "REJECTED": "却下",
+      "CANCELLED": "取消済み"
+    }
   }
 }
