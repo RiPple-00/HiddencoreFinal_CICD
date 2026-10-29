@@ -18,7 +18,7 @@ EPOCHS = 30
 
 def train_and_evaluate():
     weights_dir = ROOT / "runs" / "classify" / "program_action_cls" / "weights"
-    model = YOLO(str(ROOT / "yolov8n-cls.pt"))
+    model = YOLO("yolov8n-cls.pt")
     model.train(
         data=str(DST),
         epochs=EPOCHS,
